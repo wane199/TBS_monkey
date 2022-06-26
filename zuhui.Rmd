@@ -1,0 +1,38 @@
+---
+title: "组会汇报"
+subtitle: ""
+author: "Huanhua Wu"
+institute: "PET/CT-MRI, JNU"
+date: '06-27-2022'
+# date: '`r Sys.Date()`'
+output:
+  xaringan::moon_reader:
+    css: xaringan-themer.css
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+## First
+98例MRI阴性图像(MRIneg dataset)预处理及标签文件创建；
+
+## Second 
+复发预测模型文章撰写；
+
+## Third
+数据预处理到模型部署的pipeline梳理。
+---
+![A wide image with a diagram of MRI dataset.](./Rplot.png)
+---
+![A pipeline of Pycaret](./image.png)
+---
+class: center, middle
+
+# THANKS!
+
+Slides created via the R packages:
+
+[**xaringan**](https://github.com/yihui/xaringan)<br>
+[gadenbuie/xaringanthemer](https://github.com/gadenbuie/xaringanthemer).
+
