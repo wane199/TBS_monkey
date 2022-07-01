@@ -1,9 +1,9 @@
 ---
-title: "组会汇报"
+title: "Team Seminar Weekly"
 subtitle: ""
 author: "Huanhua Wu"
 institute: "PET/CT-MRI, JNU"
-date: '06-27-2022'
+date: '07-04-2022'
 # date: '`r Sys.Date()`'
 output:
   xaringan::moon_reader:
@@ -14,6 +14,40 @@ output:
       highlightLines: true
       countIncrementalSlides: false
 ---
+# 吴环华工作汇报0704
+## First
+98例MRI阴性图像(MRIneg dataset)预处理及标签文件创建；
+
+## Second 
+复发预测模型文章撰写；
+
+## Third
+
+---
+
+## AAL116 Nets
+
+.pull-left[
+CN
+![A pipeline of Pycaret](./matrix1.png)
+
+![AAL116](./Picture1net.png)
+
+]
+
+.pull-right[
+EP
+![A pipeline of Pycaret](./matrix2.png)
+
+![A GitHub Octocat, style "dinotcat"](./Picture2net.png)
+]
+---
+![A pipeline of Pycaret](./map.png)
+---
+---
+---
+# 吴环华工作汇报0627
+
 ## First
 98例MRI阴性图像(MRIneg dataset)预处理及标签文件创建；
 
