@@ -15,14 +15,26 @@ output:
       countIncrementalSlides: false
 ---
 # 吴环华工作汇报0704
+
+--
 ## First
 98例MRI阴性图像(MRIneg dataset)预处理及标签文件创建；
 
+--
 ## Second 
 复发预测模型文章撰写；
 
+--
 ## Third
 
+???
+[xaringan of Rmarkdown to  render PPT](https://www.jianshu.com/p/222676cf2054)
+
+xaringan::inf_mr() preview
+
+Rmarkdown: $^{18}$F-FDG
+
+overleaf: \ce{^{18}F-FDG}
 ---
 
 ## AAL116 Nets
