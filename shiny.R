@@ -95,7 +95,7 @@ server <- function(input, output) {
     box <- plot_ly(d(), y = ~value,
                    color = ~disease, type = "box")  %>%
       layout(title = "Distribution of cases over different years",
-             yaxis = list(title=input$dataInput))
+             yaxis = list(title=input$dataInput))e
     
   })
   
