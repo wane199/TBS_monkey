@@ -161,23 +161,22 @@ tomography \sep
   
  \end{frontmatter}
 
-Please make sure that your manuscript follows the guidelines in the
-Guide for Authors of the relevant journal. It is not necessary to
-typeset your manuscript in exactly the same way as an article, unless
-you are submitting to a camera-ready copy (CRC) journal.
+China has about 10 million people with epilepsy\citep{global, china}.
 
-For detailed instructions regarding the elsevier article class, see
+For detailed instructions regarding the elsevier article class,
+see\citep{global, china}
 \url{https://www.elsevier.com/authors/policies-and-guidelines/latex-instructions}
 
 \hypertarget{bibliography-styles}{%
 \section{Bibliography styles}\label{bibliography-styles}}
 
-Here are two sample references: \citeauthor{Feynman1963118}
-\citetext{\citeyear{Feynman1963118}; \citealp{Dirac1953888}}.
+Here\citep[ \citet{deep}]{extra} are two sample references:
+\citet{Feynman1963118}.
 
-By default, natbib will be used with the \texttt{authoryear} style, set
-in \texttt{classoption} variable in YAML. You can sets extra options
-with \texttt{natbiboptions} variable in YAML header. Example
+By default, natbib will be used with the \texttt{authoryear}
+style\citep{extra}, set in \texttt{classoption} variable in YAML
+\citet{extra}. You can sets extra options with \texttt{natbiboptions}
+variable in YAML header. Example
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -204,7 +203,6 @@ and stored locally, or the url can be used as in the example header.
 \section{Equations}\label{equations}}
 
 Here is an equation:
-\(\hat y = \hat \beta_0 + \hat \beta_1 X_1 + \hat \beta_2 X_2\)
 
 \[ 
   f_{X}(x) = \left(\frac{\alpha}{\beta}\right)
@@ -214,7 +212,7 @@ Here is an equation:
 \]
 
 Here is another: \begin{align}
-  a^2+b^2=c^2.
+  AI = c^2.
 \end{align}
 
 Inline equations: \(\sum_{i = 2}^\infty\{\alpha_i^\beta\}\)

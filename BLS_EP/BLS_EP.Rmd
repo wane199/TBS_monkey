@@ -56,18 +56,15 @@ output:
     citation_package: natbib
 ---
 
-Please make sure that your manuscript follows the guidelines in the 
-Guide for Authors of the relevant journal. It is not necessary to 
-typeset your manuscript in exactly the same way as an article, 
-unless you are submitting to a camera-ready copy (CRC) journal.
+China has about 10 million people with epilepsy[@global;@china].
 
-For detailed instructions regarding the elsevier article class, see   <https://www.elsevier.com/authors/policies-and-guidelines/latex-instructions>
+For detailed instructions regarding the elsevier article class, see[@global;@china]   <https://www.elsevier.com/authors/policies-and-guidelines/latex-instructions>
 
 # Bibliography styles
 
-Here are two sample references: @Feynman1963118 [@Dirac1953888].
+Here[@extra;@deep] are two sample references: @Feynman1963118.
 
-By default, natbib will be used with the `authoryear` style, set in `classoption` variable in YAML. 
+By default, natbib will be used with the `authoryear` style[@extra], set in `classoption` variable in YAML @extra. 
 You can sets extra options with `natbiboptions` variable in YAML header. Example 
 ```yaml
 natbiboptions: longnamesfirst,angle,semicolon
@@ -85,9 +82,6 @@ and stored locally, or the url can be used as in the example header.
 # Equations
 
 Here is an equation:
-$\hat y = \hat \beta_0 + \hat \beta_1 X_1 + \hat \beta_2 X_2$
-
-
 
 $$ 
   f_{X}(x) = \left(\frac{\alpha}{\beta}\right)
@@ -98,7 +92,7 @@ $$
 
 Here is another:
 \begin{align}
-  a^2+b^2=c^2.
+  AI = c^2.
 \end{align}
 
 Inline equations: $\sum_{i = 2}^\infty\{\alpha_i^\beta\}$
