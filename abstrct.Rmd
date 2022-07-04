@@ -1,6 +1,8 @@
 ---
-title: "Untitled"
-output: word_document
+title: "摘要"
+output:
+  word_document: default
+  pdf_document: default
 date: '2022-07-04'
 ---
 
