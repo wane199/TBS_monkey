@@ -2,6 +2,7 @@
 title: "Team Seminar Weekly"
 subtitle: ""
 author: "Huanhua Wu"
+supervisor: "Hao Xu"
 institute: "PET/CT-MRI, JNU"
 date: '07-04-2022'
 # date: '`r Sys.Date()`'
