@@ -55,40 +55,25 @@ output:
     keep_tex: true
     citation_package: natbib
 ---
-
+# Abstract
 China has about 10 million people with epilepsy[@global;@china].
 
-For detailed instructions regarding the elsevier article class, see[@global;@china]   <https://www.elsevier.com/authors/policies-and-guidelines/latex-instructions>
 
-# Bibliography styles
 
-Here[@extra;@deep] are two sample references: @Feynman1963118.
+# Introduction
+To develop and validate a radiomics nomogram based on 18F-FDG PET/MRI for individualised seizure prediction after temporal lobe epilepsy surgery.
 
-By default, natbib will be used with the `authoryear` style[@extra], set in `classoption` variable in YAML @extra. 
-You can sets extra options with `natbiboptions` variable in YAML header. Example 
-```yaml
-natbiboptions: longnamesfirst,angle,semicolon
-```
+Approximately half of patients who undergo resective brain surgery for drug-resistant epilepsy have recurrent seizures after surgery[@global]. China has about 10 million people with epilepsy[@global;@china].
+Several single predictors have been identified, however, no validated method has been developed to determine a patient's seizure outcome based on their complex clinical characteristics and 18F-FDG PET/MRI radiomics signature[@jehi]. The treatment of medically intractable focal epilepsy involves resection of the brain every year. There are probably thousands of others who would benefit from the procedure, but are not referred for surgery. Due to the unpredictability of seizure outcomes after epilepsy surgery, both groups of patients face difficulties. 
 
-There are various more specific bibliography styles available at
-<https://support.stmdocs.in/wiki/index.php?title=Model-wise_bibliographic_style_files>. 
-To use one of these, add it in the header using, for example, `biblio-style: model1-num-names`.
+Radiomics is an emerging method for imaging analysis that uses algorithms or statistical tools to determine phenotypic differences between lesions. Using radiomics features, morphology and function can be sensitively evaluated beyond the naked eye and can provide a great deal of additional information.
+The radiomics features can provide a great deal of information beyond analysis with the naked eye and can sensitively determine the subtle heterogeneity of the morphology and function on a cellular level, between different parts of the lesions.
 
-## Using CSL 
+The validity of these nomograms in prospective cohort studies could help predict seizure outcomes in patients who are eligible for epilepsy surgery[@extra;@deep].
 
-If `citation_package` is set to `default` in `elsevier_article()`, then pandoc is used for citations instead of `natbib`. In this case, the `csl` option is used to format the references. Alternative `csl` files are available from <https://www.zotero.org/styles?q=elsevier>. These can be downloaded
-and stored locally, or the url can be used as in the example header.
+
 
 # Equations
-
-Here is an equation:
-
-$$ 
-  f_{X}(x) = \left(\frac{\alpha}{\beta}\right)
-  \left(\frac{x}{\beta}\right)^{\alpha-1}
-  e^{-\left(\frac{x}{\beta}\right)^{\alpha}}; 
-  \alpha,\beta,x > 0 .
-$$
 
 Here is another:
 \begin{align}
