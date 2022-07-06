@@ -116,6 +116,15 @@ pred <- model %>%
 mean((testLabels-pred)^2)
 plot(testLabels, pred)
 ```
+```{r}
+predict.table = table(, pred)
+predict.table
+
+library(e1071)
+classAgreement(predict.table)
+library(caret)
+confusionMatrix(predict.table)
+```
 
 ```{r}
 # save the model and load it
