@@ -1,6 +1,7 @@
 # Deep Neural Networks with TensorFlow & Keras in R
 # https://www.bilibili.com/video/BV13E411r7wE?spm_id_from=333.337.search-card.all.click&vd_source=23f183f0c5968777e138f31842bde0a0
 # Libraries
+rm(list = ls())
 library(keras)
 library(mlbench)
 library(dplyr)
@@ -38,7 +39,7 @@ testtarget <- data[ind==2, 1]
 
 # Normalize
 m <- colMeans(training)
-s <- apply(training, 2, sd) s
+s <- apply(training, 2, sd) 
 training <- scale(training, center = m, scale =s)
 test <- scale(test, center = m, scale =s)
 
