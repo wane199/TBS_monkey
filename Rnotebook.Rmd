@@ -83,7 +83,7 @@ legend("topleft", c("Training","Testing"), col=c("orange", "skyblue"), lty=c(1,1
 predictions <- model %>% 
             predict(test) %>% `>`(0.5) %>% k_cast("int32")
 
-table(factor(predictions[1], levels=min(testtarget):max(testtarget)),factor(testtarget, levels=min(testtarget):max(testtarget)))
+table(factor(predictions, levels=min(testtarget):max(testtarget)),factor(testtarget, levels=min(testtarget):max(testtarget)))
 ```
 ```{r}
 model <- keras_model_sequential()
