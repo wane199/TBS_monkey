@@ -58,7 +58,9 @@ plot(history)
 ```
 ```{r}
 # Evaluate
+# check accuracy of model
 model %>% evaluate(test, testLabels)
+# predicting test data
 pred <- model %>% 
   predict(test) %>% `>`(0.5) %>%  k_cast("int32")
 mean((testLabels-pred)^2)
@@ -79,12 +81,14 @@ lines(history$metrics$val_acc, col="skyblue")
 legend("topleft", c("Training","Testing"), col=c("orange", "skyblue"), lty=c(1,1))
 ```
 ```{r}
-#  confusion matrix
-predictions <- model %>% 
-            predict(test) %>% `>`(0.5) %>% k_cast("int32")
+# confusion matrix
+pred <- model %>% 
+            predict(test)
 
-table(factor(predictions, levels=min(testtarget):max(testtarget)),factor(testtarget, levels=min(testtarget):max(testtarget)))
+pred <- format(round(pred, 2), nsamll = 4)
+result <- data.frame("no"=pred[ ,1], "yes"=pred[ ,2],           "predicted" = ifelse(max.col(pred[, 1:2])==1, "no", "yes")), original = test[ ,3])
 ```
+
 ```{r}
 model <- keras_model_sequential()
 model %>% 
@@ -110,13 +114,18 @@ plot(history)
 ```
 ```{r}
 # Evaluate
+# check accuracy of model
 model %>% evaluate(test, testLabels)
+# predicting test data
 pred <- model %>% 
   predict(test) %>% `>`(0.5) %>%  k_cast("int32")
 mean((testLabels-pred)^2)
 plot(testLabels, pred)
 ```
 ```{r}
+# Confusion matrix check with a caret
+cfm=caret::confusionMatrix(result$predicted, result$original)
+print(cfm)
 predict.table = table(, pred)
 predict.table
 
