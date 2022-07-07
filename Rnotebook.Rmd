@@ -124,6 +124,7 @@ plot(testLabels, pred)
 ```
 ```{r}
 # Confusion matrix check with a caret
+# https://www.datatechnotes.com/2018/08/simple-usage-of-keras-in-r.html
 cfm=caret::confusionMatrix(result$predicted, result$original)
 print(cfm)
 predict.table = table(, pred)

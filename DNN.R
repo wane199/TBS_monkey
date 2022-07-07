@@ -104,3 +104,99 @@ plot(testtarget, pred)
 # layer_dropout(rate = 0.4) %>%
 # optimizer = optimizer_rmsprop(lr = 0.001)
 
+#################################################
+# Binary classification
+library(keras)
+# install_keras()
+
+# Read data
+data <- read.csv(file.choose(), header = T) 
+str(data)
+data <- data[,5:18]
+
+# Change to Matrix
+data <- as.matrix(data)  
+dimnames(data) <- NULL
+
+# Normalize
+data[,2:14] <- normalize(data[,2:14])
+data[,1] <- as.numeric(data[,1])
+summary(data)
+
+# Data partition
+set.seed(123)
+ind <- sample(2, nrow(data), replace = T, prob = c(0.7, 0.3))
+training <- data[ind == 1, 2:14]
+test <- data[ind == 2, 2:14]
+trainingtarget <- data[ind==1, 1]
+testtarget <- data[ind==2, 1]
+
+# One Hot Encoding
+trainLabels <- to_categorical(trainingtarget)
+testLabels <- to_categorical(testtarget)
+print(testLabels)
+
+# Create sequential model
+model <- keras_model_sequential()
+model %>% 
+  layer_dense(units = 8, activation = 'relu', input_shape = c(13)) %>%
+  layer_dense(units = 2, activation = 'sigmoid') 
+# activation: 'sigmoid' for multi-class; 'sigmoid' for binary classification 
+summary(model)
+
+# Compile
+model %>% 
+  compile(loss = 'binary_crossentropy',
+          optimizer = 'adam',
+          metrics = 'accuracy')
+
+# Fit Model
+history <- model %>%
+  fit(training,
+      trainLabels,
+      epochs = 200,
+      batch_size =32,
+      validation_split = 0.2)
+plot(history)
+
+# Evaluate model with test data
+# check accuracy of model
+model |>  
+      evaluate(test, testLabels)
+# Prediction & confusion matrix - test data 
+prob <- model %>% 
+          predict(test)
+prob = round(prob)
+# Confusion matrix
+confusion_matrix = table(prob, testLabels)
+confusion_matrix
+pred <- model %>% predict(test) %>% `>`(0.5) %>% k_cast("int32")
+pred = round(pred)
+cbind(prob, pred, testtarget)
+
+mean((testtarget-pred)^2)
+plot(testtarget, pred)
+
+# Fine-tune Model
+model1 <- keras_model_sequential()
+model1 %>% 
+  layer_dense(units = 50, activation = 'relu', input_shape = c(13)) %>%
+  layer_dropout(rate = 0.4) %>%
+  layer_dense(units = 10, activation = 'relu') %>%
+  layer_dense(units = 2, activation = 'sigmoid')
+summary(model1)
+
+# Compile
+model1 %>% 
+  compile(loss = 'binary_crossentropy',
+          optimizer = 'adam',
+          metrics = 'accuracy')
+
+# Fit Model
+history1 <- model1 %>%
+  fit(training,
+      trainLabels,
+      epochs = 200,
+      batch_size =32,
+      validation_split = 0.2)
+plot(history1)
