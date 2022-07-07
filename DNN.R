@@ -29,7 +29,11 @@ plot(n)
 data <- as.matrix(data)
 dimnames(data) <- NULL
 
-# Partition
+# Min-Max Normalization
+data$TBV.BW <- (data$TBV.BW - min(data$TBV.BW))/(max(data$TBV.BW) - min(data$TBV.BW))
+
+
+# Data Partition
 set.seed(123)
 ind <- sample(2, nrow(data), replace = T, prob = c(.7, .3))
 training <- data[ind==1, 2:6]
