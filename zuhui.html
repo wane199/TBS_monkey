@@ -30,20 +30,20 @@ class: center, middle, inverse, title-slide
 
 --
 ## First
-年会摘要投稿（基于机器学习技术）：
+年会摘要投稿(经典机器学习算法):
 
 --
 
 
-1、基于FDG PET代谢影像组学的一种新型评分系统用于颞叶癫痫术后复发预测；
+1、基于FDG PET代谢影像组学的一种新型评分系统用于颞叶癫痫术后复发预测(Coxph);
   
 --
 
-2、基于18F-FDG PET影像组学的可解释性机器学习模型预测颞叶癫痫患者术后早期复发；
+2、基于18F-FDG PET影像组学的可解释性机器学习模型预测颞叶癫痫患者术后早期复发(DT、LR、GBDT);
 
 --
 
-3、18F-FDG PET影像组学特征在颞叶癫痫患者术前诊断价值的研究。
+3、18F-FDG PET影像组学特征在颞叶癫痫患者术前诊断价值的研究(LR、NB、SVC、RF)。
 
 --
 ## Second 
@@ -52,16 +52,24 @@ MLP神经网络搭建。
 ---
 ## Third
 234例颞叶癫痫数据集(3~60 y, 23.5y)年龄分层，31例儿童患者（13.2%，3~17 y, 15.0y）
+
 ---
-![Child Bar](./child.png)
+&lt;img src="./child.png" width="90%" /&gt;
+
 ---
 ![PDP Plot](./PDP.png)
 ---
-.pull-left[Calibration Curve
-![Calibration Plot](./DCA.png)]
-.pull-right[Performance of Classifier
-![PDP Plot](./classify.png)]
+&lt;img src="./Calib.png" width="80%" /&gt;
+---
+| Classifier |  Birer loss | Log loss | Precison | Recall| F1 | AUC | 
+| :-----: |  :-----: | :-----: | :-----: |  :-----: | :-----: |
+| Logistic |  0.08 | 0.31 | 0.93 |0.94|0.93|0.89|
+| Naive Bayes|0.22 | 1.89 | 0.84 |0.79|0.81|0.72|
+| SVC|0.18 | 0.52 | 0.94 |0.93|0.93|0.90|
+| Naive Bayes|0.13 | 0.40 | 0.87 |0.85|0.86|0.78|
 
+???
+Recall: 阳性预测值/PPV或PV+
 ---
 ---
 ---
