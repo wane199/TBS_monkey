@@ -143,6 +143,8 @@ dimnames(data) <- NULL
 data[, 2:14] <- normalize(data[, 2:14])
 data[, 1] <- as.numeric(data[, 1])
 summary(data)
+# Min-Max Normalization
+data$TBV.BW <- (data$TBV.BW - min(data$TBV.BW)) / (max(data$TBV.BW) - min(data$TBV.BW))
 
 # Data partition
 set.seed(123)
