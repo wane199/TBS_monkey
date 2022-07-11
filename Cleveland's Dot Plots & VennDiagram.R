@@ -94,24 +94,24 @@ ggdotchart(df2,
 # Load library
 library(VennDiagram)
 # Generate 3 sets of 200 words
-set1 <- paste(rep("word_" , 200) , sample(c(1:1000) , 200 , replace=F) , sep="")
-set2 <- paste(rep("word_" , 200) , sample(c(1:1000) , 200 , replace=F) , sep="")
-set3 <- paste(rep("word_" , 200) , sample(c(1:1000) , 200 , replace=F) , sep="")
+set1 <- paste(rep("word_", 200), sample(c(1:1000), 200, replace = F), sep = "")
+set2 <- paste(rep("word_", 200), sample(c(1:1000), 200, replace = F), sep = "")
+set3 <- paste(rep("word_", 200), sample(c(1:1000), 200, replace = F), sep = "")
 
 # Chart
 venn.diagram(
   x = list(set1, set2, set3),
-  category.names = c("Set 1" , "Set 2 " , "Set 3"),
-  filename = '#14_venn_diagramm.png',
-  output=TRUE
+  category.names = c("Set 1", "Set 2 ", "Set 3"),
+  filename = "#14_venn_diagramm.png",
+  output = TRUE
 )
 
 # Load library
 library(VennDiagram)
 # Generate 3 sets of 200 words
-set1 <- paste(rep("word_" , 200) , sample(c(1:1000) , 200 , replace=F) , sep="")
-set2 <- paste(rep("word_" , 200) , sample(c(1:1000) , 200 , replace=F) , sep="")
-set3 <- paste(rep("word_" , 200) , sample(c(1:1000) , 200 , replace=F) , sep="")
+set1 <- paste(rep("word_", 200), sample(c(1:1000), 200, replace = F), sep = "")
+set2 <- paste(rep("word_", 200), sample(c(1:1000), 200, replace = F), sep = "")
+set3 <- paste(rep("word_", 200), sample(c(1:1000), 200, replace = F), sep = "")
 
 # Prepare a palette of 3 colors with R colorbrewer:
 library(RColorBrewer)
@@ -120,27 +120,27 @@ myCol <- brewer.pal(3, "Pastel2")
 # Chart
 venn.diagram(
   x = list(set1, set2, set3),
-  category.names = c("Set 1" , "Set 2 " , "Set 3"),
-  filename = '#14_venn_diagramm.png',
-  output=TRUE,
-  
+  category.names = c("Set 1", "Set 2 ", "Set 3"),
+  filename = "#14_venn_diagramm.png",
+  output = TRUE,
+
   # Output features
-  imagetype="png" ,
-  height = 480 , 
-  width = 480 , 
+  imagetype = "png",
+  height = 480,
+  width = 480,
   resolution = 300,
   compression = "lzw",
-  
+
   # Circles
   lwd = 2,
-  lty = 'blank',
+  lty = "blank",
   fill = myCol,
-  
+
   # Numbers
   cex = .6,
   fontface = "bold",
   fontfamily = "sans",
-  
+
   # Set names
   cat.cex = 0.6,
   cat.fontface = "bold",
@@ -151,3 +151,16 @@ venn.diagram(
   rotation = 1
 )
 
+# https://blog.csdn.net/weixin_41929524/article/details/86436232
+library(eulerr)
+
+v <- euler(c(
+  TLE = 234, MRIneg = 98, 
+  "TLE&MRIneg" = 21
+))
+plot(v,
+  fills = list(fill = c( "#b3cde3", "#fbb4ae","#ccebc5"), alpha = 0.8),
+  labels = list(col = "white", font = 6),
+  edges = FALSE,
+  quantities = TRUE
+)
