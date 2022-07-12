@@ -158,9 +158,11 @@ v <- euler(c(
   TLE = 234, MRIneg = 98, 
   "TLE&MRIneg" = 21
 ))
+
+par(cex.axis=5.0)
 plot(v,
   fills = list(fill = c( "#b3cde3", "#fbb4ae","#ccebc5"), alpha = 0.8),
-  labels = list(col = "white", font = 6),
+  labels = list(col = "white", font = 2),
   edges = FALSE,
   quantities = TRUE
 )
