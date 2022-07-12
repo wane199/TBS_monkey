@@ -1,13 +1,17 @@
 # https://rpubs.com/bambangpe/647606
 # https://blog.csdn.net/dingming001/article/details/72886841
 # dummy variables https://blog.csdn.net/qq_42458954/article/details/86694980
+# https://www.bilibili.com/video/BV1oE411d7dc?p=5&spm_id_from=333.880.my_history.page.click&vd_source=23f183f0c5968777e138f31842bde0a0
 rm(list = ls())
 library(neuralnet)
 dt <- read.csv("/media/wane/wade/EP/EPTLE_PET/PET-TLE234-radscore-RCS2.csv", header = T)
 data <- read.csv(file.choose(), header = T)
 # 进行数据的重新编码(recode), 批量分类变量转化为因子
 dt <- dt[, -1:-4]
+dt <- dt[c(5,8:10,12,17:18)]
 str(dt)
+a <- dt[-1]
+b <- dt[, -1]
 for (i in names(dt)[c(1:3, 5:13)]) {
   dt[, i] <- as.numeric(as.factor(dt[, i]))
 }
@@ -27,6 +31,9 @@ test_set <- subset(dt, split == 0)
 training_set[-1] <- scale(training_set[-1])
 test_set[-1] <- scale(test_set[-1])
 
+library(corrplot)
+corrlate <- cor(as.matrix(dt))
+corrplot.mixed(corrlate)
 # Fitting Deep Feed Forward (DFF) Neural Network (NN)
 library(h2o)
 h2o.init(nthreads = -1)
@@ -52,8 +59,8 @@ cm
 h2o.shutdown()
 Y
 
-training_set$heal <- training_set$oneyr == "0"
-training_set$frac <- training_set$oneyr == "1"
+# training_set$heal <- training_set$oneyr == "0"
+# training_set$frac <- training_set$oneyr == "1"
 attach(dt)
 n <- names(dt)
 paste(colnames(dt)[2:14], collapse = " + ")
@@ -62,28 +69,35 @@ f
 softplus <- function(x) log(1 + exp(x))
 set.seed(123)
 ## 建立全连接网络分类器
-mlpcla <- neuralnet(f, data = training_set,
-                    hidden = c(5,5), ## 隐藏层神经元数量
-                    act.fct = "logistic", ## 激活函数
-                    linear.output = FALSE,
-                    algorithm = "rprop+")
-network <- neuralnet(f,
-training_set,
-hidden = 10, threshold = 0.01
+mlpcla <- neuralnet(f,
+  data = training_set,
+  hidden = c(6, 3), ## 隐藏层神经元数量
+  act.fct = "logistic", ## 激活函数
+  err.fct = "sse",
+  linear.output = FALSE,
+  lifesign = 'full',
+  rep = 5,
+  algorithm = "rprop+"
 )
-network
+
+network <- neuralnet(f,
+  training_set,
+  hidden = 10, threshold = 0.01
+)
+
 # 输出构建好的神经网络模型的结果矩阵：
 network$result.matrix
 head(network$generalized.weights[[1]])
 network$result.matrix
 plot(network)
 plot(network,
-     col.hidden = 'darkgreen',
-     col.hidden.synapse = 'darkgreen',
-     show.weights = F,
-     information = F,
-     fill = 'lightblue')
-plotnet(network, pos_col = "red", neg_col = "grey") # NeuralNetTools
+  col.hidden = "darkgreen",
+  col.hidden.synapse = "darkgreen",
+  show.weights = F,
+  information = F,
+  fill = "lightblue"
+)
+plotnet(mlpcla, pos_col = "red", neg_col = "grey") # NeuralNetTools
 
 # gwplot函数可视化泛化权
 par(mfrow = c(2, 2)) # 2*2画布
@@ -92,39 +106,32 @@ gwplot(network, selected.covariate = "Sex")
 gwplot(network, selected.covariate = "Durmon")
 gwplot(network, selected.covariate = "SGS")
 
-testset[-5]
-net.predict <- neuralnet::compute(network, test_set)$net.result
-net.prediction <- c("1", "0")[apply(net.predict, 1, which.max)]
-predict.table <- table(test_set$oneyr, net.prediction)
-predict.table
+# Node Output Calculations with Sigmoid Activation Function
+in4
+out4 <- 1 / (1 + exp(-int4))
 
-library(e1071)
-classAgreement(predict.table)
-library(caret)
-confusionMatrix(predict.table)
-
-# Plot the neural network
-plot(network)
 # https://zhuanlan.zhihu.com/p/313525099
 ## 可视化全连接模型的网络结构
 library(NeuralNetTools)
 library(ggpol)
 par(cex = .9)
-plotnet(mlpcla,pos_col = "red", neg_col = "grey")
+plotnet(mlpcla, pos_col = "red", neg_col = "grey")
 ## 可视化模型中变量的重要性
-olden(mlpcla)+ggtitle("Variable importance using connection weights")
+olden(mlpcla) + ggtitle("Variable importance using connection weights")
 ## 可视化模型的预测效果
-mlppre <- predict(mlpcla,training_set)
+mlppre <- predict(mlpcla, training_set)
 ## 计算出预测的类别
-mlpprelab <- apply(mlppre , 1, which.max)
-## 可视化预测结果的## 可视化预测的混淆矩阵
-ggplot() + geom_confmat(aes(x = training_set$oneyr, y = mlpprelab),
-                        normalize = TRUE, text.perc = TRUE)+
-  labs(x = "Reference",y = "Prediction")+
-  scale_fill_gradient2(low="darkblue", high="lightgreen")
+mlpprelab <- apply(mlppre, 1, which.max)
+## 可视化预测的混淆矩阵
+ggplot() +
+  geom_confmat(aes(x = training_set$oneyr, y = mlpprelab),
+               normalize = TRUE, text.perc = TRUE
+  ) +
+  labs(x = "Reference", y = "Prediction") +
+  scale_fill_gradient2(low = "darkblue", high = "lightgreen")
 
 # Test the neural network on some training data
-net.results <- neuralnet::compute(network, test_set) # Run them through the neural network
+net.results <- neuralnet::compute(mlpcla, test_set) # Run them through the neural network
 # Lets see what properties net.sqrt has
 ls(net.results)
 # Lets see the results
@@ -133,6 +140,25 @@ print(net.results$net.result)
 cleanoutput <- cbind(test_set, sqrt(test_set), as.data.frame(net.results$net.result))
 colnames(cleanoutput) <- c("Input", "Expected Output", "Neural Net Output")
 print(cleanoutput)
+
+# Confusion Matrix & Misclassfucation Error -- train data/test data
+test_set[-5]
+table(test_set$oneyr)
+net.predict <- neuralnet::compute(mlpcla, test_set[, -1])$net.result
+net.predict <- neuralnet::compute(network, test_set)$net.result
+# net.prediction <- c("1", "0")[apply(net.predict, 1, which.max)]
+# net.predict <- ifelse(net.predict>0.5, 1, 0)
+# predict.table <- table(test_set$oneyr, net.prediction)
+pred2 <- ifelse(net.predict > 0.5, 1, 0)
+tab2 <- table(pred2, test_set$oneyr)
+tab2
+1 - sum(diag(tab2))/sum(tab2)
+
+library(e1071)
+classAgreement(predict.table)
+library(caret)
+confusionMatrix(predict.table)
+
 
 
 # 4.Neural Networks Classifing  https://rpubs.com/bambangpe/647606
@@ -143,19 +169,11 @@ hist(as.numeric(dt$SE))
 par(mfrow = c(3, 3))
 hist(as.numeric(data_cleaned$Cl.thickness))
 hist(as.numeric(data_cleaned$Cell.size))
-hist(as.numeric(data_cleaned$Cell.shape))
-hist(as.numeric(data_cleaned$Marg.adhesion))
-hist(as.numeric(data_cleaned$Epith.c.size))
-hist(as.numeric(data_cleaned$Bare.nuclei))
-hist(as.numeric(data_cleaned$Bl.cromatin))
-hist(as.numeric(data_cleaned$Normal.nucleoli))
-hist(as.numeric(data_cleaned$Mitoses))
 
 max_data <- apply(input, 2, max)
 min_data <- apply(input, 2, min)
 input_scaled <- as.data.frame(scale(input, center = min_data, scale = max_data - min_data))
 # View(input_scaled)
-
 
 
 
@@ -236,6 +254,7 @@ accuracy_mlp <- sum(diag(Freq_mlp)) / sum(Freq_mlp)
 accuracy_mlp
 
 
+##################################################
 # 全连接神经网络回归的相关可视化
 library(RSNNS)
 library(caret)
@@ -263,7 +282,7 @@ mlpreg <- mlp(datasplist$inputsTrain, ## 训练数据
   inputsTest = datasplist$inputsTest, ## 测试数据
   targetsTest = datasplist$targetsTest,
   metric = "RSME"
-) 
+)
 ## 评价指标
 ## 可视化模型训练过程中误差的变化情况
 plotIterativeError(mlpreg, main = "MLP Iterative Error")
@@ -367,5 +386,3 @@ plot(test$Age, pr.nn_,
   main = "Real vs Predicted"
 )
 abline(0, 1, lwd = 2)
-
-
