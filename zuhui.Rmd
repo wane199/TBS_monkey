@@ -11,6 +11,7 @@ output:
       countIncrementalSlides: false
 ---
 class: center, middle, inverse
+background-image: url("https://img.medsci.cn/2021715/1626361993479_5340239.jpeg")
 ```{r xaringan-themer, include=FALSE, warning=FALSE}
 library(xaringanthemer)
 style_mono_accent(
@@ -33,11 +34,11 @@ xaringanExtra::use_scribble()
 ```
 
 
-## Team Seminar Weekly
+.bold[## Team Seminar Weekly]
 
-Reporter: Huanhua Wu<br>
+.black[Reporter: Huanhua Wu<br>]
 
-Supervisor: Hao Xu
+.bold[Supervisor: Hao Xu]
 
 PET/CT-MRI, JNU
 
