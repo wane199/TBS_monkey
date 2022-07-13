@@ -3,7 +3,6 @@ title: "R Notebook"
 output: html_notebook
 ---
 
-[](https://heartbeat.comet.ml/binary-classification-using-keras-in-r-ef3d42202aaa)
 ```{r}
 library(keras)
 data <- read.csv('/home/wane/Desktop/EP/Structured_Data/PET-TLE234-radscore-RCS2.csv', header = T)
@@ -16,6 +15,7 @@ barplot(prop.table(table(data$oneyr)),
         xlab = 'oneyr',
         cex.names = 1.5)
 ```
+
 ```{r}
 # Data Preparation
 data <- data[c(-1:-4)]
@@ -32,6 +32,7 @@ trainLabels <- to_categorical(trainingtarget)
 testLabels <- to_categorical(testtarget)
 testLabels[1:10,]
 ```
+
 ```{r}
 # Model Architechture
 model <- keras_model_sequential()
@@ -40,6 +41,7 @@ model %>%
 # 'sigmoid' for multi-class; 'sigmoid' for binary classification 
 summary(model)
 ```
+
 ```{r}
 model %>% 
          compile(loss = 'binary_crossentropy',
@@ -56,6 +58,7 @@ history <- model %>%
               validation_split = 0.3)
 plot(history)
 ```
+
 ```{r}
 # Evaluate
 # check accuracy of model
@@ -80,6 +83,7 @@ plot(history$metrics$acc, main="Model Accuracy", xlab = "epoch", ylab="accuracy"
 lines(history$metrics$val_acc, col="skyblue")
 legend("topleft", c("Training","Testing"), col=c("orange", "skyblue"), lty=c(1,1))
 ```
+
 ```{r}
 # confusion matrix
 pred <- model %>% 
@@ -112,6 +116,7 @@ history <- model %>%
               class_weight = list("0" = 1, "1" = 7.4))
 plot(history)
 ```
+
 ```{r}
 # Evaluate
 # check accuracy of model
@@ -122,6 +127,7 @@ pred <- model %>%
 mean((testLabels-pred)^2)
 plot(testLabels, pred)
 ```
+
 ```{r}
 # Confusion matrix check with a caret
 # https://www.datatechnotes.com/2018/08/simple-usage-of-keras-in-r.html
@@ -142,4 +148,3 @@ save_model_hdf5(model, "rkerasmodel.h5")
 
 model <- load_model_hdf5("rkerasmodel.h5")
 ```
- 
