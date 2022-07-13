@@ -32,7 +32,9 @@ xaringanExtra::use_tile_view()
 ```{r xaringan-scribble, echo=FALSE}
 xaringanExtra::use_scribble()
 ```
-
+```{r xaringan-editable, echo=FALSE}
+xaringanExtra::use_editable(expires = 1)
+```
 
 .bold[## Team Seminar Weekly]
 
