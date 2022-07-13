@@ -3,29 +3,69 @@
   <head>
     <title>Team Seminar Weekly</title>
     <meta charset="utf-8" />
-    <meta name="author" content="Huanhua Wu" />
     <script src="libs/header-attrs-2.14/header-attrs.js"></script>
-    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <script src="libs/fabric-4.3.1/fabric.min.js"></script>
+    <link href="libs/xaringanExtra-scribble-0.0.1/scribble.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-scribble-0.0.1/scribble.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', function() { window.xeScribble = new Scribble({"pen_color":["#FF0000"],"pen_size":3,"eraser_size":30,"palette":[]}) })</script>
+    <link rel="stylesheet" href="gds.css" type="text/css" />
+    <link rel="stylesheet" href="gds-fonts.css" type="text/css" />
   </head>
   <body>
     <textarea id="source">
-class: center, middle, inverse, title-slide
 
-.title[
-# Team Seminar Weekly
-]
-.author[
-### Huanhua Wu
-]
-.institute[
-### PET/CT-MRI, JNU
-]
-.date[
-### 07-11-2022
-]
+class: center, middle, inverse
 
+<div>
+<style type="text/css">.xaringan-extra-logo {
+width: 110px;
+height: 128px;
+z-index: 0;
+background-image: url(https://www.jd120.com/upload/2201/20221139075.gif);
+background-size: contain;
+background-repeat: no-repeat;
+position: absolute;
+top:1em;right:1em;
+}
+</style>
+<script>(function () {
+  let tries = 0
+  function addLogo () {
+    if (typeof slideshow === 'undefined') {
+      tries += 1
+      if (tries < 10) {
+        setTimeout(addLogo, 100)
+      }
+    } else {
+      document.querySelectorAll('.remark-slide-content:not(.title-slide):not(.inverse):not(.hide_logo)')
+        .forEach(function (slide) {
+          const logo = document.createElement('div')
+          logo.classList = 'xaringan-extra-logo'
+          logo.href = null
+          slide.appendChild(logo)
+        })
+    }
+  }
+  document.addEventListener('DOMContentLoaded', addLogo)
+})()</script>
+</div>
+
+
+
+
+## Team Seminar Weekly
+
+Reporter: Huanhua Wu&lt;br&gt;
+
+Supervisor: Hao Xu
+
+PET/CT-MRI, JNU
+
+2022-07-13
 ---
-
 # 吴环华工作汇报0711
 
 --
@@ -137,10 +177,10 @@ class: center, middle
 
 # THANKS!
 
-Slides created via the R packages:
+Data Source Provided by 999 Hospital, Guangzhou.
 
-[**xaringan**](https://github.com/yihui/xaringan)&lt;br&gt;
-[gadenbuie/xaringanthemer](https://github.com/gadenbuie/xaringanthemer).
+[**wane199**]()&lt;br&gt;
+[wane199@outlook.com](https://github.com/gadenbuie/xaringanthemer).
 
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>

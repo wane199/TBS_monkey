@@ -1,19 +1,47 @@
 ---
-title: "Team Seminar Weekly"
-subtitle: ""
-author: "Huanhua Wu"
-# supervisor: "Hao Xu"
-institute: "PET/CT-MRI, JNU"
-date: '07-11-2022'
-# date: '`r Sys.Date()`'
+pagetitle: "Team Seminar Weekly"
 output:
   xaringan::moon_reader:
-    css: xaringan-themer.css
+    css: ["default", "gds.css", "gds-fonts.css"]
+    seal: false
     lib_dir: libs
     nature:
       highlightStyle: github
       highlightLines: true
       countIncrementalSlides: false
+---
+class: center, middle, inverse
+```{r xaringan-themer, include=FALSE, warning=FALSE}
+library(xaringanthemer)
+style_mono_accent(
+  base_color = "#1c5253",
+  header_font_google = google_font("Josefin Sans"),
+  text_font_google   = google_font("Montserrat", "300", "300i"),
+  code_font_google   = google_font("Fira Mono")
+)
+```
+```{r xaringan-logo, echo=FALSE}
+xaringanExtra::use_logo(
+  image_url = "https://www.jd120.com/upload/2201/20221139075.gif"
+)
+```
+```{r xaringan-tile-view, echo=FALSE}
+xaringanExtra::use_tile_view()
+```
+```{r xaringan-scribble, echo=FALSE}
+xaringanExtra::use_scribble()
+```
+
+
+## Team Seminar Weekly
+
+Reporter: Huanhua Wu<br>
+
+Supervisor: Hao Xu
+
+PET/CT-MRI, JNU
+
+`r Sys.Date()`
 ---
 # 吴环华工作汇报0711
 
@@ -130,8 +158,8 @@ class: center, middle
 
 # THANKS!
 
-Slides created via the R packages:
+Data Source Provided by 999 Hospital, Guangzhou.
 
-[**xaringan**](https://github.com/yihui/xaringan)<br>
-[gadenbuie/xaringanthemer](https://github.com/gadenbuie/xaringanthemer).
+[**wane199**]()<br>
+[wane199@outlook.com](https://github.com/gadenbuie/xaringanthemer).
 
