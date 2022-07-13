@@ -155,9 +155,9 @@ tab2
 1 - sum(diag(tab2))/sum(tab2)
 
 library(e1071)
-classAgreement(predict.table)
+classAgreement(tab2)
 library(caret)
-confusionMatrix(predict.table)
+confusionMatrix(tab2)
 
 
 
