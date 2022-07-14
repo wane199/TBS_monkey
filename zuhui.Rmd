@@ -1,19 +1,50 @@
 ---
-title: "Team Seminar Weekly"
-subtitle: ""
-author: "Huanhua Wu"
-# supervisor: "Hao Xu"
-institute: "PET/CT-MRI, JNU"
-date: '07-11-2022'
-# date: '`r Sys.Date()`'
+pagetitle: "Team Seminar Weekly"
 output:
   xaringan::moon_reader:
-    css: xaringan-themer.css
+    css: ["default", "gds.css", "gds-fonts.css"]
+    seal: false
     lib_dir: libs
     nature:
       highlightStyle: github
       highlightLines: true
       countIncrementalSlides: false
+---
+class: center, middle, inverse
+background-image: url("https://img.medsci.cn/2021715/1626361993479_5340239.jpeg")
+```{r xaringan-themer, include=FALSE, warning=FALSE}
+library(xaringanthemer)
+style_mono_accent(
+  base_color = "#1c5253",
+  header_font_google = google_font("Josefin Sans"),
+  text_font_google   = google_font("Montserrat", "300", "300i"),
+  code_font_google   = google_font("Fira Mono")
+)
+```
+```{r xaringan-logo, echo=FALSE}
+xaringanExtra::use_logo(
+  image_url = "https://www.jd120.com/upload/2201/20221139075.gif"
+)
+```
+```{r xaringan-tile-view, echo=FALSE}
+xaringanExtra::use_tile_view()
+```
+```{r xaringan-scribble, echo=FALSE}
+xaringanExtra::use_scribble()
+```
+```{r xaringan-editable, echo=FALSE}
+xaringanExtra::use_editable(expires = 1)
+```
+
+.bold[## Team Seminar Weekly]
+
+.black[Reporter: Huanhua Wu<br>]
+
+.bold[Supervisor: Hao Xu]
+
+PET/CT-MRI, JNU
+
+`r Sys.Date()`
 ---
 # 吴环华工作汇报0711
 
@@ -44,14 +75,14 @@ MLP神经网络搭建。
 
 ---
 ```{r echo=FALSE,out.width="90%"}
-knitr::include_graphics("./child.png")
+knitr::include_graphics("./images/child.png")
 ```
 
 ---
-![PDP Plot](./PDP.png)
+![PDP Plot](./images/PDP.png)
 ---
 ```{r echo=FALSE,out.width="80%"}
-knitr::include_graphics("./Calib.png")
+knitr::include_graphics("./images/Calib.png")
 ```
 ---
 | Classifier |  Birer loss | Log loss | Precison | Recall| F1 | AUC | 
@@ -65,8 +96,6 @@ knitr::include_graphics("./Calib.png")
 Recall: 阳性预测值/PPV或PV+
 ---
 ---
----
-
 # 吴环华工作汇报0704
 
 --
@@ -94,21 +123,20 @@ overleaf: \ce{^{18}F-FDG}
 
 .pull-left[
 CN
-![matrix1](./matrix1.png)
+![matrix1](./images/matrix1.png)
 
-![AAL116](./Picture1net.png)
+![AAL116](./images/Picture1net.png)
 
 ]
 
 .pull-right[
 EP
-![matrix2](./matrix2.png)
+![matrix2](./images/matrix2.png)
 
-![AAL116](./Picture2net.png)
+![AAL116](./images/Picture2net.png)
 ]
 ---
-![A Pyecharts map](./map.png)
----
+![A Pyecharts map](./images/map.png)
 ---
 ---
 # 吴环华工作汇报0627
@@ -122,16 +150,16 @@ EP
 ## Third
 数据预处理到模型部署的pipeline梳理。
 ---
-![A wide image with a diagram of MRI dataset](./Rplot.png)
+![A wide image with a diagram of MRI dataset](./images/Rplot.png)
 ---
-![A pipeline of Pycaret](./image.png)
+![A pipeline of Pycaret](./images/image.png)
 ---
 class: center, middle
 
 # THANKS!
 
-Slides created via the R packages:
+Data Source Provided by 999 Hospital, Guangzhou.
 
-[**xaringan**](https://github.com/yihui/xaringan)<br>
-[gadenbuie/xaringanthemer](https://github.com/gadenbuie/xaringanthemer).
+[**wane199**]()<br>
+[wane199@outlook.com](https://github.com/gadenbuie/xaringanthemer).
 

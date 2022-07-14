@@ -3,11 +3,13 @@ title: "R Notebook"
 output: html_notebook
 ---
 
-[](https://heartbeat.comet.ml/binary-classification-using-keras-in-r-ef3d42202aaa)
 ```{r}
 library(keras)
 data <- read.csv('/home/wane/Desktop/EP/Structured_Data/PET-TLE234-radscore-RCS2.csv', header = T)
 str(data)
+data <- data[c(5,8:10,12,17:18)]
+# data$oneyr <- as.factor(data$oneyr)
+glimpse(data)
 table(data$oneyr)
 barplot(prop.table(table(data$oneyr)),
         col = rainbow(2),
@@ -16,30 +18,37 @@ barplot(prop.table(table(data$oneyr)),
         xlab = 'oneyr',
         cex.names = 1.5)
 ```
+
 ```{r}
 # Data Preparation
-data <- data[c(-1:-4)]
+# data <- data[c(-1:-4)]
 data <- as.matrix(data)
 dimnames(data) <- NULL
-data[,2:14] <- normalize(data[,2:14])
+# data[,2:7] <- normalize(data[,2:7])
+data[,-1] <- normalize(data[,-1])
 set.seed(123)
 ind <- sample(2, nrow(data), replace = T, prob = c(0.7, 0.3))
-training <- data[ind==1, 2:14]
-test <- data[ind==2, 2:14]
-trainingtarget <- data[ind==1, 1]
+training <- data[ind==1, 2:7]
+test <- data[ind==2, 2:7]
+trainingtarget <- data[ind==1, 1] # 标签列，随机分组
 testtarget <- data[ind==2, 1]
 trainLabels <- to_categorical(trainingtarget)
+# trainLabels <- to_categorical(as.numeric(trainingtarget)-1)
+# trainLabels <- to_categorical(matrix(as.numeric(train[,4])-1))
 testLabels <- to_categorical(testtarget)
+# testLabels <- to_categorical(matrix(as.numeric(testtarget))-1)
 testLabels[1:10,]
 ```
+
 ```{r}
 # Model Architechture
 model <- keras_model_sequential()
 model %>% 
-         layer_dense(units = 8, activation = 'relu', input_shape = c(13)) %>%  layer_dense(units = 2, activation = 'sigmoid')
+         layer_dense(units = 6, activation = 'relu', input_shape = c(6)) %>%  layer_dense(units = 1, activation = 'sigmoid')
 # 'sigmoid' for multi-class; 'sigmoid' for binary classification 
 summary(model)
 ```
+
 ```{r}
 model %>% 
          compile(loss = 'binary_crossentropy',
@@ -50,21 +59,23 @@ model %>%
 ```{r}
 history <- model %>%
           fit(training,
-              trainLabels,
+              trainLabels[,2],
               epochs = 100,
               batch_size = 5,
-              validation_split = 0.3)
+              validation_split = 0.2)
 plot(history)
 ```
+
 ```{r}
 # Evaluate
 # check accuracy of model
-model %>% evaluate(test, testLabels)
+scores <- model %>% evaluate(test, testLabels[,2])
+print(scores)
 # predicting test data
 pred <- model %>% 
   predict(test) %>% `>`(0.5) %>%  k_cast("int32")
 mean((testLabels-pred)^2)
-plot(testLabels, pred)
+plot(testLabels[,2], pred)
 ```
 
 ```{r}
@@ -80,23 +91,33 @@ plot(history$metrics$acc, main="Model Accuracy", xlab = "epoch", ylab="accuracy"
 lines(history$metrics$val_acc, col="skyblue")
 legend("topleft", c("Training","Testing"), col=c("orange", "skyblue"), lty=c(1,1))
 ```
+
 ```{r}
 # confusion matrix
-pred <- model %>% 
+pred <- model %>%
             predict(test)
-
 pred <- format(round(pred, 2), nsamll = 4)
-result <- data.frame("no"=pred[ ,1], "yes"=pred[ ,2],           "predicted" = ifelse(max.col(pred[, 1:2])==1, "no", "yes")), original = test[ ,3])
+# result <- data.frame("yes"=pred[ ,1], "no"=pred[ ,2], "predicted" = ifelse(max.col(pred[, 1:2])==1, "1", "0"), original = test[ ,3])
+# cfm=caret::confusionMatrix(result$predicted, result$original)
+table(predicted=pred,Actual=testLabels[,2])
+predict.table = table(testLabels[,2], pred)
+predict.table
+
+library(e1071)
+classAgreement(predict.table)
+library(caret)
+confusionMatrix(predict.table)
 ```
 
 ```{r}
+# Addressing class imbalance
 model <- keras_model_sequential()
 model %>% 
-         layer_dense(units = 20, activation = 'relu', input_shape = c(13)) %>%  
+         layer_dense(units = 20, activation = 'relu', input_shape = c(6)) %>%  
   layer_dropout(rate = 0.4) %>% 
   layer_dense(units = 10, activation = 'relu') %>% 
   layer_dropout(rate = 0.3) %>%   
-  layer_dense(units = 2, activation = 'sigmoid')
+  layer_dense(units = 1, activation = 'sigmoid')
 # 'sigmoid' for multi-class; 'sigmoid' for binary classification 
 summary(model)
 model %>% 
@@ -105,29 +126,34 @@ model %>%
                  metrics = 'accuracy')
 history <- model %>%
           fit(training,
-              trainLabels,
+              trainLabels[,2],
               epochs = 100,
               batch_size = 5,
-              validation_split = 0.3,
+              validation_split = 0.2,
               class_weight = list("0" = 1, "1" = 7.4))
 plot(history)
 ```
+
 ```{r}
 # Evaluate
 # check accuracy of model
-model %>% evaluate(test, testLabels)
+model %>% evaluate(test, testLabels[,2])
 # predicting test data
 pred <- model %>% 
   predict(test) %>% `>`(0.5) %>%  k_cast("int32")
 mean((testLabels-pred)^2)
-plot(testLabels, pred)
+plot(testLabels[,2], pred)
 ```
+
 ```{r}
 # Confusion matrix check with a caret
 # https://www.datatechnotes.com/2018/08/simple-usage-of-keras-in-r.html
-cfm=caret::confusionMatrix(result$predicted, result$original)
-print(cfm)
-predict.table = table(, pred)
+pred <- model %>% 
+            predict(test)
+pred <- format(round(pred, 2), nsamll = 4)
+
+table(predicted=pred,Actual=testLabels[,2])
+predict.table = table(testLabels[,2], pred)
 predict.table
 
 library(e1071)
@@ -138,8 +164,7 @@ confusionMatrix(predict.table)
 
 ```{r}
 # save the model and load it
-save_model_hdf5(model, "rkerasmodel.h5")
+save_model_hdf5(model, "./rkerasmodel.h5")
 
-model <- load_model_hdf5("rkerasmodel.h5")
+model <- load_model_hdf5("./rkerasmodel.h5")
 ```
- 

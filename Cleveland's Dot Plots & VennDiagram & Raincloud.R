@@ -90,7 +90,6 @@ ggdotchart(df2,
 )
 
 
-
 # Load library
 library(VennDiagram)
 # Generate 3 sets of 200 words
@@ -121,7 +120,7 @@ myCol <- brewer.pal(3, "Pastel2")
 venn.diagram(
   x = list(set1, set2, set3),
   category.names = c("Set 1", "Set 2 ", "Set 3"),
-  filename = "#14_venn_diagramm.png",
+  filename = "venn_diagramm.png",
   output = TRUE,
 
   # Output features
@@ -166,3 +165,22 @@ plot(v,
   edges = FALSE,
   quantities = TRUE
 )
+
+
+# Raincloud
+library(ggdist)
+monk <- monk[c(-1,-3)]
+# pdf("/media/wane/wade/EP/EPTLE_PET/CN_PET_csv/raincloud.pdf",width=20, height=10)
+ggplot(data=monk,aes(y=Age,x=factor(Group),fill=factor(Group)))+
+  ggdist::stat_halfeye(adjust=0.5,justification=-.2,.width=0,point_colour=NA) + 
+  geom_boxplot(width=0.2,outlier.color=NA) +
+  ggdist::stat_dots(side="left",justification=1.1) 
+# dev.off()
+con <-subset(monk,monk$Group=='con')
+sub <-subset(monk,monk$Group=='sub')
+summary(con)
+summary(sub)
+psych::describe(sub)
+glimpse(sub)
+
+

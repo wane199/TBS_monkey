@@ -3,29 +3,75 @@
   <head>
     <title>Team Seminar Weekly</title>
     <meta charset="utf-8" />
-    <meta name="author" content="Huanhua Wu" />
     <script src="libs/header-attrs-2.14/header-attrs.js"></script>
-    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <script src="libs/fabric-4.3.1/fabric.min.js"></script>
+    <link href="libs/xaringanExtra-scribble-0.0.1/scribble.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-scribble-0.0.1/scribble.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', function() { window.xeScribble = new Scribble({"pen_color":["#FF0000"],"pen_size":3,"eraser_size":30,"palette":[]}) })</script>
+    <script type="application/json" id="xaringanExtra-editable-docid">{"id":"x413bbcdfcb44ef591fa958416d14e74","expires":1}</script>
+    <script src="libs/himalaya-1.1.0/himalaya.js"></script>
+    <script src="libs/js-cookie-3.0.0/js.cookie.js"></script>
+    <link href="libs/editable-0.2.6/editable.css" rel="stylesheet" />
+    <script src="libs/editable-0.2.6/editable.js"></script>
+    <link rel="stylesheet" href="gds.css" type="text/css" />
+    <link rel="stylesheet" href="gds-fonts.css" type="text/css" />
   </head>
   <body>
     <textarea id="source">
-class: center, middle, inverse, title-slide
 
-.title[
-# Team Seminar Weekly
-]
-.author[
-### Huanhua Wu
-]
-.institute[
-### PET/CT-MRI, JNU
-]
-.date[
-### 07-11-2022
-]
+class: center, middle, inverse
+background-image: url("https://img.medsci.cn/2021715/1626361993479_5340239.jpeg")
 
+<div>
+<style type="text/css">.xaringan-extra-logo {
+width: 110px;
+height: 128px;
+z-index: 0;
+background-image: url(https://www.jd120.com/upload/2201/20221139075.gif);
+background-size: contain;
+background-repeat: no-repeat;
+position: absolute;
+top:1em;right:1em;
+}
+</style>
+<script>(function () {
+  let tries = 0
+  function addLogo () {
+    if (typeof slideshow === 'undefined') {
+      tries += 1
+      if (tries < 10) {
+        setTimeout(addLogo, 100)
+      }
+    } else {
+      document.querySelectorAll('.remark-slide-content:not(.title-slide):not(.inverse):not(.hide_logo)')
+        .forEach(function (slide) {
+          const logo = document.createElement('div')
+          logo.classList = 'xaringan-extra-logo'
+          logo.href = null
+          slide.appendChild(logo)
+        })
+    }
+  }
+  document.addEventListener('DOMContentLoaded', addLogo)
+})()</script>
+</div>
+
+
+
+
+.bold[## Team Seminar Weekly]
+
+.black[Reporter: Huanhua Wu&lt;br&gt;]
+
+.bold[Supervisor: Hao Xu]
+
+PET/CT-MRI, JNU
+
+2022-07-14
 ---
-
 # 吴环华工作汇报0711
 
 --
@@ -54,12 +100,12 @@ MLP神经网络搭建。
 234例颞叶癫痫数据集(3~60 y,23.5y)年龄分层，31例儿童患者（13.2%，3~17 y, 15.0y）
 
 ---
-&lt;img src="./child.png" width="90%" /&gt;
+&lt;img src="./images/child.png" width="90%" /&gt;
 
 ---
-![PDP Plot](./PDP.png)
+![PDP Plot](./images/PDP.png)
 ---
-&lt;img src="./Calib.png" width="80%" /&gt;
+&lt;img src="./images/Calib.png" width="80%" /&gt;
 ---
 | Classifier |  Birer loss | Log loss | Precison | Recall| F1 | AUC | 
 | :-----: |  :-----: | :-----: | :-----: |  :-----: | :-----: |
@@ -72,8 +118,6 @@ MLP神经网络搭建。
 Recall: 阳性预测值/PPV或PV+
 ---
 ---
----
-
 # 吴环华工作汇报0704
 
 --
@@ -101,21 +145,20 @@ overleaf: \ce{^{18}F-FDG}
 
 .pull-left[
 CN
-![matrix1](./matrix1.png)
+![matrix1](./images/matrix1.png)
 
-![AAL116](./Picture1net.png)
+![AAL116](./images/Picture1net.png)
 
 ]
 
 .pull-right[
 EP
-![matrix2](./matrix2.png)
+![matrix2](./images/matrix2.png)
 
-![AAL116](./Picture2net.png)
+![AAL116](./images/Picture2net.png)
 ]
 ---
-![A Pyecharts map](./map.png)
----
+![A Pyecharts map](./images/map.png)
 ---
 ---
 # 吴环华工作汇报0627
@@ -129,18 +172,18 @@ EP
 ## Third
 数据预处理到模型部署的pipeline梳理。
 ---
-![A wide image with a diagram of MRI dataset](./Rplot.png)
+![A wide image with a diagram of MRI dataset](./images/Rplot.png)
 ---
-![A pipeline of Pycaret](./image.png)
+![A pipeline of Pycaret](./images/image.png)
 ---
 class: center, middle
 
 # THANKS!
 
-Slides created via the R packages:
+Data Source Provided by 999 Hospital, Guangzhou.
 
-[**xaringan**](https://github.com/yihui/xaringan)&lt;br&gt;
-[gadenbuie/xaringanthemer](https://github.com/gadenbuie/xaringanthemer).
+[**wane199**]()&lt;br&gt;
+[wane199@outlook.com](https://github.com/gadenbuie/xaringanthemer).
 
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
