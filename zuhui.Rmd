@@ -75,14 +75,14 @@ MLP神经网络搭建。
 
 ---
 ```{r echo=FALSE,out.width="90%"}
-knitr::include_graphics("./child.png")
+knitr::include_graphics("./images/child.png")
 ```
 
 ---
-![PDP Plot](./PDP.png)
+![PDP Plot](./images/PDP.png)
 ---
 ```{r echo=FALSE,out.width="80%"}
-knitr::include_graphics("./Calib.png")
+knitr::include_graphics("./images/Calib.png")
 ```
 ---
 | Classifier |  Birer loss | Log loss | Precison | Recall| F1 | AUC | 
@@ -96,8 +96,6 @@ knitr::include_graphics("./Calib.png")
 Recall: 阳性预测值/PPV或PV+
 ---
 ---
----
-
 # 吴环华工作汇报0704
 
 --
@@ -125,21 +123,20 @@ overleaf: \ce{^{18}F-FDG}
 
 .pull-left[
 CN
-![matrix1](./matrix1.png)
+![matrix1](./images/matrix1.png)
 
-![AAL116](./Picture1net.png)
+![AAL116](./images/Picture1net.png)
 
 ]
 
 .pull-right[
 EP
-![matrix2](./matrix2.png)
+![matrix2](./images/matrix2.png)
 
-![AAL116](./Picture2net.png)
+![AAL116](./images/Picture2net.png)
 ]
 ---
-![A Pyecharts map](./map.png)
----
+![A Pyecharts map](./images/map.png)
 ---
 ---
 # 吴环华工作汇报0627
@@ -153,9 +150,9 @@ EP
 ## Third
 数据预处理到模型部署的pipeline梳理。
 ---
-![A wide image with a diagram of MRI dataset](./Rplot.png)
+![A wide image with a diagram of MRI dataset](./images/Rplot.png)
 ---
-![A pipeline of Pycaret](./image.png)
+![A pipeline of Pycaret](./images/image.png)
 ---
 class: center, middle
 
