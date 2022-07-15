@@ -154,8 +154,8 @@ venn.diagram(
 library(eulerr)
 
 v <- euler(c(
-  TLE = 234, MRIneg = 98, 
-  "TLE&MRIneg" = 21
+  TLE = 220, MRIneg = 98, 
+  "TLE&MRIneg" = 20
 ))
 
 par(cex.axis=5.0)
