@@ -11,7 +11,7 @@ output:
       countIncrementalSlides: false
 ---
 class: center, middle, inverse
-background-image: url("https://img.medsci.cn/2021715/1626361993479_5340239.jpeg")
+background-image: url("images/brain.jpeg")
 ```{r xaringan-themer, include=FALSE, warning=FALSE}
 library(xaringanthemer)
 style_mono_accent(
