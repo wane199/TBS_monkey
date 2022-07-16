@@ -154,33 +154,79 @@ venn.diagram(
 library(eulerr)
 
 v <- euler(c(
-  TLE = 220, MRIneg = 98, 
+  TLE = 220, MRIneg = 98,
   "TLE&MRIneg" = 20
 ))
 
-par(cex.axis=5.0)
+par(cex.axis = 5.0)
 plot(v,
-  fills = list(fill = c( "#b3cde3", "#fbb4ae","#ccebc5"), alpha = 0.8),
+  fills = list(fill = c("#b3cde3", "#fbb4ae", "#ccebc5"), alpha = 0.8),
   labels = list(col = "white", font = 2),
   edges = FALSE,
   quantities = TRUE
 )
 
 
+# 添加统计图表及文本信息
+# https://zhuanlan.zhihu.com/p/77167731
+# 密度图
+library(ggpubr)
+dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/PET-TLE234-radscore-RCS.csv")
+psych::describe(dt)
+dt$oneyr <- as.factor(dt$oneyr)
+dt$Sex <- as.factor(dt$Sex)
+dt <- base::transform(dt, age = Surgmon / 12)
+density.p <- ggdensity(dt,
+  x = "age",
+  fill = "oneyr", palette = "jco"
+)
+# Sepal.Length描述性统计
+stable <- desc_statby(dt,
+  measure.var = "age",
+  grps = "oneyr"
+)
+stable <- stable[, c("oneyr", "length", "mean", "sd")]
+# 设置table的主题
+stable.p <- ggtexttable(stable,
+  rows = NULL,
+  theme = ttheme("mOrange") # ttheme(): customize table theme, mBlue/classic
+)
+#  text 信息
+text <- paste("iris data set gives the measurements in cm",
+  "of the variables sepal length and width",
+  "and petal length and width, reScatter_plotsectively,",
+  "for 234 flowers from each of 2 Scatter_plotsecies of iris.",
+  "The Scatter_plotsecies are Iris setosa, and virginica.",
+  sep = " "
+)
+text.p <- ggparagraph(text = text, face = "italic", size = 11, color = "black")
+# 组图展示，调整高度和宽度
+ggarrange(density.p, stable.p, text.p,
+  ncol = 1, nrow = 3,
+  heights = c(1, 0.5, 0.3)
+)
+
+# 子母图展示
+density.p + annotation_custom(ggplotGrob(stable.p),
+  xmin = 40, ymin = 0.05,
+  xmax = 60
+)
+
+
 # Raincloud
 library(ggdist)
-monk <- monk[c(-1,-3)]
+dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/PET-TLE234-radscore-RCS.csv")
+dt <- base::transform(dt, age = Surgmon / 12)
 # pdf("/media/wane/wade/EP/EPTLE_PET/CN_PET_csv/raincloud.pdf",width=20, height=10)
-ggplot(data=monk,aes(y=Age,x=factor(Group),fill=factor(Group)))+
-  ggdist::stat_halfeye(adjust=0.5,justification=-.2,.width=0,point_colour=NA) + 
-  geom_boxplot(width=0.2,outlier.color=NA) +
-  ggdist::stat_dots(side="left",justification=1.1) 
+ggplot(data = dt, aes(y = age, x = factor(oneyr), fill = factor(oneyr))) +
+  ggdist::stat_halfeye(adjust = 0.30, justification = -.2, .width = 0, point_colour = NA) +
+  geom_boxplot(width = 0.15, outlier.color = NA) + theme_classic() +
+  ggdist::stat_dots(side = "left", justification = 1.1)
 # dev.off()
-con <-subset(monk,monk$Group=='con')
-sub <-subset(monk,monk$Group=='sub')
+con <- subset(monk, monk$Group == "con")
+sub <- subset(monk, monk$Group == "sub")
 summary(con)
 summary(sub)
 psych::describe(sub)
 glimpse(sub)
-
 
