@@ -46,6 +46,18 @@ PET/CT-MRI, JNU
 
 `r Sys.Date()`
 ---
+# 吴环华工作汇报0718
+
+--
+## First
+
+--
+## Second 
+MLP神经网络搭建。
+
+
+---
+---
 # 吴环华工作汇报0711
 
 --
@@ -93,7 +105,7 @@ knitr::include_graphics("./images/Calib.png")
 | Random Forest|0.13 | 0.40 | 0.87 |0.85|0.86|0.78|
 
 ???
-Recall: 阳性预测值/PPV或PV+
+Recall: 查全率也称为召回率，等价于灵敏性（Sensitivity）和真正率（True Positive Rate，TPR）
 ---
 ---
 # 吴环华工作汇报0704
@@ -116,7 +128,8 @@ xaringan::inf_mr() preview
 
 Rmarkdown: $^{18}$F-FDG
 
-overleaf: \ce{^{18}F-FDG}
+overleaf: \usepackage{mhchem}  \ce{^{18}F-FDG}
+
 ---
 
 ## AAL116 Nets

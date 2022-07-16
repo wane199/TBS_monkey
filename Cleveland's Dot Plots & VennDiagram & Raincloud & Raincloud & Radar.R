@@ -230,3 +230,74 @@ summary(sub)
 psych::describe(sub)
 glimpse(sub)
 
+# https://cloud.tencent.com/developer/article/1801036
+# https://www.datanovia.com/en/blog/beautiful-radar-chart-in-r-using-fmsb-and-ggplot-packages/
+library(fmsb)
+# Demo data
+exam_scores <- data.frame(
+  row.names = c("Siamese network", "Siamese network + BLS"),
+  Accuracy = c(.907, .914),
+  AUC = c(.998, .998),
+  Sensitivity = c(.778, .753),
+  Specificity = c(.948, .957),
+  Precision = c(.756, .795),
+  F1 = c(.762, .766)
+)
+exam_scores
+# Define the variable ranges: maximum and minimum
+max_min <- data.frame(
+  Accuracy = c(1, 0.7), AUC = c(1, 0.7), Sensitivity = c(1, 0.7),
+  Specificity = c(1, 0.7), Precision = c(1, 0.7), F1 = c(1, 0.7)
+)
+rownames(max_min) <- c("Max", "Min")
+
+# Bind the variable ranges to the data
+df <- rbind(max_min, exam_scores)
+df
+# 使用radarchart函数绘制雷达图
+radarchart(df)
+radarchart(df,
+           pcol = "#00AFBB",
+           pfcol =  scales::alpha("#00AFBB", 0.5),
+           plty = "solid",
+           cglty = "solid",
+           cglcol = "black",
+           cglwd =0.5)
+radarchart(df,
+           axistype = 1, # 设定axes的类型,1 means center axis label only
+           seg = 5, # 设定网格的数目
+           plty = 1, # 设定point连线的线型
+           vlabels = c(
+             "Accuracy\n%", "AUC\n%",
+             "Sensitivity\n%", "Specificity\n%",
+             "Precision\n%","F1-score\n%"
+           ),
+           title = "(axis=1, 5 segments, with specified vlabels)",
+           vlcex = 1 # 设置标签的字体粗细大小
+)
+radarchart(df,
+           axistype = 2,
+           pcol = topo.colors(3),
+           plty = 1, pdensity = c(5, 10, 30),
+           pangle = c(10, 45, 120),
+           pfcol = topo.colors(3),
+           title = "(topo.colors, fill, axis=2)"
+)
+radarchart(df,
+           axistype = 3, pty = 16, plty = 2,
+           axislabcol = "grey", na.itp = FALSE,
+           title = "(no points, axis=3, na.itp=FALSE)"
+)
+
+radarchart(df,
+           axistype = 1, plwd = 1:5, pcol = 1, centerzero = TRUE,
+           seg = 4, caxislabels = c("70%", "", "", "", "100%"),
+           vlabels = c(
+             "Accuracy", "AUC",
+             "Sensitivity", "Specificity",
+             "Precision","F1-score"
+           ),
+           title = "'Siamese network' vs 'Siamese network + BLS' in PET & T1"
+)
+
+
