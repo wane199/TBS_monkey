@@ -235,19 +235,20 @@ glimpse(sub)
 library(fmsb)
 # Demo data
 exam_scores <- data.frame(
-  row.names = c("Siamese network", "Siamese network + BLS"),
-  Accuracy = c(.907, .914),
-  AUC = c(.998, .998),
-  Sensitivity = c(.778, .753),
-  Specificity = c(.948, .957),
-  Precision = c(.756, .795),
-  F1 = c(.762, .766)
+  row.names = c("Siamese network", "Siamese network + BLS",
+                "RF(radiomics)","KNN(radiomics)","MLP(radiomics)"),
+  Accuracy = c(.860, .835, .810, .726, .673),
+  AUC = c(.985, .993, .979, .793, .759),
+  Sensitivity = c(.742, .763, .453, .272, .108),
+  Specificity = c(.920, .952, .945, .930, .961),
+  Precision = c(.655, .766, .637, .444, .316),
+  F1 = c(.694, .761, .524, .279, .144)
 )
 exam_scores
 # Define the variable ranges: maximum and minimum
 max_min <- data.frame(
-  Accuracy = c(1, 0.7), AUC = c(1, 0.7), Sensitivity = c(1, 0.7),
-  Specificity = c(1, 0.7), Precision = c(1, 0.7), F1 = c(1, 0.7)
+  Accuracy = c(1, 0.0), AUC = c(1, 0.0), Sensitivity = c(1, 0.0),
+  Specificity = c(1, 0.0), Precision = c(1, 0.0), F1 = c(1, 0.0)
 )
 rownames(max_min) <- c("Max", "Min")
 
@@ -290,8 +291,8 @@ radarchart(df,
 )
 
 radarchart(df,
-           axistype = 1, plwd = 1:5, pcol = 1, centerzero = TRUE,
-           seg = 4, caxislabels = c("70%", "", "", "", "100%"),
+           axistype = 1, plwd = 1:5,  centerzero = TRUE,
+           seg = 4, caxislabels = c("0%", "", "", "", "100%"),
            vlabels = c(
              "Accuracy", "AUC",
              "Sensitivity", "Specificity",
@@ -300,4 +301,38 @@ radarchart(df,
            title = "'Siamese network' vs 'Siamese network + BLS' in PET & T1"
 )
 
+create_beautiful_radarchart <- function(data, color = "#00AFBB", 
+                                        vlabels = colnames(data), vlcex = 0.7,
+                                        caxislabels = NULL, title = NULL, ...){
+  radarchart(
+    data, axistype = 1,
+    # Customize the polygon
+    pcol = color, pfcol = scales::alpha(color, 0.5), plwd = 2, plty = 1,
+    # Customize the grid
+    cglcol = "grey", cglty = 1, cglwd = 0.8,
+    # Customize the axis
+    axislabcol = "grey", 
+    # Variable labels
+    vlcex = vlcex, vlabels = vlabels,
+    caxislabels = caxislabels, title = title, ...
+  )
+}
+# Reduce plot margin using par()
+op <- par(mar = c(1, 2, 2, 1))
+create_beautiful_radarchart(df, caxislabels = c(0, 5, 10, 15, 20))
+par(op)
 
+# Reduce plot margin using par()
+op <- par(mar = c(1, 2, 2, 2))
+# Create the radar charts
+create_beautiful_radarchart(
+  data = df, caxislabels = c(0, 5, 10, 15, 20),
+  color = c("#00AFBB", "#E7B800", "#FC4E07")
+)
+# Add an horizontal legend
+legend(
+  x = "bottom", legend = rownames(df[-c(1,2),]), horiz = TRUE,
+  bty = "n", pch = 20 , col = c("#00AFBB", "#E7B800", "#FC4E07"),
+  text.col = "black", cex = 1, pt.cex = 1.5
+)
+par(op)
