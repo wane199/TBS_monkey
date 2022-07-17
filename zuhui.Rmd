@@ -35,6 +35,14 @@ xaringanExtra::use_scribble()
 ```{r xaringan-editable, echo=FALSE}
 xaringanExtra::use_editable(expires = 1)
 ```
+```{r xaringanExtra, echo = FALSE}
+xaringanExtra::use_progress_bar(color = "grey", location = "bottom")
+```
+```{r xaringanExtra-clipboard, echo=FALSE}
+xaringanExtra::use_clipboard()
+```
+```{r xaringan-editable, echo=FALSE}
+```
 
 .bold[## Team Seminar Weekly]
 
@@ -61,6 +69,24 @@ temporal lobe epilepsy patients
 ## Second 
 MLP神经网络搭建。
 
+---
+```{r echo=FALSE,out.width="100%"}
+knitr::include_graphics("./images/venn.png")
+```
+.footnote[数据集取交集]
+
+---
+PET EP
+![PET](./images/radar3.png)
+
+---
+.pull-left[
+C
+![matrix1](./images/radar3.png)]
+
+.pull-right[
+N
+![matrix1](./images/radar2.png)]
 
 ---
 ---

@@ -235,64 +235,84 @@ glimpse(sub)
 library(fmsb)
 # Demo data
 exam_scores <- data.frame(
-  row.names = c("Siamese network", "Siamese network + BLS",
+  row.names = c("Siamese network + BLS", "Siamese network",
                 "RF(radiomics)","KNN(radiomics)","MLP(radiomics)"),
-  Accuracy = c(.860, .835, .810, .726, .673),
-  AUC = c(.985, .993, .979, .793, .759),
-  Sensitivity = c(.742, .763, .453, .272, .108),
-  Specificity = c(.920, .952, .945, .930, .961),
-  Precision = c(.655, .766, .637, .444, .316),
-  F1 = c(.694, .761, .524, .279, .144)
+  Accuracy = c(.835, .860, .810, .726, .673),
+  AUC = c(.993, .985, .979, .793, .759),
+  Sensitivity = c(.763, .742, .453, .272, .108),
+  Specificity = c(.952, .920, .945, .930, .961),
+  Precision = c(.766, .655, .637, .444, .316),
+  F1score = c(.761, .694, .524, .279, .144)
 )
 exam_scores
 # Define the variable ranges: maximum and minimum
 max_min <- data.frame(
   Accuracy = c(1, 0.0), AUC = c(1, 0.0), Sensitivity = c(1, 0.0),
-  Specificity = c(1, 0.0), Precision = c(1, 0.0), F1 = c(1, 0.0)
+  Specificity = c(1, 0.0), Precision = c(1, 0.0), F1score = c(1, 0.0)
 )
 rownames(max_min) <- c("Max", "Min")
-
 # Bind the variable ranges to the data
 df <- rbind(max_min, exam_scores)
 df
 # 使用radarchart函数绘制雷达图
-radarchart(df)
-radarchart(df,
-           pcol = "#00AFBB",
-           pfcol =  scales::alpha("#00AFBB", 0.5),
-           plty = "solid",
-           cglty = "solid",
-           cglcol = "black",
-           cglwd =0.5)
+radarchart(df, caxislabels = c("0%", "", "", "", "100%"),
+           axistype = 1, 
+           vlcex = 1.0, # 设置标签的字体粗细大小
+           vlabels = c(
+             "Accuracy", "AUC",
+             "Sensitivity", "Specificity",
+             "Precision","F1-score"
+           ),
+           title = "PET",
+           pcol = topo.colors(10))
+legend(x=1.5, y=1, legend = rownames(df[-c(1,2),]), 
+       bty = "n", pch=20, col = topo.colors(10),
+       text.col = "black", cex=0.80, pt.cex=3.0)
+# col = c("#00AFBB", "#E7B800", "#FC4E07","#E69F00", "#56B4E9"), 
+# colors_in=c( rgb(0.2,0.5,0.5,0.4), rgb(0.8,0.2,0.5,0.4) , rgb(0.7,0.5,0.1,0.4) )
+# Set graphic colors
+library(RColorBrewer)
+coul <- brewer.pal(5, "BrBG")
+colors_border <- coul
+library(scales)
+colors_in <- alpha(coul, 0.7)
+radarchart(df, caxislabels = c("0%", "", "", "", "100%"),
+           axistype = 1, axislabcol = "grey", 
+           vlcex = 1, # 设置标签的字体粗细大小
+           vlabels = c(
+             "Accuracy", "AUC",
+             "Sensitivity", "Specificity",
+             "Precision","F1-score"
+           ),
+           title = "PET",
+           pcol = colors_in)
+# Add a legend
+legend(x=1.5, y=1, legend = rownames(df[-c(1,2),]), 
+       bty = "n", pch=20, col = colors_in,
+       text.col = "black", cex=0.80, pt.cex=3.0)
+# Add an horizontal legend
+# x = "right", legend = rownames(df[-c(1,2),]), horiz = TRUE,
 radarchart(df,
            axistype = 1, # 设定axes的类型,1 means center axis label only
            seg = 5, # 设定网格的数目
            plty = 1, # 设定point连线的线型
+           pcol = colors_in,
            vlabels = c(
-             "Accuracy\n%", "AUC\n%",
-             "Sensitivity\n%", "Specificity\n%",
-             "Precision\n%","F1-score\n%"
+             "Accuracy", "AUC",
+             "Sensitivity", "Specificity",
+             "Precision","F1-score"
            ),
-           title = "(axis=1, 5 segments, with specified vlabels)",
+           title = "PET",
            vlcex = 1 # 设置标签的字体粗细大小
-)
-radarchart(df,
-           axistype = 2,
-           pcol = topo.colors(3),
-           plty = 1, pdensity = c(5, 10, 30),
-           pangle = c(10, 45, 120),
-           pfcol = topo.colors(3),
-           title = "(topo.colors, fill, axis=2)"
 )
 radarchart(df,
            axistype = 3, pty = 16, plty = 2,
            axislabcol = "grey", na.itp = FALSE,
            title = "(no points, axis=3, na.itp=FALSE)"
 )
-
 radarchart(df,
-           axistype = 1, plwd = 1:5,  centerzero = TRUE,
-           seg = 4, caxislabels = c("0%", "", "", "", "100%"),
+           axistype = 1, plwd = 1:3,  centerzero = TRUE,
+           seg = 5, caxislabels = c("0%", "", "", "", ""),
            vlabels = c(
              "Accuracy", "AUC",
              "Sensitivity", "Specificity",
