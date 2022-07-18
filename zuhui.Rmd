@@ -85,6 +85,16 @@ knitr::include_graphics("./images/venn.png")
 ]
 
 ---
+class: center, middle
+.center[
+| Classifier |  Birer loss | Log loss | Precison | Recall| F1 | AUC | 
+| :-----: |  :-----: | :-----: | :-----: |  :-----: | :-----: |
+| Logistic |  0.08 | 0.31 | 0.93 |0.94|0.93|0.89|
+| Naive Bayes|0.22 | 1.89 | 0.84 |0.79|0.81|0.72|
+| SVC|0.18 | 0.52 | 0.94 |0.93|0.93|0.90|
+| Random Forest|0.13 | 0.40 | 0.87 |0.85|0.86|0.78|
+]
+---
 .pull-left[
 PET
 ![PET](./images/radar3.png)]
@@ -103,7 +113,7 @@ PET
 --
 
 
-1、基于FDG PET代谢影像组学的一种新型评分系统用于颞叶癫痫术后复发预测(Coxph);
+1、基于FDG PET代谢影像组学的一种新型评分系统用于颞叶癫痫术后复发预测(CPH);
   
 --
 
