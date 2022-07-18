@@ -177,15 +177,15 @@ dt$oneyr <- as.factor(dt$oneyr)
 dt$Sex <- as.factor(dt$Sex)
 dt <- base::transform(dt, age = Surgmon / 12)
 density.p <- ggdensity(dt,
-  x = "age",
-  fill = "oneyr", palette = "jco"
+  x = "radscore",
+  fill = "side", palette = "jco"
 )
 # Sepal.Length描述性统计
 stable <- desc_statby(dt,
-  measure.var = "age",
-  grps = "oneyr"
+  measure.var = "radscore",
+  grps = "side"
 )
-stable <- stable[, c("oneyr", "length", "mean", "sd")]
+stable <- stable[, c("side", "length", "mean", "sd")]
 # 设置table的主题
 stable.p <- ggtexttable(stable,
   rows = NULL,
@@ -208,8 +208,8 @@ ggarrange(density.p, stable.p, text.p,
 
 # 子母图展示
 density.p + annotation_custom(ggplotGrob(stable.p),
-  xmin = 40, ymin = 0.05,
-  xmax = 60
+  xmin = 0, ymin = 1.0,
+  xmax = 1.3
 )
 
 
@@ -217,11 +217,12 @@ density.p + annotation_custom(ggplotGrob(stable.p),
 library(ggdist)
 dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/PET-TLE234-radscore-RCS.csv")
 dt <- base::transform(dt, age = Surgmon / 12)
+dt$side <- factor(dt$side, levels = c(1,2),labels = c('Left','Right'))
 # pdf("/media/wane/wade/EP/EPTLE_PET/CN_PET_csv/raincloud.pdf",width=20, height=10)
-ggplot(data = dt, aes(y = age, x = factor(oneyr), fill = factor(oneyr))) +
-  ggdist::stat_halfeye(adjust = 0.30, justification = -.2, .width = 0, point_colour = NA) +
+ggplot(data = dt, aes(y = age, x = factor(side), fill = factor(side))) +
+  ggdist::stat_halfeye(adjust = 0.50, justification = -0.2, .width = 0, point_colour = NA) +
   geom_boxplot(width = 0.15, outlier.color = NA) + theme_classic() +
-  ggdist::stat_dots(side = "left", justification = 1.1)
+  ggdist::stat_dots(side = "left", dotsize = 0.5, justification = 1.1)
 # dev.off()
 con <- subset(monk, monk$Group == "con")
 sub <- subset(monk, monk$Group == "sub")

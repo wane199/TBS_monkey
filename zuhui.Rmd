@@ -85,22 +85,19 @@ knitr::include_graphics("./images/venn.png")
 ]
 
 ---
-class: center, middle
+
 .center[
-| Classifier |  Birer loss | Log loss | Precison | Recall| F1 | AUC | 
-| :-----: |  :-----: | :-----: | :-----: |  :-----: | :-----: |
-| Logistic |  0.08 | 0.31 | 0.93 |0.94|0.93|0.89|
-| Naive Bayes|0.22 | 1.89 | 0.84 |0.79|0.81|0.72|
-| SVC|0.18 | 0.52 | 0.94 |0.93|0.93|0.90|
-| Random Forest|0.13 | 0.40 | 0.87 |0.85|0.86|0.78|
+| Model | Accuracy | AUC | Sensitivity |Specificity| Precison | F1-score| 
+| :-----: |  :-----: | :-----: | :-----: |  :-----: | :-----: |  :-----: | 
+| Siamese network+BLS |  0.914 | 0.998 | 0.753 |0.957|0.795|0.766|
+| Siamese network|0.907 | 0.998 | 0.779 |0.949|0.756|0.763|
 ]
----
-.pull-left[
-PET
-![PET](./images/radar3.png)]
-
-
 ![PET+T1](./images/radar0.png)
+---
+class: center, middle
+
+![PET](./images/radar3.png)
+
 
 ---
 ---

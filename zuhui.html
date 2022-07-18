@@ -11,7 +11,7 @@
     <link href="libs/xaringanExtra-scribble-0.0.1/scribble.css" rel="stylesheet" />
     <script src="libs/xaringanExtra-scribble-0.0.1/scribble.js"></script>
     <script>document.addEventListener('DOMContentLoaded', function() { window.xeScribble = new Scribble({"pen_color":["#FF0000"],"pen_size":3,"eraser_size":30,"palette":[]}) })</script>
-    <script type="application/json" id="xaringanExtra-editable-docid">{"id":"x2a9ec127a4d40b5a9c20fef97169b60","expires":1}</script>
+    <script type="application/json" id="xaringanExtra-editable-docid">{"id":"xeddcfabff574bc9bf4711ed68bcc9a5","expires":1}</script>
     <script src="libs/himalaya-1.1.0/himalaya.js"></script>
     <script src="libs/js-cookie-3.0.0/js.cookie.js"></script>
     <link href="libs/editable-0.2.6/editable.css" rel="stylesheet" />
@@ -126,12 +126,19 @@ class: center, middle
 ]
 
 ---
-.pull-left[
-PET
-![PET](./images/radar3.png)]
 
-
+.center[
+| Model | Accuracy | AUC | Sensitivity |Specificity| Precison | F1-score| 
+| :-----: |  :-----: | :-----: | :-----: |  :-----: | :-----: |  :-----: | 
+| Siamese network+BLS |  0.914 | 0.998 | 0.753 |0.957|0.795|0.766|
+| Siamese network|0.907 | 0.998 | 0.779 |0.949|0.756|0.763|
+]
 ![PET+T1](./images/radar0.png)
+---
+class: center, middle
+
+![PET](./images/radar3.png)
+
 
 ---
 ---
@@ -144,7 +151,7 @@ PET
 --
 
 
-1、基于FDG PET代谢影像组学的一种新型评分系统用于颞叶癫痫术后复发预测(Coxph);
+1、基于FDG PET代谢影像组学的一种新型评分系统用于颞叶癫痫术后复发预测(CPH);
   
 --
 
