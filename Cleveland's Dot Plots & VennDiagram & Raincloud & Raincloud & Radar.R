@@ -236,20 +236,29 @@ glimpse(sub)
 library(fmsb)
 # Demo data
 exam_scores <- data.frame(
-  row.names = c("Siamese network + BLS", "Siamese network",
+  row.names = c("BLS-Siamese net", "Siamese net",
                 "RF(radiomics)","KNN(radiomics)","MLP(radiomics)"),
-  Accuracy = c(.835, .860, .810, .726, .673),
-  AUC = c(.993, .985, .979, .793, .759),
-  Sensitivity = c(.763, .742, .453, .272, .108),
-  Specificity = c(.952, .920, .945, .930, .961),
-  Precision = c(.766, .655, .637, .444, .316),
-  F1score = c(.761, .694, .524, .279, .144)
+  Accuracy = c(.915, .825, .827, .692, .734),
+  AUC = c(.988, .990, .995, .793, .885),
+  Sensitivity = c(.478, .508, .479, .226, .265),
+  Specificity = c(.909, .899, .917, .953, .933),
+  Precision = c(.509, .466, .533, .403, .365),
+  F1score = c(.435, .434, .487, .286, .264)
+)
+exam_scores <- data.frame(
+  row.names = c("BLS-Siamese net", "Siamese net"),
+  Accuracy = c(.914, .907),
+  AUC = c(.999, .998),
+  Sensitivity = c(.753, .779),
+  Specificity = c(.957, .949),
+  Precision = c(.795, .756),
+  F1score = c(.766, .763)
 )
 exam_scores
 # Define the variable ranges: maximum and minimum
 max_min <- data.frame(
-  Accuracy = c(1, 0.0), AUC = c(1, 0.0), Sensitivity = c(1, 0.0),
-  Specificity = c(1, 0.0), Precision = c(1, 0.0), F1score = c(1, 0.0)
+  Accuracy = c(1, 0.00), AUC = c(1, 0.00), Sensitivity = c(1, 0.00),
+  Specificity = c(1, 0.00), Precision = c(1, 0.00), F1score = c(1, 0.00)
 )
 rownames(max_min) <- c("Max", "Min")
 # Bind the variable ranges to the data
@@ -285,7 +294,7 @@ radarchart(df, caxislabels = c("0%", "", "", "", "100%"),
              "Sensitivity", "Specificity",
              "Precision","F1-score"
            ),
-           title = "PET",
+           title = "'BLS-Siamese net' vs 'Siamese net' in T1",
            pcol = colors_in)
 # Add a legend
 legend(x=1.5, y=1, legend = rownames(df[-c(1,2),]), 
@@ -303,7 +312,7 @@ radarchart(df,
              "Sensitivity", "Specificity",
              "Precision","F1-score"
            ),
-           title = "PET",
+           title = "'BLS-Siamese net' vs 'Siamese net' in PET",
            vlcex = 1 # 设置标签的字体粗细大小
 )
 radarchart(df,
@@ -319,7 +328,7 @@ radarchart(df,
              "Sensitivity", "Specificity",
              "Precision","F1-score"
            ),
-           title = "'Siamese network' vs 'Siamese network + BLS' in PET & T1"
+           title = "'BLS-Siamese net' vs 'Siamese net' in PET & T1"
 )
 
 create_beautiful_radarchart <- function(data, color = "#00AFBB", 

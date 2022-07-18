@@ -11,7 +11,7 @@
     <link href="libs/xaringanExtra-scribble-0.0.1/scribble.css" rel="stylesheet" />
     <script src="libs/xaringanExtra-scribble-0.0.1/scribble.js"></script>
     <script>document.addEventListener('DOMContentLoaded', function() { window.xeScribble = new Scribble({"pen_color":["#FF0000"],"pen_size":3,"eraser_size":30,"palette":[]}) })</script>
-    <script type="application/json" id="xaringanExtra-editable-docid">{"id":"xeddcfabff574bc9bf4711ed68bcc9a5","expires":1}</script>
+    <script type="application/json" id="xaringanExtra-editable-docid">{"id":"c664ea6663154c908c1167aeb6804325","expires":1}</script>
     <script src="libs/himalaya-1.1.0/himalaya.js"></script>
     <script src="libs/js-cookie-3.0.0/js.cookie.js"></script>
     <link href="libs/editable-0.2.6/editable.css" rel="stylesheet" />
@@ -120,25 +120,40 @@ class: center, middle
 .footnote[Proposed Framework]
 
 ---
-.center[
+class: center, middle
 &lt;img src="./images/venn.png" width="100%" /&gt;
 .footnote[数据集取交集]
-]
-
 ---
-
 .center[
 | Model | Accuracy | AUC | Sensitivity |Specificity| Precison | F1-score| 
 | :-----: |  :-----: | :-----: | :-----: |  :-----: | :-----: |  :-----: | 
-| Siamese network+BLS |  0.914 | 0.998 | 0.753 |0.957|0.795|0.766|
-| Siamese network|0.907 | 0.998 | 0.779 |0.949|0.756|0.763|
+| BLS-Siamese net |  0.914 | 0.998 | 0.753 |0.957|0.795|0.766|
+| Siamese net|0.907 | 0.998 | 0.779 |0.949|0.756|0.763|
 ]
 ![PET+T1](./images/radar0.png)
 ---
-class: center, middle
+.center[
+| Model | Accuracy | AUC | Sensitivity |Specificity| Precison | F1-score| 
+| :-----: |  :-----: | :-----: | :-----: |  :-----: | :-----: |  :-----: | 
+| BLS-Siamese net |  0.916 | 0.988 | 0.478 |0.909|0.509|0.435|
+| Siamese net |0.825 | 0.990 | 0.508 |0.899|0.466|0.424|
+| RF(radiomics) |0.827 | 0.995 | 0.479 |0.917|0.533|0.487|
+| KNN(radiomics) |0.692 | 0.793 | 0.226 |0.953|0.403|0.286|
+| MLP(radiomics) |0.734 | 0.885 | 0.265 |0.933|0.365|0.264|
+]
+![T1](./images/radar2.png)
+---
+.center[
+| Model | Accuracy | AUC | Sensitivity |Specificity| Precison | F1-score| 
+| :-----: |  :-----: | :-----: | :-----: |  :-----: | :-----: |  :-----: | 
+| BLS-Siamese net |  0.835 | 0.993 | 0.763 |0.952|0.766|0.762|
+| Siamese net |0.860 | 0.985 | 0.742 |0.920|0.655|0.694|
+| RF(radiomics) |0.810 | 0.979 | 0.453 |0.945|0.637|0.524|
+| KNN(radiomics) |0.726 | 0.793 | 0.272 |0.930|0.444|0.279|
+| MLP(radiomics) |0.673 | 0.759 | 0.108 |0.961|0.316|0.144|
+]
 
 ![PET](./images/radar3.png)
-
 
 ---
 ---
