@@ -76,17 +76,6 @@ knitr::include_graphics("./images/venn.png")
 .footnote[数据集取交集]
 
 ---
-.left-column[
-```{r echo=FALSE,out.width="150%"}
-knitr::include_graphics("./images/radar3.png")
-```
-]
-
-```{r echo=FALSE,out.width="150%"}
-knitr::include_graphics("./images/radar0.png")
-```
-
----
 .pull-left[
 PET
 ![PET](./images/radar3.png)]
