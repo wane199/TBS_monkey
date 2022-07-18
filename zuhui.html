@@ -11,7 +11,7 @@
     <link href="libs/xaringanExtra-scribble-0.0.1/scribble.css" rel="stylesheet" />
     <script src="libs/xaringanExtra-scribble-0.0.1/scribble.js"></script>
     <script>document.addEventListener('DOMContentLoaded', function() { window.xeScribble = new Scribble({"pen_color":["#FF0000"],"pen_size":3,"eraser_size":30,"palette":[]}) })</script>
-    <script type="application/json" id="xaringanExtra-editable-docid">{"id":"xa2cb0dcb68b4285b8b28751ec7d7b1c","expires":1}</script>
+    <script type="application/json" id="xaringanExtra-editable-docid">{"id":"xf66031943e84528864b3e1ca1409c1e","expires":1}</script>
     <script src="libs/himalaya-1.1.0/himalaya.js"></script>
     <script src="libs/js-cookie-3.0.0/js.cookie.js"></script>
     <link href="libs/editable-0.2.6/editable.css" rel="stylesheet" />
@@ -97,7 +97,7 @@ top:1em;right:1em;
 
 PET/CT-MRI, JNU
 
-2022-07-17
+2022-07-18
 ---
 # 吴环华工作汇报0718
 
@@ -112,24 +112,26 @@ temporal lobe epilepsy patients
 
 --
 ## Second 
-MLP神经网络搭建。
+MLP模型拟合。
 
 ---
 &lt;img src="./images/venn.png" width="100%" /&gt;
 .footnote[数据集取交集]
 
 ---
-PET EP
-![PET](./images/radar3.png)
+.left-column[
+&lt;img src="./images/radar3.png" width="150%" /&gt;
+]
+
+&lt;img src="./images/radar0.png" width="150%" /&gt;
 
 ---
 .pull-left[
-CN
-![matrix1](./images/radar3.png)]
+PET
+![PET](./images/radar3.png)]
 
-.pull-right[
-CN
-![matrix1](./images/radar2.png)]
+
+![PET+T1](./images/radar0.png)
 
 ---
 ---
@@ -158,7 +160,7 @@ MLP神经网络搭建。
 
 ---
 ## Third
-234例颞叶癫痫数据集(3~60 y,23.5y)年龄分层，31例儿童患者（13.2%，3~17 y, 15.0y）
+234例颞叶癫痫数据集(3~60 y,23.5y)年龄分层，31例儿童患者（13.2%，3~17 y, 15.0y）。
 
 ---
 &lt;img src="./images/child.png" width="90%" /&gt;
@@ -168,13 +170,15 @@ MLP神经网络搭建。
 ---
 &lt;img src="./images/Calib.png" width="80%" /&gt;
 ---
+class: center, middle
+.center[
 | Classifier |  Birer loss | Log loss | Precison | Recall| F1 | AUC | 
 | :-----: |  :-----: | :-----: | :-----: |  :-----: | :-----: |
 | Logistic |  0.08 | 0.31 | 0.93 |0.94|0.93|0.89|
 | Naive Bayes|0.22 | 1.89 | 0.84 |0.79|0.81|0.72|
 | SVC|0.18 | 0.52 | 0.94 |0.93|0.93|0.90|
 | Random Forest|0.13 | 0.40 | 0.87 |0.85|0.86|0.78|
-
+]
 ???
 Recall: 查全率也称为召回率，等价于灵敏性（Sensitivity）和真正率（True Positive Rate，TPR）
 ---
@@ -191,7 +195,7 @@ MRIneg dataset预处理及标签文件创建；
 
 --
 ## Third
-癫痫PET图像的组水平结构协变网络(SCNs)测试
+癫痫PET图像的组水平结构协变网络(SCNs)测试。
 ???
 [xaringan of Rmarkdown to  render PPT](https://www.jianshu.com/p/222676cf2054)
 
