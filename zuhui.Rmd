@@ -70,10 +70,19 @@ temporal lobe epilepsy patients
 MLP模型拟合。
 
 ---
+class: center, middle
+```{r echo=FALSE,out.width="100%"}
+knitr::include_graphics("./images/Framework.png")
+```
+.footnote[Proposed Framework]
+
+---
+.center[
 ```{r echo=FALSE,out.width="100%"}
 knitr::include_graphics("./images/venn.png")
 ```
 .footnote[数据集取交集]
+]
 
 ---
 .pull-left[
