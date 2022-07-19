@@ -71,14 +71,14 @@ MLP模型拟合。
 
 ---
 class: center, middle
-```{r echo=FALSE,out.width="100%"}
+```{r echo=FALSE,out.width="150%"}
 knitr::include_graphics("./images/Framework.png")
 ```
 .footnote[Proposed Framework]
 
 ---
 class: center, middle
-```{r echo=FALSE,out.width="100%"}
+```{r echo=FALSE,out.width="75%"}
 knitr::include_graphics("./images/venn.png")
 ```
 .footnote[数据集取交集]
@@ -223,16 +223,20 @@ EP
 ## Third
 数据预处理到模型部署的pipeline梳理。
 ---
-![A wide image with a diagram of MRI dataset](./images/Rplot.png)
+![A wide image with a diagram of MRI dataset](./images/pyramid.png)
 ---
-![A pipeline of Pycaret](./images/image.png)
+class: center, middle
+```{r echo=FALSE,out.width="90%"}
+knitr::include_graphics("./images/MLfan chart.png")
+```
+
 ---
 class: center, middle
 
 # THANKS!
 
-Data Source Provided by 999 Hospital, Guangzhou.
+Data Source Provided by [Guangdong 999 Brain Hospital](https://www.999brain.com/Default.aspx).
 
-[**wane199**]()<br>
+[**JNU**]()<br>
 [wane199@outlook.com](https://github.com/gadenbuie/xaringanthemer).
 
