@@ -227,7 +227,7 @@ EP
 ---
 class: center, middle
 ```{r echo=FALSE,out.width="90%"}
-knitr::include_graphics("./images/MLfan chart.png")
+knitr::include_graphics("./images/MLFan.png")
 ```
 
 ---
