@@ -53,17 +53,25 @@ xaringanExtra::use_clipboard()
 PET/CT-MRI, JNU
 
 `r Sys.Date()`
+
+---
+# 吴环华工作汇报0725
+
+--
+## First
+A broad learning system for 18F–FDG PET/MRI 
+
+--
+## Second 
+
+---
 ---
 # 吴环华工作汇报0718
 
 --
 ## First
 A broad learning system for 18F–FDG PET/MRI imaging diagnosis in
-temporal lobe epilepsy patients
-
-
---
-分层分析（定侧）
+temporal lobe epilepsy patients（定侧）
 
 --
 ## Second 
@@ -113,8 +121,6 @@ knitr::include_graphics("./images/venn.png")
 ]
 
 ![PET](./images/radar3.png)
-
----
 ---
 # 吴环华工作汇报0711
 
@@ -167,7 +173,6 @@ class: center, middle
 ???
 Recall: 查全率也称为召回率，等价于灵敏性（Sensitivity）和真正率（True Positive Rate，TPR）
 ---
----
 # 吴环华工作汇报0704
 
 --
@@ -211,7 +216,6 @@ EP
 ---
 ![A Pyecharts map](./images/map.png)
 ---
----
 # 吴环华工作汇报0627
 
 ## First
@@ -229,7 +233,6 @@ class: center, middle
 ```{r echo=FALSE,out.width="90%"}
 knitr::include_graphics("./images/MLFan.png")
 ```
-
 ---
 class: center, middle
 
