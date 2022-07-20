@@ -7,7 +7,6 @@ library(waffle)
 
 # current verison
 packageVersion("waffle")
-## [1] '1.0.1'
 
 data.frame(
   parts = factor(rep(month.abb[1:3], 3), levels=month.abb[1:3]),
