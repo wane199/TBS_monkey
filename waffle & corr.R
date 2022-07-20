@@ -3,7 +3,6 @@ library(magrittr)
 library(hrbrthemes)
 library(ggplot2)
 library(dplyr)
-library(waffle)
 
 # current verison
 packageVersion("waffle")
