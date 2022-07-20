@@ -173,8 +173,10 @@ plot(v,
 library(ggpubr)
 dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/PET-TLE234-radscore-RCS.csv")
 psych::describe(dt)
+dt$side <- factor(dt$side, levels = c(1,2),labels = c('Left', 'Right'))
+dt$Sex <- factor(dt$Sex, levels = c(1,0),labels = c('Male', 'Female'))
+aggregate(dt$Sex, by=list(type=dt$side, dt$Sex),length)
 dt$oneyr <- as.factor(dt$oneyr)
-dt$Sex <- as.factor(dt$Sex)
 dt <- base::transform(dt, age = Surgmon / 12)
 density.p <- ggdensity(dt,
   x = "radscore",
@@ -217,7 +219,7 @@ density.p + annotation_custom(ggplotGrob(stable.p),
 library(ggdist)
 dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/PET-TLE234-radscore-RCS.csv")
 dt <- base::transform(dt, age = Surgmon / 12)
-dt$side <- factor(dt$side, levels = c(1,2),labels = c('Left','Right'))
+dt$side <- factor(dt$side, levels = c(1,2),labels = c('Left', 'Right'))
 # pdf("/media/wane/wade/EP/EPTLE_PET/CN_PET_csv/raincloud.pdf",width=20, height=10)
 ggplot(data = dt, aes(y = age, x = factor(side), fill = factor(side))) +
   ggdist::stat_halfeye(adjust = 0.50, justification = -0.2, .width = 0, point_colour = NA) +
