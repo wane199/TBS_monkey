@@ -14,6 +14,13 @@ data.frame(
           rep("Male", 2))
 ) -> xdf
 
+data.frame(
+  vals = c(1, 2),
+  col = rep(c("left", "right"), 1),
+  fct = c(rep("Female", 1),
+          rep("Male", 1))
+) -> xdf
+
 xdf %>%
   count(fct, wt = vals) %>%
   ggplot(aes(fill = fct, values = n)) +
@@ -48,7 +55,6 @@ xdf %>%
   theme(legend.key.height = unit(2.25, "line")) +
   theme(legend.text = element_text(size = 10, hjust = 0, vjust = 0.5))
 
-
 xdf %>%
   count(fct, wt = vals) %>%
   ggplot(aes(label = fct, values = n)) +
@@ -72,4 +78,22 @@ xdf %>%
   theme(legend.text = element_text(hjust = 0, vjust = 1))
 
 
-
+xdf %>%
+  count(fct, wt = vals) %>%
+  ggplot(aes(label = fct, values = n)) +
+  geom_pictogram(n_rows = 20, aes(colour = fct), size = 50, flip = T, make_proportional = F) +
+  scale_color_manual(
+    name = NULL,
+    values = c("#c68958", "grey"),
+    labels = c("Male", "Male")
+  ) +
+  scale_label_pictogram(
+    name = NULL,
+    values = c("male", "male"),
+    labels = c("Male", "Male")
+  ) +
+  coord_equal() +
+  theme_ipsum_rc(grid="") +
+  theme_enhance_waffle() +
+  theme(legend.key.height = unit(2.25, "line")) +
+  theme(legend.text = element_text(size = 10, hjust = 0, vjust = 0.5))
