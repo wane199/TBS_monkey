@@ -217,20 +217,25 @@ density.p + annotation_custom(ggplotGrob(stable.p),
 
 # Raincloud
 library(ggdist)
+library(ggplot2)
 dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/PET-TLE234-radscore-RCS.csv")
+dt <- read.csv('/media/wane/wade/MRIneg-98-3.csv')
 dt <- base::transform(dt, age = Surgmon / 12)
 dt$side <- factor(dt$side, levels = c(1,2),labels = c('Left', 'Right'))
+psych::describe(dt)
+dt$Sex <- factor(dt$Sex, levels = c(1,0),labels = c('Male', 'Female'))
+aggregate(dt$Sex, by=list(type=dt$side, dt$Sex),length)
 # pdf("/media/wane/wade/EP/EPTLE_PET/CN_PET_csv/raincloud.pdf",width=20, height=10)
 ggplot(data = dt, aes(y = age, x = factor(side), fill = factor(side))) +
   ggdist::stat_halfeye(adjust = 0.50, justification = -0.2, .width = 0, point_colour = NA) +
   geom_boxplot(width = 0.15, outlier.color = NA) + theme_classic() +
   ggdist::stat_dots(side = "left", dotsize = 0.5, justification = 1.1)
 # dev.off()
-con <- subset(monk, monk$Group == "con")
+con <- subset(dt, dt$age < 18)
 sub <- subset(monk, monk$Group == "sub")
 summary(con)
 summary(sub)
-psych::describe(sub)
+psych::describe(dt)
 glimpse(sub)
 
 # https://cloud.tencent.com/developer/article/1801036

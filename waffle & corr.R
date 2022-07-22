@@ -10,15 +10,19 @@ packageVersion("waffle")
 data.frame(
   vals = c(79, 62, 56, 37),
   col = rep(c("left", "right"), 2),
-  fct = c(rep("Female", 2),
-          rep("Male", 2))
+  fct = c(
+    rep("Female", 2),
+    rep("Male", 2)
+  )
 ) -> xdf
 
 data.frame(
   vals = c(1, 2),
   col = rep(c("left", "right"), 1),
-  fct = c(rep("Female", 1),
-          rep("Male", 1))
+  fct = c(
+    rep("Female", 1),
+    rep("Male", 1)
+  )
 ) -> xdf
 
 xdf %>%
@@ -31,9 +35,9 @@ xdf %>%
     labels = c("Female", "Male")
   ) +
   coord_equal() +
-  theme_ipsum_rc(grid="") +
+  theme_ipsum_rc(grid = "") +
   theme_enhance_waffle()
- 
+
 
 xdf %>%
   count(fct, wt = vals) %>%
@@ -50,7 +54,7 @@ xdf %>%
     labels = c("Male", "Female")
   ) +
   coord_equal() +
-  theme_ipsum_rc(grid="") +
+  theme_ipsum_rc(grid = "") +
   theme_enhance_waffle() +
   theme(legend.key.height = unit(2.25, "line")) +
   theme(legend.text = element_text(size = 10, hjust = 0, vjust = 0.5))
@@ -64,7 +68,7 @@ xdf %>%
   ) +
   scale_color_manual(
     name = NULL,
-    values = c("#073f9c","#f34323"),
+    values = c("#073f9c", "#f34323"),
     labels = c("Female", "Male")
   ) +
   scale_label_pictogram(
@@ -73,7 +77,7 @@ xdf %>%
     labels = c("Female", "Male")
   ) +
   coord_equal() +
-  theme_ipsum_rc(grid="") +
+  theme_ipsum_rc(grid = "") +
   theme_enhance_waffle() +
   theme(legend.text = element_text(hjust = 0, vjust = 1))
 
@@ -93,7 +97,7 @@ xdf %>%
     labels = c("Male", "Male")
   ) +
   coord_equal() +
-  theme_ipsum_rc(grid="") +
+  theme_ipsum_rc(grid = "") +
   theme_enhance_waffle() +
   theme(legend.key.height = unit(2.25, "line")) +
   theme(legend.text = element_text(size = 10, hjust = 0, vjust = 0.5))
