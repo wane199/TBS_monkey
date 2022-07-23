@@ -229,7 +229,13 @@ EP
 ## Third
 数据预处理到模型部署的pipeline梳理。
 ---
+class: center, middle
 ![A wide image with a diagram of MRI dataset](./images/pyramid.png)
+---
+class: center, middle
+
+Epilepsy Multimodal Neuroimaging x BLS
+![Topic](./images/Circles.png)
 ---
 class: center, middle
 ```{r echo=FALSE,out.width="90%"}

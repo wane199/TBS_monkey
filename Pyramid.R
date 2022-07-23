@@ -48,10 +48,10 @@ head(fcol)
 par(mar = pyramid.plot(L.pop, R.pop,
   labels = lobelabels,
   top.labels = c("L-side", "Lobe", "R-side"), unit = "No.",
-  main = "MRI negative population pyramid",
+  main = "MRI negative population distribution",
   lxcol = mcol, rxcol = fcol, ndig = 0,
   laxlab = c(0, 10, 20, 30), raxlab = c(0, 10, 20, 30),
-  gap = 2.0, show.values = TRUE
+  gap = 2.5, show.values = TRUE
 ))
 
 # 使用DescTools包绘制人金字塔图
