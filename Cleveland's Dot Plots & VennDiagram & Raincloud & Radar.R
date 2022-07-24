@@ -214,7 +214,6 @@ density.p + annotation_custom(ggplotGrob(stable.p),
   xmax = 1.3
 )
 
-
 # Raincloud
 library(ggdist)
 library(ggplot2)
@@ -222,7 +221,7 @@ dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/PET-TLE234-radscore-RCS.cs
 dt <- read.csv('/media/wane/wade/MRIneg-98-3.csv')
 dt <- base::transform(dt, age = Surgmon / 12)
 dt$side <- factor(dt$side, levels = c(1,2),labels = c('Left', 'Right'))
-psych::describe(dt)
+psych::describe(dt$age)
 dt$Sex <- factor(dt$Sex, levels = c(1,0),labels = c('Male', 'Female'))
 aggregate(dt$Sex, by=list(type=dt$side, dt$Sex),length)
 # pdf("/media/wane/wade/EP/EPTLE_PET/CN_PET_csv/raincloud.pdf",width=20, height=10)
@@ -237,6 +236,24 @@ summary(con)
 summary(sub)
 psych::describe(dt)
 glimpse(sub)
+
+ggplot(data = dt,aes(x=age))+
+  geom_histogram(bins = 20)
+ggplot(data = dt,aes(x=age,fill=cut(age,breaks = c(2,18,55)))) + 
+  theme_classic() +
+  geom_histogram(bins=25,show.legend = T)
+
+ggplot(data = dt,aes(x=age,y=..density..))+
+  geom_histogram(bins = 50)+
+  geom_density(size=1)
+ggplot(data = dt,aes(x=age,fill=cut(age,breaks = c(0,18,60))))+
+  geom_histogram(bins=40)+
+  scale_fill_discrete()+
+  ggtitle("MRI Negative Epilepsy Patients Age Distribution")+
+  xlab("Age")+
+  ylab("Distribution")+
+  theme(plot.title = element_text(hjust = 0.5))+
+  scale_y_continuous(limits = c(0,10),breaks = c(5))
 
 # https://cloud.tencent.com/developer/article/1801036
 # https://www.datanovia.com/en/blog/beautiful-radar-chart-in-r-using-fmsb-and-ggplot-packages/

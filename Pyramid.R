@@ -32,6 +32,7 @@ lobelabels <- c("Frontal", "Parietal", "Occipital", "Temporal", "Insular")
 mcol <- color.gradient(c(0, 1), c(1, 0.6), c(0.1, 0.6), 5)
 fcol <- color.gradient(c(0, 1), c(1, 0.6), c(0.1, 0.6), 5)
 
+# [colorspace](https://mycolor.space/)
 library(RColorBrewer)
 # 查看sequential连续型颜色画板，每个颜色画板中包含9种颜色
 display.brewer.all(type="seq")
@@ -120,5 +121,5 @@ PlotPyramid(c(1, 3, 5, 2, 0.5), c(2, 4, 6, 1, 0),
   lxlab = "L-side", rxlab = "R-side",
   gapwidth = 1, ylab.x = -8, xaxt = "n"
 )
-par(las = 0)
-par(las = 3)
+par(las = 0) # las 参数控制x轴和y轴的刻度线上的标签与两条轴的防线，可选值为0,1,2,3
+

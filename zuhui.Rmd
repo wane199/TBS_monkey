@@ -59,12 +59,19 @@ PET/CT-MRI, JNU
 
 --
 ## First
-A broad learning system for 18F–FDG PET/MRI 
+Lobes masks & Resampling
 
 --
-## Second 
-神经网络绘图([ML Visuals](https://github.com/dair-ai/ml-visuals))
-
+```{r echo=FALSE,out.width="150%"}
+knitr::include_graphics("./images/Resampling.png")
+```
+.footnote[]
+---
+## Second
+98例MRIneg数据集(3~55 y, 21.0 y)年龄分层，38例儿童患者（38.8%，3~ 17 y, 13.21 y）；
+```{r echo=FALSE,out.width="100%"}
+knitr::include_graphics("./images/MRInegchild.png")
+```
 
 ---
 ---
@@ -73,12 +80,12 @@ A broad learning system for 18F–FDG PET/MRI
 --
 ## First
 A broad learning system for 18F–FDG PET/MRI imaging diagnosis in
-temporal lobe epilepsy patients（定侧）
+temporal lobe epilepsy patients（定侧）；
 
 --
 ## Second 
-MLP模型拟合。
-
+MLP模型拟合，
+神经网络绘图([ML Visuals](https://github.com/dair-ai/ml-visuals))。
 ---
 class: center, middle
 ```{r echo=FALSE,out.width="150%"}
