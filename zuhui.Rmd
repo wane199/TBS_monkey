@@ -72,7 +72,6 @@ knitr::include_graphics("./images/Resampling.png")
 ```{r echo=FALSE,out.width="100%"}
 knitr::include_graphics("./images/MRInegchild.png")
 ```
-
 ---
 ---
 # 吴环华工作汇报0718
@@ -85,6 +84,7 @@ temporal lobe epilepsy patients（定侧）；
 --
 ## Second 
 MLP模型拟合，
+
 神经网络绘图([ML Visuals](https://github.com/dair-ai/ml-visuals))。
 ---
 class: center, middle

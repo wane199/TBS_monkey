@@ -207,7 +207,6 @@ ggarrange(density.p, stable.p, text.p,
   ncol = 1, nrow = 3,
   heights = c(1, 0.5, 0.3)
 )
-
 # 子母图展示
 density.p + annotation_custom(ggplotGrob(stable.p),
   xmin = 0, ymin = 1.0,
@@ -237,11 +236,16 @@ summary(sub)
 psych::describe(dt)
 glimpse(sub)
 
+# https://zhuanlan.zhihu.com/p/261741176
 ggplot(data = dt,aes(x=age))+
   geom_histogram(bins = 20)
 ggplot(data = dt,aes(x=age,fill=cut(age,breaks = c(2,18,55)))) + 
   theme_classic() +
-  geom_histogram(bins=25,show.legend = T)
+  ggtitle("MRI Negative Epilepsy Patients Age Distribution")+
+  xlab("Age")+
+  ylab("Distribution")+
+  geom_vline(aes(xintercept=18), colour = "#990000", linetype="dashed") +
+  geom_histogram(bins=40,show.legend = F)
 
 ggplot(data = dt,aes(x=age,y=..density..))+
   geom_histogram(bins = 50)+
