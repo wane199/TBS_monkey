@@ -68,9 +68,20 @@ knitr::include_graphics("./images/Resampling.png")
 .footnote[]
 ---
 ## Second
-98例MRIneg数据集(3~55 y, 21.0 y)年龄分层，38例儿童患者（38.8%，3~ 17 y, 13.21 y）；
+98例MRIneg数据集(3~55 y, 21.0 y, 21.92 ± 10.54 y)年龄分层，38例儿童患者(38.8%，3~ 17 y, 13.21 y, 12.27 ± 3.74 y);
 ```{r echo=FALSE,out.width="100%"}
 knitr::include_graphics("./images/MRInegchild.png")
+```
+---
+class: left, middle
+```{r echo=FALSE,out.width="150%"}
+knitr::include_graphics("./images/Engel1year.png")
+```
+###### Wang, ZM., Wei, PH., Wang, C. et al. Combined [18F]FDG-PET with MRI structural patterns in predicting post-surgical seizure outcomes in temporal lobe epilepsy patients. Eur Radiol (2022). https://doi.org/10.1007/s00330-022-08912-2
+---
+class: center, middle
+```{r echo=FALSE,out.width="90%"}
+knitr::include_graphics("https://media.springernature.com/full/springer-static/image/art%3A10.1007%2Fs00330-022-08912-2/MediaObjects/330_2022_8912_Fig4_HTML.png?as=webp")
 ```
 ---
 ---

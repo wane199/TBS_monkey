@@ -220,7 +220,7 @@ dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/PET-TLE234-radscore-RCS.cs
 dt <- read.csv('/media/wane/wade/MRIneg-98-3.csv')
 dt <- base::transform(dt, age = Surgmon / 12)
 dt$side <- factor(dt$side, levels = c(1,2),labels = c('Left', 'Right'))
-psych::describe(dt$age)
+psych::describe(con$age)
 dt$Sex <- factor(dt$Sex, levels = c(1,0),labels = c('Male', 'Female'))
 aggregate(dt$Sex, by=list(type=dt$side, dt$Sex),length)
 # pdf("/media/wane/wade/EP/EPTLE_PET/CN_PET_csv/raincloud.pdf",width=20, height=10)
