@@ -220,7 +220,7 @@ dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/PET-TLE234-radscore-RCS.cs
 dt <- read.csv('/media/wane/wade/MRIneg-98-3.csv')
 dt <- base::transform(dt, age = Surgmon / 12)
 dt$side <- factor(dt$side, levels = c(1,2),labels = c('Left', 'Right'))
-psych::describe(con$age)
+psych::describe(dt$age)
 dt$Sex <- factor(dt$Sex, levels = c(1,0),labels = c('Male', 'Female'))
 aggregate(dt$Sex, by=list(type=dt$side, dt$Sex),length)
 # pdf("/media/wane/wade/EP/EPTLE_PET/CN_PET_csv/raincloud.pdf",width=20, height=10)
@@ -239,13 +239,13 @@ glimpse(sub)
 # https://zhuanlan.zhihu.com/p/261741176
 ggplot(data = dt,aes(x=age))+
   geom_histogram(bins = 20)
-ggplot(data = dt,aes(x=age,fill=cut(age,breaks = c(2,18,55)))) + 
+ggplot(data = dt,aes(x=age,fill=cut(age,breaks = c(2,18,61)))) + 
   theme_classic() +
-  ggtitle("MRI Negative Epilepsy Patients Age Distribution")+
+  ggtitle("TLE Patients Age Distribution")+
   xlab("Age")+
   ylab("Distribution")+
   geom_vline(aes(xintercept=18), colour = "#990000", linetype="dashed") +
-  geom_histogram(bins=40,show.legend = F)
+  geom_histogram(bins=50,show.legend = F)
 
 ggplot(data = dt,aes(x=age,y=..density..))+
   geom_histogram(bins = 50)+
