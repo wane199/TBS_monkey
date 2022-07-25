@@ -68,7 +68,7 @@ knitr::include_graphics("./images/Resampling.png")
 .footnote[]
 ---
 ## Second
-98例MRIneg数据集(3~55 y, 21.0 y, 21.92 ± 10.54 y)年龄分层，38例儿童患者(38.8%，3~ 17 y, 13.21 y, 12.27 ± 3.74 y);
+98例MRIneg数据集(3 ~ 55 y, 21.0 y, 21.92 ± 10.54 y)年龄分层，38例儿童患者(38.8%，3 ~ 17 y, 13.21 y, 12.27 ± 3.74 y);
 ```{r echo=FALSE,out.width="100%"}
 knitr::include_graphics("./images/MRInegchild.png")
 ```
