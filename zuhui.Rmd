@@ -56,6 +56,8 @@ PET/CT-MRI, JNU
 
 `r Sys.Date()`
 
+???
+https://huhuaping.com/2021/02/01/css-base-xaringan/
 ---
 # 吴环华工作汇报0725
 
@@ -71,7 +73,7 @@ knitr::include_graphics("./images/Resampling.png")
 ---
 name: MRIneg
 ## Second
-98例MRIneg数据集(3 ~ 55 y, 21.0 y, 21.92 ± 10.54 y)年龄分层，38例儿童患者(38.8%，3 ~ 17 y, 13.21 y, 12.27 ± 3.74 y); [TLE](#TLE-Child)
+98例MRIneg数据集(3 ~ 55 y, 21.0 y, 21.92 ± 10.54 y)年龄分层，38例儿童患者(38.8%，3 ~ 17 y, 13.21 y, 12.27 ± 3.74 y); [vs.TLE](#TLE-Child)
 ```{r echo=FALSE,out.width="100%"}
 knitr::include_graphics("./images/MRInegchild.png")
 ```
@@ -171,7 +173,7 @@ MLP神经网络搭建。
 ---
 name: TLE-Child
 ## Third
-234例颞叶癫痫数据集(3~60 y, 23.5 y, 25.50 ± 8.89 y)年龄分层，31例儿童患者(13.2%，3~17 y, 15.0 y, 13.92 ± 2.95 y);[MRIneg](#MRIneg)
+234例颞叶癫痫数据集(3~60 y, 23.5 y, 25.50 ± 8.89 y)年龄分层，31例儿童患者(13.2%，3~17 y, 15.0 y, 13.92 ± 2.95 y);[Back MRIneg](#MRIneg)
 ```{r echo=FALSE,out.width="90%"}
 knitr::include_graphics("./images/child.png")
 ```
