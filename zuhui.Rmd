@@ -59,6 +59,15 @@ PET/CT-MRI, JNU
 ???
 https://huhuaping.com/2021/02/01/css-base-xaringan/
 ---
+# 吴环华工作汇报0801
+
+--
+## First
+[An explainable machine learning approach based on 18F-FDG PET radiomics for predicting early postoperative recurrence in patients with temporal lobe epilepsy](#Annual)
+
+
+
+---
 # 吴环华工作汇报0725
 
 --
@@ -73,7 +82,7 @@ knitr::include_graphics("./images/Resampling.png")
 ---
 name: MRIneg
 ## Second
-98例MRIneg数据集(3 ~ 55 y, 21.0 y, 21.92 ± 10.54 y)年龄分层，38例儿童患者(38.8%，3 ~ 17 y, 13.21 y, 12.27 ± 3.74 y); [vs.TLE](#TLE-Child)
+98例MRIneg数据集(3 ~ 55 y, 21.0 y, 21.92 ± 10.54 y)年龄分层，38例儿童患者(38.8%，3 ~ 17 y, 13.21 y, 12.27 ± 3.74 y);  [& TLE](#TLE-Child)
 ```{r echo=FALSE,out.width="100%"}
 knitr::include_graphics("./images/MRInegchild.png")
 ```
@@ -147,11 +156,10 @@ knitr::include_graphics("./images/venn.png")
 
 ![PET](./images/radar3.png)
 ---
+name: Annual
 # 吴环华工作汇报0711
-
---
 ## First
-年会摘要投稿(经典机器学习算法):
+Annual meeting abstract submission(Traditional Machine Learning Algorithms):
 
 --
 
@@ -160,7 +168,7 @@ knitr::include_graphics("./images/venn.png")
   
 --
 
-2、基于18F-FDG PET影像组学的可解释性机器学习模型预测颞叶癫痫患者术后早期复发(DT、RF、GBDT);
+**2、基于18F-FDG PET影像组学的可解释性机器学习模型预测颞叶癫痫患者术后早期复发(DT、RF、GBDT);**
 
 --
 
@@ -173,7 +181,7 @@ MLP神经网络搭建。
 ---
 name: TLE-Child
 ## Third
-234例颞叶癫痫数据集(3~60 y, 23.5 y, 25.50 ± 8.89 y)年龄分层，31例儿童患者(13.2%，3~17 y, 15.0 y, 13.92 ± 2.95 y);[Back MRIneg](#MRIneg)
+234例颞叶癫痫数据集(3~60 y, 23.5 y, 25.50 ± 8.89 y)年龄分层，31例儿童患者(13.2%，3~17 y, 15.0 y, 13.92 ± 2.95 y); [& MRIneg](#MRIneg)
 ```{r echo=FALSE,out.width="90%"}
 knitr::include_graphics("./images/child.png")
 ```
