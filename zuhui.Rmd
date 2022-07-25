@@ -183,7 +183,7 @@ knitr::include_graphics("./images/Calib.png")
 ---
 class: center, middle
 .center[
-| Classifier |  Birer loss | Log loss | Precison | Recall| F1 | AUC | 
+| Classifier |  Brier loss | Log loss | Precison | Recall| F1 | AUC | 
 | :-----: |  :-----: | :-----: | :-----: |  :-----: | :-----: |
 | Logistic |  0.08 | 0.31 | 0.93 |0.94|0.93|0.89|
 | Naive Bayes|0.22 | 1.89 | 0.84 |0.79|0.81|0.72|
