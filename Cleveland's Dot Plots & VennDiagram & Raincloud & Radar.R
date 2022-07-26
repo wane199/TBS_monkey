@@ -73,16 +73,16 @@ ggdotchart(df,
 # +++++++++++++++++++++
 # Create some data
 df2 <- data.frame(
-  supp = rep(c("VC", "OJ"), each = 3),
-  dose = rep(c("D0.5", "D1", "D2"), 2),
-  len = c(6.8, 15, 33, 4.2, 10, 29.5)
+  supp = c("VC", "OJ", "D0.5", "D1", "D2"), 
+  disease = c("Stroke", "AD", "Migraine","CNS Ca", "Epilepsy"), 
+  rank = c(60, 50, 40, 30, 20)
 )
 print(df2)
 
 ggdotchart(df2,
-  x = "dose", y = "len",
+  x = "disease", y = "rank",
   color = "supp", size = 3,
-  add = "segment",
+  add = "segment", rotate = TRUE, # 横竖放置
   add.params = list(color = "lightgray", size = 1.5),
   position = position_dodge(0.3),
   palette = "jco",
