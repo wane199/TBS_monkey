@@ -69,12 +69,10 @@ https://huhuaping.com/2021/02/01/css-base-xaringan/
 
 ---
 # 吴环华工作汇报0725
-
---
 ## First
 Lobes masks & Resampling
 
---
+
 ```{r echo=FALSE,out.width="150%"}
 knitr::include_graphics("./images/Resampling.png")
 ```
@@ -98,15 +96,12 @@ class: center, middle
 knitr::include_graphics("https://media.springernature.com/full/springer-static/image/art%3A10.1007%2Fs00330-022-08912-2/MediaObjects/330_2022_8912_Fig4_HTML.png?as=webp")
 ```
 ---
----
 # 吴环华工作汇报0718
-
---
 ## First
 A broad learning system for 18F–FDG PET/MRI imaging diagnosis in
 temporal lobe epilepsy patients（定侧）；
 
---
+
 ## Second 
 MLP模型拟合，
 
@@ -161,20 +156,11 @@ name: Annual
 ## First
 Annual meeting abstract submission(Traditional Machine Learning Algorithms):
 
---
-
-
 1、基于FDG PET代谢影像组学的一种新型评分系统用于颞叶癫痫术后复发预测(CPH);
-  
---
 
 **2、基于18F-FDG PET影像组学的可解释性机器学习模型预测颞叶癫痫患者术后早期复发(DT、RF、GBDT);**
 
---
-
 3、18F-FDG PET影像组学特征在颞叶癫痫患者术前诊断价值的研究(LR、NB、SVC、RF)。
-
---
 ## Second 
 MLP神经网络搭建。
 
@@ -206,16 +192,10 @@ class: center, middle
 Recall: 查全率也称为召回率，等价于灵敏性（Sensitivity）和真正率（True Positive Rate，TPR）
 ---
 # 吴环华工作汇报0704
-
---
 ## First
 MRIneg dataset预处理及标签文件创建；
-
---
 ## Second 
 [复发预测模型文章撰写](https://github.com/wane199/Presentation/blob/master/BLS_EP/BLS_EP.pdf);
-
---
 ## Third
 癫痫PET图像的组水平结构协变网络(SCNs)测试。
 ???
@@ -228,9 +208,7 @@ Rmarkdown: $^{18}$F-FDG
 overleaf: \usepackage{mhchem}  \ce{^{18}F-FDG}
 
 ---
-
 ## AAL116 Nets
-
 .pull-left[
 CN
 ![matrix1](./images/matrix1.png)
@@ -238,11 +216,9 @@ CN
 ![AAL116](./images/Picture1net.png)
 
 ]
-
 .pull-right[
 EP
 ![matrix2](./images/matrix2.png)
-
 ![AAL116](./images/Picture2net.png)
 ]
 ---
