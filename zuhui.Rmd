@@ -67,8 +67,18 @@ https://huhuaping.com/2021/02/01/css-base-xaringan/
 
 --
 ## Second
+Transformer模型架构引入生存分析；
 
+--
+## Third
+A BLS
 
+---
+class: center, middle
+```{r echo=FALSE}
+knitr::include_graphics("./images/Transformer.png")
+```
+.footnote[]
 
 ---
 ---
