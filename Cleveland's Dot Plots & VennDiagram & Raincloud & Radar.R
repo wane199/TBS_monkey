@@ -216,11 +216,13 @@ density.p + annotation_custom(ggplotGrob(stable.p),
 # Raincloud
 library(ggdist)
 library(ggplot2)
-dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/PET-TLE234-radscore-RCS.csv")
+library(readxl)
+# dt <- read.csv("C:\\Users\\wane199\\Desktop\\EP\\Structured_Data\\2014-2019TLE220.csv")
+dt <- read_excel("C:\\Users\\wane199\\Desktop\\EP\\Structured_Data\\2014-2019TLE220.xlsx")
 dt <- read.csv('/media/wane/wade/MRIneg-98-3.csv')
 dt <- base::transform(dt, age = Surgmon / 12)
-dt$side <- factor(dt$side, levels = c(1,2),labels = c('Left', 'Right'))
-psych::describe(dt$age)
+dt$side <- factor(dt$side, levels = c('L','R'),labels = c('Left', 'Right'))
+psych::describe(dt)
 dt$Sex <- factor(dt$Sex, levels = c(1,0),labels = c('Male', 'Female'))
 aggregate(dt$Sex, by=list(type=dt$side, dt$Sex),length)
 # pdf("/media/wane/wade/EP/EPTLE_PET/CN_PET_csv/raincloud.pdf",width=20, height=10)
@@ -231,9 +233,9 @@ ggplot(data = dt, aes(y = age, x = factor(side), fill = factor(side))) +
 # dev.off()
 con <- subset(dt, dt$age < 18)
 sub <- subset(monk, monk$Group == "sub")
-summary(con)
+summary(dt)
 summary(sub)
-psych::describe(dt)
+psych::describe(dt$age)
 glimpse(sub)
 
 # https://zhuanlan.zhihu.com/p/261741176

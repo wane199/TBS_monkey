@@ -79,7 +79,7 @@ BLS文章撰写;
 Transformer模型架构引入生存分析；
 
 ## Third
-[**An explainable machine learning approach based on 18F-FDG PET radiomics for predicting early postoperative recurrence in patients with temporal lobe epilepsy**](#Annual).
+[**An explainable machine learning approach based on 18F-FDG PET radiomics for predicting early postoperative recurrence in patients with temporal lobe epilepsy.**](#Annual)
 
 ---
 class: center, middle
@@ -111,7 +111,6 @@ knitr::include_graphics("./images/gbc.png")
 ## First
 Lobes masks & Resampling
 
-
 ```{r echo=FALSE,out.width="150%"}
 knitr::include_graphics("./images/Resampling.png")
 ```
@@ -119,7 +118,7 @@ knitr::include_graphics("./images/Resampling.png")
 ---
 name: MRIneg
 ## Second
-98例MRIneg数据集(3 ~ 55 y, 21.0 y, 21.92 ± 10.54 y)年龄分层，38例儿童患者(38.8%，3 ~ 17 y, 13.21 y, 12.27 ± 3.74 y);  [& TLE](#TLE-Child)
+98例MRIneg数据集(3 ~ 55 y, 21.0 y, 21.92 ± 10.54 y)年龄分层，38例儿童患者(38.8%，3 ~ 17 y, 13.21 y, 12.27 ± 3.74 y);[& TLE](#TLE-Child)
 ```{r echo=FALSE,out.width="100%"}
 knitr::include_graphics("./images/MRInegchild.png")
 ```
@@ -206,7 +205,7 @@ MLP神经网络搭建。
 ---
 name: TLE-Child
 ## Third
-234例颞叶癫痫数据集(3~60 y, 23.5 y, 25.50 ± 8.89 y)年龄分层，31例儿童患者(13.2%，3~17 y, 15.0 y, 13.92 ± 2.95 y); [& MRIneg](#MRIneg)
+234例颞叶癫痫数据集(3 ~ 60 y, 23.5 y, 25.50 ± 8.89 y)年龄分层，31例儿童患者(13.2%，3 ~ 17 y, 15.0 y, 13.92 ± 2.95 y); [& MRIneg](#MRIneg)
 ```{r echo=FALSE,out.width="90%"}
 knitr::include_graphics("./images/child.png")
 ```
@@ -295,4 +294,3 @@ Data Source Provided by [Guangdong 999 Brain Hospital](https://www.999brain.com/
 
 [**JNU**]()<br>
 [wane199@outlook.com](https://github.com/gadenbuie/xaringanthemer).
-
