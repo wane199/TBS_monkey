@@ -96,6 +96,11 @@ class: center, middle
 ```{r echo=FALSE}
 knitr::include_graphics("./images/gbc.png")
 ```
+
+| Model | Accuracy | AUC | Recall | Precison | F1-score| Kappa | MCC |
+| :-----: |  :-----: | :-----: | :-----: |  :-----: | :-----: |  :-----: | :-----: |
+| GBDT |  0.8978 | 0.8509 | 0.2750 |0.5517|0.3619|0.3164|0.3405| 
+
 ---
 # 吴环华工作汇报0725
 ## First
