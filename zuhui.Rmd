@@ -61,6 +61,10 @@ https://huhuaping.com/2021/02/01/css-base-xaringan/
 ---
 # 吴环华工作汇报0808
 
+--
+## First
+目标期刊[eClinicalMedicine](https://www.editorialmanager.com/eclinm/default1.aspx) & [eBioMedicine](https://www.editorialmanager.com/ebiom/default1.aspx);
+
 
 
 ---
