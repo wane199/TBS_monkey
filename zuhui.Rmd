@@ -63,7 +63,7 @@ https://huhuaping.com/2021/02/01/css-base-xaringan/
 
 --
 ## First
-[An explainable machine learning approach based on 18F-FDG PET radiomics for predicting early postoperative recurrence in patients with temporal lobe epilepsy](#Annual)
+BLS文章撰写;
 
 --
 ## Second
@@ -71,15 +71,29 @@ Transformer模型架构引入生存分析；
 
 --
 ## Third
-A BLS
+[An explainable machine learning approach based on 18F-FDG PET radiomics for predicting early postoperative recurrence in patients with temporal lobe epilepsy](#Annual).
 
 ---
 class: center, middle
+**癫痫数据集及任务**
+```{r echo=FALSE}
+knitr::include_graphics("./images/Dataset.png")
+```
+.footnote[]
+---
+class: center, middle
+**Transformer架构**
 ```{r echo=FALSE}
 knitr::include_graphics("./images/Transformer.png")
 ```
 .footnote[]
-
+---
+class: center, middle
+**MRI negative GBC classifier**
+```{r echo=FALSE}
+knitr::include_graphics("./images/gbc.png")
+```
+.footnote[]
 ---
 ---
 # 吴环华工作汇报0725
