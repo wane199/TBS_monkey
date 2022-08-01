@@ -59,19 +59,22 @@ PET/CT-MRI, JNU
 ???
 https://huhuaping.com/2021/02/01/css-base-xaringan/
 ---
+# 吴环华工作汇报0808
+
+
+
+---
+name: SCI
 # 吴环华工作汇报0801
 
---
 ## First
 BLS文章撰写;
 
---
 ## Second
 Transformer模型架构引入生存分析；
 
---
 ## Third
-[An explainable machine learning approach based on 18F-FDG PET radiomics for predicting early postoperative recurrence in patients with temporal lobe epilepsy](#Annual).
+[**An explainable machine learning approach based on 18F-FDG PET radiomics for predicting early postoperative recurrence in patients with temporal lobe epilepsy**](#Annual).
 
 ---
 class: center, middle
@@ -93,8 +96,6 @@ class: center, middle
 ```{r echo=FALSE}
 knitr::include_graphics("./images/gbc.png")
 ```
-.footnote[]
----
 ---
 # 吴环华工作汇报0725
 ## First
@@ -186,7 +187,7 @@ Annual meeting abstract submission(Traditional Machine Learning Algorithms):
 
 1、基于FDG PET代谢影像组学的一种新型评分系统用于颞叶癫痫术后复发预测(CPH);
 
-**2、基于18F-FDG PET影像组学的可解释性机器学习模型预测颞叶癫痫患者术后早期复发(DT、RF、GBDT);**
+[**2、基于18F-FDG PET影像组学的可解释性机器学习模型预测颞叶癫痫患者术后早期复发(DT、RF、GBDT);**](#SCI)
 
 3、18F-FDG PET影像组学特征在颞叶癫痫患者术前诊断价值的研究(LR、NB、SVC、RF)。
 ## Second 
@@ -269,7 +270,7 @@ class: center, middle
 class: center, middle
 
 Epilepsy Multimodal Neuroimaging x BLS
-![Topic](./images/Circles.png)
+![Topic](./images/Circle2.png)
 ---
 class: center, middle
 ```{r echo=FALSE,out.width="90%"}
