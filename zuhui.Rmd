@@ -66,6 +66,10 @@ https://huhuaping.com/2021/02/01/css-base-xaringan/
 目标期刊[eClinicalMedicine](https://www.editorialmanager.com/eclinm/default1.aspx) & [eBioMedicine](https://www.editorialmanager.com/ebiom/default1.aspx);
 
 
+|              | class | accuracy | sensitivity | specificity | precision | f1score | auc    |
+|--------------|-------|----------|-------------|-------------|-----------|---------|--------|
+|  Siamese net | PET   | 0.645    | 0.965       | 0.701       | 0.866     | 0.913   | 0.877  |
+|              | T1    | 0.343    | 0.594       | 0.297       | 0.631     | 0.611   | 0.542  |
 
 ---
 ---

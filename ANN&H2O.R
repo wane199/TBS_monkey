@@ -8,7 +8,7 @@ dt <- read.csv("/media/wane/wade/EP/EPTLE_PET/PET-TLE234-radscore-RCS2.csv", hea
 data <- read.csv(file.choose(), header = T)
 # 进行数据的重新编码(recode), 批量分类变量转化为因子
 dt <- dt[, -1:-4]
-dt <- dt[c(5,8:10,12,17:18)]
+dt <- dt[c(5, 8:10, 12, 17:18)]
 str(dt)
 a <- dt[-1]
 b <- dt[, -1]
@@ -75,7 +75,7 @@ mlpcla <- neuralnet(f,
   act.fct = "logistic", ## 激活函数
   err.fct = "sse",
   linear.output = FALSE,
-  lifesign = 'full',
+  lifesign = "full",
   rep = 5,
   algorithm = "rprop+"
 )
@@ -125,7 +125,7 @@ mlpprelab <- apply(mlppre, 1, which.max)
 ## 可视化预测的混淆矩阵
 ggplot() +
   geom_confmat(aes(x = training_set$oneyr, y = mlpprelab),
-               normalize = TRUE, text.perc = TRUE
+    normalize = TRUE, text.perc = TRUE
   ) +
   labs(x = "Reference", y = "Prediction") +
   scale_fill_gradient2(low = "darkblue", high = "lightgreen")
@@ -152,13 +152,12 @@ net.predict <- neuralnet::compute(network, test_set)$net.result
 pred2 <- ifelse(net.predict > 0.5, 1, 0)
 tab2 <- table(pred2, test_set$oneyr)
 tab2
-1 - sum(diag(tab2))/sum(tab2)
+1 - sum(diag(tab2)) / sum(tab2)
 
 library(e1071)
 classAgreement(tab2)
 library(caret)
 confusionMatrix(tab2)
-
 
 
 # 4.Neural Networks Classifing  https://rpubs.com/bambangpe/647606
@@ -174,8 +173,6 @@ max_data <- apply(input, 2, max)
 min_data <- apply(input, 2, min)
 input_scaled <- as.data.frame(scale(input, center = min_data, scale = max_data - min_data))
 # View(input_scaled)
-
-
 
 
 # 将目标变量转换为因子
