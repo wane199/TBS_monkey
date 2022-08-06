@@ -23,9 +23,9 @@ summary(dt)
 
 library(caret)
 # 待筛选特征标准化
-dtx <- scale(dt[, c(2:21)])
+dtx <- scale(dt[, c(3:20)])
 dtx <- as.data.frame(dtx)
-dt <- mutate(dt[1], dtx)
+dt <- dplyr::mutate(dt[2], dtx)
 dt2 <- cbind(dt[1], dtx)
 set.seed(123)
 ind <- sample(2, nrow(dt), replace = TRUE, prob = c(0.7, 0.3))
@@ -172,11 +172,10 @@ write.csv(ResultMul,file="Mul_log.csv")
 
 # https://zhuanlan.zhihu.com/p/369933231
 # 全子集回归 | 最优子集筛选
-lmfit<- lm(Y == 1 ~ sex + age + Cre + eGFR + Urea + CysC + ALP + VD + PTH + Ca + P + BMI + BMD + TBS + 
-                 TscoreL1L4 + Dialysis_duration + Smoking + Drinking + DM + Drugs, data=train)
+lmfit<- lm(Y == 1 ~ sex + age + Cre + eGFR + Urea + CysC + ALP + VD + PTH + Ca + P + BMI + TBS 
+           + Dialysis_duration + Smoking + Drinking + DM + Drugs, data=train)
 
 library(olsrr)
 ols_step_all_possible(lmfit)
-
 plot(ols_step_all_possible(lmfit))
 
