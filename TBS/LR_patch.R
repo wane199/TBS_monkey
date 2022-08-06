@@ -142,7 +142,8 @@ Uni_glm
 # 注意：这一步只是为了提取变量仅此而已
 variable.names
 paste0(variable.names, collapse = "+")
-names <- glm(Y == 1 ~ sex + age + Cre + eGFR + Urea + CysC + ALP + VD + PTH + Ca + P + BMI + BMD + TBS + TscoreL1L4 + Dialysis_duration + Smoking + Drinking + DM + Drugs,
+names <- glm(Y == 1 ~ sex + age + Cre + eGFR + Urea + CysC + ALP + VD + PTH + Ca + P + 
+               BMI + BMD + TBS + TscoreL1L4 + Dialysis_duration + Smoking + Drinking + DM + Drugs,
   data = train,
   family = binomial
 )
@@ -157,7 +158,6 @@ Uni_glm
 # 保存为Excel
 write.csv(Uni_glm, "批量单因素回归三线表结果.csv")
 
-
 #多因素logistic回归
 varsMul<-c("age","sex","P","DM","Ca","TBS","Dialysis_duration")#需要进行多因素分析的变量，随机生成的数据单因素无意义，故强制纳入
 dataAM<-data.frame(subset(train,select=c("Y",varsMul[1:length(varsMul)])))#将因变量和要分析的自变量单独建库
@@ -170,7 +170,13 @@ ResultMul<-cbind(ResultMul,cbind(OR,exp(confint(fitMul))))
 ResultMul
 write.csv(ResultMul,file="Mul_log.csv")
 
+# https://zhuanlan.zhihu.com/p/369933231
+# 全子集回归 | 最优子集筛选
+lmfit<- lm(Y == 1 ~ sex + age + Cre + eGFR + Urea + CysC + ALP + VD + PTH + Ca + P + BMI + BMD + TBS + 
+                 TscoreL1L4 + Dialysis_duration + Smoking + Drinking + DM + Drugs, data=train)
 
+library(olsrr)
+ols_step_all_possible(lmfit)
 
-
+plot(ols_step_all_possible(lmfit))
 
