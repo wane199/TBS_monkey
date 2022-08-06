@@ -25,11 +25,7 @@ library(caret)
 # 待筛选特征标准化
 dtx <- scale(dt[, c(3:20)])
 dtx <- as.data.frame(dtx)
-<<<<<<< HEAD
-dt <- dplyr::mutate(dt[2], dtx)
-=======
 dt <- dplyr::mutate(dt[1], dtx)
->>>>>>> a0f8afb0d2db660d78f18b3d14f7fca3a474a62d
 dt2 <- cbind(dt[1], dtx)
 set.seed(123)
 ind <- sample(2, nrow(dt), replace = TRUE, prob = c(0.7, 0.3))
@@ -60,7 +56,7 @@ prob3 <- predict(fit3, newdata = test, type = "response")
 pred3 <- prediction(prob3, test$Y)
 performance(pred3, "auc")@y.values[[1]]
 
-fit4 <- glm(Y ~ age+sex+P+DM+Ca+TscoreL1L4+Dialysis_duration, data = train, family = binomial())
+fit4 <- glm(Y ~ age + sex + P + DM + Ca + TscoreL1L4 + Dialysis_duration, data = train, family = binomial())
 prob4 <- predict(fit4, newdata = test, type = "response")
 pred4 <- prediction(prob4, test$Y)
 performance(pred4, "auc")@y.values[[1]]
@@ -146,10 +142,10 @@ Uni_glm
 # 注意：这一步只是为了提取变量仅此而已
 variable.names
 paste0(variable.names, collapse = "+")
-names <- glm(Y == 1 ~ sex + age + Cre + eGFR + Urea + CysC + ALP + VD + PTH + Ca + P + 
-               BMI + BMD + TBS + TscoreL1L4 + Dialysis_duration + Smoking + Drinking + DM + Drugs,
-  data = train,
-  family = binomial
+names <- glm(Y == 1 ~ sex + age + Cre + eGFR + Urea + CysC + ALP + VD + PTH + Ca + P +
+  BMI + BMD + TBS + TscoreL1L4 + Dialysis_duration + Smoking + Drinking + DM + Drugs,
+data = train,
+family = binomial
 )
 name <- data.frame(summary(names)$aliased)
 # 将提取的数据表的行名删除第一行并给三线表
@@ -162,27 +158,23 @@ Uni_glm
 # 保存为Excel
 write.csv(Uni_glm, "批量单因素回归三线表结果.csv")
 
-#多因素logistic回归
-varsMul<-c("age","sex","P","DM","Ca","TBS","Dialysis_duration")#需要进行多因素分析的变量，随机生成的数据单因素无意义，故强制纳入
-dataAM<-data.frame(subset(train,select=c("Y",varsMul[1:length(varsMul)])))#将因变量和要分析的自变量单独建库
-fitMul<-glm(Y~.,data=dataAM,family=binomial())#行多因素logistic回归分析
-fitSum<-summary(fitMul)
-ResultMul<-c()#准备空向量，用来储存结果
-ResultMul<-rbind(ResultMul,fitSum$coef)
-OR<-exp(fitSum$coef[,'Estimate'])
-ResultMul<-cbind(ResultMul,cbind(OR,exp(confint(fitMul))))
+# 多因素logistic回归
+varsMul <- c("age", "sex", "P", "DM", "Ca", "TBS", "Dialysis_duration") # 需要进行多因素分析的变量，随机生成的数据单因素无意义，故强制纳入
+dataAM <- data.frame(subset(train, select = c("Y", varsMul[1:length(varsMul)]))) # 将因变量和要分析的自变量单独建库
+fitMul <- glm(Y ~ ., data = dataAM, family = binomial()) # 行多因素logistic回归分析
+fitSum <- summary(fitMul)
+ResultMul <- c() # 准备空向量，用来储存结果
+ResultMul <- rbind(ResultMul, fitSum$coef)
+OR <- exp(fitSum$coef[, "Estimate"])
+ResultMul <- cbind(ResultMul, cbind(OR, exp(confint(fitMul))))
 ResultMul
-write.csv(ResultMul,file="Mul_log.csv")
+write.csv(ResultMul, file = "Mul_log.csv")
 
 # https://zhuanlan.zhihu.com/p/369933231
 # 全子集回归 | 最优子集筛选
-<<<<<<< HEAD
-lmfit<- lm(Y == 1 ~ sex + age + Cre + eGFR + Urea + CysC + ALP + VD + PTH + Ca + P + BMI + TBS 
-           + Dialysis_duration + Smoking + Drinking + DM + Drugs, data=train)
-=======
-lmfit<- lm(Y == 1 ~ sex + age + Cre + eGFR + Urea + CysC + ALP + VD + PTH + Ca + P + BMI + BMD + TBS + 
-                 Dialysis_duration + Smoking + Drinking + DM + Drugs, data=train)
->>>>>>> a0f8afb0d2db660d78f18b3d14f7fca3a474a62d
+lmfit <- lm(Y == 1 ~ sex + age + Cre + eGFR + Urea + CysC + ALP + VD + PTH + Ca + P + BMI + TBS
+  + Dialysis_duration + Smoking + Drinking + DM + Drugs, data = train)
+
 
 library(olsrr)
 # 全子集回归
@@ -191,11 +183,10 @@ plot(ols_step_all_possible(lmfit))
 
 # 最优子集回归
 ols_step_best_subset(lmfit)
-
 plot(ols_step_best_subset(lmfit))
 
 
-lmfitbm<- lm(bwt~lwt+race+smoke+ptl+ht+ui,data=lmdata)
+lmfitbm <- lm(bwt ~ lwt + race + smoke + ptl + ht + ui, data = lmdata)
 
 summary(lmfitbm)
 
@@ -203,11 +194,10 @@ summary(lmfitbm)
 library(bestglm)
 library(leaps)
 
-bestglm(lgtdata, IC="AIC", family=binomial) ##Information criteria to use: "AIC", "BIC", "BICg", "BICq", "LOOCV", "CV". Family to use: binomial(link = "logit"),gaussian(link = "identity"),Gamma(link = "inverse"),inverse.gaussian(link = "1/mu^2"),poisson(link = "log"),quasi(link = "identity", variance = "constant"),quasibinomial(link = "logit"),quasipoisson(link = "log")
+bestglm(lgtdata, IC = "AIC", family = binomial) ## Information criteria to use: "AIC", "BIC", "BICg", "BICq", "LOOCV", "CV". Family to use: binomial(link = "logit"),gaussian(link = "identity"),Gamma(link = "inverse"),inverse.gaussian(link = "1/mu^2"),poisson(link = "log"),quasi(link = "identity", variance = "constant"),quasibinomial(link = "logit"),quasipoisson(link = "log")
 
-lgtdata2<-lmdata[c("age","sex","P","DM","Ca","TBS","BMD","Dialysis_duration")]
+lgtdata2 <- lmdata[c("age", "sex", "P", "DM", "Ca", "TBS", "BMD", "Dialysis_duration")]
 
-lgtdata2<-as.data.frame(as.matrix(lgtdata2))
+lgtdata2 <- as.data.frame(as.matrix(lgtdata2))
 
-bestglm(lgtdata2, IC="AIC", family=binomial)
-
+bestglm(lgtdata2, IC = "AIC", family = binomial)
