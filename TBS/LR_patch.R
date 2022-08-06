@@ -1,6 +1,6 @@
 # https://blog.csdn.net/qq_42696043/article/details/125134962?spm=1001.2014.3001.5502
 library(ggplot2)
-dt <- read.csv("/home/wane/Desktop/TBS&Mon/BIAO/PTH1/CKD2.csv", header = T)
+dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\BIAO\\PTH1\\CKD1-2.csv", header = T)
 str(dt)
 summary(dt)
 
@@ -15,17 +15,17 @@ for (i in names(dt)[c(3:5, 7:16)]) {
 }
 
 plot(density(dt$TBS), main = "Distribution of TBS")
-polygon(density(dt$TBS), col = "pink") # polygon()用于曲线内填充颜色
-abline(v = 1.30, lwd = 3, col = "skyblue") # abline（a, b）表示在图上添加一条y=a+bx的直线
+polygon(density(dt$TBS), col = "grey") # polygon()用于曲线内填充颜色
+abline(v = 1.34, lwd = 2, col = "skyblue") # abline（a, b）表示在图上添加一条y=a+bx的直线
 
-dt$TBS <- dt$TBS > 2400
+dt$TBS <- dt$TBS > 1.34
 summary(dt)
 
 library(caret)
 # 待筛选特征标准化
 dtx <- scale(dt[, c(2:21)])
 dtx <- as.data.frame(dtx)
-dt <- mutate(dt[1], dtx)
+dt <- dplyr::mutate(dt[1], dtx)
 dt2 <- cbind(dt[1], dtx)
 set.seed(123)
 ind <- sample(2, nrow(dt), replace = TRUE, prob = c(0.7, 0.3))
@@ -173,10 +173,33 @@ write.csv(ResultMul,file="Mul_log.csv")
 # https://zhuanlan.zhihu.com/p/369933231
 # 全子集回归 | 最优子集筛选
 lmfit<- lm(Y == 1 ~ sex + age + Cre + eGFR + Urea + CysC + ALP + VD + PTH + Ca + P + BMI + BMD + TBS + 
-                 TscoreL1L4 + Dialysis_duration + Smoking + Drinking + DM + Drugs, data=train)
+                 Dialysis_duration + Smoking + Drinking + DM + Drugs, data=train)
 
 library(olsrr)
+# 全子集回归
 ols_step_all_possible(lmfit)
 
 plot(ols_step_all_possible(lmfit))
+
+# 最优子集回归
+ols_step_best_subset(lmfit)
+
+plot(ols_step_best_subset(lmfit))
+
+
+lmfitbm<- lm(bwt~lwt+race+smoke+ptl+ht+ui,data=lmdata)
+
+summary(lmfitbm)
+
+
+library(bestglm)
+library(leaps)
+
+bestglm(lgtdata, IC="AIC", family=binomial) ##Information criteria to use: "AIC", "BIC", "BICg", "BICq", "LOOCV", "CV". Family to use: binomial(link = "logit"),gaussian(link = "identity"),Gamma(link = "inverse"),inverse.gaussian(link = "1/mu^2"),poisson(link = "log"),quasi(link = "identity", variance = "constant"),quasibinomial(link = "logit"),quasipoisson(link = "log")
+
+lgtdata2<-lmdata[c("age","sex","P","DM","Ca","TBS","BMD","Dialysis_duration")]
+
+lgtdata2<-as.data.frame(as.matrix(lgtdata2))
+
+bestglm(lgtdata2, IC="AIC", family=binomial)
 
