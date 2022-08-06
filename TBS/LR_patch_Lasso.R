@@ -217,6 +217,8 @@ testingset <- dt[-ss, ]
 # Deep EDA
 # Explore numeric variables with descriptive statistics
 library(flextable) # beautifying tables
+library(dplyr)
+library(dlookr)
 dlookr::describe(trainingset) %>% flextable()
 
 trainingset %>% 
@@ -241,27 +243,38 @@ describeBy(trainingset,
 
 # Summary tools
 library(gtsummary)
-trainingset %>% 
+tra <- trainingset %>% 
+  # select(mpg, hp, am, gear, cyl) %>% 
+  tbl_summary(by = Y) %>% 
+  add_p()
+tes <- testingset %>% 
   # select(mpg, hp, am, gear, cyl) %>% 
   tbl_summary(by = Y) %>% 
   add_p()
 
-testingset %>% 
-  # select(mpg, hp, am, gear, cyl) %>% 
-  tbl_summary(by = Y) %>% 
-  add_p()
+tes %>%    # build gtsummary table
+  as_gt() %>%             # convert to gt table
+  gt::gtsave(             # save table as image
+    filename = "./TBS/test.png"
+  )
 
 # 保存为.html .tex .ltx .rtf
-tbl_merge_ex1 %>%
+tra %>%
   as_gt() %>%
-  gt::gtsave(filename = "tbl_merge_ex1.html") # use extensions .html .tex .ltx .rtf
+  gt::gtsave(filename = "./TBS/train_ex1.html") # use extensions .html .tex .ltx .rtf
 # 保存为word
-install.packages('gdtools')
-install.packages('flextable')
+library(gdtools)
 tf <- tempfile(fileext = ".docx")
-tbl_merge_ex1 %>%
+tra %>%
   as_flex_table() %>%
   flextable::save_as_docx(path = tf)
+# using the knitr::kable function
+as_kable(tra, format = "latex")
+# using the {kableExtra} package
+as_kable_extra(tra, format = "latex")
+
+
+
 library(autoReg)
 ft=gaze(Y~.,data=trainingset) %>% myft()
 ft
