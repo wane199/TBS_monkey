@@ -9,10 +9,6 @@ VarsC <- names(dt[c(1:2, 4:12, 17:21)]) # 分类变量
 for (i in VarsC) {
   dt[, i] <- as.factor(dt[, i])
 } # 利用循环因子化
-# 批量数值转因子
-for (i in names(dt)[c(3:5, 7:16)]) {
-  dt[, i] <- as.factor(dt[, i])
-}
 
 plot(density(dt$TBS), main = "Distribution of TBS")
 polygon(density(dt$TBS), col = "grey") # polygon()用于曲线内填充颜色
@@ -191,7 +187,6 @@ summary(lmfitbm)
 
 library(bestglm)
 library(leaps)
-
 lgtdata <- train[c("age", "sex", "P", "DM", "Ca", "TBS", "Dialysis_duration", "Y")]
 lgtdata <- as.data.frame(as.matrix(lgtdata))
 str(lgtdata)
@@ -203,16 +198,31 @@ bestglm(lgtdata, IC = "CV", family = binomial) ## Information criteria to use: "
 # 按7:3将数据集分割为训练集和测试集合
 dt <- read.csv("/home/wane/Desktop/TBS&Mon/BIAO/PTH1/CKD1-2.csv", header = T)
 dt <- dt[-1]
-str(dt$Y)
+str(dt)
 summary(dt)
 dt$Y <- ifelse(dt$Y =="0","No Fracture","Fracture")
 # dt$Y <- as.factor(as.character(dt$Y))
-# dt$Y <- as.factor(dt$Y,levels = c("0", "1"),
+# dt$Y <- as.factor(dt$Y,levels = c(0, 1),
 #                   labels = c("No Fracture", "Fracture"))
+# 批量数值转因子
+for (i in names(dt)[c(1:2,4:12, 17:21)]) {
+  dt[, i] <- as.factor(dt[, i])
+}
 set.seed(123)
 ss <- sample(nrow(dt), nrow(dt) * 0.7)
 trainingset <- dt[ss, ]
 testingset <- dt[-ss, ]
+# library(caTools)
+# set.seed(123)
+# split<-sample.split(biopsy$class, SplitRatio = 0.70)
+# trainingset<-subset(biopsy, split==TRUE)
+# testingset<-subset(biopsy, split == FALSE)
+# library(caret)
+# library(ggplot2);library(lattice)
+# set.seed(123)
+# split<-createDataPartition(biopsy$class,p=0.7,list=FALSE)
+# trainingset3<-biopsy[split,]
+# testingset3<-biopsy[-split,]
 
 # Deep EDA
 # Explore numeric variables with descriptive statistics
@@ -252,44 +262,59 @@ tes <- testingset %>%
   tbl_summary(by = Y) %>% 
   add_p()
 
-tes %>%    # build gtsummary table
+tra %>%    # build gtsummary table
   as_gt() %>%             # convert to gt table
   gt::gtsave(             # save table as image
-    filename = "./TBS/test.png"
+    filename = "./TBS/train.png"
   )
-
 # 保存为.html .tex .ltx .rtf
 tra %>%
   as_gt() %>%
   gt::gtsave(filename = "./TBS/train_ex1.html") # use extensions .html .tex .ltx .rtf
 # 保存为word
 library(gdtools)
+library(officer)
 tf <- tempfile(fileext = ".docx")
 tra %>%
   as_flex_table() %>%
   flextable::save_as_docx(path = tf)
+
 # using the knitr::kable function
 as_kable(tra, format = "latex")
 # using the {kableExtra} package
 as_kable_extra(tra, format = "latex")
-
-
-
+# 基线特征描述统计
 library(autoReg)
 ft=gaze(Y~.,data=trainingset) %>% myft()
 ft
-fit=glm(status~rx+sex+age+obstruct+perfor+nodes,data=colon,family="binomial")
+library(rrtable)
+table2pptx(ft) #Exported table as Report.pptx
+table2docx(ft) #Exported table as Report.docx
+table2docx(tra,title="Train",append=TRUE,vanilla=TRUE)
+# 二元LR回归，多分类变量必须处理成factor
+trainingset$Y=factor(trainingset$Y,labels=c("No Fracture","Fracture"))
+## setLabel()函数给变量名添加标签
+trainingset$Y=setLabel(trainingset$Y,"Fracture Risk")
+fit=glm(Y ~ age+Cre+eGFR+Urea+CysC+ALP+PTH+Ca+P+BMI+TBS+sex,
+        data=trainingset,family="binomial")
 summary(fit)
 autoReg(fit) %>% myft()
-
+# 如果不想在表中显示参考值，可以缩短表。
+shorten(autoReg(fit, uni=T, threshold=1)) %>% myft()
+autoReg(fit, uni=TRUE,threshold=1, final=TRUE) %>% myft()
+x=modelPlot(fit)
+x
+plot2pptx(print(x)) ##Exported plot as Report.pptx
+plot2docx(print(x))
+modelPlot(fit,uni=TRUE,threshold=1,show.ref=FALSE)
 
 # Explore distribution of numeric variables
 library(DataExplorer)
+library(ggplot2)
 plot_bar(dt)
 # Plot bar charts by `cut`
 plot_bar(dt, by = "Y")
 plot_histogram(trainingset,ggtheme = theme_classic())
-plot_boxplot(dt)
 plot_density(dt)
 
 library(SmartEDA)
@@ -326,17 +351,6 @@ ggbetweenstats(
 
 ExpNumViz(trainingset, target = "Y", Page = c(4,4))
 
-# library(caTools)
-# set.seed(123)
-# split<-sample.split(biopsy$class, SplitRatio = 0.70)
-# trainingset<-subset(biopsy, split==TRUE)
-# testingset<-subset(biopsy, split == FALSE)
-# library(caret)
-# library(ggplot2);library(lattice)
-# set.seed(123)
-# split<-createDataPartition(biopsy$class,p=0.7,list=FALSE)
-# trainingset3<-biopsy[split,]
-# testingset3<-biopsy[-split,]
 ## 生成解释变量和结局变量的矩阵格式，glmnet数据格式是矩阵
 Xtrain <- as.matrix(trainingset[, 2:21])
 Ytrain <- as.matrix(trainingset[, 1])
@@ -362,7 +376,9 @@ plot(lsofit, xvar = "lambda", label = TRUE)
 # 参数xvar=c("norm", "lambda", "dev")，用于指定X轴的变量，norm表示横坐标使用系数的L1范数，lambda表示横坐标使用lnλ，而 "dev"表示横坐标采用解释偏差的百分比
 
 set.seed(123) # 设置随机种子，保证K折验证的可重复性
-lsocv <- cv.glmnet(Xtrain, Ytrain, family = "binomial", nfolds = 100)
+lsocv1 <- cv.glmnet(Xtrain, Ytrain, family = "binomial", nfolds = 100)
+lsocv <- cv.glmnet(Xtrain, Ytrain, alpha=1, family = 'binomial',
+                    nfolds = 10, type.measure='deviance')
 # family同glmnet函数的family；type.measure用来指定交叉验证选取模型的标准，可取值"default", "mse", "deviance", "class", "auc", "mae", "C"。type.measure的默认值是"deviance"，线性模型是squared-error for gaussian models (type.measure="mse" ), logistic和poisson回归是deviance， Cox模型则是偏似然值（partial-likelihood）。deviance即-2倍的对数似然值，mse是实际值与拟合值的mean squred error，mae即mean absolute error，class是模型分类的错误率(missclassification error)，auc即area under the ROC curve。nfolds表示进行几折验证，默认是10
 lsocv ## print(lsocv) ，glmnet模型交叉验证的结果
 
@@ -374,3 +390,5 @@ plot(lsocv) # 绘制交叉验证曲线
 coef(lsocv, s = "lambda.min") # 获取使模型偏差最小时λ值的模型系数
 coef(lsocv, s = "lambda.1se") # 获取使模型偏差最小时λ值+一个标准误时的模型系数
 cbind2(coef(lsocv, s = "lambda.min"), coef(lsocv, s = "lambda.1se")) # 合并显示
+
+
