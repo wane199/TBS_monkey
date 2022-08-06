@@ -185,19 +185,99 @@ plot(ols_step_all_possible(lmfit))
 ols_step_best_subset(lmfit)
 plot(ols_step_best_subset(lmfit))
 
-
-lmfitbm <- lm(bwt ~ lwt + race + smoke + ptl + ht + ui, data = lmdata)
-
+lmfitbm <- lm(Y ~ age + sex + P + DM + Ca + TBS + Dialysis_duration, data = train)
 summary(lmfitbm)
 
 
 library(bestglm)
 library(leaps)
 
-bestglm(lgtdata, IC = "AIC", family = binomial) ## Information criteria to use: "AIC", "BIC", "BICg", "BICq", "LOOCV", "CV". Family to use: binomial(link = "logit"),gaussian(link = "identity"),Gamma(link = "inverse"),inverse.gaussian(link = "1/mu^2"),poisson(link = "log"),quasi(link = "identity", variance = "constant"),quasibinomial(link = "logit"),quasipoisson(link = "log")
+lgtdata <- train[c("age", "sex", "P", "DM", "Ca", "TBS", "Dialysis_duration", "Y")]
+lgtdata <- as.data.frame(as.matrix(lgtdata))
+str(lgtdata)
+bestglm(lgtdata, IC = "CV", family = binomial) ## Information criteria to use: "AIC", "BIC", "BICg", "BICq", "LOOCV", "CV". Family to use: binomial(link = "logit"),gaussian(link = "identity"),
+# Gamma(link = "inverse"),inverse.gaussian(link = "1/mu^2"),poisson(link = "log"),quasi(link = "identity", variance = "constant"),quasibinomial(link = "logit"),quasipoisson(link = "log")
 
-lgtdata2 <- lmdata[c("age", "sex", "P", "DM", "Ca", "TBS", "BMD", "Dialysis_duration")]
+# https://mp.weixin.qq.com/s?__biz=MzIzNjk2NDg4NA==&mid=2247486273&idx=1&sn=a098f0f274cd72577fb8e077dfc797db&chksm=e8ce963adfb91f2cc557915fefd78b265b12172ae987d467c44e6403d6c8aed94460fd00a3e1&mpshare=1&scene=1&srcid=0805D2CX1m2beuBxiL39Q7LC&sharer_sharetime=1659707936766&sharer_shareid=e01bedee3072575c19cc0d90b2125a40#rd
+# 数据准备，切分数据集
+# 按7:3将数据集分割为训练集和测试集合
+dt <- read.csv("/home/wane/Desktop/TBS&Mon/BIAO/PTH1/CKD1-2.csv", header = T)
+dt <- dt[-1]
+set.seed(123)
+ss <- sample(nrow(dt), nrow(dt) * 0.7)
+trainingset <- dt[ss, ]
+testingset <- dt[-ss, ]
+# Deep EDA
+library(DataExplorer)
+plot_bar(dt)
+# Plot bar charts by `cut`
+plot_bar(dt, by = "Y")
+plot_histogram(dt)
+plot_boxplot(dt)
+plot_density(dt)
 
-lgtdata2 <- as.data.frame(as.matrix(lgtdata2))
+library(SmartEDA)
+ExpCatViz(dt, Page = c(3, 5))
+library(tidyverse)
+ExpCatViz(
+  trainingset %>%
+    select(Y, TBS),
+  target = "Y"
+)
 
-bestglm(lgtdata2, IC = "AIC", family = binomial)
+par(mfrow = c(4, 5))
+for (i in 2:21) {
+  hist(dt[, i], border = "pink", col = "lightblue", main = "", label = T,xlab = "")
+}
+
+library(flextable) # beautifying tables
+dlookr::describe(trainingset) %>% flextable()
+
+# library(caTools)
+# set.seed(123)
+# split<-sample.split(biopsy$class, SplitRatio = 0.70)
+# trainingset<-subset(biopsy, split==TRUE)
+# testingset<-subset(biopsy, split == FALSE)
+# library(caret)
+# library(ggplot2);library(lattice)
+# set.seed(123)
+# split<-createDataPartition(biopsy$class,p=0.7,list=FALSE)
+# trainingset3<-biopsy[split,]
+# testingset3<-biopsy[-split,]
+## 生成解释变量和结局变量的矩阵格式，glmnet数据格式是矩阵
+Xtrain <- as.matrix(trainingset[, 2:21])
+Ytrain <- as.matrix(trainingset[, 1])
+Xtest <- as.matrix(testingset[, 2:21])
+Ytest <- as.matrix(testingset[, 1])
+# Lasso回归筛选变量与模型评估
+library(glmnet)
+library(Matrix)
+## lasso回归
+lsofit <- glmnet(Xtrain, Ytrain, family = "binomial", alpha = 1)
+# 解释变量须是矩阵形式；family=c("gaussian", "binomial", "poisson", "multinomial", "cox", "mgaussian")，gaussian适用于连续型因变量, mgaussian适用于连续型的多元因变量，poisson适用于计数因变量,binomial适用于二分类因变量, multinomial适用于多分类的因变量, cox适用于生存资料；弹性网络alpha取值在0和1之间，0≤alpha≤1，取值1时拟合lasso回归，取值0时拟合领回归；nlambda为λ值的数量，默认等于100；dfmax和pmax可以分别限定模型中的变量的数量；relax=TRUE表示将进行Relaxed lasso
+print(lsofit)
+# 结果会产生三列结果，分别是Df (非0系数的变量数量), %dev (模型解释的偏差的百分数) 和 Lambda (相应的λ值)。偏差（deviance）即-2倍的Log-likelihood
+## lasso回归系数
+coef.apprx <- coef(lsofit, s = 0.2)
+# 参数s指定具体的λ值。上述命令是提取λ=0.2时的lasso回归系数，此时模型会有4个非0系数变量。精确系数估算可用coef.exact<-coef(lsofit, s=0.2,exact=TRUE, x=Xtrain, y=Ytrain)
+coef.apprx
+predict(lsofit, type = "coefficients", s = 0.2)
+# predict也可以用来提取λ某一个取值时的lasso回归系数
+# type=c("link","response","coeffificients","nonzero");当想用新的取值做预测时，可用参数newx来指定预测变量的矩阵，可用于type=c("link","response")时；exact参数同可参见coef函数。link给出的是线性预测值，即进行logit变化前的值；response给出的是概率预测值，即进行logit变换之后的值；coefficients给出的是指定λ值的模型系数；nonzero给出指定的定λ值时系数不为零的模型变量
+## 系数路径图
+plot(lsofit, xvar = "lambda", label = TRUE)
+# 参数xvar=c("norm", "lambda", "dev")，用于指定X轴的变量，norm表示横坐标使用系数的L1范数，lambda表示横坐标使用lnλ，而 "dev"表示横坐标采用解释偏差的百分比
+
+set.seed(123) # 设置随机种子，保证K折验证的可重复性
+lsocv <- cv.glmnet(Xtrain, Ytrain, family = "binomial", nfolds = 100)
+# family同glmnet函数的family；type.measure用来指定交叉验证选取模型的标准，可取值"default", "mse", "deviance", "class", "auc", "mae", "C"。type.measure的默认值是"deviance"，线性模型是squared-error for gaussian models (type.measure="mse" ), logistic和poisson回归是deviance， Cox模型则是偏似然值（partial-likelihood）。deviance即-2倍的对数似然值，mse是实际值与拟合值的mean squred error，mae即mean absolute error，class是模型分类的错误率(missclassification error)，auc即area under the ROC curve。nfolds表示进行几折验证，默认是10
+lsocv ## print(lsocv) ，glmnet模型交叉验证的结果
+
+lsocv$lambda.min
+lsocv$lambda.1se
+
+plot(lsocv) # 绘制交叉验证曲线
+
+coef(lsocv, s = "lambda.min") # 获取使模型偏差最小时λ值的模型系数
+coef(lsocv, s = "lambda.1se") # 获取使模型偏差最小时λ值+一个标准误时的模型系数
+cbind2(coef(lsocv, s = "lambda.min"), coef(lsocv, s = "lambda.1se")) # 合并显示
