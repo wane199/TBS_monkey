@@ -143,9 +143,9 @@ Uni_glm
 variable.names
 paste0(variable.names, collapse = "+")
 names <- glm(Y == 1 ~ sex + age + Cre + eGFR + Urea + CysC + ALP + VD + PTH + Ca + P +
-  BMI + BMD + TBS + TscoreL1L4 + Dialysis_duration + Smoking + Drinking + DM + Drugs,
-data = train,
-family = binomial
+               BMI + BMD + TBS + TscoreL1L4 + Dialysis_duration + Smoking + Drinking + DM + Drugs,
+             data = train,
+             family = binomial
 )
 name <- data.frame(summary(names)$aliased)
 # 将提取的数据表的行名删除第一行并给三线表
@@ -173,7 +173,7 @@ write.csv(ResultMul, file = "Mul_log.csv")
 # https://zhuanlan.zhihu.com/p/369933231
 # 全子集回归 | 最优子集筛选
 lmfit <- lm(Y == 1 ~ sex + age + Cre + eGFR + Urea + CysC + ALP + VD + PTH + Ca + P + BMI + TBS
-  + Dialysis_duration + Smoking + Drinking + DM + Drugs, data = train)
+            + Dialysis_duration + Smoking + Drinking + DM + Drugs, data = train)
 
 
 library(olsrr)
@@ -203,16 +203,79 @@ bestglm(lgtdata, IC = "CV", family = binomial) ## Information criteria to use: "
 # 按7:3将数据集分割为训练集和测试集合
 dt <- read.csv("/home/wane/Desktop/TBS&Mon/BIAO/PTH1/CKD1-2.csv", header = T)
 dt <- dt[-1]
+str(dt$Y)
+summary(dt)
+dt$Y <- ifelse(dt$Y =="0","No Fracture","Fracture")
+# dt$Y <- as.factor(as.character(dt$Y))
+# dt$Y <- as.factor(dt$Y,levels = c("0", "1"),
+#                   labels = c("No Fracture", "Fracture"))
 set.seed(123)
 ss <- sample(nrow(dt), nrow(dt) * 0.7)
 trainingset <- dt[ss, ]
 testingset <- dt[-ss, ]
+
 # Deep EDA
+# Explore numeric variables with descriptive statistics
+library(flextable) # beautifying tables
+dlookr::describe(trainingset) %>% flextable()
+
+trainingset %>% 
+  group_by('Y') %>% 
+  univar_numeric() %>% 
+  knitr::kable()
+
+trainingset %>% 
+  diagnose_numeric() %>% 
+  flextable()
+
+SmartEDA::ExpNumStat(trainingset, by="GA", gp="Y", Outlier=TRUE, Qnt = c(.25, .75), round = 2) %>% flextable()
+
+library(summarytools)
+trainingset %>% 
+  group_by('Y') %>% 
+  descr()
+
+library(psych)
+describeBy(trainingset,
+           trainingset$Y)
+
+# Summary tools
+library(gtsummary)
+trainingset %>% 
+  # select(mpg, hp, am, gear, cyl) %>% 
+  tbl_summary(by = Y) %>% 
+  add_p()
+
+testingset %>% 
+  # select(mpg, hp, am, gear, cyl) %>% 
+  tbl_summary(by = Y) %>% 
+  add_p()
+
+# 保存为.html .tex .ltx .rtf
+tbl_merge_ex1 %>%
+  as_gt() %>%
+  gt::gtsave(filename = "tbl_merge_ex1.html") # use extensions .html .tex .ltx .rtf
+# 保存为word
+install.packages('gdtools')
+install.packages('flextable')
+tf <- tempfile(fileext = ".docx")
+tbl_merge_ex1 %>%
+  as_flex_table() %>%
+  flextable::save_as_docx(path = tf)
+library(autoReg)
+ft=gaze(Y~.,data=trainingset) %>% myft()
+ft
+fit=glm(status~rx+sex+age+obstruct+perfor+nodes,data=colon,family="binomial")
+summary(fit)
+autoReg(fit) %>% myft()
+
+
+# Explore distribution of numeric variables
 library(DataExplorer)
 plot_bar(dt)
 # Plot bar charts by `cut`
 plot_bar(dt, by = "Y")
-plot_histogram(dt)
+plot_histogram(trainingset,ggtheme = theme_classic())
 plot_boxplot(dt)
 plot_density(dt)
 
@@ -225,13 +288,30 @@ ExpCatViz(
   target = "Y"
 )
 
+op <- par(mfrow = c(4, 4))
+hist(trainingset, col = "lightblue", border = "pink")
+utils::str(hist(trainingset, col = "gray", labels = TRUE))
+r <- hist(sqrt(trainingset), breaks = 12, col = "lightblue", border = "pink")
+text(r$mids, r$density, r$counts, adj = c(.5, -.5), col = "blue3")
+sapply(r[2:3], sum)
+sum(r$density * diff(r$breaks)) # == 1
+lines(r, lty = 3, border = "purple") # -> lines.histogram(*)
+par(op)
+
 par(mfrow = c(4, 5))
 for (i in 2:21) {
-  hist(dt[, i], border = "pink", col = "lightblue", main = "", label = T,xlab = "")
+  hist(dt[, i], border = "pink", col = "lightblue", main = "", label = T, xlab = "")
 }
 
-library(flextable) # beautifying tables
-dlookr::describe(trainingset) %>% flextable()
+# Explore categorical and numeric variables with Box-Plots
+library(ggstatsplot)
+ggbetweenstats(
+  data = trainingset, 
+  x    = Y, 
+  y    = TBS, 
+  type = "np")
+
+ExpNumViz(trainingset, target = "Y", Page = c(4,4))
 
 # library(caTools)
 # set.seed(123)
