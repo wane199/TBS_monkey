@@ -139,9 +139,9 @@ Uni_glm
 variable.names
 paste0(variable.names, collapse = "+")
 names <- glm(Y == 1 ~ sex + age + Cre + eGFR + Urea + CysC + ALP + VD + PTH + Ca + P +
-               BMI + BMD + TBS + TscoreL1L4 + Dialysis_duration + Smoking + Drinking + DM + Drugs,
-             data = train,
-             family = binomial
+  BMI + BMD + TBS + TscoreL1L4 + Dialysis_duration + Smoking + Drinking + DM + Drugs,
+data = train,
+family = binomial
 )
 name <- data.frame(summary(names)$aliased)
 # 将提取的数据表的行名删除第一行并给三线表
@@ -169,7 +169,7 @@ write.csv(ResultMul, file = "Mul_log.csv")
 # https://zhuanlan.zhihu.com/p/369933231
 # 全子集回归 | 最优子集筛选
 lmfit <- lm(Y == 1 ~ sex + age + Cre + eGFR + Urea + CysC + ALP + VD + PTH + Ca + P + BMI + TBS
-            + Dialysis_duration + Smoking + Drinking + DM + Drugs, data = train)
+  + Dialysis_duration + Smoking + Drinking + DM + Drugs, data = train)
 
 
 library(olsrr)
@@ -200,12 +200,12 @@ dt <- read.csv("/home/wane/Desktop/TBS&Mon/BIAO/PTH1/CKD1-2.csv", header = T)
 dt <- dt[-1]
 str(dt)
 summary(dt)
-dt$Y <- ifelse(dt$Y =="0","No Fracture","Fracture")
+dt$Y <- ifelse(dt$Y == "0", "No Fracture", "Fracture")
 # dt$Y <- as.factor(as.character(dt$Y))
 # dt$Y <- as.factor(dt$Y,levels = c(0, 1),
 #                   labels = c("No Fracture", "Fracture"))
 # 批量数值转因子
-for (i in names(dt)[c(1:2,4:12, 17:21)]) {
+for (i in names(dt)[c(1:2, 4:12, 17:21)]) {
   dt[, i] <- as.factor(dt[, i])
 }
 set.seed(123)
@@ -231,40 +231,42 @@ library(dplyr)
 library(dlookr)
 dlookr::describe(trainingset) %>% flextable()
 
-trainingset %>% 
-  group_by('Y') %>% 
-  univar_numeric() %>% 
+trainingset %>%
+  group_by("Y") %>%
+  univar_numeric() %>%
   knitr::kable()
 
-trainingset %>% 
-  diagnose_numeric() %>% 
+trainingset %>%
+  diagnose_numeric() %>%
   flextable()
 
-SmartEDA::ExpNumStat(trainingset, by="GA", gp="Y", Outlier=TRUE, Qnt = c(.25, .75), round = 2) %>% flextable()
+SmartEDA::ExpNumStat(trainingset, by = "GA", gp = "Y", Outlier = TRUE, Qnt = c(.25, .75), round = 2) %>% flextable()
 
 library(summarytools)
-trainingset %>% 
-  group_by('Y') %>% 
+trainingset %>%
+  group_by("Y") %>%
   descr()
 
 library(psych)
-describeBy(trainingset,
-           trainingset$Y)
+describeBy(
+  trainingset,
+  trainingset$Y
+)
 
 # Summary tools
 library(gtsummary)
-tra <- trainingset %>% 
-  # select(mpg, hp, am, gear, cyl) %>% 
-  tbl_summary(by = Y) %>% 
+tra <- trainingset %>%
+  # select(mpg, hp, am, gear, cyl) %>%
+  tbl_summary(by = Y) %>%
   add_p()
-tes <- testingset %>% 
-  # select(mpg, hp, am, gear, cyl) %>% 
-  tbl_summary(by = Y) %>% 
+tes <- testingset %>%
+  # select(mpg, hp, am, gear, cyl) %>%
+  tbl_summary(by = Y) %>%
   add_p()
 
-tra %>%    # build gtsummary table
-  as_gt() %>%             # convert to gt table
-  gt::gtsave(             # save table as image
+tra %>% # build gtsummary table
+  as_gt() %>% # convert to gt table
+  gt::gtsave( # save table as image
     filename = "./TBS/train.png"
   )
 # 保存为.html .tex .ltx .rtf
@@ -285,28 +287,32 @@ as_kable(tra, format = "latex")
 as_kable_extra(tra, format = "latex")
 # 基线特征描述统计
 library(autoReg)
-ft=gaze(Y~.,data=trainingset) %>% myft()
+ft <- gaze(Y ~ ., data = trainingset) %>% myft()
 ft
 library(rrtable)
-table2pptx(ft) #Exported table as Report.pptx
-table2docx(ft) #Exported table as Report.docx
-table2docx(tra,title="Train",append=TRUE,vanilla=TRUE)
+table2pptx(ft) # Exported table as Report.pptx
+table2docx(ft) # Exported table as Report.docx
+table2docx(tra, title = "Train", append = TRUE, vanilla = TRUE)
 # 二元LR回归，多分类变量必须处理成factor
-trainingset$Y=factor(trainingset$Y,labels=c("No Fracture","Fracture"))
+trainingset$Y <- factor(trainingset$Y, labels = c("No Fracture", "Fracture"))
 ## setLabel()函数给变量名添加标签
-trainingset$Y=setLabel(trainingset$Y,"Fracture Risk")
-fit=glm(Y ~ age+Cre+eGFR+Urea+CysC+ALP+PTH+Ca+P+BMI+TBS+sex,
-        data=trainingset,family="binomial")
+trainingset$Y <- setLabel(trainingset$Y, "Fracture Risk")
+fit <- glm(Y ~ age + Cre + eGFR + Urea + CysC + ALP + PTH + Ca + P + BMI + TBS + sex,
+  data = trainingset, family = "binomial"
+)
 summary(fit)
 autoReg(fit) %>% myft()
 # 如果不想在表中显示参考值，可以缩短表。
-shorten(autoReg(fit, uni=T, threshold=1)) %>% myft()
-autoReg(fit, uni=TRUE,threshold=1, final=TRUE) %>% myft()
-x=modelPlot(fit)
+shorten(autoReg(fit, uni = T, threshold = 1)) %>% myft()
+tab2 <- autoReg(fit, uni = TRUE, threshold = 1, final = TRUE) %>% myft()
+table2pptx(tab2) # Exported table as Report.pptx
+table2docx(tab2)
+
+x <- modelPlot(fit)
 x
-plot2pptx(print(x)) ##Exported plot as Report.pptx
+plot2pptx(print(x)) ## Exported plot as Report.pptx
 plot2docx(print(x))
-modelPlot(fit,uni=TRUE,threshold=1,show.ref=FALSE)
+modelPlot(fit, uni = TRUE, threshold = 1, show.ref = FALSE)
 
 # Explore distribution of numeric variables
 library(DataExplorer)
@@ -314,7 +320,7 @@ library(ggplot2)
 plot_bar(dt)
 # Plot bar charts by `cut`
 plot_bar(dt, by = "Y")
-plot_histogram(trainingset,ggtheme = theme_classic())
+plot_histogram(trainingset, ggtheme = theme_classic())
 plot_density(dt)
 
 library(SmartEDA)
@@ -344,12 +350,13 @@ for (i in 2:21) {
 # Explore categorical and numeric variables with Box-Plots
 library(ggstatsplot)
 ggbetweenstats(
-  data = trainingset, 
-  x    = Y, 
-  y    = TBS, 
-  type = "np")
+  data = trainingset,
+  x    = Y,
+  y    = TBS,
+  type = "np"
+)
 
-ExpNumViz(trainingset, target = "Y", Page = c(4,4))
+ExpNumViz(trainingset, target = "Y", Page = c(4, 4))
 
 ## 生成解释变量和结局变量的矩阵格式，glmnet数据格式是矩阵
 Xtrain <- as.matrix(trainingset[, 2:21])
@@ -377,8 +384,10 @@ plot(lsofit, xvar = "lambda", label = TRUE)
 
 set.seed(123) # 设置随机种子，保证K折验证的可重复性
 lsocv1 <- cv.glmnet(Xtrain, Ytrain, family = "binomial", nfolds = 100)
-lsocv <- cv.glmnet(Xtrain, Ytrain, alpha=1, family = 'binomial',
-                    nfolds = 10, type.measure='deviance')
+lsocv <- cv.glmnet(Xtrain, Ytrain,
+  alpha = 1, family = "binomial",
+  nfolds = 10, type.measure = "deviance"
+)
 # family同glmnet函数的family；type.measure用来指定交叉验证选取模型的标准，可取值"default", "mse", "deviance", "class", "auc", "mae", "C"。type.measure的默认值是"deviance"，线性模型是squared-error for gaussian models (type.measure="mse" ), logistic和poisson回归是deviance， Cox模型则是偏似然值（partial-likelihood）。deviance即-2倍的对数似然值，mse是实际值与拟合值的mean squred error，mae即mean absolute error，class是模型分类的错误率(missclassification error)，auc即area under the ROC curve。nfolds表示进行几折验证，默认是10
 lsocv ## print(lsocv) ，glmnet模型交叉验证的结果
 
@@ -390,5 +399,3 @@ plot(lsocv) # 绘制交叉验证曲线
 coef(lsocv, s = "lambda.min") # 获取使模型偏差最小时λ值的模型系数
 coef(lsocv, s = "lambda.1se") # 获取使模型偏差最小时λ值+一个标准误时的模型系数
 cbind2(coef(lsocv, s = "lambda.min"), coef(lsocv, s = "lambda.1se")) # 合并显示
-
-
