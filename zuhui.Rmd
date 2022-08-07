@@ -76,7 +76,10 @@ MRIneg dataset结果：
 
 ---
 ## Third
-CKD TBS-Clinic Nomogram骨折风险临床预测模型结果。 
+
+3.1 术前SEEG结果汇总(66/220 TLE，76/98 MRIneg)；
+
+3.2 CKD TBS-Clinic Nomogram骨折风险临床预测模型结果。 
 
 ---
 ---
