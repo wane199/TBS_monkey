@@ -399,3 +399,7 @@ plot(lsocv) # 绘制交叉验证曲线
 coef(lsocv, s = "lambda.min") # 获取使模型偏差最小时λ值的模型系数
 coef(lsocv, s = "lambda.1se") # 获取使模型偏差最小时λ值+一个标准误时的模型系数
 cbind2(coef(lsocv, s = "lambda.min"), coef(lsocv, s = "lambda.1se")) # 合并显示
+
+
+
+# Alignment Diagram/Nomogram Plot
