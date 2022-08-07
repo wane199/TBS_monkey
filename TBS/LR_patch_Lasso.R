@@ -496,7 +496,6 @@ plot.roc(trainingset$Y, pre,
   thresholds = "best",
   print.thres = "best"
 )
-
 rocplot1 <- roc(trainingset$Y, pre)
 auc(rocplot1)
 ci.auc(rocplot1)
@@ -516,6 +515,9 @@ view(trainpredprob)
 # 训练集ROC
 trainroc <- roc(response = trainingset$Y, predict = trainpredprob)
 # 训练集ROC曲线
+plot(smooth(trainroc),col="red")
+plot(trainroc,col="red",legacy.axes=T)##更改Y轴格式
+
 plot(trainroc,
   print.auc = TRUE,
   auc.polygon = TRUE,
@@ -547,34 +549,37 @@ fitcal <- lrm(Y ~ age + P + Ca + TBS + sex + eGFR,
 cal <- calibrate(fitcal, method = "boot", B = 1000)
 plot(cal,
   xlab = "Nomogram Predicted Fracture",
-  ylab = "Actual Fracture", main = "Calibration Curve"
+  ylab = "Actual Fracture", main = "Calibration Curve in Training set"
 )
 
-# 内部验证集Internal validation Discrimination
-ddist <- datadist(test)
+# 内部验证集Internal validation Discrimination/Test set
+ddist <- datadist(testingset)
 options(datadist = "ddist")
-test$sex.M <- as.factor(test$sex.M)
-test$sex.M <- as.numeric(as.character(test$sex.M))
-str(test)
-class(test$sex.M)
-pre1 <- predict(fit4, newdata = test)
-plot.roc(test$Y, pre1,
-  main = "ROC Curve", percent = TRUE,
+testingset$Y <- as.numeric(as.character(testingset$Y))
+pre1 <- predict(fit, newdata = testingset)
+plot.roc(testingset$Y, pre1,
+  main = "ROC curve in Test set", percent = TRUE,
   print.auc = TRUE,
   ci = TRUE, of = "thresholds",
   thresholds = "best",
   print.thres = "best"
 )
-rocplot2 <- roc(test$Y, pre1)
+rocplot2 <- roc(testingset$Y, pre1)
+auc(rocplot2)
 ci.auc(rocplot2)
 
 # 混淆矩阵绘制
 require(caret)
 # 测试集预测概率
-testpredprob <- predict(fit4, newdata = test, type = "response")
-view(testpredprob)
+testpredprob <- predict(fit1, newdata = testingset, type = "response")
 # 测试集ROC
-testroc <- roc(response = test$Y, predict = testpredprob)
+testroc <- roc(response = testingset$Y, predict = testpredprob)
+plot(trainroc,col="red",legacy.axes=T)
+plot(testroc, add=TRUE, col="blue")
+legend("bottomright", legend=c("Training set","Test set"),col=c("red","blue"),lty=2)
+
+roc.test(trainroc,testroc)
+
 # 测试集ROC曲线
 plot(testroc,
   print.auc = TRUE,
@@ -593,27 +598,26 @@ bestp <- testroc$thresholds[
 bestp
 # 测试集预测分类
 testpredlab <- as.factor(ifelse(testpredprob > bestp, 1, 0))
-class(testpredlab)
-class(test$Y)
 # 测试集混淆矩阵
 confusionMatrix(
   data = testpredlab, # 预测类别
-  reference = factor(test$Y), # 实际类别
+  reference = factor(testingset$Y), # 实际类别
   positive = "1",
   mode = "everything"
 )
 # Calibration
-fit5 <- lrm(test$Y ~ pre1, x = TRUE, y = TRUE)
-cal2 <- calibrate(fit5, method = "boot", B = 1000)
+fitcal2 <- lrm(Y ~ age + P + Ca + TBS + sex + eGFR,
+              data = testingset, x=TRUE, y=TRUE)
+cal2 <- calibrate(fitcal2, method = "boot", B = 1000)
 plot(cal2,
   xlab = "Nomogram Predicted Fracture",
-  ylab = "Actual Fracture", main = "Calibration Curve"
+  ylab = "Actual Fracture", main = "Calibration Curve in Test set"
 )
-
 
 
 # Brier score
 library(rms)
+
 
 val.prob()
 

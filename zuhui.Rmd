@@ -63,13 +63,20 @@ https://huhuaping.com/2021/02/01/css-base-xaringan/
 
 --
 ## First
-目标期刊[eClinicalMedicine](https://www.editorialmanager.com/eclinm/default1.aspx) & [eBioMedicine](https://www.editorialmanager.com/ebiom/default1.aspx);
+BLS文章撰写及目标期刊[eClinicalMedicine](https://www.editorialmanager.com/eclinm/default1.aspx) & [eBioMedicine](https://www.editorialmanager.com/ebiom/default1.aspx);
 
+--
+## Second
+MRIneg dataset结果：
 
 |              | class | accuracy | sensitivity | specificity | precision | f1score | auc    |
 |--------------|-------|----------|-------------|-------------|-----------|---------|--------|
 |  Siamese net | PET   | 0.645    | 0.965       | 0.701       | 0.866     | 0.913   | 0.877  |
 |              | T1    | 0.343    | 0.594       | 0.297       | 0.631     | 0.611   | 0.542  |
+
+---
+## Third
+CKD TBS-Clinic Nomogram骨折风险临床预测模型结果。 
 
 ---
 ---
