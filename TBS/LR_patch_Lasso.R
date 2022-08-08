@@ -1,6 +1,6 @@
 # https://blog.csdn.net/qq_42696043/article/details/125134962?spm=1001.2014.3001.5502
 library(ggplot2)
-dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\BIAO\\PTH1\\CKD1-2.csv", header = T)
+dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\BIAO\\PTH1\\CKD1-3.csv", header = T)
 str(dt)
 summary(dt)
 
