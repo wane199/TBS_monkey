@@ -83,6 +83,19 @@ MRIneg dataset结果：
 
 ---
 ---
+---
+```{r echo=FALSE}
+library(ggplot2)
+# https://r-graph-gallery.com/198-scatter-and-density-plot-ggplot2.html
+sample_data <- data.frame(x_values = 1:100 + rnorm(100,sd=20), y_values = 1:100 + rnorm(100,sd=27)) 
+
+#plot
+ggplot(sample_data, aes(x_values, y_values)) +
+  stat_density2d(geom="tile", aes(fill = ..density..), contour = FALSE) + 
+  geom_point(colour = "white")
+```
+
+---
 name: SCI
 # 吴环华工作汇报0801
 
