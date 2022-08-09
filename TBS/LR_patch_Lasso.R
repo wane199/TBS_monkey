@@ -1,6 +1,6 @@
 # https://blog.csdn.net/qq_42696043/article/details/125134962?spm=1001.2014.3001.5502
 library(ggplot2)
-dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\BIAO\\PTH1\\CKD1-3.csv", header = T)
+dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\BIAO\\PTH1\\CKD2.csv", header = T)
 dt <- read.csv("/home/wane/Desktop/TBS&Mon/BIAO/PTH1/CKD2.csv", header = T)
 dt <- dt[-1]
 str(dt)
@@ -201,6 +201,7 @@ dt <- dt[-1]
 str(dt)
 summary(dt)
 # 多分类变量进行哑变量编码(Dummy Encoding)/独热编码(One-Hot Encoding)
+# https://blog.csdn.net/qq_22253901/article/details/124203745#:~:text=R%E8%AF%AD%E8%A8%80%E4%B8%AD%E5%93%91%E5%8F%98%E9%87%8F%E7%9A%84%E8%AE%BE%E7%BD%AE%20%E5%9C%A8R%E8%AF%AD%E8%A8%80%E4%B8%AD%E5%AF%B9%E5%8C%85%E6%8B%AC%E5%88%86%E7%B1%BB%E5%8F%98%E9%87%8F,(factor)%E7%9A%84%E6%95%B0%E6%8D%AE%E5%BB%BA%E6%A8%A1%E6%97%B6%EF%BC%8C%E4%B8%80%E8%88%AC%E4%BC%9A%E5%B0%86%E5%85%B6%E8%87%AA%E5%8A%A8%E5%A4%84%E7%90%86%E4%B8%BA%E8%99%9A%E6%8B%9F%E5%8F%98%E9%87%8F%E6%88%96%E5%93%91%E5%8F%98%E9%87%8F%20(dummy%20variable)%E3%80%82
 # 构造分类变量
 dt$TBS <- ifelse(dt$TBS < 1.34, 0, 1)
 dt$BMI <- ifelse(dt$BMI < 24, 0, dt$BMI)
@@ -213,14 +214,18 @@ dt$TBS <- factor(dt$TBS)
 dt$BMI <- factor(dt$BMI)
 dt$Dialysis_duration <- factor(dt$Dialysis_duration)
 
+a <- caret::dummyVars(~., trainingset)
+b <- predict(a, trainingset)
+head(b)
 library(cattonum)
 dt.BMIc.onehot <- catto_onehot(dt, c(10, 22)) # 独热编码，相当于在x2的基础上增加参照水平的0/1赋值。cattonum包中的函数catto_dummy也可以进行哑变量编码
+trainingset.onehot <- catto_onehot(trainingset)
 dt$Y <- ifelse(dt$Y == "0", "No Fracture", "Fracture")
 # dt$Y <- as.factor(as.character(dt$Y))
 # dt$Y <- as.factor(dt$Y,levels = c(0, 1),
 #                   labels = c("No Fracture", "Fracture"))
 # 批量数值转因子
-for (i in names(dt)[c(1:2, 4:13,15,17:21)]) {
+for (i in names(dt)[c(1:2, 4:13, 15, 17:21)]) {
   dt[, i] <- as.factor(dt[, i])
 }
 set.seed(123)
@@ -432,25 +437,35 @@ library(rms)
 dd <- datadist(trainingset) ## 设置数据环境
 options(datadist = "dd")
 
+# 拟合模型
 fit1 <- glm(Y ~ age + P + Ca + TBS + sex + eGFR,
   data = trainingset, family = "binomial"
 )
 fit2 <- step(fit1)
 summary(fit2)
 1 / exp(coef(fit2))
+# logit P 计算
+pred.logit2 <- predict(fit2)
+# 预测概率P
+P2 <- predict(fit2, type = "response")
 
-# 拟合模型
+m <- NROW(trainingset) / 5
+val.prob(P2, trainingset$Y, m = m, cex = 0.8) # 预测概率与真实值进行矫正
+
 fit <- lrm(Y ~ age + P + Ca + TBS + sex + eGFR,
   data = trainingset
 )
 fit
+fit$stats # Brier score
+
 # Alignment Diagram/Nomogram Plot
 nomogram <- nomogram(fit, # 模型名称
-                     lp = T, # 显示线性概率
-                     fun.at = c(0.1,0.3,0.5,0.7,0.9), # 坐标轴刻度
-                     conf.int = c(0.1,0.7), # 显示置信区间
-                     funlabel = "Risk", # 设置坐标轴名称
-                     fun = function(x) 1 / (1 + exp(-x))) # 逻辑回归计算公式
+  lp = T, # 显示线性概率
+  fun.at = c(0.1, 0.3, 0.5, 0.7, 0.9), # 坐标轴刻度
+  conf.int = c(0.1, 0.7), # 显示置信区间
+  funlabel = "Risk", # 设置坐标轴名称
+  fun = function(x) 1 / (1 + exp(-x))
+) # 逻辑回归计算公式
 # 绘制列线图
 plot(nomogram)
 # 设置因子的水平标签
@@ -465,30 +480,30 @@ label(Affairs$religiousness) <- "宗教信仰"
 label(Affairs$rating) <- "婚姻自我评分"
 
 nom <- nomogram(fit,
-  fun = plogis, conf.int = c(0.1,0.7),
+  fun = plogis, conf.int = c(0.1, 0.7),
   fun.at = c(.001, .01, .05, seq(.1, .9, by = .1), .95, .99, .999),
   lp = F, funlabel = "Risk of Fracture"
 )
 plot(nom,
-     lplabel = "Linear Predictor", # 设置线性概率坐标轴名称
-     # fun.side = c(1,3,1,3,1,3), # 坐标轴刻度位置
-     col.grid = c("blue","yellow"), # 垂直参考线的颜色
-     col.conf = c("red","green"), # 设置置信区间的颜色
-     conf.space = c(0.1,0.5) # 设置置信区间条位置
-     )
+  lplabel = "Linear Predictor", # 设置线性概率坐标轴名称
+  # fun.side = c(1,3,1,3,1,3), # 坐标轴刻度位置
+  col.grid = c("blue", "yellow"), # 垂直参考线的颜色
+  col.conf = c("red", "green"), # 设置置信区间的颜色
+  conf.space = c(0.1, 0.5) # 设置置信区间条位置
+)
 
 library(regplot)
 regplot(fit, # 模型名称
-        odds = T, # 设置OR显示
-        title = "Nomogram for Fracture Risk at CKD",
-        observation = trainingset[1, ], # 指定观测值
-        interval = "confidence", points=TRUE) # 最大刻度100
+  odds = T, # 设置OR显示
+  title = "Nomogram for Fracture Risk at CKD",
+  observation = trainingset[1, ], # 指定观测值
+  interval = "confidence", points = TRUE
+) # 最大刻度100
 
 # 常见列线图的绘制及自定义美化详细教程
 # https://mp.weixin.qq.com/s?__biz=MzU4OTc0OTg2MA==&mid=2247497910&idx=1&sn=350a4d6c689462d7337e04455912c8ce&chksm=fdca73bdcabdfaab401fab2a00a9a24a60e7e706675b774bd3d866f6c884cfc80c7a478e7403&mpshare=1&scene=1&srcid=0607mDKXD346ABXXHRc5Sn6I&sharer_sharetime=1654698032379&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd
-
 # ROC曲线及PR曲线
-pre <- predict(fit1, type = "response")
+pre <- predict(fit1, type = "response") # 预测概率，预测分类(class)
 pre
 library(pROC)
 plot.roc(trainingset$Y, pre,
@@ -502,23 +517,24 @@ rocplot1 <- roc(trainingset$Y, pre)
 auc(rocplot1)
 ci.auc(rocplot1)
 # ROC详细结果
-roc.result <- coords(rocplot1,"best", ret = "all", transpose = F)
+roc.result <- coords(rocplot1, "best", ret = "all", transpose = F)
 as.matrix(roc.result)
-
+# PR curve
 library(modEvA)
-aupr=AUC(obs=trainingset$Y, pred=trainingset$trainpredlab,
-         curve="PR", simplif=T, main="PR curve")
+aupr <- AUC(
+  obs = trainingset$Y, pred = pre, interval = 0.001,
+  curve = "PR", method = "trapezoid", simplif = F, main = "PR curve"
+)
 
 # 混淆矩阵绘制
 require(caret)
 # 训练集预测概率
 trainpredprob <- predict(fit1, newdata = trainingset, type = "response")
-view(trainpredprob)
 # 训练集ROC
 trainroc <- roc(response = trainingset$Y, predict = trainpredprob)
 # 训练集ROC曲线
-plot(smooth(trainroc),col="red")
-plot(trainroc,col="red",legacy.axes=T)##更改Y轴格式
+plot(smooth(trainroc), col = "red")
+plot(trainroc, col = "red", legacy.axes = T) ## 更改Y轴格式
 
 plot(trainroc,
   print.auc = TRUE,
@@ -530,13 +546,14 @@ plot(trainroc,
   legacy.axes = T,
   bty = "l"
 )
-# 约登法则
+# 约登法则，最佳cutoff值
 bestp <- trainroc$thresholds[
   which.max(trainroc$sensitivities + trainroc$specificities - 1)
 ]
 bestp
 # 训练集预测分类
 trainpredlab <- as.factor(ifelse(trainpredprob > bestp, 1, 0))
+Actual <- factor(trainingset$Y, levels = c(1, 0), labels = c("True", "False"))
 
 # 训练集混淆矩阵
 confusionMatrix(
@@ -547,7 +564,8 @@ confusionMatrix(
 )
 # 校准度
 fitcal <- lrm(Y ~ age + P + Ca + TBS + sex + eGFR,
-                     data = trainingset, x=TRUE, y=TRUE)
+  data = trainingset, x = TRUE, y = TRUE
+)
 cal <- calibrate(fitcal, method = "boot", B = 1000)
 plot(cal,
   xlab = "Nomogram Predicted Fracture",
@@ -576,11 +594,11 @@ require(caret)
 testpredprob <- predict(fit1, newdata = testingset, type = "response")
 # 测试集ROC
 testroc <- roc(response = testingset$Y, predict = testpredprob)
-plot(trainroc,col="red",legacy.axes=T)
-plot(testroc, add=TRUE, col="blue")
-legend("bottomright", legend=c("Training set","Test set"),col=c("red","blue"),lty=2)
+plot(trainroc, col = "red", legacy.axes = T)
+plot(testroc, add = TRUE, col = "blue")
+legend("bottomright", legend = c("Training set", "Test set"), col = c("red", "blue"), lty = 2)
 
-roc.test(trainroc,testroc)
+roc.test(trainroc, testroc)
 
 # 测试集ROC曲线
 plot(testroc,
@@ -607,9 +625,10 @@ confusionMatrix(
   positive = "1",
   mode = "everything"
 )
-# Calibration
+# Calibration curve
 fitcal2 <- lrm(Y ~ age + P + Ca + TBS + sex + eGFR,
-              data = testingset, x=TRUE, y=TRUE)
+  data = testingset, x = TRUE, y = TRUE
+)
 cal2 <- calibrate(fitcal2, method = "boot", B = 1000)
 plot(cal2,
   xlab = "Nomogram Predicted Fracture",
@@ -617,16 +636,61 @@ plot(cal2,
 )
 
 
-# Brier score
-library(rms)
-
-
-val.prob()
-
 # R2/AIC/BIC
 
-AIC()
-BIC()
+AIC(fit1)
+BIC(fit1)
 
-# ROC curve/C-index
-Y ~ age + sex + Ca + P + TBS + eGFR
+# NRI&IDI，模型比较
+# 分类变量不处理成factor类型，多分类变量需要处理成哑变量(stats::model.matrix())
+stats::model.matrix()
+library(nricens)
+formula1 <- as.formula(Y ~ age + P + Ca + TBS + sex + eGFR)
+formula2 <- as.formula(Y ~ age + P + Ca + sex + eGFR)
+mnew <- glm(formula1, family = binomial(), data = trainingset, x = T)
+mstd <- glm(formula2, family = binomial(), data = trainingset, x = T)
+# 截断值的选择
+set.seed(123)
+nribin(mdl.std = mstd, mdl.new = mnew, cut = c(0.4, 0, 6), niter = 1000, updown = "category")
+nribin(mdl.std = mstd, mdl.new = mnew, cut = 0, niter = 1000, updown = "diff")
+
+# 计算p value
+z <- abs(0.02222222 / 0.13617120)
+pvalue <- (1 - pnorm(z)) * 2
+pvalue
+
+library(PredictABEL)
+pnew=mnew$fitted.values
+pstd=mstd$fitted.values
+demo <- as.matrix(trainingset)
+reclassification(data=trainingset,cOutcome=1,predrisk1=pstd,predrisk2=pnew,cutoff=c(0,0.2,0.4,1))
+
+
+# DCA&CIC
+library(rmda)
+full.model <- decision_curve(formula1,data = trainingset,family = binomial(link = "logit"),
+  thresholds = seq(0, .4, by = .001),confidence.intervals = 0.95,
+  bootstraps = 100
+) # should use more bootstrap replicates in practice!
+
+# plot the DCA curve
+plot_decision_curve(full.model,curve.names = c("Full model"),xlim = c(0,0.4),
+                    col = c("red"),confidence.intervals = FALSE,  #remove confidence intervals
+                    cost.benefit.axis = T, #remove cost benefit axis
+                    standardize = TRUE,legend.position = "topright")
+
+# plot the clinical impact
+plot_clinical_impact(full.model,
+  xlim = c(0, .4),
+  col = c("black", "blue")
+)
+plot_clinical_impact(full.model,
+  population.size = 1000, cost.benefit.axis = T,
+  n.cost.benefits = 8, col = c("red", "blue"),
+  confidence.intervals = F
+)
+
+# Bootstrap 
+
+
+
