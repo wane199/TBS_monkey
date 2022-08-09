@@ -690,6 +690,8 @@ plot_clinical_impact(full.model,
   confidence.intervals = F
 )
 
+full.model$derived.data[,c("thresholds","NB","sNB")]
+
 # Bootstrap 
 
 
