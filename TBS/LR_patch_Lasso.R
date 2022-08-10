@@ -1,4 +1,5 @@
 # https://blog.csdn.net/qq_42696043/article/details/125134962?spm=1001.2014.3001.5502
+rm(list = ls())
 library(ggplot2)
 dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\BIAO\\PTH1\\CKD2.csv", header = T)
 dt <- read.csv("/home/wane/Desktop/TBS&Mon/BIAO/PTH1/CKD2.csv", header = T)
@@ -195,7 +196,7 @@ bestglm(lgtdata, IC = "CV", family = binomial) ## Information criteria to use: "
 # 数据准备，切分数据集
 # 按7:3将数据集分割为训练集和测试集合
 rm(list = ls())
-write.csv(dt, "/home/wane/Desktop/TBS&Mon/BIAO/PTH1/CKD1-3.csv")
+# write.csv(dt, "/home/wane/Desktop/TBS&Mon/BIAO/PTH1/CKD1-3.csv")
 dt <- read.csv("/home/wane/Desktop/TBS&Mon/BIAO/PTH1/CKD1-3.csv", header = T)
 dt <- dt[-1]
 str(dt)
@@ -562,15 +563,39 @@ confusionMatrix(
   positive = "1",
   mode = "everything"
 )
-# 校准度
-fitcal <- lrm(Y ~ age + P + Ca + TBS + sex + eGFR,
+# 校准度/Calibration curve
+formula1 <- as.formula(Y ~ age + P + Ca + TBS + sex + eGFR)
+formula2 <- as.formula(Y ~ age + P + Ca + sex + eGFR)
+fitcal <- lrm(formula1,
   data = trainingset, x = TRUE, y = TRUE
 )
 cal <- calibrate(fitcal, method = "boot", B = 1000)
 plot(cal,
+  subtitles = F,
+  # xlim = c(0,1.0),
   xlab = "Nomogram Predicted Fracture",
   ylab = "Actual Fracture", main = "Calibration Curve in Training set"
 )
+# C-index计算
+v <- validate(fitcal, method = "boot", B = 1000, dxy = T)
+Dxy <- v[rownames(v) == "Dxy", colnames(v) == "index.corrected"]
+orig_Dxy <- v[rownames(v) == "Dxy", colnames(v) == "index.orig"]
+bias_corrected_c_index <- abs(Dxy) / 2 + 0.5
+orig_c_index <- abs(orig_Dxy) / 2 + 0.5
+
+c <- rcorrcens(Y ~ predict(fitcal), data = trainingset)
+lower <- c[1, 1] - 1.96 * c[1, 4] / 2
+upper <- c[1, 1] + 1.96 * c[1, 4] / 2
+cindex <- rbind(orig_c_index, lower, upper, bias_corrected_c_index)
+cindex
+
+# H-L拟合优度
+library(ResourceSelection)
+model <- glm(formula1,
+  data = trainingset, family = binomial(link = "logit")
+)
+hl <- hoslem.test(model$y, fitted(model), g = 4)
+hl
 
 # 内部验证集Internal validation Discrimination/Test set
 ddist <- datadist(testingset)
@@ -635,7 +660,6 @@ plot(cal2,
   ylab = "Actual Fracture", main = "Calibration Curve in Test set"
 )
 
-
 # R2/AIC/BIC
 
 AIC(fit1)
@@ -645,8 +669,6 @@ BIC(fit1)
 # 分类变量不处理成factor类型，多分类变量需要处理成哑变量(stats::model.matrix())
 stats::model.matrix()
 library(nricens)
-formula1 <- as.formula(Y ~ age + P + Ca + TBS + sex + eGFR)
-formula2 <- as.formula(Y ~ age + P + Ca + sex + eGFR)
 mnew <- glm(formula1, family = binomial(), data = trainingset, x = T)
 mstd <- glm(formula2, family = binomial(), data = trainingset, x = T)
 # 截断值的选择
@@ -660,24 +682,27 @@ pvalue <- (1 - pnorm(z)) * 2
 pvalue
 
 library(PredictABEL)
-pnew=mnew$fitted.values
-pstd=mstd$fitted.values
+pnew <- mnew$fitted.values
+pstd <- mstd$fitted.values
 demo <- as.matrix(trainingset)
-reclassification(data=trainingset,cOutcome=1,predrisk1=pstd,predrisk2=pnew,cutoff=c(0,0.2,0.4,1))
+reclassification(data = trainingset, cOutcome = 1, predrisk1 = pstd, predrisk2 = pnew, cutoff = c(0, 0.2, 0.4, 1))
 
 
 # DCA&CIC
 library(rmda)
-full.model <- decision_curve(formula1,data = trainingset,family = binomial(link = "logit"),
-  thresholds = seq(0, .4, by = .001),confidence.intervals = 0.95,
+full.model <- decision_curve(formula1,
+  data = trainingset, family = binomial(link = "logit"),
+  thresholds = seq(0, .4, by = .001), confidence.intervals = 0.95,
   bootstraps = 100
 ) # should use more bootstrap replicates in practice!
 
 # plot the DCA curve
-plot_decision_curve(full.model,curve.names = c("Full model"),xlim = c(0,0.4),
-                    col = c("red"),confidence.intervals = FALSE,  #remove confidence intervals
-                    cost.benefit.axis = T, #remove cost benefit axis
-                    standardize = TRUE,legend.position = "topright")
+plot_decision_curve(full.model,
+  curve.names = c("Full model"), xlim = c(0, 0.4),
+  col = c("red"), confidence.intervals = FALSE, # remove confidence intervals
+  cost.benefit.axis = T, # remove cost benefit axis
+  standardize = TRUE, legend.position = "topright"
+)
 
 # plot the clinical impact
 plot_clinical_impact(full.model,
@@ -689,10 +714,35 @@ plot_clinical_impact(full.model,
   n.cost.benefits = 8, col = c("red", "blue"),
   confidence.intervals = F
 )
+# Net benefit
+full.model$derived.data[, c("thresholds", "NB", "sNB")]
 
-full.model$derived.data[,c("thresholds","NB","sNB")]
+# Hold-out/K-fold/LOO-CV/Bootstrap模型泛化能力评估
+names(getModelInfo())
+# 交叉验证LGOCV
+train.Control_1 <- trainControl(method = "LGOCV",p=0.7,number = 50)
+set.seed(123)
+my_model_1 <- train(formula1,data=trainingset,trControl=train.Control_1,method="glm")
+my_model_1
+# 10折交叉验证
+train.Control_2 <- trainControl(method = "CV", number = 10)
+set.seed(123)
+my_model_2 <- train(formula1,data=trainingset,trControl=train.Control_2,method="glm")
+my_model_2
+# 留一法LOOCV
+train.Control_3 <- trainControl(method = "LOOCV")
+set.seed(123)
+my_model_3 <- train(formula1,data=trainingset,trControl=train.Control_3,method="glm")
+my_model_3
+# Boot
+train.Control_4 <- trainControl(method = "repeatedcv",number=10,repeats = 100)
+set.seed(123)
+my_model_4 <- train(formula1,data=trainingset,trControl=train.Control_4,method="glm")
+my_model_4
 
-# Bootstrap 
+
+
+
 
 
 
