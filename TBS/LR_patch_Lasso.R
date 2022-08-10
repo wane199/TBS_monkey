@@ -73,7 +73,7 @@ abline(a = 0, b = 1, lty = 2, lwd = 3, col = "black")
 varsU <- names(trainingset[, 2:21]) # 自变量
 Result <- c()
 for (i in 1:length(varsU)) {
-  fit <- glm(substitute(Y ~ x, list(x = as.name(varsU[i]))), data = dt, family = binomial())
+  <- fit <- glm(substitute(Y ~ x, list(x = as.name(varsU[i]))), data = dt, family = binomial())
   fitSum <- summary(fit)
   result1 <- c()
   result1 <- rbind(result1, fitSum$coef)
@@ -226,7 +226,7 @@ dt$Y <- ifelse(dt$Y == "0", "No Fracture", "Fracture")
 # dt$Y <- as.factor(dt$Y,levels = c(0, 1),
 #                   labels = c("No Fracture", "Fracture"))
 # 批量数值转因子
-for (i in names(dt)[c(1:2, 4:13, 15, 17:21)]) {
+for (i in names(dt)[c(1:2, 4:13, 15, 17:19)]) {
   dt[, i] <- as.factor(dt[, i])
 }
 set.seed(123)
@@ -736,13 +736,19 @@ my_model_3 <- train(formula1,data=trainingset,trControl=train.Control_3,method="
 my_model_3
 # Boot
 train.Control_4 <- trainControl(method = "repeatedcv",number=10,repeats = 100)
+train.Control_5 <- trainControl(method = "repeatedcv",number=10,repeats = 100,
+                                classProbs = T, summaryFunction = twoClassSummary)
 set.seed(123)
 my_model_4 <- train(formula1,data=trainingset,trControl=train.Control_4,method="glm")
 my_model_4
+my_model_5 <- train(formula1,data=dt,trControl=train.Control_5,method="glm")
+as.matrix(my_model_5$results[2])
 
-
-
-
-
-
-
+# Total points
+library(nomogramEx)
+nom1 <- nomogram(fit,
+                 fun=function(x)1/(1+exp(-x)),
+                 lp=T,
+                 fun.at=c(0.1,0.3,0.5,0.7,0.9),
+                 funlabel="Risk")
+nomogramEx(nom1)
