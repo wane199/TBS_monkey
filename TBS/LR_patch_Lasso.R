@@ -36,13 +36,13 @@ prop.table(table(test$Y))
 
 dt <- read_excel("/home/wane/Desktop/EP/Structured_Data/Physician.xlsx")
 table(dt$Phy2)
-fit1 <- glm(Label ~ Phy2, data = dt, family = binomial())
+fit1 <- glm(Label ~ Phy1, data = dt, family = binomial())
 prob1 <- predict(fit1, newdata = dt, type = "response")
 # type = "link", 缺省值，给出线性函数预测值
 # type = "response", 给出概率预测值
 # type = "terms"，给出各个变量的预测值
 library(ROCR) # ROCR包提供多种评估分类执行效果的方法及可视化
-pred1 <- prediction(prob1, dt$Label) # 转换prob1的格式
+pred1 <- ROCR::prediction(prob1, dt$Label) # 转换prob1的格式
 performance(pred1, "auc")@y.values[[1]]
 
 # 混淆矩阵绘制
@@ -63,7 +63,7 @@ bestp
 predlab <- as.factor(ifelse(predprob > bestp, 1, 0))
 Actual <- factor(dt$Label, levels = c(1, 0), labels = c("True", "False"))
 # 训练集混淆矩阵
-confusionMatrix(
+caret::confusionMatrix(
   data = predlab, # 预测类别
   reference = factor(dt$Label), # 实际类别
   positive = "1",
