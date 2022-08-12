@@ -37,6 +37,7 @@ prop.table(table(test$Y))
 dt <- read_excel("/home/wane/Desktop/EP/Structured_Data/Physician.xlsx")
 table(dt$Phy2)
 fit1 <- glm(Label ~ Phy1, data = dt, family = binomial())
+# 训练集预测概率
 prob1 <- predict(fit1, newdata = dt, type = "response")
 # type = "link", 缺省值，给出线性函数预测值
 # type = "response", 给出概率预测值
@@ -48,10 +49,8 @@ performance(pred1, "auc")@y.values[[1]]
 # 混淆矩阵绘制
 require(caret)
 library(pROC)
-# 训练集预测概率
-predprob <- predict(fit1, newdata = dt, type = "response")
 # 训练集ROC
-roc <- roc(response = dt$Label, predict = predprob)
+roc <- roc(response = dt$Label, predict = prob1)
 # 训练集ROC曲线
 plot(roc, col = "red")
 # 约登法则，最佳cutoff值
@@ -60,7 +59,7 @@ bestp <- roc$thresholds[
 ]
 bestp
 # 训练集预测分类
-predlab <- as.factor(ifelse(predprob > bestp, 1, 0))
+predlab <- as.factor(ifelse(prob1 > bestp, 1, 0))
 Actual <- factor(dt$Label, levels = c(1, 0), labels = c("True", "False"))
 # 训练集混淆矩阵
 caret::confusionMatrix(
