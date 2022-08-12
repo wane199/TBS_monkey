@@ -42,9 +42,9 @@ library(ROCR) # ROCR包提供多种评估分类执行效果的方法及可视化
 pred1 <- prediction(prob1, test$Y) # 转换prob1的格式
 performance(pred1, "auc")@y.values[[1]]
 
-fit2 <- glm(Y ~ TscoreL1L4, data = train, family = binomial())
-prob2 <- predict(fit2, newdata = test, type = "response")
-pred2 <- prediction(prob2, test$Y)
+fit2 <- glm(Y ~ sex, data = train, family = binomial())
+prob2 <- predict(fit2, newdata = train, type = "response")
+pred2 <- prediction(prob2, train$Y)
 performance(pred2, "auc")@y.values[[1]]
 
 fit3 <- glm(Y ~ BMD, data = train, family = binomial())
