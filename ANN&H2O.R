@@ -259,14 +259,16 @@ library(neuralnet)
 library(NeuralNetTools)
 library(readxl)
 ## 读取要使用的数据
-# diadf <- read.csv("data/chap11/diabetes.csv", sep = "\t")
+diadf <- read.csv("/home/wane/Documents/RDocu/F_3061.csv")
 diadf <- read_excel("/home/wane/Desktop/TBS/Monkey/BMC.xlsx")
 diadf <- diadf[-1]
+diadf <- diadf[c(1,2,9,21)]
+diadf$Sex <- factor(diadf$Sex, levels = c("Women", "Men"), labels = c("0", "1"))
 ## 数据max-min归一化到0-1之间
 diadf_s <- normalizeData(diadf, type = "0_1")
 ## 数据切分
 set.seed(123)
-datasplist <- splitForTrainingAndTest(diadf_s[, 2:6], diadf_s[, 1],
+datasplist <- splitForTrainingAndTest(diadf_s[, 2:4], diadf_s[, 1],
   ratio = 0.3
 )
 ## MLP回归模型
@@ -300,7 +302,8 @@ plotRegressionError(datasplist$targetsTest, mlpreg$fittedTestValues,
 set.seed(123)
 library(MASS)
 data <- read.csv("/home/wane/Desktop/TBS/Monkey/VoxelNumbers_InMachin_atlas_whole.csv")
-data <- data[, 10:15]
+data <- read.csv("/home/wane/Documents/RDocu/F_3061.csv")
+data <- data[c(2:3,10,22)]
 any(is.na(data))
 
 # Split the data and Run a linear model
@@ -330,7 +333,7 @@ nn <- neuralnet(f, data = train_, hidden = 3, linear.output = TRUE)
 plot(nn, rep = "best")
 
 # Performance
-pr.nn <- predict(nn, test_[, 2:6])
+pr.nn <- predict(nn, test_[, 2:4])
 print(head(pr.nn))
 pr.nn_ <- pr.nn * (max(data$Age) - min(data$Age)) + min(data$Age)
 test.r <- (test_$Age) * (max(data$Age) - min(data$Age)) + min(data$Age)
@@ -349,7 +352,7 @@ abline(0, 1, lwd = 2)
 nn8 <- neuralnet(f, data = train_, hidden = 8, linear.output = TRUE)
 plot(nn8, rep = "best")
 
-pr.nn <- predict(nn8, test_[, 2:6])
+pr.nn <- predict(nn8, test_[, 2:4])
 pr.nn_ <- pr.nn * (max(data$Age) - min(data$Age)) + min(data$aAge)
 test.r <- (test_$Age) * (max(data$Age) - min(data$Age)) + min(data$Age)
 
@@ -369,7 +372,7 @@ set.seed(123)
 nn8.4 <- neuralnet(f, data = train_, hidden = c(8, 4), linear.output = TRUE)
 plot(nn8.4, rep = "best")
 
-pr.nn <- predict(nn8.4, test_[, 2:6])
+pr.nn <- predict(nn8.4, test_[, 2:4])
 pr.nn_ <- pr.nn * (max(data$Age) - min(data$Age)) + min(data$Age)
 test.r <- (test_$Age) * (max(data$Age) - min(data$Age)) + min(data$Age)
 
@@ -383,3 +386,10 @@ plot(test$Age, pr.nn_,
   main = "Real vs Predicted"
 )
 abline(0, 1, lwd = 2)
+## 可视化全连接模型的网络结构
+library(NeuralNetTools)
+library(ggpol)
+par(cex = .9)
+# rel_imp <- garson(nn8.4, bar_plot = T)$rel_imp
+# cols <- colorRampPalette(c('lightgreen', 'darkgreen'))(3)[rank(rel_imp)]
+plotnet(nn8.4, prune_col = 'lightblue', pos_col = "red", neg_col = "grey")

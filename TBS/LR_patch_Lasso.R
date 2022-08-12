@@ -1,6 +1,7 @@
 # https://blog.csdn.net/qq_42696043/article/details/125134962?spm=1001.2014.3001.5502
 rm(list = ls())
 library(ggplot2)
+library(readxl)
 dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\BIAO\\PTH1\\CKD2.csv", header = T)
 dt <- read.csv("/home/wane/Desktop/TBS&Mon/BIAO/PTH1/CKD2.csv", header = T)
 dt <- dt[-1]
@@ -33,14 +34,41 @@ test <- dt[ind == 2, ] # the test data set
 prop.table(table(train$Y))
 prop.table(table(test$Y))
 
-fit1 <- glm(Y ~ TBS, data = train, family = binomial())
-prob1 <- predict(fit1, newdata = test, type = "response")
+dt <- read_excel("/home/wane/Desktop/EP/Structured_Data/Physician.xlsx")
+table(dt$Phy2)
+fit1 <- glm(Label ~ Phy2, data = dt, family = binomial())
+prob1 <- predict(fit1, newdata = dt, type = "response")
 # type = "link", 缺省值，给出线性函数预测值
 # type = "response", 给出概率预测值
 # type = "terms"，给出各个变量的预测值
 library(ROCR) # ROCR包提供多种评估分类执行效果的方法及可视化
-pred1 <- prediction(prob1, test$Y) # 转换prob1的格式
+pred1 <- prediction(prob1, dt$Label) # 转换prob1的格式
 performance(pred1, "auc")@y.values[[1]]
+
+# 混淆矩阵绘制
+require(caret)
+library(pROC)
+# 训练集预测概率
+predprob <- predict(fit1, newdata = dt, type = "response")
+# 训练集ROC
+roc <- roc(response = dt$Label, predict = predprob)
+# 训练集ROC曲线
+plot(roc, col = "red")
+# 约登法则，最佳cutoff值
+bestp <- roc$thresholds[
+  which.max(roc$sensitivities + roc$specificities - 1)
+]
+bestp
+# 训练集预测分类
+predlab <- as.factor(ifelse(predprob > bestp, 1, 0))
+Actual <- factor(dt$Label, levels = c(1, 0), labels = c("True", "False"))
+# 训练集混淆矩阵
+confusionMatrix(
+  data = predlab, # 预测类别
+  reference = factor(dt$Label), # 实际类别
+  positive = "1",
+  mode = "everything"
+)
 
 fit2 <- glm(Y ~ sex, data = train, family = binomial())
 prob2 <- predict(fit2, newdata = train, type = "response")
