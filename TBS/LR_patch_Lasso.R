@@ -35,10 +35,12 @@ prop.table(table(train$Y))
 prop.table(table(test$Y))
 
 dt <- read_excel("/home/wane/Desktop/EP/Structured_Data/Physician.xlsx")
-table(dt$Phy2)
-fit1 <- glm(Label ~ Phy1, data = dt, family = binomial())
+table(dt$Phy1)
+fit1 <- glm(Label ~ Phy2, data = dt, family = binomial())
 # 训练集预测概率
 prob1 <- predict(fit1, newdata = dt, type = "response")
+Phy2prob <- as.data.frame(prob1)  # Converting list to dataframe in R
+
 # type = "link", 缺省值，给出线性函数预测值
 # type = "response", 给出概率预测值
 # type = "terms"，给出各个变量的预测值
