@@ -63,10 +63,11 @@ https://huhuaping.com/2021/02/01/css-base-xaringan/
 
 --
 ## First
-BLS文章撰写;
+TLE220 Dataset & BLS-Siamese Net 三分类模型构建(疾病筛查+定侧);
 
 --
 ## Second
+
 
 ---
 ---
@@ -310,7 +311,7 @@ class: center, middle
 class: center, middle
 
 Epilepsy Multimodal Neuroimaging x BLS
-![Topic](./images/Circle2.png)
+![Topic](./images/Circles.png)
 ---
 class: center, middle
 ```{r echo=FALSE,out.width="90%"}

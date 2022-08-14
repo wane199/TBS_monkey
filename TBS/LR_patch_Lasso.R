@@ -36,11 +36,13 @@ prop.table(table(test$Y))
 
 dt <- read_excel("/home/wane/Desktop/EP/Structured_Data/Physician.xlsx")
 table(dt$Phy1)
-fit1 <- glm(Label ~ Phy2, data = dt, family = binomial())
+fit1 <- glm(Label ~ Phy1, data = dt, family = binomial())
 # 训练集预测概率
 prob1 <- predict(fit1, newdata = dt, type = "response")
-Phy2prob <- as.data.frame(prob1)  # Converting list to dataframe in R
-
+prob2 <- predict(fit1, newdata = dt, type = "response")
+Phy1prob <- as.data.frame(prob1)  # Converting list to dataframe in R
+dt1 <- dplyr::mutate(dt[c(1,2,4,5)],Phy1prob,Phy2prob)
+write.csv(dt1,"/home/wane/Desktop/EP/Structured_Data/Physician1.csv")
 # type = "link", 缺省值，给出线性函数预测值
 # type = "response", 给出概率预测值
 # type = "terms"，给出各个变量的预测值
@@ -102,7 +104,7 @@ abline(a = 0, b = 1, lty = 2, lwd = 3, col = "black")
 varsU <- names(trainingset[, 2:21]) # 自变量
 Result <- c()
 for (i in 1:length(varsU)) {
-  <- fit <- glm(substitute(Y ~ x, list(x = as.name(varsU[i]))), data = dt, family = binomial())
+  fit <- glm(substitute(Y ~ x, list(x = as.name(varsU[i]))), data = dt, family = binomial())
   fitSum <- summary(fit)
   result1 <- c()
   result1 <- rbind(result1, fitSum$coef)
