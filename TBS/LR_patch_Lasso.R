@@ -616,7 +616,7 @@ upper <- c[1, 1] + 1.96 * c[1, 4] / 2
 cindex <- rbind(orig_c_index, lower, upper, bias_corrected_c_index)
 cindex
 
-# H-L拟合优度
+# Hosmer-Lemeshow Goodness of Fit(GOF) Test/H-L拟合优度检验
 library(ResourceSelection)
 model <- glm(formula1,
   data = trainingset, family = binomial(link = "logit")
@@ -688,7 +688,7 @@ plot(cal2,
 )
 
 # R2/AIC/BIC
-
+R2
 AIC(fit1)
 BIC(fit1)
 
@@ -713,7 +713,6 @@ pnew <- mnew$fitted.values
 pstd <- mstd$fitted.values
 demo <- as.matrix(trainingset)
 reclassification(data = trainingset, cOutcome = 1, predrisk1 = pstd, predrisk2 = pnew, cutoff = c(0, 0.2, 0.4, 1))
-
 
 # DCA&CIC
 library(rmda)
