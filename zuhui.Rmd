@@ -59,13 +59,21 @@ PET/CT-MRI, JNU
 ???
 https://huhuaping.com/2021/02/01/css-base-xaringan/
 ---
-# 吴环华工作汇报0808
+# 吴环华工作汇报0815
 
 --
 ## First
-BLS文章撰写及目标期刊[eClinicalMedicine](https://www.editorialmanager.com/eclinm/default1.aspx) & [eBioMedicine](https://www.editorialmanager.com/ebiom/default1.aspx);
+BLS文章撰写;
 
 --
+## Second
+
+---
+---
+# 吴环华工作汇报0808
+## First
+BLS文章撰写及目标期刊[eClinicalMedicine](https://www.editorialmanager.com/eclinm/default1.aspx) & [eBioMedicine](https://www.editorialmanager.com/ebiom/default1.aspx);
+
 ## Second
 MRIneg dataset结果：
 
@@ -81,9 +89,6 @@ MRIneg dataset结果：
 
 3.2 CKD TBS-Clinic Nomogram骨折风险临床预测模型结果。 
 
----
----
----
 ```{r echo=FALSE}
 library(ggplot2)
 # https://r-graph-gallery.com/198-scatter-and-density-plot-ggplot2.html
@@ -94,7 +99,6 @@ ggplot(sample_data, aes(x_values, y_values)) +
   stat_density2d(geom="tile", aes(fill = ..density..), contour = FALSE) + 
   geom_point(colour = "white")
 ```
-
 ---
 name: SCI
 # 吴环华工作汇报0801
