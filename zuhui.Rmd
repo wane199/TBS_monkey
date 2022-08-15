@@ -59,6 +59,21 @@ PET/CT-MRI, JNU
 ???
 https://huhuaping.com/2021/02/01/css-base-xaringan/
 ---
+# 吴环华工作汇报0822
+
+## First
+
+## Second
+
+---
+```{r echo=FALSE}
+curve(1/(1 + exp(1)^-x),
+      from = -10, to = 10,
+      xlab = "input",
+      ylab = "Probability")
+```
+
+---
 # 吴环华工作汇报0815
 
 ## First
@@ -87,11 +102,14 @@ TLE220 dataset结果：
 knitr::include_graphics("./images/bls.jpeg")
 ```
 ---
+.pull-left[
 ```{r echo=FALSE}
 knitr::include_graphics("./images/Phy2.svg")
 ```
-.footnote[人工阅片三分类结果]
-
+.footnote[**人工阅片三分类结果**]]
+.pull-right[
+#### [Deep EDA](https://yuzar-blog.netlify.app/posts/2021-01-09-exploratory-data-analysis-and-beyond-in-r-in-progress/)
+![Deep EDA](https://yuzar-blog.netlify.app/posts/2021-01-09-exploratory-data-analysis-and-beyond-in-r-in-progress/DEDA_thumbnail.jpg)]
 ---
 ---
 # 吴环华工作汇报0808
@@ -333,7 +351,7 @@ class: center, middle
 ---
 class: center, middle
 
-Epilepsy Multimodal Neuroimaging x BLS
+**Epilepsy Multimodal Neuroimaging** $\times$ ***BLS Algorithm***
 ![Topic](./images/Circles.png)
 ---
 class: center, middle

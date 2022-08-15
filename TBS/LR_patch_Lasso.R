@@ -276,7 +276,7 @@ testingset <- dt[-ss, ]
 # trainingset3<-biopsy[split,]
 # testingset3<-biopsy[-split,]
 
-# Deep EDA
+# Deep EDA(https://yuzar-blog.netlify.app/posts/2021-01-09-exploratory-data-analysis-and-beyond-in-r-in-progress/)
 # Explore numeric variables with descriptive statistics
 library(flextable) # beautifying tables
 library(dplyr)
