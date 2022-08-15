@@ -21,6 +21,7 @@ library(My.stepwise)
 # 读取数据集
 # write.csv(dt,"/home/wane/Desktop/EP/结构化数据/TableS1-2.csv", row.names = FALSE)
 dt <- read.csv("/media/wane/wade/EP/EPTLE_PET/TLE_pet_ind/process_PT_tem.csv")
+dt <- dt[-3]
 dt <- as.data.frame(dt)
 as.matrix(head(dt))
 
@@ -56,7 +57,7 @@ prop.table(table(train$Rel._in_5yrs))
 ## 影像组学导论 冗余性分析 你懂她嘛?(pearson OR spearman)
 # 9.feature selection: reduce redundancy
 # 9.1 calculate p of normality test
-trainx <- train[3:1135]
+trainx <- train[3:1134]
 norm_result <- apply(trainx, 2, function(x) shapiro.test(x)$p.value)
 norm_feature <- trainx[which(norm_result >= 0.05)]
 # 9.2 calculate r
@@ -86,7 +87,7 @@ lasso_selection <- cv.glmnet(
 )
 lasso_selection
 # tow pictures for lasso
-par(font.lab = 2, mfrow = c(1, 1), mar = c(4.5, 5, 3, 2))
+par(font.lab = 2, mfrow = c(1, 2), mar = c(4.5, 5, 3, 2))
 
 plot(x = lasso_selection, las = 1, xlab = "log(lambda)") # Fig1
 nocv_lasso <- glmnet(
@@ -178,7 +179,6 @@ radscore_all <- as.numeric(Radscore_Matrix)
 # get radiomics score
 Radscore_train <- radscore_all
 
-
 ## method2. lasso降维，训练集训练模型
 # 将矩阵的因子变量与其它定量边量合并成数据框，定义了自变量。
 x <- as.matrix(train[, c(3:1135)])
@@ -220,7 +220,6 @@ sze <- length(coef.min)
 # colnames(re)=c('event','prob_min','prob_1se')
 # re$event=as.factor(re$event)
 # head(re)
-
 
 ## Lasso筛选变量后进一步逐步回归筛选(训练集)stepwise
 ddist <- datadist(train)
