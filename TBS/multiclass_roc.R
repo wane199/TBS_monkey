@@ -15,7 +15,7 @@ dt$Label <- as.factor(dt$Label)
 # 有序多分类LR
 library(MASS)
 fit2 <- polr(Label ~ Phy2, data = dt)
-summary(fit1)
+summary(fit2)
 # 训练集预测概率
 pred2 <- predict(fit2, newdata = dt, type = "class")
 prob2 <- predict(fit2, newdata = dt, type = "probs")
@@ -28,13 +28,13 @@ names(dt1)[8] <-"Phy1_2"
 write.csv(dt1,"/home/wane/Desktop/EP/Structured_Data/Physician2.csv")
 
 # Basic example
-roc1 <- multiclass.roc(dt$Label, prob1[,3])
+roc1 <- multiclass.roc(dt$Label, prob2[,3])
 multiclass.roc(dt$Label, prob1[,2])
 Phy1prob <- as.data.frame(roc1[2])
 auc(roc1)
-plot.roc(roc1$rocs[[1]],col='blue')
-plot.roc(roc1$rocs[[2]],add=T,col='red')
-plot.roc(roc1$rocs[[3]],add=T,col='yellow')
+plot.roc(roc1$rocs[[1]],col='blue',print.auc =TRUE,print.auc.adj=c(0,1))
+plot.roc(roc1$rocs[[2]],add=T,col='red',print.auc =TRUE,print.auc.adj=c(0,0))
+plot.roc(roc1$rocs[[3]],add=T,col='brown',print.auc =TRUE,print.auc.adj=c(0,2))
 plot.roc(roc1$rocs[[1]],col="red",print.auc =TRUE,print.auc.col = "darkgreen",auc.polygon = TRUE,auc.polygon.col = "pink")
 # 三分类混淆矩阵
 library(caret)
