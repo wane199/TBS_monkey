@@ -61,11 +61,8 @@ https://huhuaping.com/2021/02/01/css-base-xaringan/
 ---
 # 吴环华工作汇报0815
 
---
 ## First
 TLE220 Dataset & BLS-Siamese Net 三分类模型构建(疾病筛查+定侧);
-
---
 ```{r echo=FALSE}
 knitr::include_graphics("./images/frame.png")
 ```
@@ -79,13 +76,11 @@ knitr::include_graphics("./images/TLE220_BLS.png")
 ## Second
 TLE220 dataset结果：
 
---
-
 |              | class | accuracy | sensitivity | specificity | precision | f1score | auc    |
 |--------------|-------|----------|-------------|-------------|-----------|---------|--------|
 |  BLS-Siamese Net | PET   | 0.997 | 0.995 | 0.997 | 0.995 | 0.995 | 0.999 |
 |                  | T1    | 0.913 | 0.993 | 0.618 | 0.906 | 0.948 | 0.825 |
-|  BLS-Siamese     | PET   | 0.995 | 0.996 | 0.992 | 0.996 | 0.996 | 0.999 |
+|  Siamese Net     | PET   | 0.995 | 0.996 | 0.992 | 0.996 | 0.996 | 0.999 |
 |                  | T1    | 0.912 | 0.993 | 0.610 | 0.905 | 0.947 | 0.808 |
 ---
 ```{r echo=FALSE}
