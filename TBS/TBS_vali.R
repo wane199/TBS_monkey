@@ -264,6 +264,7 @@ ggscatterstats(data = iris, x = Sepal.Length,
                messages = FALSE
 )
 # https://zouhua.top/archives/208c251d.html
+library(ggpubr)
 ggdensity(plotdata, 
           x = "weight",
           add = "mean", 
