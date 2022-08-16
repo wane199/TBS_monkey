@@ -37,6 +37,7 @@ attach(dt)
 
 # 待筛选组学特征标准化
 dtx <- scale(dt[, c(6:1138)])
+# x=scale(x,center=T,scale=T)  #Z-score标准化方法
 dtx <- as.data.frame(dtx)
 head(dt[4:5])
 dt <- mutate(dt[, 4:5], dtx)
@@ -73,33 +74,36 @@ diag(cor_all) <- 0
 data_reduce <- trainx[, !apply(cor_all, 2, function(x) any(abs(x) > 0.9))]
 # 9.6 check new data
 dim(data_reduce)
-View(data_reduce)
+
 # lasso process
 cv_x <- as.matrix(data_reduce)
 # cv_y <- train[1:2]
 cv_y <- data.matrix(Surv(train$Follow_up_timemon, train$Rel._in_5yrs))
-
 set.seed(123)
-lasso_selection <- cv.glmnet(
-  x = cv_x,
-  y = cv_y,
-  family = "cox", alpha = 1, nfolds = 1000
-)
-lasso_selection
 # tow pictures for lasso
-par(font.lab = 2, mfrow = c(1, 2), mar = c(4.5, 5, 3, 2))
-
-plot(x = lasso_selection, las = 1, xlab = "log(lambda)") # Fig1
 nocv_lasso <- glmnet(
   x = cv_x, y = cv_y,
   family = "cox", alpha = 1,
 )
-plot(nocv_lasso, xvar = "lambda", las = 1, lwd = 2, xlab = "log(lambda)") # Fig2
+par(font.lab = 2, mfrow = c(1, 2), mar = c(4.5, 5, 3, 2))
+p1 <- plot(nocv_lasso, xvar = "lambda", las = 1, lwd = 2, xlab = "log(lambda)") # Fig1
 abline(v = log(lasso_selection$lambda.min), lwd = 1, lty = 3, col = "black")
 
+lasso_selection <- cv.glmnet(
+  x = cv_x,
+  y = cv_y,type.measure="deviance",
+  family = "cox", alpha = 1, nfolds = 1000
+)
+# fitcv1 <- cv.glmnet(x, y, alpha = 1, family = "cox", type.measure = "C")
+lasso_selection
+p2 <- plot(x = lasso_selection, las = 1, xlab = "log(lambda)") # Fig2
+#给每一副子图加上序号，tag_level选a，表示用小写字母来标注
+library(cowplot)
+plot_grid(p1, p2, labels = c('a', 'b'))
+          
 # lasso回归结果美化
 library(tidyverse)
-tmp <- as_tibble(as.matrix(coef(lasso_selection)), rownames = "coef") %>%
+tmp <- as_tibble(as.matrix(coef(nocv_lasso)), rownames = "coef") %>%
   pivot_longer(
     cols = -coef,
     names_to = "variable",
@@ -111,6 +115,24 @@ tmp <- as_tibble(as.matrix(coef(lasso_selection)), rownames = "coef") %>%
     lambda = lasso_selection$lambda[variable + 1],
     norm = sum(if_else(coef == "(Intercept)", 0, abs(value)))
   )
+
+ggplot(tmp,aes(log(lambda),value,color = coef)) + 
+  geom_vline(xintercept = log(cvfit$lambda.min),size=0.8,color='grey60',alpha=0.8,linetype=2)+
+  geom_line(size=1) + 
+  xlab("Lambda (log scale)") + 
+  #xlab("L1 norm")+
+  ylab('Coefficients')+
+  theme_bw(base_rect_size = 2)+ 
+  scale_x_continuous(expand = c(0.01,0.01))+
+  scale_y_continuous(expand = c(0.01,0.01))+
+  theme(panel.grid = element_blank(),
+        axis.title = element_text(size=15,color='black'),
+        axis.text = element_text(size=12,color='black'),
+        legend.title = element_blank(),
+        legend.text = element_text(size=12,color='black'),
+        legend.position = 'right')+
+  #annotate('text',x = -3.3,y=0.26,label='Optimal Lambda = 0.012',color='black')+
+  guides(col=guide_legend(ncol = 1))
 
 ggplot(tmp, aes(norm, value, color = coef, group = coef)) +
   geom_line(size = 1.2) +
@@ -143,18 +165,49 @@ p2 <- ggplot(tidy_df, aes(lambda, estimate, group = term, color = term)) +
   ylab("Coefficients") +
   scale_color_manual(name = "variable", values = mypalette) +
   theme_bw()
-p2
 
-# get coefficient
+## 准备数据, 10折交叉验证的图
+cvfit = lasso_selection
+xx <- data.frame(lambda=cvfit[["lambda"]],cvm=cvfit[["cvm"]],cvsd=cvfit[["cvsd"]],
+                   cvup=cvfit[["cvup"]],cvlo=cvfit[["cvlo"]],nozezo=cvfit[["nzero"]])
+xx$ll <- log(xx$lambda)
+xx$NZERO <- paste0(xx$nozezo,' vars')
+ggplot(xx,aes(ll,cvm,color=NZERO))+
+  geom_errorbar(aes(x=ll,ymin=cvlo,ymax=cvup),width=0.05,size=1)+
+  geom_vline(xintercept = xx$ll[which.min(xx$cvm)],size=0.8,color='grey60',alpha=0.8,linetype=2)+
+  geom_point(size=2)+
+  xlab("Log Lambda")+ylab('Partial Likelihood Deviance')+
+  theme_bw(base_rect_size = 1.5)+ 
+  scale_x_continuous(expand = c(0.02,0.02))+
+  scale_y_continuous(expand = c(0.02,0.02))+
+  theme(panel.grid = element_blank(),
+        axis.title = element_text(size=15,color='black'),
+        axis.text = element_text(size=12,color='black'),
+        legend.title = element_blank(),
+        legend.text = element_text(size=12,color='black'),
+        legend.position = 'bottom')+
+  annotate('text',x = -5.3,y=12.4,label='Optimal Lambda = 0.008',color='black')+
+  guides(col=guide_legend(ncol = 3))
+
+# get coefficient and waterfalls plot
 coefPara <- coef(object = lasso_selection, s = "lambda.min")
 lasso_values <- as.data.frame(which(coefPara != 0, arr.ind = T))
-lasso_selection
 lasso_names <- rownames(lasso_selection[-1])
 lasso_coef <- data.frame(
   Feature = rownames(lasso_values),
   Coef = coefPara[which(coefPara != 0, arr.ind = T)]
 )
 lasso_coef
+# https://cloud.tencent.com/developer/article/1089081
+ggplot(lasso_coef, aes(x=reorder(Feature,Coef),y=Coef,fill=Coef))+
+  xlab("") + ylab("Coefficients") + coord_flip() +
+  geom_bar(stat = 'identity',colour='black',width=0.78,size=0.25,position = position_dodge(0.7))+
+  ylim(-0.30, 0.20)+ geom_text(aes(label=Coef),vjust=-0.2)+
+  theme_bw() + theme(panel.grid.major.y = element_blank(), panel.grid.minor =  element_blank()) +
+  theme(axis.ticks.y = element_blank()) + theme(panel.border = element_blank()) + theme(axis.title.x = element_text(face = "bold")) + 
+  theme(axis.text.y = element_blank()) + #hjust=1调整横轴距离
+  geom_text(aes(y=ifelse(Coef>0,-0.01,0.01),label=Feature,fontface=4,hjust=ifelse(Coef>0,1,0))) +
+  scale_fill_gradient2(low = "#366488", high = "red", mid="white", midpoint=0)
 write.csv(lasso_coef, file = "/media/wane/wade/EP/EPTLE_PET/TLE_pet_ind/coef.minPTcox9.csv", quote = T, row.names = F)
 # coef <- read_csv("/media/wane/wade/EP/EPTLE_PET/TLE_pet_ind/coef.minPTcox9.csv", show_col_types = FALSE)
 # 提取特征名
@@ -162,64 +215,26 @@ var <- unlist(lasso_coef[, 1])
 # vars <- paste0(coef[,1],collapse = '+')
 var
 # Radiomics Score
-# information preparation
+# information preparation, 将Lasso降维后的训练集、验证集进行整理
 train_lasso <- data.frame(cv_x)[var]
 test_lasso <- test[names(train_lasso)]
 Data_all <- as.matrix(rbind(train_lasso, test_lasso))
 xn <- nrow(Data_all)
 yn <- ncol(Data_all)
-# get beta and calculate
+# get beta and calculate，系数矩阵化，进行矩阵运算
 beta <- as.matrix(coefPara[which(coefPara != 0), ]) # get beta = Coefficients
 beta
 betai_matrix <- as.matrix(beta) # get beta_i
 beta0_matrix <- matrix(beta[1], xn, 1) # get beta_0
-Radscore_Matrix <- Data_all * betai_matrix
+Radscore_Matrix <- Data_all %*% betai_matrix + beta0_matrix # get Rad-score
 radscore_all <- as.numeric(Radscore_Matrix)
 
 # get radiomics score
-Radscore_train <- radscore_all
-
-## method2. lasso降维，训练集训练模型
-# 将矩阵的因子变量与其它定量边量合并成数据框，定义了自变量。
-x <- as.matrix(train[, c(3:1135)])
-# x=scale(x,center=T,scale=T)  #Z-score标准化方法
-# 设置应变量，打包生存时间和生存状态（生存数据）
-y <- data.matrix(Surv(train$Follow_up_timemon, train$Rel._in_5yrs))
-# 调用glmnet包中的glmnet函数，注意family那里一定要制定是“cox”，如果是做logistic需要换成"binomial"。
-fit <- glmnet(x, y, family = "cox", alpha = 1)
-plot(fit, label = T, lwd = 2)
-plot(fit, xvar = "lambda", label = T, lwd = 2)
-# 主要在做交叉验证,lasso
-set.seed(123)
-fitcv <- cv.glmnet(data.matrix(x), y, family = "cox", alpha = 1, nfolds = 1000)
-fitcv1 <- cv.glmnet(x, y, alpha = 1, family = "cox", type.measure = "C")
-plot(fitcv)
-print(fitcv)
-
-# 同理，记得检查summary，看输出的数据是否正确
-# output select features
-tmp_coeffs <- coef(fitcv, s = "lambda.min")
-## output coef as matrix
-output_coef <- data.frame(features = tmp_coeffs@Dimnames[[1]][tmp_coeffs@i + 1], coefficient = tmp_coeffs@x)
-# row.names(output_coef)=output_coef$features
-output_coef <- output_coef[order(output_coef[, "coefficient"], decreasing = TRUE), ]
-paste0(output_coef[1], collapse = "")
-fea
-write.csv(output_coef, file = "/media/wane/wade/EP/EPTLE_PET/TLE_pet_ind/coef.minPTcox.csv", quote = T, row.names = T)
-
-coef.min <- coef(fitcv, s = "lambda.min")
-coef.min
-coef.min <- as.matrix(coef.min)
-as.data.frame(t(coef.min))
-sze <- length(coef.min)
-# write.csv(coef.min,file="/media/wane/wade/EP/EPTLE_PET/TLE_pet_ind/coef.minPTcox.csv",quote=T,row.names = T)
-
-# lasso.prob <- predict(fitcv, newx=train, s=c(fitcv$lambda.min,fitcv$lambda.1se))
-# re=cbind(event = test_meta$event ,lasso.prob)
-# re=as.data.frame(re)
-# colnames(re)=c('event','prob_min','prob_1se')
-# re$event=as.factor(re$event)
-# head(re)
+Radscore_train <- radscore_all[1:nrow(train_lasso)]
+Radscore_test <- radscore_all[(nrow(train_lasso)+1):xn]
+# show Rad-score
+Radscore_train 
+Radscore_test
 
 ## Lasso筛选变量后进一步逐步回归筛选(训练集)stepwise
 ddist <- datadist(train)
@@ -229,7 +244,6 @@ vars <- c(
   "wavelet.LHL_firstorder_RootMeanSquared", "wavelet.HHL_glszm_SizeZoneNonUniformityNormalized", "wavelet.LHL_firstorder_Median",
   "log.sigma.5.0.mm.3D_glszm_SmallAreaLowGrayLevelEmphasis", "wavelet.LHL_glcm_Imc2"
 )
-
 var <- unlist(lasso_coef[, 1])
 # library(dplyr)
 fe <- dt %>%
@@ -273,6 +287,7 @@ write.csv(rad, "/media/wane/wade/EP/EPTLE_PET/TLE234-rad.csv", row.names = FALSE
 dt <- read.csv("/media/wane/wade/EP/EPTLE_PET/TLE234-rad.csv")
 dt <- dt[, c(-18)] # 删除ID及MRI变量
 str(dt)
+summary(dt)
 
 # 字符型变量转化为数值型
 # datexpr2=as.data.frame(lapply(datexpr,as.numeric))
@@ -298,9 +313,56 @@ ind <- sample(2, nrow(dt), replace = TRUE, prob = c(0.7, 0.3))
 train <- dt[ind == 1, ] # the training data set
 # 测试集
 test <- dt[ind == 2, ] # the test data set
+train1 <- transform(train, Group="Training Set")
+test1 <- transform(test, Group="Test Set")
+dt1 <- rbind(train1,test1)
+str(dt1$Rel._in_5yrs)
+dt1$Rel._in_5yrs <- ifelse(dt1$Rel._in_5yrs == "0", "Seizure-free", "Relapse")
+
+# Train vs. Test set
+library(ggstatsplot)
+library(palmerpenguins)
+library(tidyverse)
+library(patchwork)
+p1 <- ggbetweenstats(
+  data = train1,
+  x = Rel._in_5yrs,
+  y = radscore,
+  xlab = "",
+  ylab = "Radiomics Score",
+  plot.type = "violin",
+  package = "ggsci",
+  palette = "uniform_startrek") +
+  ggtitle("Training Set") +
+  ggeasy::easy_center_title() 
+p2 <- ggbetweenstats(
+  data = test1,
+  x = Rel._in_5yrs,
+  y = radscore,
+  ylab = "",xlab = "",
+  plot.type = "violin",
+  title = "Test Set",
+  package = "ggsci",
+  palette = "uniform_startrek") +
+  ggtitle("Test Set") +
+  ggeasy::easy_center_title() 
+
+library(ggpubr)
+p1 <- ggboxplot(df, 
+                x = "dose", 
+                y = "len",
+                color = "dose", 
+                palette =c("#00AFBB", "#E7B800", "#FC4E07"),
+                add = "jitter", 
+                shape = "dose")+
+  stat_compare_means(comparisons = my_comparisons)+ # Add pairwise comparisons p-value
+  stat_compare_means(label.y = 50) 
+
+ggarrange(p1, p2, ncol=2, labels = c('a', 'b'),
+          common.legend = TRUE, legend="right")
 
 library(cutoff)
-library(ggpubr)
+# library(ggpubr)
 logresult <- cutoff::logrank(
   data = train, # 数据集
   time = "Follow_up_timemon", # 生存时间

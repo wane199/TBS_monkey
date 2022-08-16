@@ -144,7 +144,8 @@ ggplot(df1_pct,
 # http://www.360doc.com/content/21/0118/21/29540381_957669799.shtml
 # https://rpubs.com/chixinzero/490992
 library(readxl)
-df <- read_excel("/home/wane/Desktop/Disk/bk/RDocu/Normal_female.xlsx")
+getwd()
+df <- read_excel("/home/wane/Documents/RDocu/Normal_female.xlsx")
 str(df)
 summary(df$Age)
 
@@ -245,10 +246,30 @@ map('world',
     col="#f2f2f2", fill=TRUE, bg="white", lwd=0.05,
     mar=rep(0,4),border=0, ylim=c(-80,80) 
 )
-
 library(shiny)
 runExample("01_hello")
 
-
+# ggstatsplot绘制边际散点图
+library(ggstatsplot)
+ggscatterstats(data = iris, x = Sepal.Length,                                                  
+               y = Sepal.Width,
+               xlab = "Sepal Length",
+               ylab = "Sepal Width",
+               marginal = TRUE,
+               marginal.type = "densigram",
+               margins = "both",
+               xfill = "blue", # 分别设置颜色
+               yfill = "#009E73",
+               title = "Relationship between Sepal Length and Sepal Width",
+               messages = FALSE
+)
+# https://zouhua.top/archives/208c251d.html
+ggdensity(plotdata, 
+          x = "weight",
+          add = "mean", 
+          rug = TRUE,    # x轴显示分布密度
+          color = "sex", 
+          fill = "sex",
+          palette = c("#00AFBB", "#E7B800"))
 
 
