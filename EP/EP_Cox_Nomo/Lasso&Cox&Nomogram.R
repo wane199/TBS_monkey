@@ -318,7 +318,9 @@ test1 <- transform(test, Group="Test Set")
 dt1 <- rbind(train1,test1)
 str(dt1$Rel._in_5yrs)
 dt1$Rel._in_5yrs <- ifelse(dt1$Rel._in_5yrs == "0", "Seizure-free", "Relapse")
-
+colnames(dt1)[2] <- 'Seizure Outcome'
+train1 <- subset(dt1, Group=="Training Set")
+test1 <- subset(dt1, Group=="Test Set")
 # Train vs. Test set
 library(ggstatsplot)
 library(palmerpenguins)
@@ -348,18 +350,56 @@ p2 <- ggbetweenstats(
   ggeasy::easy_center_title() 
 
 library(ggpubr)
-p1 <- ggboxplot(df, 
-                x = "dose", 
-                y = "len",
-                color = "dose", 
-                palette =c("#00AFBB", "#E7B800", "#FC4E07"),
-                add = "jitter", 
-                shape = "dose")+
-  stat_compare_means(comparisons = my_comparisons)+ # Add pairwise comparisons p-value
-  stat_compare_means(label.y = 50) 
+# 根据变量分面绘制箱线图
+p <- ggboxplot(dt1, x = "Rel._in_5yrs", y = "radscore",ylab = "Radiomics Score",
+               color = "Rel._in_5yrs", palette = "jco",
+               add = "jitter", xlab = "",legend="right",
+               facet.by = "Group", short.panel.labs = FALSE) +
+               labs(color='Seizure Outcome',shape='Seizure Outcome')   
+# Use only p.format as label. Remove method name.
+p + stat_compare_means(label = "p.format", method = "t.test")
+# Or use significance symbol as label
+p + stat_compare_means(label =  "p.signif", label.x = 1.5)
 
+p1 <- ggboxplot(train1, 
+                x = "Rel._in_5yrs",
+                y = "radscore",  xlab = "", ylab = "Radiomics Score",
+                color = "Rel._in_5yrs", 
+                palette =c("#00AFBB", "#E7B800"),
+                add = "jitter", 
+                shape = "Rel._in_5yrs") + 
+  # stat_compare_means(method = "wilcox.test") +
+  ggtitle("Training Set") + labs(color='Seizure Outcome',shape='Seizure Outcome') +
+  ggeasy::easy_center_title() 
+p2 <- ggboxplot(test1, 
+                x = "Rel._in_5yrs",
+                y = "radscore", ylab = "",xlab = "",
+                color = "Rel._in_5yrs", 
+                palette =c("#00AFBB", "#E7B800"),
+                add = "jitter", 
+                shape = "Rel._in_5yrs") + 
+  # stat_compare_means(method = "wilcox.test") + 
+  ggtitle("Test Set") + labs(color='Seizure Outcome',shape='Seizure Outcome') +
+  ggeasy::easy_center_title() 
 ggarrange(p1, p2, ncol=2, labels = c('a', 'b'),
           common.legend = TRUE, legend="right")
+# tableone
+library(CBCgrps)
+tab1 <- twogrps(dt1[c(-1,-2)], gvar = "Group")
+print(tab1, quote = T)
+write.csv(tab1[1], "./EP/EP_Cox_Nomo/traintesttable1.csv",row.names = F)
+# 基线资料汇总，tableone
+library(tableone)
+## 需要转为分类变量的变量
+catVars <- c("Sex")
+## Create a TableOne object
+tab <- CreateTableOne(data = T1, strata = "Group", factorVars = catVars, addOverall = TRUE)
+print(tab, showAllLevels = TRUE)
+print(CreateTableOne(data = testset), showAllLevels = TRUE)
+tabMat <- print(tab, staquote = FALSE, noSpaces = TRUE, printToggle = FALSE, showAllLevels = TRUE)
+## 保存为 CSV 格式文件
+write.csv(tabMat, file = "/media/wane/Data/CN/t1myTable.csv")
+
 
 library(cutoff)
 # library(ggpubr)

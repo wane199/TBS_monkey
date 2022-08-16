@@ -40,9 +40,9 @@ fit1 <- glm(Label ~ Phy1, data = dt, family = binomial())
 # 训练集预测概率
 prob1 <- predict(fit1, newdata = dt, type = "response")
 prob2 <- predict(fit1, newdata = dt, type = "response")
-Phy1prob <- as.data.frame(prob1)  # Converting list to dataframe in R
-dt1 <- dplyr::mutate(dt[c(1,2,4,5)],Phy1prob,Phy2prob)
-write.csv(dt1,"/home/wane/Desktop/EP/Structured_Data/Physician1.csv")
+Phy1prob <- as.data.frame(prob1) # Converting list to dataframe in R
+dt1 <- dplyr::mutate(dt[c(1, 2, 4, 5)], Phy1prob, Phy2prob)
+write.csv(dt1, "/home/wane/Desktop/EP/Structured_Data/Physician1.csv")
 # type = "link", 缺省值，给出线性函数预测值
 # type = "response", 给出概率预测值
 # type = "terms"，给出各个变量的预测值
@@ -283,8 +283,8 @@ library(dplyr)
 library(dlookr)
 dlookr::describe(trainingset) %>% flextable()
 
-trainingset %>%
-  group_by("Y") %>%
+dt1[c(-1, -2)] %>%
+  group_by("Group") %>%
   univar_numeric() %>%
   knitr::kable()
 
@@ -292,11 +292,11 @@ trainingset %>%
   diagnose_numeric() %>%
   flextable()
 
-SmartEDA::ExpNumStat(trainingset, by = "GA", gp = "Y", Outlier = TRUE, Qnt = c(.25, .75), round = 2) %>% flextable()
+SmartEDA::ExpNumStat(dt1[c(-1, -2)], by = "GA", gp = "Group", Outlier = TRUE, Qnt = c(.25, .75), round = 2) %>% flextable()
 
 library(summarytools)
-trainingset %>%
-  group_by("Y") %>%
+dt1[c(-1, -2)] %>%
+  group_by("Group") %>%
   descr()
 
 library(psych)
@@ -339,7 +339,7 @@ as_kable(tra, format = "latex")
 as_kable_extra(tra, format = "latex")
 # 基线特征描述统计
 library(autoReg)
-ft <- gaze(Y ~ ., data = testingset) %>% myft()
+ft <- gaze(Group ~ ., data = dt1[c(-1, -2)]) %>% myft()
 ft
 library(rrtable)
 table2pptx(ft) # Exported table as Report.pptx
@@ -376,7 +376,7 @@ plot_histogram(trainingset, ggtheme = theme_classic())
 plot_density(dt)
 
 library(SmartEDA)
-ExpCatViz(dt, Page = c(3, 5))
+ExpCatViz(dt1[c(-1, -2)], Page = c(3, 5))
 library(tidyverse)
 ExpCatViz(
   trainingset %>%
@@ -750,35 +750,38 @@ full.model$derived.data[, c("thresholds", "NB", "sNB")]
 # Hold-out/K-fold/LOO-CV/Bootstrap模型泛化能力评估
 names(getModelInfo())
 # 交叉验证LGOCV
-train.Control_1 <- trainControl(method = "LGOCV",p=0.7,number = 50)
+train.Control_1 <- trainControl(method = "LGOCV", p = 0.7, number = 50)
 set.seed(123)
-my_model_1 <- train(formula1,data=trainingset,trControl=train.Control_1,method="glm")
+my_model_1 <- train(formula1, data = trainingset, trControl = train.Control_1, method = "glm")
 my_model_1
 # 10折交叉验证
 train.Control_2 <- trainControl(method = "CV", number = 10)
 set.seed(123)
-my_model_2 <- train(formula1,data=trainingset,trControl=train.Control_2,method="glm")
+my_model_2 <- train(formula1, data = trainingset, trControl = train.Control_2, method = "glm")
 my_model_2
 # 留一法LOOCV
 train.Control_3 <- trainControl(method = "LOOCV")
 set.seed(123)
-my_model_3 <- train(formula1,data=trainingset,trControl=train.Control_3,method="glm")
+my_model_3 <- train(formula1, data = trainingset, trControl = train.Control_3, method = "glm")
 my_model_3
 # Boot
-train.Control_4 <- trainControl(method = "repeatedcv",number=10,repeats = 100)
-train.Control_5 <- trainControl(method = "repeatedcv",number=10,repeats = 100,
-                                classProbs = T, summaryFunction = twoClassSummary)
+train.Control_4 <- trainControl(method = "repeatedcv", number = 10, repeats = 100)
+train.Control_5 <- trainControl(
+  method = "repeatedcv", number = 10, repeats = 100,
+  classProbs = T, summaryFunction = twoClassSummary
+)
 set.seed(123)
-my_model_4 <- train(formula1,data=trainingset,trControl=train.Control_4,method="glm")
+my_model_4 <- train(formula1, data = trainingset, trControl = train.Control_4, method = "glm")
 my_model_4
-my_model_5 <- train(formula1,data=dt,trControl=train.Control_5,method="glm")
+my_model_5 <- train(formula1, data = dt, trControl = train.Control_5, method = "glm")
 as.matrix(my_model_5$results[2])
 
 # Total points
 library(nomogramEx)
 nom1 <- nomogram(fit,
-                 fun=function(x)1/(1+exp(-x)),
-                 lp=T,
-                 fun.at=c(0.1,0.3,0.5,0.7,0.9),
-                 funlabel="Risk")
+  fun = function(x) 1 / (1 + exp(-x)),
+  lp = T,
+  fun.at = c(0.1, 0.3, 0.5, 0.7, 0.9),
+  funlabel = "Risk"
+)
 nomogramEx(nom1)
