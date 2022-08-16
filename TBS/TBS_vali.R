@@ -236,7 +236,6 @@ x1 <- cbind(df,Age_Group_5)
 write.csv(x1,file = "./TBS/Age_Group_method2.csv")
 
 
-
 # World map is available in the maps package
 library(maps)
 # No margin
@@ -247,7 +246,8 @@ map('world',
     mar=rep(0,4),border=0, ylim=c(-80,80) 
 )
 
-
+library(shiny)
+runExample("01_hello")
 
 
 
