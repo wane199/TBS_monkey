@@ -303,7 +303,3 @@ write.csv(d2,'./data/M_1018.csv',row.names = F)
 
 
 
-
-
-
-

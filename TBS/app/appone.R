@@ -13,28 +13,40 @@ library(RCurl)
 library(randomForest)
 
 # Read data
-data <- fread("https://github.com/wane199/Presentation/blob/master/TBS/app/data/F_3061.csv")
+dt <- fread("https://raw.githubusercontent.com/wane199/Presentation/master/TBS/app/data/M_1018.csv")
+dt <- dt[,-1]
 
 # Build model
-model <- 
+model <- randomForest(Age ~ ., data = dt[-1], ntree = 500, mtry = 4, importance = T )
 
+# Save model to RDS file
+# saveRDS(model, "model.rds")
+
+# Read in the RF model
+# model <- readRDS("model.rds")
+
+# User interface
 # Define UI for application that draws a histogram
 ui <- fluidPage(theme = shinytheme("journal"),
-  
-  # Application title
+
+  # Application title  
   titlePanel("South China TBS app from JNU"),
-  
+  # Page header
+  headerPanel("Age?"),
+
   # Sidebar with a slider input for the number of bins
   sidebarLayout(
     sidebarPanel(
+      HTML("<h3>Input parameters</h3>"),
       sliderInput("bins",
                   "Number of bins:",
-                  min = 5,
-                  max = 50,
+                  min = 1,
+                  max = 80,
                   value = 30)
     ),
     # Show a plot of the generated distribution
     mainPanel(
+      tags$label(h3('Status/Output')),
       plotOutput("distPlot")
     )
   )
@@ -51,7 +63,7 @@ server <- function(input, output){
   #  2) Its output type is a plot
   
   output$distPlot <- renderPlot({
-    x    <- faithful[, 2]  # Old Faithful Geyser data
+    x    <- dt[ , 1]  # Old Faithful Geyser data
     bins <- seq(min(x), max(x), length.out = input$bins + 1)
   
     # draw the histogram with the specified number of bins
@@ -61,5 +73,5 @@ server <- function(input, output){
   })
 }
 
-# Run the application 
+# Run the application, create shiny app
 shinyApp(ui = ui, server = server)
