@@ -1,4 +1,3 @@
-#
 # This is a Shiny web application. You can run the application by clicking
 # the 'Run App' button above.
 #
@@ -6,14 +5,18 @@
 #
 #    http://shiny.rstudio.com/
 #
-
+# Load R packages/libraries
 library(shiny)
+library(shinythemes)
+library(data.table)
+data <- fread("https://github.com/wane199/Presentation/blob/master/TBS/app/data/F_3061.csv")
+
 
 # Define UI for application that draws a histogram
-ui <- fluidPage(
+ui <- fluidPage(theme = shinytheme("journal"),
   
   # Application title
-  titlePanel("Hello TBS!"),
+  titlePanel("South China TBS app from JNU"),
   
   # Sidebar with a slider input for the number of bins
   sidebarLayout(
@@ -24,7 +27,6 @@ ui <- fluidPage(
                   max = 50,
                   value = 30)
     ),
-    
     # Show a plot of the generated distribution
     mainPanel(
       plotOutput("distPlot")
@@ -45,9 +47,11 @@ server <- function(input, output){
   output$distPlot <- renderPlot({
     x    <- faithful[, 2]  # Old Faithful Geyser data
     bins <- seq(min(x), max(x), length.out = input$bins + 1)
-    
+  
     # draw the histogram with the specified number of bins
-    hist(x, breaks = bins, col = 'skyblue', border = 'white')
+    hist(x, breaks = bins, col = 'skyblue', border = 'black',
+         xlab = "level",
+         main = "Histogram of level")
   })
 }
 

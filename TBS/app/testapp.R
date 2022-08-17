@@ -5,14 +5,16 @@ library(RCurl)
 library(data.table)
 library(randomForest)
 
+
+
 # Read in the RF model
-model <- readRDS("model.rds")
+# model <- readRDS("model.rds")
 
 
 # User interface
 
 ui <- fluidPage(theme = shinytheme("superhero"),
-  titlePanel("My first app"),
+  titlePanel("South China TBS app from JNU"),# Application title
   textInput("name", "What's your name?"),
   textOutput("greeting")
 )
