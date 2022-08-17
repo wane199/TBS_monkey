@@ -9,8 +9,14 @@
 library(shiny)
 library(shinythemes)
 library(data.table)
+library(RCurl)
+library(randomForest)
+
+# Read data
 data <- fread("https://github.com/wane199/Presentation/blob/master/TBS/app/data/F_3061.csv")
 
+# Build model
+model <- 
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(theme = shinytheme("journal"),

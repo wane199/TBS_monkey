@@ -8,7 +8,7 @@ d <- debugGatherer() #收集调试信息
 # verbose = TRUE 这时候，d$value()值是会叠加的
 tmp <- getURL(url="www.baidu.com", debugfunction = d$update, verbose = TRUE)  
 
-dt <- read.csv("https://github.com/wane199/Presentation/blob/master/TBS/app/data/F_3061.csv")
+dt <- read.csv("https://github.com/wane199/Presentation/tree/master/TBS/app/data/F_3061.csv")
 dt <- read.csv(text = getURL("https://github.com/wane199/Presentation/blob/master/TBS/app/data/F_3061.csv"))
 names(d$value())
 # [1] "text"       "headerIn"   "headerOut"  "dataIn"     "dataOut"    "sslDataIn"  "sslDataOut"

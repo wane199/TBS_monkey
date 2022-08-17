@@ -285,7 +285,7 @@ ggdensity(plotdata,
 # 添加ID列赋值序号，移动列
 getwd()
 d <- read.csv("./data/F_3061.csv")
-hist(d)
+hist(d[,2:10])
 summary(d)
 d1 <- na.omit(d)
 d1 <- transform(d, ID=seq(1,3061,1))
