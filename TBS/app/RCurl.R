@@ -7,8 +7,11 @@ url.exists(url = "https://github.com/wane199/Presentation/blob/master/TBS/app/da
 
 d <- debugGatherer() # 收集调试信息
 tmp <- getURL(url = "www.baidu.com", debugfunction = d$update, verbose = TRUE)
+x <- getURL("https://raw.github.com/wane199/Presentation/blob/master/TBS/app/data/M_1018.csv")
+y <- read.csv(text = x)
 
 dt <- read.table("https://github.com/wane199/Presentation/tree/master/TBS/app/data/F_3061.txt", header = T)
+
 dt <- read.csv(text = getURL("https://github.com/wane199/Presentation/blob/master/TBS/app/data/M_1018.csv"))
 names(d$value())
 

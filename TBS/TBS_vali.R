@@ -284,12 +284,12 @@ ggdensity(plotdata,
 
 # 添加ID列赋值序号，移动列
 getwd()
-d <- read.csv("./data/F_3061.csv")
-rt <- read.table("./data/F_3061.csv",head=F)
+d <- read.csv("./data/M_1018.csv")
+
 hist(d[,2:10])
 summary(d)
 d1 <- na.omit(d)
-d1 <- transform(d, ID=seq(1,3061,1))
+d1 <- transform(d, ID=seq(1,1018,1))
 d1$ID <- paste0('sub_',d1$ID,sep='')
 # 列名数组
 cols <- colnames(d1)
@@ -299,7 +299,7 @@ n_cols <- c(cols[1],cols[length(cols)],cols[1:(length(cols)-1)])
 n_cols <- c(cols[length(cols)],cols[1:(length(cols)-1)])
 # dataframe排序
 d2 <- d1[,n_cols]
-write.csv(d2,'./data/F_3061.csv',row.names = F)
+write.csv(d2,'./data/M_1018.csv',row.names = F)
 
 
 
