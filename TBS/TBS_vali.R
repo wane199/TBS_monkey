@@ -7,7 +7,7 @@ list.files()  #查看当前工作目录下的文件
 library(dplyr)
 dt <- read.csv("/home/wane/Desktop/Disk/bk/RDocu/M-TBS.csv")
 dt1 <- read.csv("/home/wane/Desktop/Disk/bk/RDocu/F-TBS.csv")
-data <- read.csv("M_1018.csv")
+data <- read.csv("D:\\RDocu\\M_1018.csv")
 data1 <- read.csv("F_3061.csv",fileEncoding="GBK",header=T)
 data1 <- data1[complete.cases(data1[, c(1,2)]), ] 
 
@@ -247,6 +247,7 @@ map('world',
     mar=rep(0,4),border=0, ylim=c(-80,80) 
 )
 library(shiny)
+library(RCurl)
 runExample("01_hello")
 
 # ggstatsplot绘制边际散点图
