@@ -285,6 +285,7 @@ ggdensity(plotdata,
 # 添加ID列赋值序号，移动列
 getwd()
 d <- read.csv("./data/F_3061.csv")
+rt <- read.table("./data/F_3061.txt",head=TRUE)
 hist(d[,2:10])
 summary(d)
 d1 <- na.omit(d)
