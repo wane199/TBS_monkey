@@ -1,57 +1,25 @@
+# Import libraries
 library(shiny)
+library(shinythemes)
+library(RCurl)
+library(data.table)
+library(randomForest)
 
-# Define UI for application that draws a histogram
-ui <- fluidPage(
-  titlePanel("stockVis"),
-  
-  sidebarLayout(
-    sidebarPanel(
-      helpText("Select a stock to examine.
+# Read in the RF model
+model <- readRDS("model.rds")
 
-        Information will be collected from Yahoo finance."),
-      textInput("symb", "Symbol", "SPY"),
-      
-      dateRangeInput("dates",
-                     "Date range",
-                     start = "2013-01-01",
-                     end = as.character(Sys.Date())),
-      
-      br(),
-      br(),
-      
-      checkboxInput("log", "Plot y axis on log scale",
-                    value = FALSE),
-      
-      checkboxInput("adjust",
-                    "Adjust prices for inflation", value = FALSE)
-    ),
-    
-    mainPanel(plotOutput("plot")
-      )    
-  )
+
+# User interface
+
+ui <- fluidPage(theme = shinytheme("superhero"),
+  titlePanel("My first app"),
+  textInput("name", "What's your name?"),
+  textOutput("greeting")
 )
 
-source("./stockVis/helpers.R") #读R脚本文件
-library(quantmod)
-
-
-# Define server logic required to draw a histogram
-server <- function(input, output){ 
-  dataInput <- reactive({  
-    getSymbols(input$symb, src = "Baidu", 
-               from = input$dates[1],
-               to = input$dates[2],
-               auto.assign = FALSE)
-  })
-  
-  finalInput <- reactive({
-    if (!input$adjust) return(dataInput())
-    adjust(dataInput())
-  })
-  
-  output$plot <- renderPlot({
-    chartSeries(finalInput(), theme = chartTheme("white"), 
-                type = "line", log.scale = input$log, TA = NULL)
+server <- function(input, output, session) {
+  output$greeting <- renderText({
+    paste0("Hello ", input$name, "!")
   })
 }
 
