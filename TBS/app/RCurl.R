@@ -3,13 +3,13 @@
 library(RCurl)
 library(readxl)
 url.exists(url = "www.baidu.com") # 判断url是否存在
-url.exists(url = "https://github.com/wane199/Presentation/blob/master/TBS/app/data/F_3061.csv")
+url.exists(url = "https://github.com/wane199/Presentation/blob/master/TBS/app/data/M_1018.csv")
 
 d <- debugGatherer() # 收集调试信息
 tmp <- getURL(url = "www.baidu.com", debugfunction = d$update, verbose = TRUE)
 
 dt <- read.table("https://github.com/wane199/Presentation/tree/master/TBS/app/data/F_3061.txt", header = T)
-dt <- read_excel(text = getURL("https://github.com/wane199/Presentation/blob/master/TBS/app/data/F_3061.xlsx"))
+dt <- read.csv(text = getURL("https://github.com/wane199/Presentation/blob/master/TBS/app/data/M_1018.csv"))
 names(d$value())
 
 
