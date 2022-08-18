@@ -3,13 +3,14 @@ library(shiny)
 library(shinythemes)
 library(RCurl)
 
-tbs <- read.csv(text = getURL("https://raw.githubusercontent.com/wane199/Presentation/master/TBS/app/data/M_1018.csv"))
+dt <- read.csv(text = getURL("https://raw.githubusercontent.com/wane199/Presentation/master/TBS/app/data/M_1018.csv"))
+tbs <- dt[c(2:4)]
 
 # Define UI for dataset viewer app ----
 ui <- fluidPage(
   
   # App title ----
-  titlePanel(textOutput('ti')),
+  titlePanel("Shiny Text"),
   
   # Sidebar layout with a input and output definitions ----
   sidebarLayout(
@@ -18,16 +19,14 @@ ui <- fluidPage(
     sidebarPanel(
       
       # Input: Selector for choosing dataset ----
-      selectInput(inputId = "tbs[,]",
+      selectInput(inputId = "dataset",
                   label = "Choose a dataset:",
-                  choices = c("Age", "BMI", "TBSL1L4")),
+                  choices = c("rock", "pressure", "cars")),
       
       # Input: Numeric entry for number of obs to view ----
       numericInput(inputId = "obs",
                    label = "Number of observations to view:",
-                   value = 10),
-      
-      textInput(inputId = 'title', label = 'title', value = 'shiny') 
+                   value = 10)
     ),
     
     # Main panel for displaying outputs ----
@@ -48,16 +47,16 @@ server <- function(input, output) {
   
   # Return the requested dataset ----
   datasetInput <- reactive({
-    switch(input$dt,
-           "Age" = Age,
-           "BMI" = BMI,
-           "TBSL1L4" = TBSL1L4)
+    switch(input$dataset,
+           "rock" = rock,
+           "pressure" = pressure,
+           "cars" = cars)
   })
   
   # Generate a summary of the dataset ----
   output$summary <- renderPrint({
     dataset <- datasetInput()
-    summary(dt)
+    summary(dataset)
   })
   
   # Show the first "n" observations ----
@@ -65,11 +64,8 @@ server <- function(input, output) {
     head(datasetInput(), n = input$obs)
   })
   
-  output$ti <- renderText(input$title)
-  
 }
 
 # Create Shiny app ----
 shinyApp(ui = ui, server = server)
-
 
