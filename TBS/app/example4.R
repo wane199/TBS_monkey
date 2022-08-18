@@ -1,3 +1,4 @@
+# Boxplot
 # Load R packages/libraries
 library(shiny)
 library(shinythemes)
@@ -13,22 +14,23 @@ tbs <- read.csv(text = getURL("https://raw.githubusercontent.com/wane199/Present
 
 
 # Define UI for miles per gallon app ----
-ui <- fluidPage(
+ui <- fluidPage(theme = shinytheme("yeti"),
   
   # App title ----
-  titlePanel("TBS"),
+  titlePanel("South China TBS app from JNU"),
   
   # Sidebar layout with input and output definitions ----
   sidebarLayout(
     
     # Sidebar panel for inputs ----
     sidebarPanel(
-      
+      HTML("<h3>Input parameters</h4>"),
       # Input: Selector for variable to plot against mpg ----
       selectInput("variable", "Variable:",
                   c("Age" = "Age",
                     "BMI" = "BMI",
-                    "BMDL1L4" = "BMDL1L4")),
+                    "BMDL1L4" = "BMDL1L4",
+                    "TscoreL1L4" = "TscoreL1L4")),
 
       # Input: Checkbox for whether outliers should be included ----
       checkboxInput("outliers", "Show outliers", TRUE)
@@ -37,6 +39,9 @@ ui <- fluidPage(
     
     # Main panel for displaying outputs ----
     mainPanel(
+      # Output: Header + summary of distribution ----
+      h3("Summary"),
+      verbatimTextOutput("summary"),
       
       # Output: Formatted text for caption ----
       h3(textOutput("caption")),
@@ -61,6 +66,10 @@ server <- function(input, output) {
   # Return the formula text for printing as a caption ----
   output$caption <- renderText({
     formulaText()
+  })
+  
+  output$summary <- renderPrint({
+    summary(tbs)
   })
   
   # Generate a plot of the requested variable against mpg ----

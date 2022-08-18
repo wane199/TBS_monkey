@@ -74,6 +74,7 @@ curve(1/(1 + exp(1)^-x),
 ```
 
 ---
+---
 # 吴环华工作汇报0815
 
 ## First
@@ -110,7 +111,6 @@ knitr::include_graphics("./images/Phy2.svg")
 .pull-right[
 #### [Deep EDA](https://yuzar-blog.netlify.app/posts/2021-01-09-exploratory-data-analysis-and-beyond-in-r-in-progress/)
 ![Deep EDA](https://yuzar-blog.netlify.app/posts/2021-01-09-exploratory-data-analysis-and-beyond-in-r-in-progress/DEDA_thumbnail.jpg)]
----
 ---
 # 吴环华工作汇报0808
 ## First

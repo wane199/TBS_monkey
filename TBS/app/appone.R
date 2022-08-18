@@ -11,7 +11,7 @@ library(randomForest)
 
 # Read data
 dt <- fread("https://raw.githubusercontent.com/wane199/Presentation/master/TBS/app/data/M_1018.csv")
-dt <- dt[,-1]
+dt <- dt[, -1]
 
 # Build model
 # model <- randomForest(Age ~ ., data = dt, ntree = 500, mtry = 4, importance = T )
@@ -24,9 +24,10 @@ dt <- dt[,-1]
 
 # User interface
 # Define UI for application that draws a histogram
-ui <- fluidPage(theme = shinytheme("journal"),
+ui <- fluidPage(
+  theme = shinytheme("journal"),
 
-  # Application title  
+  # Application title
   titlePanel("South China TBS app from JNU"),
   # Page header
   headerPanel("Age?"),
@@ -36,22 +37,28 @@ ui <- fluidPage(theme = shinytheme("journal"),
     sidebarPanel(
       HTML("<h3>Input parameters</h3>"),
       sliderInput("bins",
-                  "Number of bins:",
-                  min = 5,
-                  max = 60,
-                  value = 30)
+        "Number of bins:",
+        min = 5,
+        max = 60,
+        value = 30
+      ),
+      br(),
+      img(src = "https://media.springernature.com/original/springer-static/image/art%3A10.1007%2Fs00198-011-1824-6/MediaObjects/198_2011_1824_Fig3_HTML.gif"),
     ),
+    # actionButton("Action","Submit"),
+    # submitButton("submit"),
+
     # Show a plot of the generated distribution
     mainPanel(
-      tags$label(h3('Status/Output')),
+      tags$label(h3("Status/Output")),
       plotOutput("distPlot")
     )
   )
 )
 
 # Define server logic required to draw a histogram
-server <- function(input, output){
-  
+server <- function(input, output) {
+
   # Expression that generates a histogram. The expression is
   # wrapped in a call to renderPlot to indicate that:
   #
@@ -59,18 +66,18 @@ server <- function(input, output){
   #     re-execute automatically when inputs change
   #  2) Its output type is a plot
 
-    output$distPlot <- renderPlot({
-    x    <- unlist(dt[,1]) # Old Faithful Geyser data
+  output$distPlot <- renderPlot({
+    x <- unlist(dt[, 1]) # Old Faithful Geyser data
     bins <- seq(min(x), max(x), length.out = input$bins + 1)
-  
+
     # draw the histogram with the specified number of bins
-    hist(dt$Age , breaks = bins, col = 'skyblue', border = 'white',
-         xlab = "Age",
-         main = "Histogram of Age")
+    hist(dt$Age,
+      breaks = bins, col = "skyblue", border = "white",
+      xlab = "Age",
+      main = "Histogram of Age"
+    )
   })
 }
 
 # Run the application, Create the shiny app
 shinyApp(ui = ui, server = server)
-
-

@@ -17,7 +17,13 @@ ui <- fluidPage(theme = shinytheme("superhero"),
   titlePanel("South China TBS app from JNU"), # Application title
   headerPanel("Age?"), # Page header
   textInput("name", "What's your name?"),
-  textOutput("greeting")
+  textOutput("greeting"),
+  column(3,
+         h3("Buttons"),
+         actionButton("action","Action"),
+         br(),
+         br(),
+         submitButton("Submit"))
 )
 
 server <- function(input, output, session) {
