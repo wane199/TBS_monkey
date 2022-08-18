@@ -1,10 +1,7 @@
 # This is a Shiny web application. You can run the application by clicking
 # the 'Run App' button above.
-#
 # Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
+# http://shiny.rstudio.com/
 # Load R packages/libraries
 library(shiny)
 library(shinythemes)
@@ -17,7 +14,7 @@ dt <- fread("https://raw.githubusercontent.com/wane199/Presentation/master/TBS/a
 dt <- dt[,-1]
 
 # Build model
-model <- randomForest(Age ~ ., data = dt[-1], ntree = 500, mtry = 4, importance = T )
+# model <- randomForest(Age ~ ., data = dt, ntree = 500, mtry = 4, importance = T )
 
 # Save model to RDS file
 # saveRDS(model, "model.rds")
@@ -40,8 +37,8 @@ ui <- fluidPage(theme = shinytheme("journal"),
       HTML("<h3>Input parameters</h3>"),
       sliderInput("bins",
                   "Number of bins:",
-                  min = 1,
-                  max = 80,
+                  min = 5,
+                  max = 60,
                   value = 30)
     ),
     # Show a plot of the generated distribution
@@ -61,17 +58,19 @@ server <- function(input, output){
   #  1) It is "reactive" and therefore should
   #     re-execute automatically when inputs change
   #  2) Its output type is a plot
-  
-  output$distPlot <- renderPlot({
-    x    <- dt[ , 1]  # Old Faithful Geyser data
+
+    output$distPlot <- renderPlot({
+    x    <- unlist(dt[,1]) # Old Faithful Geyser data
     bins <- seq(min(x), max(x), length.out = input$bins + 1)
   
     # draw the histogram with the specified number of bins
-    hist(x, breaks = bins, col = 'skyblue', border = 'black',
-         xlab = "level",
-         main = "Histogram of level")
+    hist(dt$Age , breaks = bins, col = 'skyblue', border = 'white',
+         xlab = "Age",
+         main = "Histogram of Age")
   })
 }
 
-# Run the application, create shiny app
+# Run the application, Create the shiny app
 shinyApp(ui = ui, server = server)
+
+

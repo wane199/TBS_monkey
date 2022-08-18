@@ -74,3 +74,5 @@ doc <- htmlParse(wp, asText = TRUE) # 这里切记encoding
 tables <- readHTMLTable(doc, header = F, which = 2)
 # 选取第二个表
 head(tables)
+
+
