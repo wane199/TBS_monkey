@@ -61,7 +61,12 @@ https://huhuaping.com/2021/02/01/css-base-xaringan/
 ---
 # 吴环华工作汇报0822
 
+--
 ## First
+```{r echo=FALSE}
+knitr::kable(t1, align=c("l", "l", "r", "r", "r"))
+```
+
 
 ## Second
 

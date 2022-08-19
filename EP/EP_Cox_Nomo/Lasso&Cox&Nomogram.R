@@ -54,7 +54,7 @@ prop.table(table(test$Follow_up_timemon))
 prop.table(table(test$Rel._in_5yrs))
 prop.table(table(train$Rel._in_5yrs))
 
-## 【影像组学导论】R语言实现冗余性分析（含代码）
+## 影像组学导论R语言实现冗余性分析（含代码）
 ## 影像组学导论 冗余性分析 你懂她嘛?(pearson OR spearman)
 # 9.feature selection: reduce redundancy
 # 9.1 calculate p of normality test
@@ -91,16 +91,16 @@ abline(v = log(lasso_selection$lambda.min), lwd = 1, lty = 3, col = "black")
 
 lasso_selection <- cv.glmnet(
   x = cv_x,
-  y = cv_y,type.measure="deviance",
+  y = cv_y, type.measure = "deviance",
   family = "cox", alpha = 1, nfolds = 1000
 )
 # fitcv1 <- cv.glmnet(x, y, alpha = 1, family = "cox", type.measure = "C")
 lasso_selection
 p2 <- plot(x = lasso_selection, las = 1, xlab = "log(lambda)") # Fig2
-#给每一副子图加上序号，tag_level选a，表示用小写字母来标注
+# 给每一副子图加上序号，tag_level选a，表示用小写字母来标注
 library(cowplot)
-plot_grid(p1, p2, labels = c('a', 'b'))
-          
+plot_grid(p1, p2, labels = c("a", "b"))
+
 # lasso回归结果美化
 library(tidyverse)
 tmp <- as_tibble(as.matrix(coef(nocv_lasso)), rownames = "coef") %>%
@@ -116,23 +116,25 @@ tmp <- as_tibble(as.matrix(coef(nocv_lasso)), rownames = "coef") %>%
     norm = sum(if_else(coef == "(Intercept)", 0, abs(value)))
   )
 
-ggplot(tmp,aes(log(lambda),value,color = coef)) + 
-  geom_vline(xintercept = log(cvfit$lambda.min),size=0.8,color='grey60',alpha=0.8,linetype=2)+
-  geom_line(size=1) + 
-  xlab("Lambda (log scale)") + 
-  #xlab("L1 norm")+
-  ylab('Coefficients')+
-  theme_bw(base_rect_size = 2)+ 
-  scale_x_continuous(expand = c(0.01,0.01))+
-  scale_y_continuous(expand = c(0.01,0.01))+
-  theme(panel.grid = element_blank(),
-        axis.title = element_text(size=15,color='black'),
-        axis.text = element_text(size=12,color='black'),
-        legend.title = element_blank(),
-        legend.text = element_text(size=12,color='black'),
-        legend.position = 'right')+
-  #annotate('text',x = -3.3,y=0.26,label='Optimal Lambda = 0.012',color='black')+
-  guides(col=guide_legend(ncol = 1))
+ggplot(tmp, aes(log(lambda), value, color = coef)) +
+  geom_vline(xintercept = log(cvfit$lambda.min), size = 0.8, color = "grey60", alpha = 0.8, linetype = 2) +
+  geom_line(size = 1) +
+  xlab("Lambda (log scale)") +
+  # xlab("L1 norm")+
+  ylab("Coefficients") +
+  theme_bw(base_rect_size = 2) +
+  scale_x_continuous(expand = c(0.01, 0.01)) +
+  scale_y_continuous(expand = c(0.01, 0.01)) +
+  theme(
+    panel.grid = element_blank(),
+    axis.title = element_text(size = 15, color = "black"),
+    axis.text = element_text(size = 12, color = "black"),
+    legend.title = element_blank(),
+    legend.text = element_text(size = 12, color = "black"),
+    legend.position = "right"
+  ) +
+  # annotate('text',x = -3.3,y=0.26,label='Optimal Lambda = 0.012',color='black')+
+  guides(col = guide_legend(ncol = 1))
 
 ggplot(tmp, aes(norm, value, color = coef, group = coef)) +
   geom_line(size = 1.2) +
@@ -167,29 +169,35 @@ p2 <- ggplot(tidy_df, aes(lambda, estimate, group = term, color = term)) +
   theme_bw()
 
 ## 准备数据, 10折交叉验证的图
-cvfit = lasso_selection
-xx <- data.frame(lambda=cvfit[["lambda"]],cvm=cvfit[["cvm"]],cvsd=cvfit[["cvsd"]],
-                   cvup=cvfit[["cvup"]],cvlo=cvfit[["cvlo"]],nozezo=cvfit[["nzero"]])
+cvfit <- lasso_selection
+xx <- data.frame(
+  lambda = cvfit[["lambda"]], cvm = cvfit[["cvm"]], cvsd = cvfit[["cvsd"]],
+  cvup = cvfit[["cvup"]], cvlo = cvfit[["cvlo"]], nozezo = cvfit[["nzero"]]
+)
 xx$ll <- log(xx$lambda)
-xx$NZERO <- paste0(xx$nozezo,' vars')
-ggplot(xx,aes(ll,cvm,color=NZERO))+
-  geom_errorbar(aes(x=ll,ymin=cvlo,ymax=cvup),width=0.05,size=1)+
-  geom_vline(xintercept = xx$ll[which.min(xx$cvm)],size=0.8,color='grey60',alpha=0.8,linetype=2)+
-  geom_point(size=2)+
-  xlab("Log Lambda")+ylab('Partial Likelihood Deviance')+
-  theme_bw(base_rect_size = 1.5)+ 
-  scale_x_continuous(expand = c(0.02,0.02))+
-  scale_y_continuous(expand = c(0.02,0.02))+
-  theme(panel.grid = element_blank(),
-        axis.title = element_text(size=15,color='black'),
-        axis.text = element_text(size=12,color='black'),
-        legend.title = element_blank(),
-        legend.text = element_text(size=12,color='black'),
-        legend.position = 'bottom')+
-  annotate('text',x = -5.3,y=12.4,label='Optimal Lambda = 0.008',color='black')+
-  guides(col=guide_legend(ncol = 3))
+xx$NZERO <- paste0(xx$nozezo, " vars")
+ggplot(xx, aes(ll, cvm, color = NZERO)) +
+  geom_errorbar(aes(x = ll, ymin = cvlo, ymax = cvup), width = 0.05, size = 1) +
+  geom_vline(xintercept = xx$ll[which.min(xx$cvm)], size = 0.8, color = "grey60", alpha = 0.8, linetype = 2) +
+  geom_point(size = 2) +
+  xlab("Log Lambda") +
+  ylab("Partial Likelihood Deviance") +
+  theme_bw(base_rect_size = 1.5) +
+  scale_x_continuous(expand = c(0.02, 0.02)) +
+  scale_y_continuous(expand = c(0.02, 0.02)) +
+  theme(
+    panel.grid = element_blank(),
+    axis.title = element_text(size = 15, color = "black"),
+    axis.text = element_text(size = 12, color = "black"),
+    legend.title = element_blank(),
+    legend.text = element_text(size = 12, color = "black"),
+    legend.position = "bottom"
+  ) +
+  annotate("text", x = -5.3, y = 12.4, label = "Optimal Lambda = 0.008", color = "black") +
+  guides(col = guide_legend(ncol = 3))
 
-# get coefficient and waterfalls plot
+# get coefficient and waterfalls plot,正负显示的条形图
+# https://zhuanlan.zhihu.com/p/431060791
 coefPara <- coef(object = lasso_selection, s = "lambda.min")
 lasso_values <- as.data.frame(which(coefPara != 0, arr.ind = T))
 lasso_names <- rownames(lasso_selection[-1])
@@ -199,15 +207,21 @@ lasso_coef <- data.frame(
 )
 lasso_coef
 # https://cloud.tencent.com/developer/article/1089081
-ggplot(lasso_coef, aes(x=reorder(Feature,Coef),y=Coef,fill=Coef))+
-  xlab("") + ylab("Coefficients") + coord_flip() +
-  geom_bar(stat = 'identity',colour='black',width=0.78,size=0.25,position = position_dodge(0.7))+
-  ylim(-0.30, 0.20)+ geom_text(aes(label=Coef),vjust=-0.2)+
-  theme_bw() + theme(panel.grid.major.y = element_blank(), panel.grid.minor =  element_blank()) +
-  theme(axis.ticks.y = element_blank()) + theme(panel.border = element_blank()) + theme(axis.title.x = element_text(face = "bold")) + 
-  theme(axis.text.y = element_blank()) + #hjust=1调整横轴距离
-  geom_text(aes(y=ifelse(Coef>0,-0.01,0.01),label=Feature,fontface=4,hjust=ifelse(Coef>0,1,0))) +
-  scale_fill_gradient2(low = "#366488", high = "red", mid="white", midpoint=0)
+ggplot(lasso_coef, aes(x = reorder(Feature, Coef), y = Coef, fill = Coef)) +
+  xlab("") +
+  ylab("Coefficients") +
+  coord_flip() +
+  geom_bar(stat = "identity", colour = "black", width = 0.78, size = 0.25, position = position_dodge(0.7)) +
+  ylim(-0.30, 0.20) +
+  geom_text(aes(label = Coef), vjust = -0.2) +
+  theme_bw() +
+  theme(panel.grid.major.y = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.ticks.y = element_blank()) +
+  theme(panel.border = element_blank()) +
+  theme(axis.title.x = element_text(face = "bold")) +
+  theme(axis.text.y = element_blank()) + # hjust=1调整横轴距离
+  geom_text(aes(y = ifelse(Coef > 0, -0.01, 0.01), label = Feature, fontface = 4, hjust = ifelse(Coef > 0, 1, 0))) +
+  scale_fill_gradient2(low = "#366488", high = "red", mid = "white", midpoint = 0)
 write.csv(lasso_coef, file = "/media/wane/wade/EP/EPTLE_PET/TLE_pet_ind/coef.minPTcox9.csv", quote = T, row.names = F)
 # coef <- read_csv("/media/wane/wade/EP/EPTLE_PET/TLE_pet_ind/coef.minPTcox9.csv", show_col_types = FALSE)
 # 提取特征名
@@ -231,9 +245,9 @@ radscore_all <- as.numeric(Radscore_Matrix)
 
 # get radiomics score
 Radscore_train <- radscore_all[1:nrow(train_lasso)]
-Radscore_test <- radscore_all[(nrow(train_lasso)+1):xn]
+Radscore_test <- radscore_all[(nrow(train_lasso) + 1):xn]
 # show Rad-score
-Radscore_train 
+Radscore_train
 Radscore_test
 
 ## Lasso筛选变量后进一步逐步回归筛选(训练集)stepwise
@@ -279,7 +293,8 @@ dtx <- scale(dt[, c(2267)]) # radscore z标准化
 # rad <- mutate(dt[,1:3],dtx)
 # rad <- mutate(dt[,1:3],dt[,2268])
 # write.csv(rad,"/home/wane/Desktop/EP/Structured_Data/radcox9.csv", row.names = FALSE)
-data <- read.xlsx("/media/wane/wade/EP/EPTLE_PET/TLE234.xlsx")
+library(readxl)
+data <- read_xlsx("/media/wane/wade/EP/EPTLE_PET/TLE234.xlsx")
 rad <- mutate(data, radscore)
 write.csv(rad, "/media/wane/wade/EP/EPTLE_PET/TLE234-rad.csv", row.names = FALSE)
 
@@ -313,81 +328,89 @@ ind <- sample(2, nrow(dt), replace = TRUE, prob = c(0.7, 0.3))
 train <- dt[ind == 1, ] # the training data set
 # 测试集
 test <- dt[ind == 2, ] # the test data set
-train1 <- transform(train, Group="Training Set")
-test1 <- transform(test, Group="Test Set")
-dt1 <- rbind(train1,test1)
+train1 <- transform(train, Group = "Training Set")
+test1 <- transform(test, Group = "Test Set")
+dt1 <- rbind(train1, test1)
 str(dt1$Rel._in_5yrs)
 dt1$Rel._in_5yrs <- ifelse(dt1$Rel._in_5yrs == "0", "Seizure-free", "Relapse")
-colnames(dt1)[2] <- 'Seizure Outcome'
-train1 <- subset(dt1, Group=="Training Set")
-test1 <- subset(dt1, Group=="Test Set")
+colnames(dt1)[2] <- "Seizure Outcome"
+train1 <- subset(dt1, Group == "Training Set")
+test1 <- subset(dt1, Group == "Test Set")
 # Train vs. Test set
 library(ggstatsplot)
 library(palmerpenguins)
 library(tidyverse)
 library(patchwork)
 p1 <- ggbetweenstats(
-  data = train1,
+  data = train,
   x = Rel._in_5yrs,
   y = radscore,
   xlab = "",
   ylab = "Radiomics Score",
   plot.type = "violin",
   package = "ggsci",
-  palette = "uniform_startrek") +
+  palette = "uniform_startrek"
+) +
   ggtitle("Training Set") +
-  ggeasy::easy_center_title() 
+  ggeasy::easy_center_title()
 p2 <- ggbetweenstats(
-  data = test1,
+  data = test,
   x = Rel._in_5yrs,
   y = radscore,
-  ylab = "",xlab = "",
+  ylab = "", xlab = "",
   plot.type = "violin",
   title = "Test Set",
   package = "ggsci",
-  palette = "uniform_startrek") +
+  palette = "uniform_startrek"
+) +
   ggtitle("Test Set") +
-  ggeasy::easy_center_title() 
+  ggeasy::easy_center_title()
 
 library(ggpubr)
 # 根据变量分面绘制箱线图
-p <- ggboxplot(dt1, x = "Rel._in_5yrs", y = "radscore",ylab = "Radiomics Score",
-               color = "Rel._in_5yrs", palette = "jco",
-               add = "jitter", xlab = "",legend="right",
-               facet.by = "Group", short.panel.labs = FALSE) +
-               labs(color='Seizure Outcome',shape='Seizure Outcome')   
+p <- ggboxplot(dt1,
+  x = "Seizure Outcome", y = "radscore", ylab = "Radiomics Score",
+  color = "Seizure Outcome", palette = "jco",
+  add = "jitter", xlab = "", legend = "right",
+  facet.by = "Group", short.panel.labs = FALSE
+) +
+  labs(color = "Seizure Outcome", shape = "Seizure Outcome")
 # Use only p.format as label. Remove method name.
 p + stat_compare_means(label = "p.format", method = "t.test")
 # Or use significance symbol as label
-p + stat_compare_means(label =  "p.signif", label.x = 1.5)
+p + stat_compare_means(label = "p.signif", label.x = 1.5)
 
-p1 <- ggboxplot(train1, 
-                x = "Rel._in_5yrs",
-                y = "radscore",  xlab = "", ylab = "Radiomics Score",
-                color = "Rel._in_5yrs", 
-                palette =c("#00AFBB", "#E7B800"),
-                add = "jitter", 
-                shape = "Rel._in_5yrs") + 
+p1 <- ggboxplot(train,
+  x = "Rel._in_5yrs",
+  y = "radscore", xlab = "", ylab = "Radiomics Score",
+  color = "Rel._in_5yrs",
+  palette = c("#00AFBB", "#E7B800"),
+  add = "jitter",
+  shape = "Rel._in_5yrs"
+) +
   # stat_compare_means(method = "wilcox.test") +
-  ggtitle("Training Set") + labs(color='Seizure Outcome',shape='Seizure Outcome') +
-  ggeasy::easy_center_title() 
-p2 <- ggboxplot(test1, 
-                x = "Rel._in_5yrs",
-                y = "radscore", ylab = "",xlab = "",
-                color = "Rel._in_5yrs", 
-                palette =c("#00AFBB", "#E7B800"),
-                add = "jitter", 
-                shape = "Rel._in_5yrs") + 
-  # stat_compare_means(method = "wilcox.test") + 
-  ggtitle("Test Set") + labs(color='Seizure Outcome',shape='Seizure Outcome') +
-  ggeasy::easy_center_title() 
-ggarrange(p1, p2, ncol=2, labels = c('a', 'b'),
-          common.legend = TRUE, legend="right")
+  ggtitle("Training Set") + labs(color = "Seizure Outcome", shape = "Seizure Outcome") +
+  ggeasy::easy_center_title()
+p2 <- ggboxplot(test,
+  x = "Rel._in_5yrs",
+  y = "radscore", ylab = "", xlab = "",
+  color = "Rel._in_5yrs",
+  palette = c("#00AFBB", "#E7B800"),
+  add = "jitter",
+  shape = "Rel._in_5yrs"
+) +
+  # stat_compare_means(method = "wilcox.test") +
+  ggtitle("Test Set") + labs(color = "Seizure Outcome", shape = "Seizure Outcome") +
+  ggeasy::easy_center_title()
+ggarrange(p1, p2,
+  ncol = 2, labels = c("a", "b"),
+  common.legend = TRUE, legend = "right"
+)
 # tableone
 library(CBCgrps)
-tab1 <- twogrps(dt1[c(-1,-2)], gvar = "Group")
+tab1 <- twogrps(dt1[c(-1, -2)], gvar = "Group")
 print(tab1, quote = T)
-write.csv(tab1[1], "./EP/EP_Cox_Nomo/traintesttable1.csv",row.names = F)
+write.csv(tab1[1], "./EP/EP_Cox_Nomo/traintesttable1.csv", row.names = F)
 # 基线资料汇总，tableone
 library(tableone)
 ## 需要转为分类变量的变量
@@ -400,9 +423,10 @@ tabMat <- print(tab, staquote = FALSE, noSpaces = TRUE, printToggle = FALSE, sho
 ## 保存为 CSV 格式文件
 write.csv(tabMat, file = "/media/wane/Data/CN/t1myTable.csv")
 
-
+# 最佳cutoff值
 library(cutoff)
 # library(ggpubr)
+train$Rel._in_5yrs <- as.numeric(as.character(train$Rel._in_5yrs))
 logresult <- cutoff::logrank(
   data = train, # 数据集
   time = "Follow_up_timemon", # 生存时间
@@ -411,12 +435,12 @@ logresult <- cutoff::logrank(
   cut.numb = 1, # 截断值选择1个分界点
   n.per = 0.10, # 分组后自变量组最少比例
   y.per = 0.10, # 分组后因变量组最少比例
-  p.cut = 0.05, # 检验水准，结果只显示pvalue小于0.05的截断值
+  p.cut = 0.005, # 检验水准，结果只显示pvalue小于0.05的截断值
   round = 3
 ) # 保留5位有效小数
 logresult
 ggline(logresult,
-  x = "cut1", y = "pvalue",
+  x = "cut1", y = "pvalue", color = "blue", axis.title.x = 0.01,
   palette = "jco", xlab = "截断值取值", ylab = "p value"
 )
 
@@ -424,41 +448,36 @@ res.cut <- surv_cutpoint(
   data = train, time = "Follow_up_timemon",
   event = "Rel._in_5yrs", variables = c("radscore")
 )
-summary(res.cut) # 最佳截断值为0.311323
+summary(res.cut) # 最佳截断值为0.3346
 plot(res.cut, "radscore", palette = "npg")
 res.cat <- surv_categorize(res.cut)
 fit <- survfit(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore, data = res.cat)
 summary(fit)
 survdiff(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore, data = res.cat)
 
-plot(fit, conf.int = F, col = c("red", "blue"), xlab = "months", ylab = "Free of Relapse")
+plot(fit, conf.int = F, col = c("red", "blue"), xlab = "months", ylab = "Free of Relapse(%)")
 legend(0, 0.2, legend = c("Radscore-high", "Radscore-low"), lty = 1, col = c("red", "blue"))
 
 ggsurvplot(fit,
   data = res.cat,
-  risk.table = TRUE,
-  pval = T, xlab = "months", ylab = "Free of Relapse"
-)
-ggsurvplot(fit,
-  data = res.cat,
-  risk.table = TRUE,
-  conf.int = TRUE,
-  pval = T, xlab = "months", ylab = "Free of Relapse"
+  risk.table = TRUE, conf.int = TRUE,
+  surv.median.line = "hv", # 同时显示垂直和水平参考线
+  pval = T, xlab = "months", ylab = "Free of Relapse(%)"
 )
 
 # radscore及测试集最佳截断值添加至临床资料总表
 write.csv(res.cat, "/media/wane/wade/EP/EPTLE_PET/res.cat.csv", row.names = FALSE)
 res.cat <- read.csv("/media/wane/wade/EP/EPTLE_PET/res.cat.csv")
-dt <- as.data.frame(dt)
 res.cat <- as.data.frame(res.cat)
-dt2 <- cbind(dt, res.cat)
 
-# 方法三：采用cut函数
-dt$rad <- cut(dt$radscore, breaks = c(-Inf, 0.311323, Inf), labels = c("low", "high"), right = FALSE)
+# 采用cut函数
+dt$rad <- cut(dt$radscore, breaks = c(-Inf, 0.3346, Inf), labels = c("low", "high"), right = FALSE)
 write.csv(dt, "/media/wane/wade/EP/EPTLE_PET/TLE234-rad.csv", row.names = FALSE)
 
 rm(list = ls())
-dtx <- scale(dt[, c(3:18)]) # z标准化
+dt$Rad[dt$rad == "low"] <- "0"
+dt$Rad[dt$rad == "high"] <- "1"
+dtx <- scale(dt[, c(3:16, 18)]) # z标准化
 dtx <- as.data.frame(dtx)
 head(dt[, 1:2])
 dt <- mutate(dt[, 1:2], dtx)
@@ -466,14 +485,10 @@ write.csv(dt, "/media/wane/wade/EP/EPTLE_PET/process_TLE234-rad.csv", row.names 
 dt <- read.csv("/media/wane/wade/EP/EPTLE_PET/TLE234-rad.csv")
 
 create_report(dt)
-dt <- dt[-18]
-# 输出单因素和多因素结果
-library(finalfit)
-str(dt)
-
+dt <- dt[-17]
 # 对数据初步预处理(批量单因素分析变量保留数值型变量)
 # 用for循环语句将数值型变量转为因子变量
-for (i in names(dt)[c(1, 21, 7:18)]) {
+for (i in names(dt)[c(2:4, 8:16)]) {
   dt[, i] <- as.factor(dt[, i])
 }
 
@@ -484,16 +499,47 @@ train <- dt[ind == 1, ] # the training data set
 # 测试集
 test <- dt[ind == 2, ] # the test data set
 
+# 输出单因素和多因素结果
+library(finalfit)
+unlist(colnames(dt[c(-1, -2)]))
+paste0(colnames(dt[c(-1, -2)]), collapse = "\",\"")
+# Crosstable
+explanatory <- c(
+  "side", "Sex", "Surgmon", "Onsetmon", "Durmon", "SE", "SGS",
+  "early_brain_injury", "familial_epilepsy", "brain_hypoxia", "Central_Nervous_System_Infections", "traumatic_brain_injury", "history_of_previous_surgery", "MRI", "radscore"
+)
+dependent <- "Rel._in_5yrs"
+train %>%
+  summary_factorlist(dependent, explanatory,
+    cont = "mean", # 连续性定量变量计算均数(标准差)，cont="median"计算中位数（四分位数间距）
+    cont_nonpara = 1, # 指定变量序号，采用非参数检验和统计指标
+    cont_range = T, # 四分位数间距用P25，P75表示
+    column = T, # 按列统计，column=F则按行统计
+    total_col = T, # 添加列的合计结果
+    p_cont_para = "aov", # 指定定量变量的参数统计方法，包括"aov"和"t.test"，非参数方法统一为kruskal.test
+    p_cat = "chisq", # 指定分类变量的统计方法，包括"chisq" or "fisher"
+    digits = c(1, 1, 3, 2), # 依次设定小数位数：（1）平均值/中位数（2）标准差/四分位数范围（3）P值（4）数百分比。
+    p = TRUE
+  ) -> t1
+knitr::kable(t1, align = c("l", "l", "r", "r", "r"), "simple")
+write.csv(t1, "/media/wane/wade/EP/EPTLE_PET/final_train.csv", row.names = F)
+
 # 指定自变量
 explanatory <- unlist(colnames(dt)[3:17])
 # 指定因变量
+train$Rel._in_5yrs <- as.numeric(train$Rel._in_5yrs) # 拟合cox回归需要转为数值变量
 dependent <- "Surv(Follow_up_timemon, Rel._in_5yrs)"
 # 拟合和输出结果
-train %>% finalfit(dependent, explanatory, metrics = T, add_dependent_label = F) -> t3
-knitr::kable(t3)
-write.csv(t3, "/media/wane/wade/EP/EPTLE_PET/finalfit.csv", row.names = F)
+train %>%
+  finalfit(dependent, explanatory,
+    metrics = T, # metrics=T表示输出模型检验的指标
+    add_dependent_label = F
+  ) -> t2 # add_dependent_label=F表示不在表的左上角添加因变量标签。
+knitr::kable(t2, "simple")
+write.csv(t2, "/media/wane/wade/EP/EPTLE_PET/finalfit.csv", row.names = F)
 
-# hr_plot()生成Cox比例风险模型的风险比表和图。
+# hr_plot()生成Cox比例风险模型的风险比表和图, or_plot用于从glm()或lme4::glmer()模型中生成一个OR值表和图。
+# https://mp.weixin.qq.com/s?__biz=MzIzMzc1ODc4OA==&mid=2247485564&idx=1&sn=db5b0e544afa6f09e89d8c4606e21659&chksm=e8818157dff60841de4e60cc25785defca31241f2342d6b6a1b705151b6cbe7e023bfbd44aaa&mpshare=1&scene=1&srcid=0205aGisjDzv3Rrn1Raq1gUL&sharer_sharetime=1660926034730&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd
 train %>%
   hr_plot(dependent, explanatory)
 
