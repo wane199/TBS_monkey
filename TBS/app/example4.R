@@ -24,14 +24,16 @@ ui <- fluidPage(theme = shinytheme("yeti"),
     
     # Sidebar panel for inputs ----
     sidebarPanel(
-      HTML("<h3>Input parameters</h4>"),
+      HTML("<h3>Input parameters</h3>"),
       # Input: Selector for variable to plot against mpg ----
       selectInput("variable", "Variable:",
                   c("Age" = "Age",
                     "BMI" = "BMI",
                     "BMDL1L4" = "BMDL1L4",
                     "TscoreL1L4" = "TscoreL1L4")),
-
+      br(),
+      img(src = "https://media.springernature.com/original/springer-static/image/art%3A10.1007%2Fs00198-011-1824-6/MediaObjects/198_2011_1824_Fig3_HTML.gif"),
+      
       # Input: Checkbox for whether outliers should be included ----
       checkboxInput("outliers", "Show outliers", TRUE)
       
@@ -47,7 +49,7 @@ ui <- fluidPage(theme = shinytheme("yeti"),
       h3(textOutput("caption")),
       
       # Output: Plot of the requested variable against mpg ----
-      plotOutput("mpgPlot")
+      plotOutput("boxPlot")
       
     )
   )
@@ -74,7 +76,7 @@ server <- function(input, output) {
   
   # Generate a plot of the requested variable against mpg ----
   # and only exclude outliers if requested
-  output$mpgPlot <- renderPlot({
+  output$boxPlot <- renderPlot({
     boxplot(as.formula(formulaText()),
             data = tbs,
             outline = input$outliers,
@@ -84,5 +86,5 @@ server <- function(input, output) {
 }
 
 # Create Shiny app ----
-shinyApp(ui, server)
+shinyApp(ui = ui, server = server)
 

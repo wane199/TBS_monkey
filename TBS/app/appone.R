@@ -11,7 +11,6 @@ library(randomForest)
 
 # Read data
 dt <- fread("https://raw.githubusercontent.com/wane199/Presentation/master/TBS/app/data/M_1018.csv")
-dt <- dt[, -1]
 
 # Build model
 # model <- randomForest(Age ~ ., data = dt, ntree = 500, mtry = 4, importance = T )
@@ -38,8 +37,8 @@ ui <- fluidPage(
       HTML("<h3>Input parameters</h3>"),
       sliderInput("bins",
         "Number of bins:",
-        min = 5,
-        max = 60,
+        min = 20,
+        max = 75,
         value = 30
       ),
       br(),
@@ -67,7 +66,7 @@ server <- function(input, output) {
   #  2) Its output type is a plot
 
   output$distPlot <- renderPlot({
-    x <- unlist(dt[, 1]) # Old Faithful Geyser data
+    x <- unlist(dt[, 2]) # Old Faithful Geyser data
     bins <- seq(min(x), max(x), length.out = input$bins + 1)
 
     # draw the histogram with the specified number of bins
@@ -81,3 +80,4 @@ server <- function(input, output) {
 
 # Run the application, Create the shiny app
 shinyApp(ui = ui, server = server)
+
