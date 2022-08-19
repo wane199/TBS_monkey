@@ -49,6 +49,9 @@ ui <- fluidPage(
 
     # Show a plot of the generated distribution
     mainPanel(
+      h3("Summary"),
+      verbatimTextOutput("summary"),
+      
       tags$label(h3("Status/Output")),
       plotOutput("distPlot")
     )
@@ -64,7 +67,10 @@ server <- function(input, output) {
   #  1) It is "reactive" and therefore should
   #     re-execute automatically when inputs change
   #  2) Its output type is a plot
-
+  output$summary <- renderPrint({
+    skimr::skim(dt)
+  })
+  
   output$distPlot <- renderPlot({
     x <- unlist(dt[, 2]) # Old Faithful Geyser data
     bins <- seq(min(x), max(x), length.out = input$bins + 1)

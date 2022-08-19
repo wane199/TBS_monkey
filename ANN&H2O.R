@@ -393,3 +393,5 @@ par(cex = .9)
 # rel_imp <- garson(nn8.4, bar_plot = T)$rel_imp
 # cols <- colorRampPalette(c('lightgreen', 'darkgreen'))(3)[rank(rel_imp)]
 plotnet(nn8.4, prune_col = 'lightblue', pos_col = "red", neg_col = "grey")
+
+
