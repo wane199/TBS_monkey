@@ -1,0 +1,13 @@
+name: shinyPredict
+title: shinyPredict
+username:
+account: wane199
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 6815870
+bundleId: 6220853
+url: https://wane199.shinyapps.io/shinyPredict/
+when: 1661005873.08746
+lastSyncTime: 1661005873.08747
+asMultiple: FALSE
+asStatic: FALSE

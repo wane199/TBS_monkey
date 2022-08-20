@@ -1,12 +1,8 @@
-# Osa 1 alku 
- # 
+ # Osa 1 alku 
  # This is a Shiny web application. You can run the application by clicking 
  # the 'Run App' button above. 
- # 
  # Find out more about building applications with Shiny here: 
- # 
  #    http://shiny.rstudio.com/ 
- # 
  library(shiny) 
  library(ggplot2) 
  library(DT) 
@@ -38,6 +34,7 @@ lv.xvars<-"Follow_up_timemon"
  tee.dt<-function(input){ 
      lv.dt<-expand.grid( 
  # Osa 1A loppu 
+Follow_up_timemon=seq(from=input$Follow_up_timemon[1],to=input$Follow_up_timemon[2],length=ifelse(input$Follow_up_timemon[1]==input$Follow_up_timemon[2],1,input$PredN)),
 radscore=input$radscore[1],
 SGS=factor(input$SGS,levels=c("No","Yes")),
 familial_epilepsy=factor(input$familial_epilepsy,levels=c("No","Yes")),
@@ -61,18 +58,21 @@ SE=factor(input$SE,levels=c("No","Yes"))
  } 
  # Define UI for application that draws a histogram 
  ui <- fluidPage(theme = shinytheme( 
- "journal"), 
+ "cerulean"), 
      # Application title 
      titlePanel( 
- "Dynamic nomogram"), 
+ "Predicting TLE ralapse probability"), 
      # Sidebar with a slider input 
      sidebarLayout( 
-         sidebarPanel( 
-             textAreaInput("AddPlot",label="Add plot script",value="",rows=3), 
-             actionButton("Toteuta", label="Submit"), 
+         sidebarPanel(
+           img(src = "https://ts1.cn.mm.bing.net/th/id/R-C.c80600d38debc68a12b4b566886c8216?rik=bTkNEfTXK0fisg&riu=http%3a%2f%2fpicture.swwy.com%2fY2UzZDljYTQxNjhmNDI.jpg&ehk=WYS7zLiw1qw9kNUCW14LEMFnE2n0sOPMwjkmxBh71%2fs%3d&risl=&pid=ImgRaw&r=0&sres=1&sresct=1",
+               height = 150, width = 360),
+             # textAreaInput("AddPlot",label="Add plot script",value="",rows=3), 
+             # actionButton("Toteuta", label="Submit"), 
              radioButtons("Model",label="Select model", 
                               choices=lv.malli.value,inline=FALSE), 
              # Osa 2 loppu 
+sliderInput(inputId="Follow_up_timemon",label="Follow_up_timemon", min =0,max =60 ,value =c(0,60)),
 sliderInput(inputId="radscore",label="radscore", min =-1.455239775,max =0.831159518 ,value =c(-1.455239775)),
 checkboxGroupInput(inputId="SGS", label="SGS",
  choices=c("No"="No","Yes"="Yes"), selected = "No"),
@@ -81,7 +81,7 @@ checkboxGroupInput(inputId="familial_epilepsy", label="familial_epilepsy",
 sliderInput(inputId="Durmon",label="Durmon", min =0,max =456 ,value =c(0)),
 checkboxGroupInput(inputId="SE", label="SE",
  choices=c("No"="No","Yes"="Yes"), selected = "No"),            # Osa 3 alku 
-         ), 
+  ),
          mainPanel( 
              tabsetPanel(id='tabs', 
                  tabPanel("Plot", list(radioButtons("Xvar",label="Select x-variable", 
@@ -104,9 +104,9 @@ checkboxGroupInput(inputId="SE", label="SE",
          lv.group<-names(lv.group)[lv.group] 
          if(!is.factor(tmp.dt[[input$Xvar]])&length(lv.group)>0){ 
              lv.txt<-paste("lv.p1<-ggplot(tmp.dt,aes(x=",input$Xvar, 
-                           ",y=Predicted,group=",lv.group[1],"))+geom_line(aes(linetype=",lv.group[1],"))") 
+                           ",y=Predicted,group=",lv.group[1],"))+xlab('Time(months)')+ylab('Free of Relapse(%)')+geom_line(aes(linetype=",lv.group[1],"))") 
          } 
-         else {lv.txt<-paste("lv.p1<-ggplot(tmp.dt,aes(x=",input$Xvar,",y=Predicted))+geom_line()")} 
+         else {lv.txt<-paste("lv.p1<-ggplot(tmp.dt,aes(x=",input$Xvar,",y=Predicted))+xlab('Time(months)')+ylab('Free of Relapse(%)')+geom_line()")} 
          eval(parse(text=lv.txt)) 
          if(is.factor(tmp.dt[[input$Xvar]])) lv.p1<-lv.p1+geom_point() 
          if(is.factor(tmp.dt[[input$Xvar]])){lv.p1<-lv.p1+geom_errorbar(aes(ymin = tmp.dt$Predicted.lo, ymax = tmp.dt$Predicted.hi),width = 0.2)} 
