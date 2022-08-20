@@ -64,11 +64,24 @@ https://huhuaping.com/2021/02/01/css-base-xaringan/
 --
 ## First
 ```{r echo=FALSE}
-knitr::kable(t1, align=c("l", "l", "r", "r", "r"))
+knitr::kable(iris, align=c("l", "l", "r", "r", "r"))
 ```
 
-
+---
 ## Second
+
+\begin{align}
+  \boldsymbol{\theta}& = (1,2,3)^\top  \\
+\end{align}
+
+
+<h3>Example</h3>
+
+\begin{align}
+    \theta &= (1, 2, 3)^\top \\
+        \theta_0 &= 1
+\end{align}
+
 
 ---
 ```{r echo=FALSE}

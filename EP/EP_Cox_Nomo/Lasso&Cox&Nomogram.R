@@ -11,7 +11,7 @@ list.files() ## 列出工作目录下的文件
 library(glmnet) ## Lasso回归、岭回归、弹性网络模型
 library(caret) ## 混淆矩阵
 library(survival) ##  生存分析包
-library(survminer)
+library(survminer) # ggforest
 library(rms) ## 画列线图
 library(randomForest)
 library(dplyr)
@@ -455,14 +455,29 @@ fit <- survfit(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore, data = res
 summary(fit)
 survdiff(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore, data = res.cat)
 
-plot(fit, conf.int = F, col = c("red", "blue"), xlab = "months", ylab = "Free of Relapse(%)")
-legend(0, 0.2, legend = c("Radscore-high", "Radscore-low"), lty = 1, col = c("red", "blue"))
-
 ggsurvplot(fit,
   data = res.cat,
   risk.table = TRUE, conf.int = TRUE,
   surv.median.line = "hv", # 同时显示垂直和水平参考线
   pval = T, xlab = "months", ylab = "Free of Relapse(%)"
+)
+
+ggsurvplot(fit,
+           data = train, risk.table = TRUE, conf.int = TRUE,
+           pval = T, xlab = "Time in months", ylab = "Free of Relapse",
+           palette = c("#E7B800", "#2E9FDF"), braek.time.by = 12, ggtheme = theme_classic(), risk.table.y.text.col = T,
+           risk.table.y.text = F, risk.table.height = 0.25,
+           ncensor.plot = T, ncencer.plot.height = 0.25, # conf.int.style="step",
+           surv.median.line = "hv", legend.labs = c("Radscore-low", "Radscore-high")
+)
+# 绘制累积风险曲线
+ggsurvplot(fit,
+           plaette = "#2E9FDF", data = train,
+           fun = "cumhaz", # 绘制累积风险曲线
+           conf.int = T, pval = T,
+           palette = c("#E7B800", "#2E9FDF"),
+           legend.labs = c("Radscore-low", "Radscore-high"),
+           xlab = "Time in months", ylab = "Cum Relapse"
 )
 
 # radscore及测试集最佳截断值添加至临床资料总表
@@ -540,66 +555,51 @@ write.csv(t2, "/media/wane/wade/EP/EPTLE_PET/finalfit.csv", row.names = F)
 
 # hr_plot()生成Cox比例风险模型的风险比表和图, or_plot用于从glm()或lme4::glmer()模型中生成一个OR值表和图。
 # https://mp.weixin.qq.com/s?__biz=MzIzMzc1ODc4OA==&mid=2247485564&idx=1&sn=db5b0e544afa6f09e89d8c4606e21659&chksm=e8818157dff60841de4e60cc25785defca31241f2342d6b6a1b705151b6cbe7e023bfbd44aaa&mpshare=1&scene=1&srcid=0205aGisjDzv3Rrn1Raq1gUL&sharer_sharetime=1660926034730&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd
+explanatory <- unlist(colnames(dt)[c(7,9,11,16,17)])
 train %>%
   hr_plot(dependent, explanatory)
 
 # 整体数据集的生存曲线
-fit <- survfit(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ rad + SGS + familial_epilepsy + Durmon + SE, data = train)
-ggsurvplot(fit, plaette = "#2E9FDF", data = train, xlab = "Time in months", ylab = "Free of Relapse")
+# https://cloud.tencent.com/developer/article/1966729
+fit0 <- survfit(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ 1, data = train)
+ggsurvplot(fit0, plaette = "#2E9FDF", data = train,risk.table = TRUE, surv.median.line = "hv", 
+           pval = T, xlab = "Time in months", ylab = "Free of Relapse")
 
 # 绘制累积风险曲线
-ggsurvplot(fit,
-  plaette = "#2E9FDF", data = train,
-  fun = "cumhaz", # 绘制累积风险曲线
-  conf.int = T, legend.labs = c("Radscore-low", "Radscore-high"),
+ggsurvplot(fit0,
+  plaette = "#2E9FDF", data = train, risk.table = TRUE, 
+  fun = "cumhaz", # 定义生存曲线变换的任意函数，"event"累积事件f(y) = 1-y, "cumhaz"累积风险函数f(y) = -log(y),"pct"生存概率(百分比)。
+  conf.int = T, # legend.labs = c("Radscore-low", "Radscore-high"),
   xlab = "Time in months", ylab = "Cum Relapse"
 )
 
-fit1 <- survfit(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ rad + SGS + Surgmon + Durmon + strata(Sex), data = train)
-ggsurvplot(fit1, plaette = "#2E9FDF", data = train, xlab = "Time in months", ylab = "Free of Relapse")
+fit1 <- survfit(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ Sex, data = train)
+ggsurvplot(fit1, plaette = "#2E9FDF", risk.table = TRUE, conf.int = TRUE,surv.median.line = "hv", 
+           data = train, pval = T,  xlab = "Time in months", ylab = "Free of Relapse")
 
-ggsurvplot(fit1,
-  data = train, risk.table = TRUE, conf.int = TRUE,
-  pval = T, xlab = "Time in months", ylab = "Free of Relapse",
-  palette = c("#E7B800", "#2E9FDF"), braek.time.by = 12, ggtheme = theme_classic(), risk.table.y.text.col = T,
-  risk.table.y.text = F, risk.table.height = 0.25,
-  ncensor.plot = T, ncencer.plot.height = 0.25, # conf.int.style="step",
-  surv.median.line = "hv", legend.labs = c("Radscore-low", "Radscore-high")
-)
-# 绘制累积风险曲线
-ggsurvplot(fit1,
-  plaette = "#2E9FDF", data = train,
-  fun = "cumhaz", # 绘制累积风险曲线
-  conf.int = T, pval = T,
-  palette = c("#E7B800", "#2E9FDF"),
-  legend.labs = c("Radscore-low", "Radscore-high"),
-  xlab = "Time in months", ylab = "Cum Relapse"
-)
-# 批量完成单因素Cox回归分析，变量筛选
+# 批量完成单因素Cox回归分析，变量筛选，多种methods
 library(ezcox)
 str(train)
 ddist <- datadist(train)
 options(datadist = "ddist")
-# var <- paste0(colnames(dt)[3:17], collapse = '" "')
+paste0(colnames(dt)[3:17], collapse = '","')
 var <- unlist(colnames(dt)[3:17])
-var
-# results <- ezcox(train, time = "Follow_up_timemon",status = "Rel._in_5yrs",
-#                  covariates = c("Sex","Onsetmon","Surgmon","Durmon","MRI",
-#                                 "SE","SGS","side","early_brain_injury","familial_epilepsy",
-#                                 "brain_hypoxia","Central_Nervous_System_Infections",
-#                                 "traumatic_brain_injury","history_of_previous_surgery",
-#                                 "rad"))
+
 results <- ezcox(train,
   time = "Follow_up_timemon", status = "Rel._in_5yrs",
   covariates = var
 )
 results
-knitr::kable(results)
-write.csv(results, "/media/wane/wade/EP/EPTLE_PET/results.csv", row.names = FALSE)
+knitr::kable(results,'latex')
+write.csv(results, "/home/wane/Documents/EP_code/git/Presentation/EP/EP_Cox_Nomo/results.csv", row.names = FALSE)
 
-# stepwise筛选变量
-# options(scipen = 100)
-# options(digits=5)
+show_forest(train, time = "Follow_up_timemon", status = "Rel._in_5yrs",
+            covariates = unlist(colnames(dt)[c(3:14)]), controls = "radscore")
+
+# Stepwise筛选变量
+# options(scipen = 100, digits=5)
+library(MASS) # 逐步回归，stepAIC()函数 https://www.bilibili.com/video/BV18F411q7v3/?vd_source=23f183f0c5968777e138f31842bde0a0
+
 library(My.stepwise)
 My.stepwise.coxph(
   Time = "Follow_up_timemon",
@@ -607,6 +607,7 @@ My.stepwise.coxph(
   variable.list = var,
   data = train
 )
+
 library(StepReg)
 Surv <- formula("Surv(Follow_up_timemon,Rel._in_5yrs==1) ~ .")
 stepwiseCox(Surv,
@@ -626,35 +627,40 @@ for (i in names(train)[c(1, 21, 7:18)]) {
   train[, i] <- as.factor(train[, i])
 }
 str(train)
+train$rad <- cut(train$radscore, breaks = c(-Inf, 0.3346, Inf), labels = c("0", "1"), right = FALSE)
+train$rad <- factor(train$SGS,
+                    levels = c(0, 1),
+                    labels = c("Low", "High")
+)
 # 拟合cox回归
 # coxm1 <- cph(Surv(Follow_up_timemon,Rel._in_5yrs==1) ~ Radscore, x=T,y=T,data=train,surv=T)
+coxm0 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy + Durmon + SE, data = train)
 coxm1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ rad, data = train)
-coxm2 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + Surgmon + Durmon + SE, data = train)
-coxm <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ rad + SGS + familial_epilepsy + Durmon + SE, data = train)
+coxm2 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ rad + SGS + familial_epilepsy + Durmon + SE, data = train)
 
-cox.zph(coxm) # 等比例风险假定
-print(coxm)
-summary(coxm)
+cox.zph(coxm2) # 等比例风险假定
+print(coxm0)
+summary(coxm0)
 ## These models are significantly different by likelihood ratio test
-anova(coxm1, coxm2, coxm3, test = "LRT")
+anova(coxm0, coxm1, coxm2, test = "LRT")
 
 ## Put linear predictors ("lp") into EP train dataset
+train$lp.clinic <- predict(coxm0, type = "lp")
 train$lp.rad <- predict(coxm1, type = "lp")
-train$lp.clinic <- predict(coxm2, type = "lp")
-train$lp.rad_clinic <- predict(coxm3, type = "lp")
+train$lp.rad_clinic <- predict(coxm2, type = "lp")
 
 library(Hmisc)
 ddist <- datadist(train)
 options(datadist = "ddist")
 ## Model with clinic(Hmisc::rcorrcens)
-rcorrcens(formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ rad + SGS + Surgmon + Durmon + SE, data = train)
+rcorrcens(formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = train)
 
-model1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ rad + SGS + Surgmon + Durmon + SE, data = train)
+model1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~  radscore + SGS + familial_epilepsy + Durmon + SE, data = train)
 print(model1, data = train)
 
-library(survival)
-library(survminer)
-ggforest(model1, data = train) # https://cache.one/read/16896085
+library(eoffice)
+p <- ggforest(model1, data = train) # https://cache.one/read/16896085
+topptx(figure = p,filename = "./EP/EP_Cox_Nomo/forest.pptx")
 
 ### 开始cox-nomo graph
 # 设置因子的水平标签(常见列线图的绘制及自定义美化详细教程)
@@ -666,9 +672,13 @@ train$SE <- factor(train$SE,
   levels = c(0, 1),
   labels = c("No", "Yes")
 )
+train$familial_epilepsy <- factor(train$familial_epilepsy,
+                   levels = c(0, 1),
+                   labels = c("No", "Yes")
+)
 # 设置生存函数
 model <- cph(
-  formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ rad + SGS + familial_epilepsy + Durmon + SE,
+  formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
   surv = T, data = train
 )
 surv <- Survival(model) # 建立生存函数
@@ -695,33 +705,32 @@ plot(nomogram(model,
 ),
 col.grid = c("pink", "cyan")
 )
-
-plot(nomogram(model, fun = function(x) plogis(x)), col.grid = c("Tomato2", "DodgerBlue"))
+# 常见列线图的绘制及自定义美化详细教程 https://mp.weixin.qq.com/s?__biz=MzU4OTc0OTg2MA==&mid=2247497910&idx=1&sn=350a4d6c689462d7337e04455912c8ce&chksm=fdca73bdcabdfaab401fab2a00a9a24a60e7e706675b774bd3d866f6c884cfc80c7a478e7403&mpshare=1&scene=1&srcid=0607mDKXD346ABXXHRc5Sn6I&sharer_sharetime=1660988218815&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd
 # maxscale 参数指定最高分数，一般设置为100或者10分
 # fun.at 设置生存率的刻度
 # xfrac 设置数值轴与最左边标签的距离，可以调节下数值观察下图片变化情况
 
 library(regplot)
-regplot(coxm,
-  observation = train[24, ], # 指定某一患者，4即是选择数据集中第四位患者
+regplot(model1,observation = train[6, ], # 指定某一患者，4即是选择数据集中第四位患者
   interval = "confidence", title = "Nomogram",
   plots = c("violin", "boxes"), clickable = T,
   failtime = c(12, 36, 60)
 ) # 设置随访时间1年、3年和5年
 
+regplot(model1,observation = train[2, ], 
+        failtime = c(12, 36,60), prfail = TRUE,droplines=T)
+
 library(VRPM)
-fit <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ rad + SGS + familial_epilepsy + Durmon + SE,
+fit <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
   data = train,
   model = TRUE
 )
-
-colplot(fit,
-  coloroptions = 2,
+colplot(fit)
+colplot(fit,coloroptions = 2, # 颜色方案(1-5)
   time = 60, # 设置随访时间为8年
   risklabel = "Probability of Relapse",
   filename = "Color Nomogram_5-Yr"
 )
-colplot(fit)
 
 # 制作在线交互式动态列线图
 # https://www.bilibili.com/video/BV1Jb4y1h7iw/?spm_id_from=pageDriver
@@ -731,26 +740,32 @@ library(shiny)
 library(plotly)
 library(compare)
 library(stargazer)
-DynNom(coxm, train)
+
+DynNom(fit, train)
 # covariate = c("slider", "numeric")
 # 设置参数covariate = "numeric"，可以将动态列线图中变量的调整方式从滑块改为输入
 # 生成本地DynNomapp脚本文件
-DNbuilder(coxm) ## 生成下图文件于工作目录处
+DNbuilder(fit) ## 生成下图文件于工作目录处
 
 library(shinyPredict)
+train$Rel._in_5yrs <- factor(train$Rel._in_5yrs)
+mod1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 0) ~ SGS + familial_epilepsy + Durmon + SE,
+             data = train, y = F,  model = F)
+mod2 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 0) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
+             data = train, y = F,  model = F)
 shinyPredict(
-  models = list("model" = coxm),
-  path = "/home/wane/Documents/RDocu/shinyPredict", # 需更改为自己的工作路径
-  data = train[c("Radscore", "SGS", "Sex", "TimebeSO", "Freq.3")],
-  title = "Dynamic nomogram",
-  shinytheme = "paper"
+  models = list("model" = mod1, mod2),
+  path = "./EP/EP_Cox_Nomo/shinyPredict", # 需更改为自己的工作路经
+  data = train[c("radscore", "SGS", "familial_epilepsy", "Durmon", "SE")],
+  title = "Predicting TLE ralapse probability",
+  shinytheme = "journal"
 )
 
 ## 模型验证
 # Concordance index(未校准的时间C-index)
-f <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ rad, data = train)
-f1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ rad + SGS + familial_epilepsy + Durmon + SE,
-  data = test
+f <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore, data = train)
+f1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
+  data = train
 )
 print(f1)
 sum.surv <- summary(f1)
@@ -763,7 +778,7 @@ library(pec) # 计算时间C-index
 as.matrix(head(train))
 dt <- na.omit(train)
 nrow(data)
-f <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ rad + SGS + familial_epilepsy + Durmon + SE,
+f <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
   x = T, y = T, surv = T, data = test
 )
 set.seed(123)
@@ -771,10 +786,10 @@ c_index <- cindex(list("model train" = f),
   eval.times = seq(0, 60, 12), # 各时间点的c-index
   cens.model = "cox", # 指定截尾数据的逆概率加权方法
   keep.pvalues = T,
-  confInt = T,
+  confInt = T, 
   confLevel = 0.95,
   splitMethod = "bootcv", # 重抽样行交叉验证
-  B = 20
+  B = 300
 )
 c_index
 plot(c_index,
@@ -1256,23 +1271,3 @@ train1
 logit.Rad <- glm(outcome2yr ~ Rad, data = train, family = binomial)
 lroc(logit.age.sex.albumin, graph = F)$auc
 
-
-#### 箱线图
-# 对预测结果进行可视化。以实际的分类/生死作为分组，画箱线图整体上查看预测结果。
-train <- as.data.frame(train)
-colnames(train) <- c("radscore", "Rel._in_5yrs")
-# 上面一行的代码意思是把列名一次改为'Epilepsy','prob_min','prob_1se'
-train$Epilepsy <- as.factor(re$Epilepsy) # 作为因子来变成分类变量
-library(ggpubr)
-p1 <- ggboxplot(re,
-  x = "Rel._in_5yrs", y = "radscore",
-  color = "Epilepsy", palette = "jco",
-  add = "jitter"
-) + stat_compare_means()
-p2 <- ggboxplot(re,
-  x = "Epilepsy", y = "prob_1se",
-  color = "Epilepsy", palette = "jco",
-  add = "jitter"
-) + stat_compare_means()
-library(patchwork)
-p1 + p2

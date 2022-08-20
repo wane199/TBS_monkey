@@ -2,6 +2,7 @@
 rm(list = ls())
 library(ggplot2)
 library(readxl)
+library(scorecard) # 利用scorecard R包开发评分卡
 dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\BIAO\\PTH1\\CKD2.csv", header = T)
 dt <- read.csv("/home/wane/Desktop/TBS&Mon/BIAO/PTH1/CKD2.csv", header = T)
 dt <- dt[-1]

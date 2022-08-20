@@ -1,0 +1,16 @@
+Variable,is_control,contrast_level,ref_level,n_contrast,n_ref,beta,HR,lower_95,upper_95,p.value,global.pval
+radscore,FALSE,radscore,radscore,171,171,2.98,19.6,6.69,57.5,5.86E-08,1.29E-08
+SGS,FALSE,1,0,109,62,1.2,3.31,1.47,7.48,0.00392,0.0012
+Surgmon,FALSE,Surgmon,Surgmon,171,171,0.00347,1,1,1.01,0.00567,0.00872
+Durmon,FALSE,Durmon,Durmon,171,171,0.00289,1,1,1.01,0.0532,0.0608
+SE,FALSE,1,0,46,125,-0.677,0.508,0.225,1.15,0.103,0.0801
+familial_epilepsy,FALSE,1,0,8,163,0.944,2.57,0.913,7.23,0.0738,0.114
+brain_hypoxia,FALSE,1,0,4,167,-16,1.09E-07,0,Inf,0.997,0.26
+Onsetmon,FALSE,Onsetmon,Onsetmon,171,171,0.00131,1,0.999,1,0.317,0.333
+traumatic_brain_injury,FALSE,1,0,37,134,0.35,1.42,0.711,2.83,0.321,0.335
+MRI,FALSE,1,0,157,14,-0.482,0.618,0.241,1.58,0.316,0.345
+Sex,FALSE,1,0,100,71,0.192,1.21,0.647,2.27,0.548,0.546
+history_of_previous_surgery,FALSE,1,0,10,161,0.24,1.27,0.392,4.12,0.689,0.699
+early_brain_injury,FALSE,1,0,2,169,0.343,1.41,0.193,10.3,0.735,0.749
+side,FALSE,2,1,75,96,0.0568,1.06,0.571,1.96,0.857,0.857
+Central_Nervous_System_Infections,FALSE,1,0,12,159,-0.0234,0.977,0.301,3.17,0.969,0.969
