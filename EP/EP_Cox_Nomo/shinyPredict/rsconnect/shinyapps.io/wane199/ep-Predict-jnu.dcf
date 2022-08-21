@@ -1,0 +1,14 @@
+name: ep-Predict-jnu
+title: ep-Predict-jnu
+username:
+account: wane199
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 6819226
+bundleId: 6222979
+url: https://wane199.shinyapps.io/ep-Predict-jnu/
+when: 1661097193.99799
+lastSyncTime: 1661097193.99799
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: ep_app.R

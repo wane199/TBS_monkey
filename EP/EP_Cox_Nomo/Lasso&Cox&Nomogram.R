@@ -758,28 +758,29 @@ DNbuilder(fit) ## 生成下图文件于工作目录处
 
 library(shinyPredict)
 train$Rel._in_5yrs <- factor(train$Rel._in_5yrs)
+
 mod1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy + Durmon + SE,
-  data = train
+  data = train, model = FALSE,y=FALSE
 )
 mod2 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
-  data = train
+  data = train, model = FALSE,y=FALSE
 )
 shinyPredict(
   models = list("model" = mod1, mod2),
-  path = "/home/wane/Documents/EP_code/git/Presentation/EP/EP_Cox_Nomo/shinyPredict/", # 需更改为自己的工作路经
-  data = train[c("Follow_up_timemon", "radscore", "SGS", "familial_epilepsy", "Durmon", "SE")],
+  path = "./EP/EP_Cox_Nomo/shinyPredict/", # 需更改为自己的工作路经
+  data = train[c("Follow_up_timemon", "Rel._in_5yrs","radscore", "SGS", "familial_epilepsy", "Durmon", "SE")],
   title = "Predicting TLE ralapse probability",
   shinytheme = "journal"
 )
 
 ## 模型验证
 # Concordance index(未校准的时间C-index)
-f <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore, data = train)
-f1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
+f0 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore, data = train)
+f01 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
   data = train
 )
-print(f1)
-sum.surv <- summary(f1)
+print(f01)
+sum.surv <- summary(f01)
 print(sum.surv)
 c_index <- sum.surv$concordance
 c_index
@@ -800,7 +801,7 @@ c_index <- cindex(list("model train" = f),
   confInt = T,
   confLevel = 0.95,
   splitMethod = "bootcv", # 重抽样行交叉验证
-  B = 100
+  B = 1000
 )
 c_index
 plot(c_index,
@@ -815,7 +816,7 @@ plot(c_index,
 # Assessment of Discrimination in Survival Analysis (C-statistics, etc), https://rpubs.com/kaz_yos/survival-auc
 library(survivalROC)
 ## Put linear predictors ("lp") into pbc dataset
-train$lp.Radscore_clinc <- predict(coxm2, type = "lp")
+train$lp.Radscore_clinc <- predict(f, type = "lp")
 ## Define a function
 fun.survivalROC <- function(lp, t) {
   res <- with(
@@ -826,7 +827,8 @@ fun.survivalROC <- function(lp, t) {
       marker = get(lp),
       predict.time = t,
       method = "KM"
-    )) # KM method without smoothing
+    )
+  ) # KM method without smoothing
 
   ## Plot ROCs
   with(res, plot(TP ~ FP, type = "l", main = sprintf("t = %.0f, AUC = %.2f", t, AUC)))
@@ -840,12 +842,12 @@ layout(matrix(1:6, byrow = T, ncol = 3))
 
 ## Model with Radscore_clinc
 res.survivalROC.Radscore_clinc <- lapply(1:6 * 12, function(t) {
-  fun.survivalROC(lp = "lp.Radscore_clinc", t)
+  fun.survivalROC(lp = "lp.rad_clinic", t)
 })
 
 ## Model with Radscore
 res.survivalROC.Radscore <- lapply(1:6 * 12, function(t) {
-  fun.survivalROC(lp = "lp.Radscore_clinc", t)
+  fun.survivalROC(lp = "lp.rad", t)
 })
 
 ## Model with clinic
@@ -881,9 +883,9 @@ plotROC(model,
 
 # 2.3个模型同时进行ROC评估，
 pk1 <- Score(list(
-  model1 = f1,
-  model2 = f2,
-  model3 = f3
+  model.clinic = f1,
+  model.rad = f2,
+  model.rad.clinic = f3
 ),
 Hist(Follow_up_timemon, Rel._in_5yrs == 1) ~ 1,
 data = dt,
@@ -929,7 +931,7 @@ p <- ggplot(data = auc, aes(x = times, y = AUC, color = model)) + # 指定数据
   theme_classic() + # 使用经典主题
   theme_prism(base_size = 15) + # 使用prism主题
   theme(legend.position = "top") + # 正下方为"bottom"，
-  ylim(0.2, 0.9) + # y轴范围
+  ylim(0.4, 0.9) + # y轴范围
   labs(x = "Follow-up months", y = "AUC value") + # x，y命名
   scale_colour_manual(values = cols)
 p # 颜色
@@ -959,7 +961,6 @@ plotROC(pk2,
   legend = "3 years ROC", # 修改标签
   add = T
 )
-
 
 
 # Calibration Curve绘制，校准曲线/图，评估模型的拟合优度(Hosmer-Lemeshow),一致性

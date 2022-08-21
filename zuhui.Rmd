@@ -63,33 +63,17 @@ https://huhuaping.com/2021/02/01/css-base-xaringan/
 
 --
 ## First
-```{r echo=FALSE}
-knitr::kable(iris, align=c("l", "l", "r", "r", "r"))
-```
+[数据库搭建及部署，试运行(基于表格数据)](https://tbs-r.herokuapp.com/);
 
----
+--
 ## Second
-
-\begin{align}
-  \boldsymbol{\theta}& = (1,2,3)^\top  \\
-\end{align}
-
-
-<h3>Example</h3>
-
-\begin{align}
-    \theta &= (1, 2, 3)^\top \\
-        \theta_0 &= 1
-\end{align}
+[A dynamic online FDG PET-based radiomics nomogram for predicting seizure outcomes after TLE surgery]( https://wane199.shinyapps.io/DynNomapp/);
 
 
 ---
-```{r echo=FALSE}
-curve(1/(1 + exp(1)^-x),
-      from = -10, to = 10,
-      xlab = "input",
-      ylab = "Probability")
-```
+
+
+
 
 ---
 ---

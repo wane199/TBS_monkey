@@ -1,16 +1,18 @@
 # Assessment of Discrimination in Survival Analysis (C-statistics, etc)
 # https://rpubs.com/kaz_yos/survival-auc
 # Load the dataset and modify for later use
-rm(list=ls())
+rm(list = ls())
 library(survival)
 library(rms)
-dt <- read.csv("/media/wane/wade/EP/EPTLE_PET/TLE234-rad.csv")
+getwd()
+dt <- read.csv("./EP/EP_Cox_Nomo/TLE234-rad.csv")
 
 # 对数据初步预处理(批量单因素分析变量保留数值型变量)
 # 用for循环语句将数值型变量转为因子变量
 for (i in names(dt)[c(2:4, 8:16)]) {
   dt[, i] <- as.factor(dt[, i])
 }
+dt$Rel._in_5yrs <- as.numeric(dt$Rel._in_5yrs == "1")
 
 set.seed(123)
 ind <- sample(2, nrow(dt), replace = TRUE, prob = c(0.7, 0.3))
@@ -25,55 +27,307 @@ train$Rel._in_5yrs <- as.numeric(as.character(train$Rel._in_5yrs))
 S <- Surv(train$Follow_up_timemon, train$Rel._in_5yrs)
 
 # Kaplan-Meier plots
-par(mar = c(3,3,2,2))
+par(mar = c(3, 3, 2, 2))
 layout(matrix(1:6, byrow = T, ncol = 2))
 train$Sex <- factor(train$Sex,
-                    levels = c(0, 1),
-                    labels = c("F", "M")
+  levels = c(0, 1),
+  labels = c("F", "M")
 )
-survplot(npsurv(S ~ 1, data = train), pval=T)
-survplot(npsurv(S ~ Durmon >= median(Durmon), data = train), label.curves = list(method = "arrow", cex = 1.2), pval=T)
-survplot(npsurv(S ~ familial_epilepsy, data = train), label.curves = list(method = "arrow", cex = 1.2), pval=T)
+survplot(npsurv(S ~ 1, data = train), pval = T)
+survplot(npsurv(S ~ Durmon >= median(Durmon), data = train), label.curves = list(method = "arrow", cex = 1.2), pval = T)
+survplot(npsurv(S ~ familial_epilepsy, data = train), label.curves = list(method = "arrow", cex = 1.2), pval = T)
 survplot(npsurv(S ~ SGS, data = train), label.curves = list(method = "arrow", cex = 1.2))
 survplot(npsurv(S ~ SE, data = train), label.curves = list(method = "arrow", cex = 1.2))
 survplot(npsurv(S ~ radscore >= median(radscore), data = train), label.curves = list(method = "arrow", cex = 1.2))
 
 # AUC by logistic regression models
 ## Load epicalc package to calcuate AUC
-library(epicalc)
+# library(epicalc)
+library(epiDisplay)
 
 ## Model with age and sex
-logit.clinic <- glm(Rel._in_5yrs ~ Durmon + Sex, data = train, family = binomial)
+logit.clinic <- glm(Rel._in_5yrs ~ SGS + familial_epilepsy + Durmon + SE, data = train, family = binomial)
 lroc(logit.clinic, graph = F)$auc
 
 ## Model with age, sex, and albumin
-logit.rad.clinic <- glm(Rel._in_5yrs ~ radscore + Durmon + , data = train, family = binomial)
+logit.rad.clinic <- glm(Rel._in_5yrs ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = train, family = binomial)
 lroc(logit.rad.clinic, graph = F)$auc
 
 ## Create a variable indicating 2-year event
-pbc <- within(pbc, {
+train <- within(train, {
   outcome2yr <- NA
-  outcome2yr[(event == 1) & (time <= 2 * 365)] <- 1 # event+ within two years
-  outcome2yr[(event == 0) | (time  > 2 * 365)] <- 0 # otherwise
+  outcome2yr[(Rel._in_5yrs == 1) & (Follow_up_timemon <= 2 * 12)] <- 1 # event+ within two years
+  outcome2yr[(Rel._in_5yrs == 0) | (Follow_up_timemon > 2 * 12)] <- 0 # otherwise
 })
 
 ## 2-year outcome model with age and sex
-logit.age.sex <- glm(outcome2yr ~ age + sex, data = pbc, family = binomial)
-lroc(logit.age.sex, graph = F)$auc
+logit.clinic <- glm(outcome2yr ~ SGS + familial_epilepsy + Durmon + SE, data = train, family = binomial)
+lroc(logit.clinic, graph = F)$auc
+
+# Fit Cox regression models for later use
+## Null model
+coxph.null <- coxph(S ~ 1, data = train)
+coxph.null
+
+coxph.clinic <- coxph(S ~ SGS + familial_epilepsy + Durmon + SE, data = train)
+coxph.clinic
+
+coxph.rad.clinic <- coxph(S ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = train)
+coxph.rad.clinic
+
+## These models are significantly different by likelihood ratio test
+anova(coxph.clinic, coxph.rad.clinic, test = "LRT")
+
+## Put linear predictors ("lp") into pbc dataset
+train$lp.null <- predict(coxph.null, type = "lp")
+train$lp.clinic <- predict(coxph.clinic, type = "lp")
+train$lp.rad.clinic <- predict(coxph.rad.clinic, type = "lp")
+
+# Harrell’s C or concordance
+library(Hmisc)
+
+## Model with age and sex
+rcorrcens(formula = S ~ I(-1 * lp.clinic), data = train)
+rcorrcens(formula = S ~ I(-1 * lp.rad.clinic), data = train)
+
+summary(coxph.clinic)
+summary(coxph.rad.clinic)
 
 
+# Gonen and Heller Concordance Index for Cox models
+# library(CPE)
+# ## Model with age and sex
+# phcpe(coxph.rad.clinic, CPE.SE = TRUE)
+
+library(clinfun)
+## Model with age and sex
+coxphCPE(coxph.clinic)
+coxphCPE(coxph.rad.clinic)
+
+# Cumulative case/dynamic control ROC/AUC using survivalROC package (Heagerty, 2000)
+library(survivalROC)
+
+## Define a function
+fun.survivalROC <- function(lp, t) {
+  res <- with(
+    train,
+    survivalROC(
+      Stime = Follow_up_timemon,
+      status = Rel._in_5yrs,
+      marker = get(lp),
+      predict.time = t,
+      method = "KM"
+    )
+  ) # KM method without smoothing
+
+  ## Plot ROCs
+  with(res, plot(TP ~ FP, type = "l", main = sprintf("t = %.0f, AUC = %.2f", t, AUC)))
+  abline(a = 0, b = 1, lty = 2)
+
+  res
+}
+
+## 2 x 5 layout
+layout(matrix(1:6, byrow = T, ncol = 3))
+
+## Model with age and sex
+res.survivalROC.clinic <- lapply(1:6 * 12, function(t) {
+  fun.survivalROC(lp = "lp.clinic", t)
+})
+
+## Model with age, sex, and albumin
+res.survivalROC.rad.clinic <- lapply(1:6 * 12, function(t) {
+  fun.survivalROC(lp = "lp.rad.clinic", t)
+})
+
+# Incident case/dynamic control ROC/AUC using risksetROC package (Heagerty, 2005)
 library(risksetROC)
 
+## Define a function
+fun.risksetROC <- function(lp, t) {
+  res <- with(
+    train,
+    risksetROC(
+      Stime = Follow_up_timemon,
+      status = Rel._in_5yrs,
+      marker = get(lp),
+      predict.time = t,
+      plot = FALSE
+    )
+  )
+
+  ## Plot ROCs
+  with(res, plot(TP ~ FP, type = "l", main = sprintf("t = %.0f, AUC = %.2f", t, AUC)))
+  abline(a = 0, b = 1, lty = 2)
+
+  res
+}
+
+## 2 x 5 layout
+layout(matrix(1:6, byrow = T, ncol = 3))
+
+## Model with age and sex
+risksetROC.clinic <- lapply(12 * 1:6, function(t) {
+  fun.risksetROC(lp = "lp.clinic", t)
+})
+
+risksetROC.rad.clinic <- lapply(12 * 1:6, function(t) {
+  fun.risksetROC(lp = "lp.rad.clinic", t)
+})
+
+# Up to 10-year AUCs
+## 1 x 2 layout
+layout(matrix(1:2, byrow = T, ncol = 2))
+
+## Model with age and sex
+risksetAUC.clinic <- with(
+  train,
+  risksetAUC(
+    Stime = Follow_up_timemon,
+    status = Rel._in_5yrs,
+    marker = lp.clinic,
+    tmax = 5 * 12
+  )
+)
+title(sprintf("t = %.0f, iAUC = %.2f", 5 * 12, risksetAUC.clinic$Cindex))
+
+## Model with age, sex, and albumin
+risksetAUC.rad.clinic <- with(
+  train,
+  risksetAUC(
+    Stime = Follow_up_timemon,
+    status = Rel._in_5yrs,
+    marker = lp.rad.clinic,
+    tmax = 5 * 12
+  )
+)
+title(sprintf("t = %.0f, iAUC = %.2f", 5 * 12, risksetAUC.rad.clinic$Cindex))
+
+# Various methods provided survAUC package (Potapov et al)
+library(survAUC)
+
+## *Cumulative case*/dynamic control AUC by Chambless and Diao (Stat Med 2006;25:3474-3486.)
+# res.AUC.cd <- AUC.cd(Surv.rsp     = train$S,
+#                      Surv.rsp.new = train$S,
+#                      lp           = coxph.clinic$linear.predictors,
+#                      lpnew        = coxph.rad.clinic$linear.predictors,
+#                      times        = 1:5 * 12)
+# res.AUC.cd$iauc
+# plot(res.AUC.cd)
+
+## *Cumulative case*/dynamic control AUC by Hung and Chiang (Can J Stat 2010;38:8-26)
+res.AUC.hc <- AUC.hc(
+  Surv.rsp = train$S,
+  Surv.rsp.new = train$S,
+  ## lp           = coxph.age.sex$linear.predictors,
+  lpnew = coxph.clinic$linear.predictors,
+  times = 1:3 * 12
+)
+res.AUC.hc$iauc
+plot(res.AUC.hc)
+
+## *Incident case* or *Cumulative case*/dynamic control AUC by Song and Zhou (Biometrics 2011;67:906-16)
+# res.AUC.sh <- AUC.sh(Surv.rsp     = train$S,
+#                      Surv.rsp.new = train$S,
+#                      lp           = coxph.clinic$linear.predictors,
+#                      lpnew        = coxph.clinic$linear.predictors,
+#                      times        = 1:5 * 12)
+# res.AUC.sh$iauc
+# plot(res.AUC.sh)
+
+## *Cumulative case*/dynamic control AUC by Uno et al.
+## (http://biostats.bepress.com/cgi/viewcontent.cgi?article=1041&context=harvardbiostat)
+# res.AUC.uno <- AUC.uno(Surv.rsp     = train$S,
+#                        Surv.rsp.new = train$S,
+#                        ## lp           = coxph.age.sex$linear.predictors,
+#                        lpnew        = coxph.clinic$linear.predictors,
+#                        times        = 1:5 * 12)
+# res.AUC.uno$iauc
+# plot(res.AUC.uno)
+
+## C-statistic by Begg et al. (Stat Med 2000;19:1997-2014)
+res.BeggC <- BeggC(
+  Surv.rsp = train$S,
+  Surv.rsp.new = train$S,
+  lp = coxph.clinic$linear.predictors,
+  lpnew = coxph.rad.clinic$linear.predictors
+)
+res.BeggC
+
+## Gonen and Heller’s Concordance Index for Cox PH models (Biometrika 2005;92:965-970)
+res.GHCI <- GHCI( ## Surv.rsp     = pbc$Surv,
+  ## Surv.rsp.new = pbc$Surv,
+  ## lp           = coxph.age.sex$linear.predictors,
+  lpnew = coxph.rad.clinic$linear.predictors
+)
+res.GHCI
+
+## O'Quigley et al. (Stat Med 2005;24:479-489)
+res.OXS <- OXS(
+  Surv.rsp = train$S,
+  lp = coxph.rad.clinic$linear.predictors,
+  lp0 = coxph.clinic$linear.predictors
+)
+res.OXS
+
+## Nagelkerke (Biometrika 1991;78:691-692)
+res.Nagelk <- Nagelk(
+  Surv.rsp = train$S,
+  lp = coxph.rad.clinic$linear.predictors,
+  lp0 = coxph.clinic$linear.predictors
+)
+res.Nagelk
 
 
+## Xu et al. (Journal of Nonparametric Statistics 1999;12:83-107)
+res.XO <- XO(
+  Surv.rsp = train$S,
+  lp = coxph.rad.clinic$linear.predictors,
+  lp0 = coxph.clinic$linear.predictors
+)
+res.XO
 
+# Uno methods for C-statistics and IDI/NRI implemented in survC1 and survIDINRI
+## Create numeric variable for sex
+train$female <- as.numeric(train$Sex == "F")
 
+# C-statistics (10-years follow up) using survC1 package
+library(survC1)
+## C-statistic for age sex model
+unoC.clinic <- Est.Cval(mydata = train[, c(
+  "Rel._in_5yrs", "Follow_up_timemon", "radscore", "SGS", "familial_epilepsy",
+  "Durmon", "SE"
+)], tau = 5 * 12)
+unoC.clinic$Dhat
 
+## Comaprison of C-statistics
+uno.C.delta <- Inf.Cval.Delta(
+  mydata = train[, c("Follow_up_timemon", "Rel._in_5yrs")],
+  covs0 = train[, c("SGS", "familial_epilepsy", "Durmon", "SE")], # age sex model
+  covs1 = train[, c("radscore", "SGS", "familial_epilepsy", "Durmon", "SE")], # age sex albumin model
+  tau = 5 * 12, # Trucation time (max time to consider)
+  itr = 100
+) # Iteration of perturbation-resampling
+uno.C.delta
 
+# IDI, continous NRI, and median improvement (10-years follow up) using survIDINRI
+library(survIDINRI)
+train$Rel._in_5yrs <- as.numeric(train$Rel._in_5yrs == "1")
+train$Follow_up_timemon <- as.numeric(train$Follow_up_timemon)
 
+res.IDI.INF <- IDI.INF(
+  indata = train[, c("Follow_up_timemon", "Rel._in_5yrs")],
+  covs0 = train[, c("SGS", "familial_epilepsy", "Durmon", "SE")], # age sex model
+  covs1 = train[, c("radscore", "SGS", "familial_epilepsy", "Durmon", "SE")], # age sex albumin model
+  t0 = 5 * 12,
+  npert = 300, npert.rand = NULL, seed1 = NULL, alpha = 0.05
+)
 
+## M1 IDI; M2 continuous NRI; M3 median improvement
+IDI.INF.OUT(res.IDI.INF)
 
-
+## M1 red area; M2 distance between black points; M3 distance between gray points
+IDI.INF.GRAPH(res.IDI.INF)
 
 
 
