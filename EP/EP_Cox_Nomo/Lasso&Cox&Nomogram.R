@@ -860,6 +860,8 @@ res.survivalROC.clinic <- lapply(1:6 * 12, function(t) {
 
 # 多个多因素模型ROC曲线的比较及多个时间AUC曲线
 library(riskRegression)
+str(train)
+train$Follow_up_timemon <- as.numeric(as.character(train$Follow_up_timemon))
 # 拟合cox回归
 f1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy + Durmon + SE, data = train, x = T)
 f2 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore, data = train, x = T)
@@ -868,7 +870,7 @@ f3 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + famili
 model <- Score(list("Cox(SGS + familial_epilepsy + Durmon + SE)"=f1,"Cox(radscore + SGS + familial_epilepsy + Durmon + SE)"=f3),
   formula=Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ 1,
   data = train,
-  times = 60,
+  times = 12,
   plots = "roc",
   metrics = "auc"
 )
@@ -892,7 +894,7 @@ pk1 <- Score(list(
 ),
 Hist(Follow_up_timemon, Rel._in_5yrs == 1) ~ 1,
 data = train,
-times = 60, # 比较三者5年ROC
+times = 12, # 比较三者5年ROC
 plots = "roc",
 metrics = "auc"
 )
@@ -965,7 +967,10 @@ plotROC(pk2,
   add = T
 )
 
-# 
+### 设置预测生存概率的时间点，根据模型预测患者1年，3年和5年的生存概率。
+t <- c(1*12,3*12,5*12)
+survprob <- predictSurvProb(f3,newd=test,times=t)
+head(survprob)
 
 # Calibration Curve绘制，校准曲线/图，评估模型的拟合优度(Hosmer-Lemeshow),一致性
 units(train$Follow_up_timemon) <- "Months"
