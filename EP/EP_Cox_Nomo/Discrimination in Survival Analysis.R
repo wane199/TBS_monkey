@@ -25,15 +25,17 @@ train$Rel._in_5yrs <- as.numeric(as.character(train$Rel._in_5yrs))
 S <- Surv(train$Follow_up_timemon, train$Rel._in_5yrs)
 
 # Kaplan-Meier plots
-par(mar = c(2,2,2,2))
-layout(matrix(1:4, byrow = T, ncol = 2))
+par(mar = c(3,3,2,2))
+layout(matrix(1:6, byrow = T, ncol = 2))
 train$Sex <- factor(train$Sex,
                     levels = c(0, 1),
                     labels = c("F", "M")
 )
 survplot(npsurv(S ~ 1, data = train), pval=T)
 survplot(npsurv(S ~ Durmon >= median(Durmon), data = train), label.curves = list(method = "arrow", cex = 1.2), pval=T)
-survplot(npsurv(S ~ Sex, data = train), label.curves = list(method = "arrow", cex = 1.2))
+survplot(npsurv(S ~ familial_epilepsy, data = train), label.curves = list(method = "arrow", cex = 1.2), pval=T)
+survplot(npsurv(S ~ SGS, data = train), label.curves = list(method = "arrow", cex = 1.2))
+survplot(npsurv(S ~ SE, data = train), label.curves = list(method = "arrow", cex = 1.2))
 survplot(npsurv(S ~ radscore >= median(radscore), data = train), label.curves = list(method = "arrow", cex = 1.2))
 
 # AUC by logistic regression models
@@ -42,11 +44,11 @@ library(epicalc)
 
 ## Model with age and sex
 logit.clinic <- glm(Rel._in_5yrs ~ Durmon + Sex, data = train, family = binomial)
-lroc(logit.age.sex, graph = F)$auc
+lroc(logit.clinic, graph = F)$auc
 
 ## Model with age, sex, and albumin
-logit.age.sex.albumin <- glm(Rel._in_5yrs ~ radscore + Durmon + , data = train, family = binomial)
-lroc(logit.age.sex.albumin, graph = F)$auc
+logit.rad.clinic <- glm(Rel._in_5yrs ~ radscore + Durmon + , data = train, family = binomial)
+lroc(logit.rad.clinic, graph = F)$auc
 
 ## Create a variable indicating 2-year event
 pbc <- within(pbc, {
