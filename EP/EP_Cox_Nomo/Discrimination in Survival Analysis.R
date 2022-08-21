@@ -3,6 +3,7 @@
 # Load the dataset and modify for later use
 rm(list=ls())
 library(survival)
+library(rms)
 dt <- read.csv("/media/wane/wade/EP/EPTLE_PET/TLE234-rad.csv")
 
 # 对数据初步预处理(批量单因素分析变量保留数值型变量)
@@ -26,8 +27,6 @@ S <- Surv(train$Follow_up_timemon, train$Rel._in_5yrs)
 # Kaplan-Meier plots
 par(mar = c(2,2,2,2))
 layout(matrix(1:4, byrow = T, ncol = 2))
-library(rms)
-library(survival)
 train$Sex <- factor(train$Sex,
                     levels = c(0, 1),
                     labels = c("F", "M")
@@ -37,15 +36,16 @@ survplot(npsurv(S ~ Durmon >= median(Durmon), data = train), label.curves = list
 survplot(npsurv(S ~ Sex, data = train), label.curves = list(method = "arrow", cex = 1.2))
 survplot(npsurv(S ~ radscore >= median(radscore), data = train), label.curves = list(method = "arrow", cex = 1.2))
 
+# AUC by logistic regression models
 ## Load epicalc package to calcuate AUC
 library(epicalc)
 
 ## Model with age and sex
-logit.age.sex <- glm(Rel._in_5yrs ~ Durmon + Sex, data = train, family = binomial)
+logit.clinic <- glm(Rel._in_5yrs ~ Durmon + Sex, data = train, family = binomial)
 lroc(logit.age.sex, graph = F)$auc
 
 ## Model with age, sex, and albumin
-logit.age.sex.albumin <- glm(Rel._in_5yrs ~ radscore + Durmon + Sex, data = train, family = binomial)
+logit.age.sex.albumin <- glm(Rel._in_5yrs ~ radscore + Durmon + , data = train, family = binomial)
 lroc(logit.age.sex.albumin, graph = F)$auc
 
 ## Create a variable indicating 2-year event
