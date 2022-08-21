@@ -790,11 +790,11 @@ library(pec) # 计算时间C-index
 as.matrix(head(train))
 dt <- na.omit(train)
 nrow(train)
-f <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
+full <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
   x = T, y = T, surv = T, data = train
 )
 set.seed(123)
-c_index <- cindex(list("model train" = f),
+c_index <- cindex(list("model train" = full),
   eval.times = seq(0, 60, 12), # 各时间点的c-index
   cens.model = "cox", # 指定截尾数据的逆概率加权方法
   keep.pvalues = T,
@@ -816,7 +816,7 @@ plot(c_index,
 # Assessment of Discrimination in Survival Analysis (C-statistics, etc), https://rpubs.com/kaz_yos/survival-auc
 library(survivalROC)
 ## Put linear predictors ("lp") into pbc dataset
-train$lp.Radscore_clinc <- predict(f, type = "lp")
+train$lp.Radscore_clinic <- predict(full, type = "lp")
 ## Define a function
 fun.survivalROC <- function(lp, t) {
   res <- with(
@@ -840,7 +840,10 @@ fun.survivalROC <- function(lp, t) {
 ## 2 x 5 layout
 layout(matrix(1:6, byrow = T, ncol = 3))
 
-## Model with Radscore_clinc
+## Model with Radscore_clinc/Coxph/cph??
+res.survivalROC.Radscore_clinc <- lapply(1:6 * 12, function(t) {
+  fun.survivalROC(lp = "lp.Radscore_clinic", t)
+})
 res.survivalROC.Radscore_clinc <- lapply(1:6 * 12, function(t) {
   fun.survivalROC(lp = "lp.rad_clinic", t)
 })
@@ -862,8 +865,8 @@ f1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy
 f2 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore, data = train, x = T)
 f3 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = train, x = T)
 ### 例如评估两年的ROC及AUC值
-model <- Score(list(model1 = f1),
-  Hist(Follow_up_timemon, Rel._in_5yrs == 1) ~ 1,
+model <- Score(list("Cox(SGS + familial_epilepsy + Durmon + SE)"=f1,"Cox(radscore + SGS + familial_epilepsy + Durmon + SE)"=f3),
+  formula=Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ 1,
   data = train,
   times = 60,
   plots = "roc",
@@ -888,8 +891,8 @@ pk1 <- Score(list(
   model.rad.clinic = f3
 ),
 Hist(Follow_up_timemon, Rel._in_5yrs == 1) ~ 1,
-data = dt,
-times = 60, # 比较三者1年ROC
+data = train,
+times = 60, # 比较三者5年ROC
 plots = "roc",
 metrics = "auc"
 )
@@ -962,6 +965,7 @@ plotROC(pk2,
   add = T
 )
 
+# 
 
 # Calibration Curve绘制，校准曲线/图，评估模型的拟合优度(Hosmer-Lemeshow),一致性
 units(train$Follow_up_timemon) <- "Months"
@@ -976,8 +980,8 @@ for (i in names(train)[c(1, 21, 7:18)]) {
 ## 2 x 5 layout
 layout(matrix(1:6, byrow = T, ncol = 3))
 set.seed(123)
-coxmodel1 <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ rad + SGS + familial_epilepsy + Durmon + SE,
-  x = T, y = T, surv = T, data = test, time.inc = 12
+coxmodel1 <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
+  x = T, y = T, surv = T, data = train, time.inc = 12
 )
 cal1 <- rms::calibrate(coxmodel1,
   cmethod = "KM",
