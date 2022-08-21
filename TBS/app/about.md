@@ -34,3 +34,6 @@ Note that the `echo = FALSE` parameter was added to the code chunk to prevent pr
 1.
 2.
 
+### Developers
+- Huanhua Wu, wane199@outlook.com;
+- Hao Xu, txh.jnu.edu.cn.

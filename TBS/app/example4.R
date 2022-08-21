@@ -18,10 +18,10 @@ ui <- fluidPage(theme = shinytheme("yeti"),
   
   # App title ----
   titlePanel("South China TBS app from JNU"),
-  
+  navbarPage("TBS app",
+             tabPanel("Home",
   # Sidebar layout with input and output definitions ----
   sidebarLayout(
-    
     # Sidebar panel for inputs ----
     sidebarPanel(
       HTML("<h3>Input parameters</h3>"),
@@ -42,38 +42,35 @@ ui <- fluidPage(theme = shinytheme("yeti"),
     # Main panel for displaying outputs ----
     mainPanel(
       # Output: Header + summary of distribution ----
-      h3("Summary"),
-      verbatimTextOutput("summary"),
-      
       # Output: Formatted text for caption ----
       h3(textOutput("caption")),
-      
       # Output: Plot of the requested variable against mpg ----
-      plotOutput("boxPlot")
-      
-    )
+      plotOutput("boxPlot"),
+      h3("Summary"),
+      verbatimTextOutput("summary")
+      )
+    )),
+
+    tabPanel("About",
+            titlePanel("About"),
+    div(includeMarkdown("./TBS/app/about.md"),
+    align="justify")
   )
+)
 )
 
 # Define server logic to plot various variables against mpg ----
 server <- function(input, output) {
-  
   # Compute the formula text ----
   # This is in a reactive expression since it is shared by the
   # output$caption and output$mpgPlot functions
   formulaText <- reactive({
     paste("TBSL1L4 ~", input$variable)
   })
-  
   # Return the formula text for printing as a caption ----
   output$caption <- renderText({
     formulaText()
   })
-  
-  output$summary <- renderPrint({
-    summary(tbs)
-  })
-  
   # Generate a plot of the requested variable against mpg ----
   # and only exclude outliers if requested
   output$boxPlot <- renderPlot({
@@ -82,7 +79,9 @@ server <- function(input, output) {
             outline = input$outliers,
             col = "#75AADB", pch = 19)
   })
-  
+  output$summary <- renderPrint({
+    summary(tbs)
+  })
 }
 
 # Create Shiny app ----
