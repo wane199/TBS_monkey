@@ -14,7 +14,7 @@ tbs <- read.csv(text = getURL("https://raw.githubusercontent.com/wane199/Present
 
 
 # Define UI for miles per gallon app ----
-ui <- fluidPage(theme = shinytheme("yeti"),
+ui <- fluidPage(theme = shinytheme("lumen"),
   
   # App title ----
   titlePanel("South China TBS app from JNU"),
@@ -53,7 +53,7 @@ ui <- fluidPage(theme = shinytheme("yeti"),
 
     tabPanel("About",
             titlePanel("About"),
-    div(includeMarkdown("./TBS/app/about.md"),
+    div(includeMarkdown("./about.md"),
     align="justify")
   )
 )
