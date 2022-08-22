@@ -1173,11 +1173,9 @@ ggplot(fig1, linetype = F, lwd = 1.2) +
   ) +
   labs(title = "3 years DCA")
 
-
 # riskplot绘制
 # https://cloud.tencent.com/developer/article/1765625
 library(ggrisk)
-
 as.matrix(head(dt))
 str(dt)
 fit <- rms::cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
@@ -1213,7 +1211,6 @@ two_scatter(data = train, time = "Follow_up_timemon", event = "Rel._in_5yrs==1")
 
 # NRI计算与绘制
 library(nricens)
-
 as.matrix(head(train))
 m.old <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + Sex + TimebeSO + Freq.3,
   data = train, x = TRUE

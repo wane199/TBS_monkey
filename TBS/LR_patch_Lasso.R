@@ -786,3 +786,21 @@ nom1 <- nomogram(fit,
   funlabel = "Risk"
 )
 nomogramEx(nom1)
+
+# Heat map & Radiomics 
+library(data.table)
+mydata <- read.csv("./TBS/app/data/heat.csv")
+data <- mydata[-1]
+dt <- transpose(data)
+colnames(dt) <- c("RF","ETC","GBC","EGB","KNN","DTC")
+rownames(dt) <- c("Acc","AUC","Recall","Prec.","F1","Kappa")
+
+heatmap(as.matrix(mydata[-1]),Colv = NA,
+        Rowv = NA)
+heatmap(as.matrix(dt),
+        Colv = NA,
+        Rowv = NA,
+        xlab = "Performance",
+        ylab = "Classifier",
+        main = "Heatmap",
+        col = cm.colors(256)) # 颜色  
