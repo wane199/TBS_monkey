@@ -795,12 +795,15 @@ dt <- transpose(data)
 colnames(dt) <- c("RF","ETC","GBC","EGB","KNN","DTC")
 rownames(dt) <- c("Acc","AUC","Recall","Prec.","F1","Kappa")
 
-heatmap(as.matrix(mydata[-1]),Colv = NA,
+heatmap(as.matrix(mydata[-1]),Colv = NA, symm = F,
         Rowv = NA)
-heatmap(as.matrix(dt),
+heatmap(as.matrix(dt),symm = F, add.expr,
         Colv = NA,
-        Rowv = NA,
+        Rowv = NA, scale = "column",
         xlab = "Performance",
         ylab = "Classifier",
         main = "Heatmap",
         col = cm.colors(256)) # 颜色  
+
+
+

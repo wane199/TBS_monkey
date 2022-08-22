@@ -1201,21 +1201,19 @@ two_scatter(fit1,
   title.A.ylab = "Risk Score",
   title.B.ylab = "Free of Relapse(month)",
 )
-two_scatter(fit1,
-  cutoff.x = -3,
-  cutoff.y = -2.8,
-  cutoff.value = 6
+two_scatter(fit1,# cutoff.x = -3,cutoff.y = -2.8,
+  cutoff.value = "cutoff"
 )
-two_scatter(data = train, time = "Follow_up_timemon", event = "Rel._in_5yrs==1")
-?ggrisk
+ggrisk(fit,cutoff.value='median')
+# wald统计量有些区别(进一步进行anova分析时可以看出区别).cph来自rms包,coxph来自survival包
 
 # NRI计算与绘制
 library(nricens)
 as.matrix(head(train))
-m.old <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + Sex + TimebeSO + Freq.3,
+m.old <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy + Durmon + SE,
   data = train, x = TRUE
 )
-m.new <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ Radscore + SGS + Sex + TimebeSO + Freq.3,
+m.new <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
   data = train, x = TRUE
 )
 set.seed(123)
@@ -1265,7 +1263,7 @@ library(MLmetrics)
 library(epicalc)
 
 ## Model with age and sex
-logit.Rad.cli <- glm(Rel._in_5yrs ~ Radscore + SGS + Sex + TimebeSO + Freq.3, data = train, family = binomial)
+logit.Rad.cli <- glm(Rel._in_5yrs ~ radscore + SGS + Sex + TimebeSO + Freq.3, data = train, family = binomial)
 lroc(logit.Rad.cli, graph = F)$auc
 print(lroc(logit.Rad.cli, graph = F))
 ## Model with Rad and clinic separately
@@ -1305,3 +1303,10 @@ train1
 ## 2-year outcome model with Rad
 logit.Rad <- glm(outcome2yr ~ Rad, data = train, family = binomial)
 lroc(logit.age.sex.albumin, graph = F)$auc
+
+
+#install.packages("party")
+library(party)
+tree <- ctree(Surv(Follow_up_timemon,Rel._in_5yrs) ~ radscore + SGS + familial_epilepsy + Durmon + SE,data = train)
+plot(tree)
+
