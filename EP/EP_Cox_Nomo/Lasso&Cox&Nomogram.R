@@ -793,30 +793,44 @@ survprob <- predictSurvProb(f3,newd=test,times=t)
 head(survprob)
 as.matrix(head(train))
 
+cli <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy + Durmon + SE,
+            x = T, y = T, surv = T, data = train, time.inc = 12
+)
 full <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
-  x = T, y = T, surv = T, data = train
+  x = T, y = T, surv = T, data = train, time.inc = 12
 )
+c_index  <- cindex(list("Clinic"= cli, "Rad-clinic" = full),
+                   formula=Surv(Follow_up_timemon, Rel._in_5yrs==1)~.,
+                   data=train,
+                   eval.times=seq(12,5*12,6))
+## 设置画图参数: mar 以数值向量表示的边界大小，顺序为“下、左、上、右”，单位为英分*。默认值为c(5, 4, 4, 2) + 0.1 ,mgp 设定标题、坐标轴名称、坐标轴距图形边框的距离。默认值为c(3,1,0)，其中第一个值影响的是标题
+## cex.axis 坐标轴刻度放大倍数,cex.main 标题的放大倍数,legend.x，legend.y 图例位置的横坐标和纵坐标,legend.cex 图例文字大小
+par(mgp=c(3.1,0.8,0),mar=c(5,5,3,1),cex.axis=0.8,cex.main=0.8, las = 1)
+plot(c_index, xlim = c(0,60),legend.x=1,legend.y=1,legend.cex=0.8)
+## splitMethod 拆分方法 ="bootcv"表示采用重抽样方法, B表示重抽样次数
+c_index  <- cindex(list("Cox(43 variables)"=cox1, "Cox(4 variables)"=cox2),
+                   formula=Surv(live.time,outcome==1)~.,
+                   data=test,
+                   eval.times=seq(365,5*365,36.5),
+                   splitMethod="bootcv",
+                   B=1000)
+plot(c_index,xlim = c(0,2000),legend.x=1,legend.y=1,legend.cex=0.8)
 set.seed(123)
-c_index <- cindex(list("model train" = full),
-  eval.times = seq(0, 60, 12), # 各时间点的c-index
-  cens.model = "cox", # 指定截尾数据的逆概率加权方法
-  keep.pvalues = T,
-  confInt = T,
-  confLevel = 0.95,
-  splitMethod = "bootcv", # 重抽样行交叉验证
-  B = 1000
+c_index1 <- cindex(list("Clinic"= cli, "Rad-clinic" = full),
+                   eval.times = seq(0, 60, 12), # 各时间点的c-index
+                   cens.model = "cox", # 指定截尾数据的逆概率加权方法
+                   keep.pvalues = T,
+                   confInt = T,
+                   confLevel = 0.95,
+                   splitMethod = "bootcv", # 重抽样行交叉验证
+                   B = 1000
 )
-c_index
-plot(c_index,
-  xlim = c(0, 70),
-  legend.x = 1,
-  legend.y = 1,
-  legend.cex = 0.8,
-  col = "red"
+c_index1
+plot(c_index1,xlim = c(0, 70),legend.x = 1,legend.y = 1,
+     legend.cex = 0.8
 )
 
-# 绘制Time-dependent ROC curve
-# Assessment of Discrimination in Survival Analysis (C-statistics, etc), https://rpubs.com/kaz_yos/survival-auc
+# 绘制Time-dependent ROC curve, Assessment of Discrimination in Survival Analysis (C-statistics, etc), https://rpubs.com/kaz_yos/survival-auc
 library(survivalROC)
 ## Put linear predictors ("lp") into pbc dataset
 train$lp.Radscore_clinic <- predict(full, type = "lp")
@@ -970,24 +984,30 @@ plotROC(pk2,
   add = T
 )
 
-
 # Calibration Curve绘制，校准曲线/图，评估模型的拟合优度(Hosmer-Lemeshow),一致性
+## pec包函数和rms包中的calibrate()函数原理一致。
+calPolt1 <- pec::calPlot(list("Clinic"= cli, "Rad-clinic" = full),
+                    time=3*12,#设置想要观察的时间点，同理可以绘制其他时间点的曲线
+                    data=test,legend.x=0.5,
+                    legend.y=0.3,legend.cex=0.8)
+print(calPolt1)  ##查看内容
+
+calPolt2 <- pec::calPlot(list("Clinic"= cli, "Rad-clinic" = full),
+                    time=3*12,#设置想要观察的时间点
+                    data=test,legend.x=0.5,
+                    legend.y=0.3,legend.cex=0.8,
+                    splitMethod = "BootCv",
+                    B=1000)
+
 units(train$Follow_up_timemon) <- "Months"
-str(train)
 for (i in names(train)[c(1, 21, 7:18)]) {
   train[, i] <- as.factor(train[, i])
 }
-for (i in names(train)[c(1, 21, 7:18)]) {
-  test[, i] <- as.factor(test[, i])
-}
-
 ## 2 x 5 layout
 layout(matrix(1:6, byrow = T, ncol = 3))
 set.seed(123)
-coxmodel1 <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
-  x = T, y = T, surv = T, data = train, time.inc = 12
-)
-cal1 <- rms::calibrate(coxmodel1,
+
+cal1 <- rms::calibrate(full,
   cmethod = "KM",
   method = "boot",
   u = 12, # u与time.inc一致
@@ -1007,7 +1027,7 @@ plot(cal1,
 # lines(cal1[,c("mean.predicted","KM")],type="b",lwd=2,col="red",pch=16)
 abline(0, 1, lty = 3, lwd = 2, col = "black")
 
-coxmodel2 <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ rad + SGS + familial_epilepsy + Durmon + SE,
+full3 <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ rad + SGS + familial_epilepsy + Durmon + SE,
   x = T, y = T, surv = T, data = test, time.inc = 36
 )
 cal2 <- rms::calibrate(coxmodel2,
@@ -1030,10 +1050,10 @@ plot(cal2,
 # lines(cal1[,c("mean.predicted","KM")],type="b",lwd=2,col="red",pch=16)
 abline(0, 1, lty = 3, lwd = 2, col = "black")
 
-coxmodel3 <- rms::cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ rad + SGS + familial_epilepsy + Durmon + SE,
+full5 <- rms::cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ rad + SGS + familial_epilepsy + Durmon + SE,
   x = T, y = T, surv = T, data = test, time.inc = 60
 )
-cal3 <- rms::calibrate(coxmodel3,
+cal3 <- rms::calibrate(full5,
   cmethod = "KM",
   method = "boot",
   u = 60, # u与time.inc一致
@@ -1053,19 +1073,18 @@ plot(cal3,
 abline(0, 1, lty = 3, lwd = 2, col = "black")
 
 
-# 临床决策曲线分析
+# 临床决策曲线分析(DCA&CIC)
 # https://blog.csdn.net/dege857/article/details/115061901
 # https://blog.csdn.net/dege857/article/details/119373671?spm=1001.2014.3001.5501
-library(survival)
 library(ggDCA)
-library(rms)
-library(foreign)
 library(dcurves)
 library(rmda)
-library(dplyr)
+
+d_full <- ggDCA::dca(full,full3,full5,new.data=test,
+                    times=c(12,36,60)) ####多个模型3年和5年后生存率
+ggplot(d_full, linetype=1, size=5)###不设时间的话默认中位数时间
 
 ##### 生成2个模型
-str(train)
 for (i in names(train)[c(1, 21, 7:18)]) {
   train[, i] <- as.numeric(as.character(train[, i]))
 }
@@ -1096,12 +1115,13 @@ dcurves::dca(Surv(Follow_up_timemon, Rel._in_5yrs) ~ Free_of_Relapse_12_mon + Fr
   plot(smooth = F) + theme_classic()
 
 # ggDCA包需要配合cph()函数使用
-f1 <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ rad + SGS + familial_epilepsy + Durmon + SE, surv = T, train)
-fig1 <- ggDCA::dca(f1,
+f11 <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ rad + SGS + familial_epilepsy + Durmon + SE, surv = T, train)
+fig1 <- ggDCA::dca(f11,
   new.data = train,
-  times = c(12, 36, 48)
+  times = c(12, 36, 40)
 )
 ggplot(fig1)
+library(ggprism)
 ggplot(fig1,
   linetype = F,
   lwd = 1.2
@@ -1134,7 +1154,6 @@ fig1
 fig2 <- dca(f2, times = c(12, 36, 60))
 ggplot(fig1, linetype = 1)
 
-library(ggprism)
 ggplot(fig1, linetype = F, lwd = 1.2) +
   theme_classic() +
   theme_prism(base_size = 17) +
@@ -1154,21 +1173,21 @@ ggplot(fig1, linetype = F, lwd = 1.2) +
   ) +
   labs(title = "3 years DCA")
 
+
 # riskplot绘制
 # https://cloud.tencent.com/developer/article/1765625
 library(ggrisk)
-library(rms)
 
 as.matrix(head(dt))
 str(dt)
-fit <- rms::cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ rad + SGS + familial_epilepsy + Durmon + SE,
+fit <- rms::cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
   data = train
 )
-fit1 <- rms::cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ rad + SGS + familial_epilepsy + Durmon + SE,
+fit1 <- rms::cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
   data = test
 )
 ggrisk(fit1,
-  heatmap.genes = c("rad", "SE", "Durmon", "SGS", "familial_epilepsy"),
+  heatmap.genes = c("radscore", "SE", "Durmon", "SGS", "familial_epilepsy"),
   cutoff.value = "roc", # 可选‘median’, ’roc’ or ’cutoff’
   cutoff.x = 50, # “cutoff”文本的水平位置
   cutoff.y = -1
