@@ -498,6 +498,7 @@ head(dt[, 1:2])
 dt <- mutate(dt[, 1:2], dtx)
 write.csv(dt, "/media/wane/wade/EP/EPTLE_PET/process_TLE234-rad.csv", row.names = F)
 dt <- read.csv("/media/wane/wade/EP/EPTLE_PET/TLE234-rad.csv")
+dt <- read.csv("./EP/EP_Cox_Nomo/TLE234-rad.csv")
 
 create_report(dt)
 dt <- dt[-17]
@@ -773,7 +774,7 @@ shinyPredict(
   shinytheme = "journal"
 )
 
-## 模型验证
+## 模型区分度对比和验证
 # Concordance index(未校准的时间C-index)
 f0 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore, data = train)
 f01 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
@@ -786,10 +787,12 @@ c_index <- sum.surv$concordance
 c_index
 
 # C-index计算及ROC曲线绘制(校准后的时间C-index)
-library(pec) # 计算时间C-index
+require(pec) # 计算时间C-index验证模型
+t <- c(1*12,3*12,5*12) # 设置预测生存概率的时间点，根据模型预测患者1年，3年和5年的生存概率。
+survprob <- predictSurvProb(f3,newd=test,times=t)
+head(survprob)
 as.matrix(head(train))
-dt <- na.omit(train)
-nrow(train)
+
 full <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
   x = T, y = T, surv = T, data = train
 )
@@ -867,7 +870,7 @@ f1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy
 f2 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore, data = train, x = T)
 f3 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = train, x = T)
 ### 例如评估两年的ROC及AUC值
-model <- Score(list("Cox(SGS + familial_epilepsy + Durmon + SE)"=f1,"Cox(radscore + SGS + familial_epilepsy + Durmon + SE)"=f3),
+model <- Score(list("Cox(radscore + SGS + familial_epilepsy + Durmon + SE)"=f3),
   formula=Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ 1,
   data = train,
   times = 12,
@@ -907,7 +910,7 @@ plotROC(pk1,
   pch = 2, # 文字格式
   lwd = 2, # 线粗
   col = c("red", "blue", "darkgreen"),
-  legend = c("Radscore_clinc model", "Radscore model", "clinc model")
+  legend = c("clinc model", "Radscore model", "Radscore_clinc model")
 )
 # 时间AUC
 pk <- Score(list(
@@ -919,7 +922,7 @@ formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ 1,
 data = train,
 metrics = "auc",
 null.model = F,
-times = seq(1, 60, 6)
+times = seq(1, 36, 6)
 )
 # 2. 画图+展示每个模型每个时间点的auc值
 auc <- plotAUC(pk)
@@ -967,10 +970,6 @@ plotROC(pk2,
   add = T
 )
 
-### 设置预测生存概率的时间点，根据模型预测患者1年，3年和5年的生存概率。
-t <- c(1*12,3*12,5*12)
-survprob <- predictSurvProb(f3,newd=test,times=t)
-head(survprob)
 
 # Calibration Curve绘制，校准曲线/图，评估模型的拟合优度(Hosmer-Lemeshow),一致性
 units(train$Follow_up_timemon) <- "Months"
