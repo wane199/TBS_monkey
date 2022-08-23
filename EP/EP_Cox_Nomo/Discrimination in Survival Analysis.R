@@ -329,5 +329,3 @@ IDI.INF.OUT(res.IDI.INF)
 ## M1 red area; M2 distance between black points; M3 distance between gray points
 IDI.INF.GRAPH(res.IDI.INF)
 
-
-
