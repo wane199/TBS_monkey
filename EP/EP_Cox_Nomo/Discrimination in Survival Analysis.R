@@ -53,7 +53,7 @@ lroc(logit.clinic, graph = F)$auc
 logit.rad.clinic <- glm(Rel._in_5yrs ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = train, family = binomial)
 lroc(logit.rad.clinic, graph = F)$auc
 
-## Create a variable indicating 2-year event
+## Create a variable indicating 2-year event**
 train <- within(train, {
   outcome2yr <- NA
   outcome2yr[(Rel._in_5yrs == 1) & (Follow_up_timemon <= 2 * 12)] <- 1 # event+ within two years
@@ -63,6 +63,8 @@ train <- within(train, {
 ## 2-year outcome model with age and sex
 logit.clinic <- glm(outcome2yr ~ SGS + familial_epilepsy + Durmon + SE, data = train, family = binomial)
 lroc(logit.clinic, graph = F)$auc
+
+library(reportROC) # Confusion Matrix
 
 # Fit Cox regression models for later use
 ## Null model
@@ -332,7 +334,7 @@ IDI.INF.GRAPH(res.IDI.INF)
 # 批量单因素Cox
 # https://www.jianshu.com/p/617db057df37
 coxm0 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS, data = train)
-coxm1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~  Durmon, data = train)
+coxm1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ Durmon, data = train)
 coxm2 <- survival::coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = train)
 
 cox.zph(coxm2) # 等比例风险假定
@@ -341,7 +343,7 @@ summary(coxm0)$concordance # 未校准的时间C-index
 
 
 library(corrplot)
-dfc <- train[, names(train) %in% c("radscore","SGS","familial_epilepsy","Durmon","SE")]
+dfc <- train[, names(train) %in% c("radscore", "SGS", "familial_epilepsy", "Durmon", "SE")]
 corrplor <- cor(as.matrix(dfc))
 corrplot.mixed(corrplor)
 data.frame(corrplor)
@@ -350,6 +352,30 @@ ggpairs(dfc)
 
 vif <- rms::vif(coxm2) # 检测共线性
 sqrt(vif) < 2
+
+
+# R语言 ggplot 循环画图 与多图合并 https://blog.csdn.net/weixin_46623488/article/details/120385106
+# 循环作图   在 { }之间加入要画的图，循环的变量为R
+p <- apply(data3, 2, function(R) {
+  ggplot(data) +
+    aes(x = year, fill = R) +
+    geom_bar(position = "fill")
+})
+
+# S3提取其中一幅ggplot图
+p["age"]$age # 填入你循环画图的一个变量
+# 加标签
+p2 <- p["age"]$age + labs(fill = "年龄")
+p3 <- p["张口受限"]$张口受限 + labs(fill = "张口受限")
+p4 <- p["弹响"]$弹响 + labs(fill = "弹响")
+# 合并图片
+# 组合成一幅图，按照两行两列排列，标签分别为ABCD（LETTERS[1:4]
+pic <- cowplot::plot_grid(p2, p3, p4, p5, p6, p7, p8, p9, p10, p11,
+  ncol = 4, nrow = 3, labels = LETTERS[1:10]
+)
+pic
+
+# 将表格插入ggplot图中
 
 
 

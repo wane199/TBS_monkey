@@ -766,7 +766,7 @@ set.seed(123)
 my_model_3 <- train(formula1, data = trainingset, trControl = train.Control_3, method = "glm")
 my_model_3
 # Boot
-train.Control_4 <- trainControl(method = "repeatedcv", number = 10, repeats = 100)
+train.Control_4 <- caret::trainControl(method = "repeatedcv", number = 10, repeats = 100)
 train.Control_5 <- trainControl(
   method = "repeatedcv", number = 10, repeats = 100,
   classProbs = T, summaryFunction = twoClassSummary
@@ -786,6 +786,10 @@ nom1 <- nomogram(fit,
   funlabel = "Risk"
 )
 nomogramEx(nom1)
+
+# 二次验证，最终LR模型，cutoff风险分层，T-test箱线图
+
+
 
 # Heatmap of ML-radiomics
 heat <- read.csv("/home/wane/Desktop/EP/REFER/BLS/KAI/radiomics-heat.csv")
