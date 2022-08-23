@@ -376,6 +376,26 @@ pic <- cowplot::plot_grid(p2, p3, p4, p5, p6, p7, p8, p9, p10, p11,
 pic
 
 # 将表格插入ggplot图中
-
-
+# Density plot of "Sepal.Length"
+train$Rel._in_5yrs <- as.factor(train$Rel._in_5yrs)
+density.p <- ggdensity(train, x = "radscore", add = "mean", rug = TRUE,
+                       color = "Rel._in_5yrs", fill = "Rel._in_5yrs", palette = "R3")
+# Draw the summary table of Sepal.Length
+# Compute descriptive statistics by groups
+stable <- desc_statby(train, measure.var = "radscore",
+                      grps = "Rel._in_5yrs")
+stable <- stable[, c("Rel._in_5yrs", "length", "mean", "sd")]
+# Summary table plot, medium orange theme
+stable.p <- ggtexttable(stable, rows = NULL, 
+                        theme = ttheme("light"))
+# Draw text
+text <- paste("Epilepsy dataset of FDG-PET radiomics.", sep = " ")
+text.p <- ggparagraph(text = text, face = "italic", size = 11, color = "black")
+# Arrange the plots on the same page
+ggarrange(density.p, stable.p, text.p, 
+          ncol = 1, nrow = 3,
+          heights = c(1, 0.5, 0.3))
+density.p + annotation_custom(ggplotGrob(stable.p),
+                              xmin = 0.3, ymin = 1.4,
+                              xmax = 1.0)
 

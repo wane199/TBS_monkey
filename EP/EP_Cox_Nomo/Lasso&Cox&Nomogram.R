@@ -1089,6 +1089,8 @@ d_full <- ggDCA::dca(full, full3, full5,
 ) #### 多个模型3年和5年后生存率
 ggplot(d_full, linetype = 1, size = 5) ### 不设时间的话默认中位数时间
 
+rmda::plot_clinical_impact(full)
+
 ##### 生成2个模型
 for (i in names(train)[c(1, 21, 7:18)]) {
   train[, i] <- as.numeric(as.character(train[, i]))
@@ -1098,7 +1100,7 @@ for (i in names(train)[c(1, 21, 7:18)]) {
 }
 
 f1 <- coxph(
-  Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ rad + SGS + familial_epilepsy + Durmon + SE,
+  Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
   test
 )
 test$Free_of_Relapse_12_mon <- c(1 - (summary(survfit(f1, newdata = test), times = 12)$surv))
@@ -1120,7 +1122,7 @@ dcurves::dca(Surv(Follow_up_timemon, Rel._in_5yrs) ~ Free_of_Relapse_12_mon + Fr
   plot(smooth = F) + theme_classic()
 
 # ggDCA包需要配合cph()函数使用
-f11 <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ rad + SGS + familial_epilepsy + Durmon + SE, surv = T, train)
+f11 <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE, surv = T, train)
 fig1 <- ggDCA::dca(f11,
   new.data = train,
   times = c(12, 36, 40)
@@ -1276,13 +1278,12 @@ library(epicalc)
 library(reportROC)
 
 ## Model with age and sex
-logit.Rad.cli <- glm(Rel._in_5yrs ~ radscore + SGS + Sex + TimebeSO + Freq.3, data = train, family = binomial)
+logit.Rad.cli <- glm(Rel._in_5yrs ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = train, family = binomial)
 lroc(logit.Rad.cli, graph = F)$auc
 print(lroc(logit.Rad.cli, graph = F))
 ## Model with Rad and clinic separately
-logit.Rad <- glm(Rel._in_5yrs ~ Radscore, data = train, family = binomial)
 lroc(logit.Rad, graph = F)$auc
-logit.cli <- glm(Rel._in_5yrs ~ SGS + Sex + TimebeSO + Freq.3, data = train, family = binomial)
+logit.cli <- glm(Rel._in_5yrs ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = train, family = binomial)
 lroc(logit.cli, graph = F)$auc
 
 ## Create a variable indicating N-year event
@@ -1293,7 +1294,7 @@ train <- within(train, {
 })
 
 ## 2-year outcome model with Radscore and clinic
-logit.Rad.cli <- glm(outcome1yr ~ Radscore + SGS + Sex + TimebeSO + Freq.3, data = train, family = binomial)
+logit.Rad.cli <- glm(outcome1yr ~ radscore +familial_epilepsy + SE + SGS + Durmon, data = train, family = binomial)
 lroc(logit.Rad.cli, graph = F)$auc
 print(lroc(logit.Rad.cli))
 print(lroc(logit.Rad.cli, graph = F))
@@ -1335,7 +1336,63 @@ nomogramEx(nomo=nomo,np=2,digit=9)
 
 # 二次验证，最终Cox模型，cutoff风险分层(12,36,60 months)，K-M曲线绘制
 summary(fita)
- 
+
+
+# 交叉验证与重抽样
+library(CoxBoost)
+str(train)
+train$Rel._in_5yrs <- as.numeric(as.character(train$Rel._in_5yrs))
+train$Rel._in_5yrs <- as.factor(train$Rel._in_5yrs)
+
+months <- train$Follow_up_timemon
+relapse <- train$Rel._in_5yrs
+
+x <- as.matrix(train[c("radscore","SGS","SE","familial_epilepsy","Durmon")])
+x <- matrix(train[c(7:9,11,18)])
+cbfit <- CoxBoost(
+  time = months,
+  status = relapse,
+  x = x,
+  stepno = 10,
+  penalty = 50
+)
+summary(cbfit)
+
+optim.res <- optimCoxBoostPenalty(
+  time = months,
+  status = relapse,
+  x = x,
+  trace = FALSE,
+  start.penalty = 10
+)
+optim.res$penalty
+
+set.seed(123)
+cv.res <- cv.CoxBoost(
+  time = months,
+  status = relapse,
+  x = x,
+  maxstepno = 500,
+  K = 10,
+  type = "verweij",
+  penalty = optim.res$penalty
+)
+plot(cv.res$mean.logplik)
+cv.res$optimal.step # 最优次数496
+
+cbfit <- CoxBoost(
+  time = months,
+  status = relapse,
+  x = x,
+  stepno = cv.res$optimal.step,
+  penalty = optim.res$penalty
+)
+summary(cbfit)
+
+names <- cbfit$xnames[which(cbfit$coefficients[497, ] != 0)]
+coef <- cbfit$coefficients[497, ][which(cbfit$coefficients[497, ] != 0)]
+cbind(names, coef)
+
 
 
 
