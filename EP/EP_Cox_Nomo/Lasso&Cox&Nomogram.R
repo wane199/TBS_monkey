@@ -1378,7 +1378,7 @@ cv.res <- cv.CoxBoost(
   penalty = optim.res$penalty
 )
 plot(cv.res$mean.logplik)
-cv.res$optimal.step # 最优次数496
+cv.res$optimal.step # 最优次数70
 
 cbfit <- CoxBoost(
   time = months,
@@ -1389,8 +1389,8 @@ cbfit <- CoxBoost(
 )
 summary(cbfit)
 
-names <- cbfit$xnames[which(cbfit$coefficients[497, ] != 0)]
-coef <- cbfit$coefficients[497, ][which(cbfit$coefficients[497, ] != 0)]
+names <- cbfit$xnames[which(cbfit$coefficients[71, ] != 0)]
+coef <- cbfit$coefficients[71, ][which(cbfit$coefficients[71, ] != 0)]
 cbind(names, coef)
 
 
