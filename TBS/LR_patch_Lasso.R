@@ -786,15 +786,14 @@ nom1 <- nomogram(fit,
   funlabel = "Risk"
 )
 nomogramEx(nom1)
-<<<<<<< HEAD
- # Heatmap of ML-radiomics
+
+# Heatmap of ML-radiomics
 heat <- read.csv("/home/wane/Desktop/EP/REFER/BLS/KAI/radiomics-heat.csv")
 library(data.table)
 transpose(heat)
 t(heat)
 hea <- as.data.frame(t(heat[-1]))
 heatmap(as.matrix(hea))
-=======
 
 # Heat map & Radiomics 
 library(data.table)
@@ -813,7 +812,5 @@ heatmap(as.matrix(dt),symm = F, add.expr,
         ylab = "Classifier",
         main = "Heatmap",
         col = cm.colors(256)) # 颜色  
->>>>>>> 9b52a1aaaf328c98ac57aaffef7b6c032982dd69
-
-
+write.csv(dt,"./TBS/app/data/heat-ML.csv")
 

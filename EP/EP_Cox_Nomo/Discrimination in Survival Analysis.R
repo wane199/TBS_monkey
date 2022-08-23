@@ -329,3 +329,27 @@ IDI.INF.OUT(res.IDI.INF)
 ## M1 red area; M2 distance between black points; M3 distance between gray points
 IDI.INF.GRAPH(res.IDI.INF)
 
+# 批量单因素Cox
+# https://www.jianshu.com/p/617db057df37
+coxm0 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS, data = train)
+coxm1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~  Durmon, data = train)
+coxm2 <- survival::coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = train)
+
+cox.zph(coxm2) # 等比例风险假定
+print(coxm2)
+summary(coxm0)$concordance # 未校准的时间C-index
+
+
+library(corrplot)
+dfc <- train[, names(train) %in% c("radscore","SGS","familial_epilepsy","Durmon","SE")]
+corrplor <- cor(as.matrix(dfc))
+corrplot.mixed(corrplor)
+data.frame(corrplor)
+library(GGally)
+ggpairs(dfc)
+
+vif <- rms::vif(coxm2) # 检测共线性
+sqrt(vif) < 2
+
+
+
