@@ -514,7 +514,7 @@ dt <- read.csv("./EP/EP_Cox_Nomo/TLE234-rad.csv")
 create_report(dt)
 # 对数据初步预处理(批量单因素分析变量保留数值型变量)
 # 用for循环语句将数值型变量转为因子变量
-for (i in names(train)[c(-1:-5, -7, -10:-12)]) {
+for (i in names(train)[c(-1:-6, -7, -10:-12)]) {
   train[, i] <- as.factor(train[, i])
 }
 
@@ -599,7 +599,7 @@ str(train)
 ddist <- datadist(train)
 options(datadist = "ddist")
 paste0(colnames(dt)[3:17], collapse = '","')
-var <- unlist(colnames(train)[-1:-4])
+var <- unlist(colnames(train)[7:22])
 
 results <- ezcox(train,
   time = "Follow_up_timemon", status = "Rel._in_5yrs",
@@ -814,7 +814,7 @@ c_index <- cindex(list("Clinic" = cli, "Rad-clinic" = full),
   data = train,
   eval.times = seq(12, 5 * 12, 6)
 )
-## 设置画图参数: mar 以数值向量表示的边界大小，顺序为“下、左、上、右”，单位为英分*。默认值为c(5, 4, 4, 2) + 0.1 ,mgp 设定标题、坐标轴名称、坐标轴距图形边框的距离。默认值为c(3,1,0)，其中第一个值影响的是标题
+## 设置画图参数: mar以数值向量表示的边界大小，顺序为“下、左、上、右”，单位为英分*。默认值为c(5, 4, 4, 2) + 0.1 ,mgp 设定标题、坐标轴名称、坐标轴距图形边框的距离。默认值为c(3,1,0)，其中第一个值影响的是标题
 ## cex.axis 坐标轴刻度放大倍数,cex.main 标题的放大倍数,legend.x，legend.y 图例位置的横坐标和纵坐标,legend.cex 图例文字大小
 par(mgp = c(3.1, 0.8, 0), mar = c(5, 5, 3, 1), cex.axis = 0.8, cex.main = 0.8, las = 1)
 plot(c_index, xlim = c(0, 60), legend.x = 1, legend.y = 1, legend.cex = 0.8)
