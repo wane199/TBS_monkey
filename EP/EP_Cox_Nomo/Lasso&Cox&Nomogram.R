@@ -338,8 +338,15 @@ dt1 <- rbind(train1, test1)
 str(dt1$Rel._in_5yrs)
 dt1$Rel._in_5yrs <- ifelse(dt1$Rel._in_5yrs == "0", "Seizure-free", "Relapse")
 colnames(dt1)[2] <- "Seizure Outcome"
-train1 <- subset(dt1, Group == "Training Set")
-test1 <- subset(dt1, Group == "Test Set")
+
+dt1 <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/TLE234group.csv")
+str(dt1)
+for (i in names(dt1)[c(6,8,9,13:22)]) {
+  dt1[, i] <- as.factor(dt1[, i])
+}
+train <- subset(dt1, dt1$Group == "Training")
+test <- subset(dt1, dt1$Group == "Test")
+
 # Train vs. Test set
 library(ggstatsplot)
 library(palmerpenguins)
@@ -412,7 +419,7 @@ ggarrange(p1, p2,
 )
 # tableone
 library(CBCgrps)
-tab1 <- twogrps(dt1[c(-1, -2)], gvar = "Group")
+tab1 <- twogrps(dt1[c(-1:-3)], gvar = "Group")
 print(tab1, quote = T)
 write.csv(tab1[1], "./EP/EP_Cox_Nomo/traintesttable1.csv", row.names = F)
 # 基线资料汇总，tableone
@@ -548,7 +555,7 @@ knitr::kable(t1, align = c("l", "l", "r", "r", "r"), "simple")
 write.csv(t1, "/media/wane/wade/EP/EPTLE_PET/final_train.csv", row.names = F)
 
 # 指定自变量
-explanatory <- unlist(colnames(dt)[3:17])
+explanatory <- unlist(colnames(train)[7:22])
 # 指定因变量
 train$Rel._in_5yrs <- as.numeric(train$Rel._in_5yrs) # 拟合cox回归需要转为数值变量
 dependent <- "Surv(Follow_up_timemon, Rel._in_5yrs)"
@@ -783,7 +790,7 @@ shinyPredict(
 # Concordance index(未校准的时间C-index)
 f0 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore, data = train)
 f01 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
-  data = train
+  x = T, data = train
 )
 print(f01)
 sum.surv <- summary(f01)
@@ -794,7 +801,7 @@ c_index
 # C-index计算及ROC曲线绘制(校准后的时间C-index)
 require(pec) # 计算时间C-index验证模型
 t <- c(1 * 12, 3 * 12, 5 * 12) # 设置预测生存概率的时间点，根据模型预测患者1年，3年和5年的生存概率。
-survprob <- predictSurvProb(f3, newd = test, times = t)
+survprob <- predictSurvProb(f01, newd = test, times = t)
 head(survprob)
 as.matrix(head(train))
 

@@ -50,7 +50,7 @@ logit.clinic <- glm(Rel._in_5yrs ~ SGS + familial_epilepsy + Durmon + SE, data =
 lroc(logit.clinic, graph = F)$auc
 
 ## Model with age, sex, and albumin
-logit.rad.clinic <- glm(Rel._in_5yrs ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = train, family = binomial)
+logit.rad.clinic <- glm(Rel._in_5yrs ~ radscore + Freq + Onsetmon + Durmon, data = train, family = binomial)
 lroc(logit.rad.clinic, graph = F)$auc
 
 ## Create a variable indicating 2-year event**

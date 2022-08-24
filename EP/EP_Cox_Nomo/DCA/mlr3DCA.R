@@ -41,8 +41,10 @@ test <- dt0[ind == 2, ] # the test data set
 
 ## analysis, 生存随机森林因变量不设置分类变量
 set.seed(123)
-vars <- paste0(names(train[c(3:5, 7:16, 18)]), collapse = "+")
-rad.obj <- rfsrc(Surv(Follow_up_timemon, Rel._in_5yrs) ~ .,
+ddist <- datadist(train)
+options(datadist = "ddist")
+vars <- paste0(names(train[c(7:22)]), collapse = "+")
+rad.obj <- rfsrc(Surv(Follow_up_timemon, Rel._in_5yrs) ~ radscore+side+Sex+Surgmon+Onsetmon+Durmon+Freq+SE+SGS+early_brain_injury+familial_epilepsy+brain_hypoxia+Central_Nervous_System_Infections+traumatic_brain_injury+history_of_previous_surgery+MRI,
   data = train, nsplit = 10, block.size = 10,
   mtry = 50, nodesize = 15, ntree = 400, importance = TRUE, samptype = "swor", splitrule = "logrank"
 )
