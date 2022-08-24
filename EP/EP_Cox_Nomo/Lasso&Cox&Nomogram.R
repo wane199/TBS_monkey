@@ -9,7 +9,7 @@ getwd()
 rm(list = ls())
 list.files() ## 列出工作目录下的文件
 library(glmnet) ## Lasso回归、岭回归、弹性网络模型
-library(caret) ## 混淆矩阵
+library(caret) ## 标准化及混淆矩阵
 library(survival) ##  生存分析包
 library(survminer) # ggforest
 library(rms) ## 画列线图
@@ -20,6 +20,7 @@ library(My.stepwise)
 
 # 读取数据集
 # write.csv(dt,"/home/wane/Desktop/EP/结构化数据/TableS1-2.csv", row.names = FALSE)
+dt0 <- read.csv("/home/wane/Desktop/EP/Structured_Data/PT_radiomic_features_temporal_ind2.csv")
 dt <- read.csv("/media/wane/wade/EP/EPTLE_PET/TLE_pet_ind/process_PT_tem.csv")
 dt <- dt[-3]
 dt <- as.data.frame(dt)
@@ -34,9 +35,14 @@ set.seed(123)
 dt <- na.omit(dt) # 按行删除缺失值
 attach(dt)
 
-# 待筛选组学特征标准化
+# 待筛选组学特征标准化(Standardization或Normalization)
 dtx <- scale(dt[, c(6:1138)])
 # x=scale(x,center=T,scale=T)  #Z-score标准化方法
+normal_para <- preProcess(x = train[, 5:1136], method = c("center", "scale")) # 提取训练集的标准化参数
+train_normal <- predict(object = normal_para, newdata = train[, 5:1136])
+test_normal <- predict(object = normal_para, newdata = test[, 5:1136])
+test_normal <- mutate(test[, 1:4], test_normal)
+
 dtx <- as.data.frame(dtx)
 head(dt[4:5])
 dt <- mutate(dt[, 4:5], dtx)
@@ -45,8 +51,11 @@ set.seed(123)
 ind <- sample(2, nrow(dt), replace = TRUE, prob = c(0.7, 0.3))
 # 训练集
 train <- dt[ind == 1, ] # the training data set
+train <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/train_nor.csv")
 # 测试集
 test <- dt[ind == 2, ] # the test data set
+test <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/test_nor.csv")
+
 # 看一下，不要让临床信息差的太多，输出table1
 prop.table(table(train$Follow_up_timemon))
 prop.table(table(test$Follow_up_timemon))
@@ -57,31 +66,33 @@ prop.table(table(train$Rel._in_5yrs))
 ## 影像组学导论 冗余性分析 你懂她嘛?(pearson OR spearman)
 # 9.feature selection: reduce redundancy
 # 9.1 calculate p of normality test
-trainx <- train[3:1134]
+trainx <- train[5:1136]
 norm_result <- apply(trainx, 2, function(x) shapiro.test(x)$p.value)
-norm_feature <- trainx[which(norm_result >= 0.05)]  # 获取满足正态性特征
+norm_feature <- trainx[which(norm_result >= 0.05)] # 获取满足正态性特征
 # 9.2 calculate r
 cor_nor <- cor(norm_feature, method = "pearson") # 针对正态特征使用Pearson
 cor_all <- cor(trainx, method = "spearman") # 针对非正态特征使用Spearman
 # 9.3 change matrix
 num_nor <- dim(cor_nor)[1]
-cor_all[1:num_nor, 1:num_nor] <- cor_nor  # 将正态部分覆盖所有特征的Spearman结果上
+cor_all[1:num_nor, 1:num_nor] <- cor_nor # 将正态部分覆盖所有特征的Spearman结果上
 # 9.4 set 0
 cor_all[upper.tri(cor_all)] <- 0
-diag(cor_all) <- 0  # 上、主对角线值为0
+diag(cor_all) <- 0 # 上、主对角线值为0
 # 9.5 get training_set after reduce redundancy
 data_reduce <- trainx[, !apply(cor_all, 2, function(x) any(abs(x) > 0.9))] # 将系数大于0.9的特征删除
 # 9.6 check new data
 dim(data_reduce) # 初步降维
 
 # lasso process
-str(train)  # 变量均设置为num数值类型(double)，非factor|character类型
-train[16] = lapply(train[16], FUN = function(y){as.numeric(y)})  # int类型转num类型
+str(train) # 变量均设置为num数值类型(double)，非factor|character类型
+train[16] <- lapply(train[16], FUN = function(y) {
+  as.numeric(y)
+}) # int类型转num类型
 cv_x <- as.matrix(data_reduce) # 数据矩阵化
 # cv_y <- train[1:2]
 cv_y <- data.matrix(Surv(train$Follow_up_timemon, train$Rel._in_5yrs))
 set.seed(123)
-# tow pictures for lasso 
+# tow pictures for lasso
 nocv_lasso <- glmnet(
   x = cv_x, y = cv_y,
   family = "cox", alpha = 1,
@@ -94,7 +105,7 @@ lasso_selection <- cv.glmnet(
   x = cv_x,
   y = cv_y, type.measure = "deviance",
   family = "cox", alpha = 1, nfolds = 1000
-)   # cross validation
+) # cross validation
 # fitcv1 <- cv.glmnet(x, y, alpha = 1, family = "cox", type.measure = "C")
 lasso_selection
 p2 <- plot(x = lasso_selection, las = 1, xlab = "log(lambda)") # Fig2
@@ -204,16 +215,18 @@ lasso_values <- as.data.frame(which(coefPara != 0, arr.ind = T))
 lasso_names <- rownames(lasso_selection[-1])
 lasso_coef <- data.frame(
   Feature = rownames(lasso_values),
-  Coef = coefPara[which(coefPara != 0, arr.ind = T)]
+  Coef = round(coefPara[which(coefPara != 0, arr.ind = T)], 4)
 )
 lasso_coef
+# lasso_coef %>%
+#   mutate_if(is.numeric, ~ scales::number(., accuracy = 0.0001))
 # https://cloud.tencent.com/developer/article/1089081
 ggplot(lasso_coef, aes(x = reorder(Feature, Coef), y = Coef, fill = Coef)) +
   xlab("") +
   ylab("Coefficients") +
   coord_flip() +
   geom_bar(stat = "identity", colour = "black", width = 0.78, size = 0.25, position = position_dodge(0.7)) +
-  ylim(-0.30, 0.20) +
+  ylim(-0.40, 0.40) +
   geom_text(aes(label = Coef), vjust = -0.2) +
   theme_bw() +
   theme(panel.grid.major.y = element_blank(), panel.grid.minor = element_blank()) +
@@ -223,7 +236,7 @@ ggplot(lasso_coef, aes(x = reorder(Feature, Coef), y = Coef, fill = Coef)) +
   theme(axis.text.y = element_blank()) + # hjust=1调整横轴距离
   geom_text(aes(y = ifelse(Coef > 0, -0.01, 0.01), label = Feature, fontface = 4, hjust = ifelse(Coef > 0, 1, 0))) +
   scale_fill_gradient2(low = "#366488", high = "red", mid = "white", midpoint = 0)
-write.csv(lasso_coef, file = "/media/wane/wade/EP/EPTLE_PET/TLE_pet_ind/coef.minPTcox9.csv", quote = T, row.names = F)
+write.csv(lasso_coef, file = "/media/wane/wade/EP/EPTLE_PET/TLE_pet_ind/coef.minPTcox13.csv", quote = T, row.names = F)
 # coef <- read_csv("/media/wane/wade/EP/EPTLE_PET/TLE_pet_ind/coef.minPTcox9.csv", show_col_types = FALSE)
 # 提取特征名
 var <- unlist(lasso_coef[, 1])
@@ -248,9 +261,10 @@ radscore_all <- as.numeric(Radscore_Matrix)
 Radscore_train <- radscore_all[1:nrow(train_lasso)]
 Radscore_test <- radscore_all[(nrow(train_lasso) + 1):xn]
 # show Rad-score
-Radscore_train
-Radscore_test
-
+Rad_train <- as.data.frame(Radscore_train)
+Rad_test <- as.data.frame(Radscore_test)
+train1 <- mutate(Rad_train, train)
+test1 <- mutate(Rad_test, test)
 ## Lasso筛选变量后进一步逐步回归筛选(训练集)stepwise
 ddist <- datadist(train)
 options(datadist = "ddist")
@@ -260,14 +274,12 @@ vars <- c(
   "log.sigma.5.0.mm.3D_glszm_SmallAreaLowGrayLevelEmphasis", "wavelet.LHL_glcm_Imc2"
 )
 var <- unlist(lasso_coef[, 1])
-# library(dplyr)
 fe <- dt %>%
   select(var)
 dts <- mutate(dt[, 1:3], fe)
 write_csv(dts, "/media/wane/wade/EP/EPTLE_PET/TLE_pet_ind/process_PT9.csv")
 
 # options(scipen = 100)
-# options(digits=5)
 My.stepwise.coxph(
   Time = "Follow_up_timemon",
   Status = "Rel._in_5yrs",
@@ -276,7 +288,6 @@ My.stepwise.coxph(
 )
 
 # 计算radscore并z-score标准化，添加至临床资料表
-# dt <- dt[,-1]
 dt <- dt %>%
   as_tibble(dt) %>%
   mutate(radscore = 0.169756512 * log.sigma.5.0.mm.3D_glcm_ClusterShade
@@ -289,10 +300,8 @@ dt <- dt %>%
     + 0.06543544 * wavelet.HHH_glszm_ZoneEntropy
     - 0.091605036 * wavelet.LLL_glcm_Imc2)
 radscore <- as.data.frame(dt["radscore"])
-dtx <- scale(dt[, c(2267)]) # radscore z标准化
 # dtx <- as.data.frame(dtx)
 # rad <- mutate(dt[,1:3],dtx)
-# rad <- mutate(dt[,1:3],dt[,2268])
 # write.csv(rad,"/home/wane/Desktop/EP/Structured_Data/radcox9.csv", row.names = FALSE)
 library(readxl)
 data <- read_xlsx("/media/wane/wade/EP/EPTLE_PET/TLE234.xlsx")
@@ -301,7 +310,6 @@ write.csv(rad, "/media/wane/wade/EP/EPTLE_PET/TLE234-rad.csv", row.names = FALSE
 
 ### 临床资料汇总、最佳cutoff值及标准化
 dt <- read.csv("/media/wane/wade/EP/EPTLE_PET/TLE234-rad.csv")
-dt <- dt[, c(-18)] # 删除ID及MRI变量
 
 # 字符型变量转化为数值型
 # datexpr2=as.data.frame(lapply(datexpr,as.numeric))
@@ -324,8 +332,8 @@ ind <- sample(2, nrow(dt), replace = TRUE, prob = c(0.7, 0.3))
 train <- dt[ind == 1, ] # the training data set
 # 测试集
 test <- dt[ind == 2, ] # the test data set
-train1 <- transform(train, Group = "Training Set")
-test1 <- transform(test, Group = "Test Set")
+train1 <- transform(train, Group = "Training")
+test1 <- transform(test, Group = "Test")
 dt1 <- rbind(train1, test1)
 str(dt1$Rel._in_5yrs)
 dt1$Rel._in_5yrs <- ifelse(dt1$Rel._in_5yrs == "0", "Seizure-free", "Relapse")
@@ -423,6 +431,7 @@ write.csv(tabMat, file = "/media/wane/Data/CN/t1myTable.csv")
 library(cutoff)
 # library(ggpubr)
 train$Rel._in_5yrs <- as.numeric(as.character(train$Rel._in_5yrs))
+train$Rel._in_5yrs <- as.factor(train$Rel._in_5yrs)
 logresult <- cutoff::logrank(
   data = train, # 数据集
   time = "Follow_up_timemon", # 生存时间
@@ -586,7 +595,7 @@ str(train)
 ddist <- datadist(train)
 options(datadist = "ddist")
 paste0(colnames(dt)[3:17], collapse = '","')
-var <- unlist(colnames(dt)[3:17])
+var <- unlist(colnames(train)[7:22])
 
 results <- ezcox(train,
   time = "Follow_up_timemon", status = "Rel._in_5yrs",
@@ -598,7 +607,7 @@ write.csv(results, "/home/wane/Documents/EP_code/git/Presentation/EP/EP_Cox_Nomo
 
 show_forest(train,
   time = "Follow_up_timemon", status = "Rel._in_5yrs",
-  covariates = unlist(colnames(dt)[c(3:14)]), controls = "radscore"
+  covariates = unlist(colnames(train)[c(7:22)]), controls = "radscore"
 )
 
 # Stepwise筛选变量
@@ -655,8 +664,6 @@ train$lp.rad <- predict(coxm1, type = "lp")
 train$lp.rad_clinic <- predict(coxm2, type = "lp")
 
 library(Hmisc)
-ddist <- datadist(train)
-options(datadist = "ddist")
 ## Model with clinic(Hmisc::rcorrcens)
 rcorrcens(formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = train)
 
@@ -792,10 +799,10 @@ head(survprob)
 as.matrix(head(train))
 
 cli <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy + Durmon + SE,
-  x = T, y = T, surv = T, data = train, time.inc = 12
+  x = T, y = T, surv = T, data = train, time.inc = 60
 )
 full <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
-  x = T, y = T, surv = T, data = train, time.inc = 12
+  x = T, y = T, surv = T, data = train, time.inc = 60
 )
 c_index <- cindex(list("Clinic" = cli, "Rad-clinic" = full),
   formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ .,
@@ -807,16 +814,18 @@ c_index <- cindex(list("Clinic" = cli, "Rad-clinic" = full),
 par(mgp = c(3.1, 0.8, 0), mar = c(5, 5, 3, 1), cex.axis = 0.8, cex.main = 0.8, las = 1)
 plot(c_index, xlim = c(0, 60), legend.x = 1, legend.y = 1, legend.cex = 0.8)
 ## splitMethod 拆分方法 ="bootcv"表示采用重抽样方法, B表示重抽样次数
-c_index <- cindex(list("Cox(43 variables)" = cox1, "Cox(4 variables)" = cox2),
-  formula = Surv(live.time, outcome == 1) ~ .,
-  data = test,
-  eval.times = seq(365, 5 * 365, 36.5),
+c_index1 <- cindex(list("Clinic" = cli, "Rad-clinic" = full),
+  formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ .,
+  data = train,
+  eval.times = seq(0, 5 * 12, 6),
   splitMethod = "bootcv",
   B = 1000
 )
-plot(c_index, xlim = c(0, 2000), legend.x = 1, legend.y = 1, legend.cex = 0.8)
+plot(c_index1, xlim = c(0, 60), legend.x = 1, legend.y = 1, legend.cex = 0.8)
 set.seed(123)
 c_index1 <- cindex(list("Clinic" = cli, "Rad-clinic" = full),
+  # formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ .,
+  data = train,
   eval.times = seq(0, 60, 12), # 各时间点的c-index
   cens.model = "cox", # 指定截尾数据的逆概率加权方法
   keep.pvalues = T,
@@ -827,7 +836,7 @@ c_index1 <- cindex(list("Clinic" = cli, "Rad-clinic" = full),
 )
 c_index1
 plot(c_index1,
-  xlim = c(0, 70), legend.x = 1, legend.y = 1,
+  xlim = c(0, 60), legend.x = 1, legend.y = 1,
   legend.cex = 0.8
 )
 
@@ -1053,7 +1062,7 @@ plot(cal2,
 # lines(cal1[,c("mean.predicted","KM")],type="b",lwd=2,col="red",pch=16)
 abline(0, 1, lty = 3, lwd = 2, col = "black")
 
-full5 <- rms::cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ rad + SGS + familial_epilepsy + Durmon + SE,
+full5 <- rms::cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
   x = T, y = T, surv = T, data = test, time.inc = 60
 )
 cal3 <- rms::calibrate(full5,
@@ -1211,8 +1220,10 @@ two_scatter(fit1,
 two_scatter(fit, # cutoff.x = -3,cutoff.y = -2.8,
   cutoff.value = "cutoff"
 )
-ggrisk(fit,  heatmap.genes = c("radscore", "SE", "Durmon", "SGS", "familial_epilepsy"),
-       cutoff.value = "roc")
+ggrisk(fit,
+  heatmap.genes = c("radscore", "SE", "Durmon", "SGS", "familial_epilepsy"),
+  cutoff.value = "roc"
+)
 # wald统计量有些区别(进一步进行anova分析时可以看出区别).cph来自rms包,coxph来自survival包
 
 # NRI计算与绘制
@@ -1225,10 +1236,10 @@ m.new <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + fam
   data = train, x = TRUE
 )
 summary(m.new)$concordance # 未校准的时间C-index
-predict(m.new,type="lp",newdata = train) # "lp", "risk", "expected", "terms", "survival"
-predict(m.new,type="survival")
-predict(m.new,type="risk",se.fit=TRUE)
-predict(m.new,type="terms",se.fit=TRUE)
+predict(m.new, type = "lp", newdata = train) # "lp", "risk", "expected", "terms", "survival"
+predict(m.new, type = "survival")
+predict(m.new, type = "risk", se.fit = TRUE)
+predict(m.new, type = "terms", se.fit = TRUE)
 
 set.seed(123)
 nricens(
@@ -1258,8 +1269,8 @@ for (i in names(train)[c(1, 21, 7:18)]) {
 }
 Y <- train[, c("Follow_up_timemon", "Rel._in_5yrs")]
 
-z.old <- train[, c("Sex", "Freq.3", "SGS", "TimebeSO")]
-z.new <- train[, c("Sex", "TimebeSO", "Freq.3", "SGS", "Radscore")]
+z.old <- train[, c("familial_epilepsy", "Durmon", "SGS", "SE")]
+z.new <- train[, c("familial_epilepsy", "Durmon", "SE", "SGS", "radscore")]
 set.seed(123)
 x <- IDI.INF(Y,
   z.old,
@@ -1293,8 +1304,8 @@ train <- within(train, {
   outcome1yr[(Rel._in_5yrs == 0) | (Follow_up_timemon > 1 * 12)] <- 0 # otherwise
 })
 
-## 2-year outcome model with Radscore and clinic
-logit.Rad.cli <- glm(outcome1yr ~ radscore +familial_epilepsy + SE + SGS + Durmon, data = train, family = binomial)
+## 2-year outcome model with radscore and clinic
+logit.Rad.cli <- glm(outcome1yr ~ radscore + familial_epilepsy + SE + SGS + Durmon, data = train, family = binomial)
 lroc(logit.Rad.cli, graph = F)$auc
 print(lroc(logit.Rad.cli))
 print(lroc(logit.Rad.cli, graph = F))
@@ -1318,27 +1329,69 @@ train1
 logit.Rad <- glm(outcome2yr ~ Rad, data = train, family = binomial)
 lroc(logit.age.sex.albumin, graph = F)$auc
 
+reportROC(
+  gold = dt$Label, predictor.binary = dt$Phy3,
+  plot = T, important = "se", exact = FALSE
+)
 
 # install.packages("party")
 library(party)
 tree <- ctree(Surv(Follow_up_timemon, Rel._in_5yrs) ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = train)
 plot(tree)
 
-# 简易评分系统, WALD, 
+# 简易评分系统, WALD,
 # Total points
 library(nomogramEx)
 fita <- rms::cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
-                data = train, x=TRUE,y=TRUE,surv=TRUE,time.inc=12)
+  data = train, x = TRUE, y = TRUE, surv = TRUE, time.inc = 12
+)
 surv <- Survival(fita)
-nomo <- nomogram(fita, fun=list(function(x) surv(12,x),function(x) surv(6,x)),
-                 lp=TRUE,funlabel=c("12-Month Survival Prob","6-Month Survival Prob"))
-nomogramEx(nomo=nomo,np=2,digit=9)
+nomo <- nomogram(fita,
+  fun = list(function(x) surv(12, x), function(x) surv(6, x)),
+  lp = TRUE, funlabel = c("12-Month Survival Prob", "6-Month Survival Prob")
+)
+nomogramEx(nomo = nomo, np = 2, digit = 9)
 
-# 二次验证，最终Cox模型，cutoff风险分层(12,36,60 months)，K-M曲线绘制
+# 二次验证，最终Cox模型，cutoff风险分层(12,36,60 months)，K-M曲线绘制**
 summary(fita)
+summary(m.new)
+train$lp.rad_clinic <- predict(m.new, type = "lp")
+logresult <- cutoff::logrank(
+  data = train, # 数据集
+  time = "Follow_up_timemon", # 生存时间
+  y = "Rel._in_5yrs", # 生存状态
+  x = "lp.rad_clinic", # 连续自变量
+  cut.numb = 1, # 截断值选择1个分界点
+  n.per = 0.10, # 分组后自变量组最少比例
+  y.per = 0.10, # 分组后因变量组最少比例
+  p.cut = 0.005, # 检验水准，结果只显示pvalue小于0.05的截断值
+  round = 3
+) # 保留5位有效小数
+logresult
+ggpubr::ggline(logresult,
+  x = "cut1", y = "pvalue", color = "blue", axis.title.x = 0.01,
+  palette = "jco", xlab = "截断值取值", ylab = "p value"
+)
 
+res.cut <- surv_cutpoint(
+  data = train, time = "Follow_up_timemon",
+  event = "Rel._in_5yrs", variables = c("lp.rad_clinic")
+)
+summary(res.cut) # 最佳截断值为1.877
+plot(res.cut, "lp.rad_clinic", palette = "npg")
+res.cat <- surv_categorize(res.cut)
+fit <- survfit(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ lp.rad_clinic, data = res.cat)
+summary(fit)
+survdiff(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ lp.rad_clinic, data = res.cat)
 
-# 交叉验证与重抽样
+ggsurvplot(fit,
+  data = res.cat,
+  risk.table = TRUE, conf.int = TRUE,
+  surv.median.line = "hv", # 同时显示垂直和水平参考线
+  pval = T, xlab = "months", ylab = "Free of Relapse(%)"
+)
+
+# 交叉验证与重抽样, 重复论证
 library(CoxBoost)
 str(train)
 train$Rel._in_5yrs <- as.numeric(as.character(train$Rel._in_5yrs))
@@ -1347,8 +1400,8 @@ train$Rel._in_5yrs <- as.factor(train$Rel._in_5yrs)
 months <- train$Follow_up_timemon
 relapse <- train$Rel._in_5yrs
 
-x <- as.matrix(train[c("radscore","SGS","SE","familial_epilepsy","Durmon")])
-x <- matrix(train[c(7:9,11,18)])
+x <- as.matrix(train[c("radscore", "SGS", "SE", "familial_epilepsy", "Durmon")])
+x <- as.matrix(train[c(3:5, 7:16, 18)])
 cbfit <- CoxBoost(
   time = months,
   status = relapse,
@@ -1378,7 +1431,7 @@ cv.res <- cv.CoxBoost(
   penalty = optim.res$penalty
 )
 plot(cv.res$mean.logplik)
-cv.res$optimal.step # 最优次数70
+cv.res$optimal.step # 最优次数119
 
 cbfit <- CoxBoost(
   time = months,
@@ -1389,13 +1442,6 @@ cbfit <- CoxBoost(
 )
 summary(cbfit)
 
-names <- cbfit$xnames[which(cbfit$coefficients[71, ] != 0)]
-coef <- cbfit$coefficients[71, ][which(cbfit$coefficients[71, ] != 0)]
+names <- cbfit$xnames[which(cbfit$coefficients[120, ] != 0)]
+coef <- cbfit$coefficients[120, ][which(cbfit$coefficients[120, ] != 0)]
 cbind(names, coef)
-
-
-
-
-
-
-

@@ -65,6 +65,10 @@ logit.clinic <- glm(outcome2yr ~ SGS + familial_epilepsy + Durmon + SE, data = t
 lroc(logit.clinic, graph = F)$auc
 
 library(reportROC) # Confusion Matrix
+reportROC(
+  gold = train1$Rel._in_5yrs, predictor.binary = train1$Radscore_train,
+  plot = T, important = "se", exact = FALSE
+)
 
 # Fit Cox regression models for later use
 ## Null model
@@ -331,15 +335,15 @@ IDI.INF.OUT(res.IDI.INF)
 ## M1 red area; M2 distance between black points; M3 distance between gray points
 IDI.INF.GRAPH(res.IDI.INF)
 
-# 批量单因素Cox
+# 批量单因素Cox，比较C-index
 # https://www.jianshu.com/p/617db057df37
 coxm0 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS, data = train)
 coxm1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ Durmon, data = train)
-coxm2 <- survival::coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = train)
+coxm2 <- survival::coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = test)
 
 cox.zph(coxm2) # 等比例风险假定
 print(coxm2)
-summary(coxm0)$concordance # 未校准的时间C-index
+summary(coxm2)$concordance # 未校准的时间C-index
 
 
 library(corrplot)
@@ -378,24 +382,77 @@ pic
 # 将表格插入ggplot图中
 # Density plot of "Sepal.Length"
 train$Rel._in_5yrs <- as.factor(train$Rel._in_5yrs)
-density.p <- ggdensity(train, x = "radscore", add = "mean", rug = TRUE,
-                       color = "Rel._in_5yrs", fill = "Rel._in_5yrs", palette = "R3")
+density.p <- ggdensity(train,
+  x = "radscore", add = "mean", rug = TRUE,
+  color = "Rel._in_5yrs", fill = "Rel._in_5yrs", palette = "R3"
+)
 # Draw the summary table of Sepal.Length
 # Compute descriptive statistics by groups
-stable <- desc_statby(train, measure.var = "radscore",
-                      grps = "Rel._in_5yrs")
+stable <- desc_statby(train,
+  measure.var = "radscore",
+  grps = "Rel._in_5yrs"
+)
 stable <- stable[, c("Rel._in_5yrs", "length", "mean", "sd")]
 # Summary table plot, medium orange theme
-stable.p <- ggtexttable(stable, rows = NULL, 
-                        theme = ttheme("light"))
+stable.p <- ggtexttable(stable,
+  rows = NULL,
+  theme = ttheme("light")
+)
 # Draw text
 text <- paste("Epilepsy dataset of FDG-PET radiomics.", sep = " ")
 text.p <- ggparagraph(text = text, face = "italic", size = 11, color = "black")
 # Arrange the plots on the same page
-ggarrange(density.p, stable.p, text.p, 
-          ncol = 1, nrow = 3,
-          heights = c(1, 0.5, 0.3))
+ggarrange(density.p, stable.p, text.p,
+  ncol = 1, nrow = 3,
+  heights = c(1, 0.5, 0.3)
+)
 density.p + annotation_custom(ggplotGrob(stable.p),
-                              xmin = 0.3, ymin = 1.4,
-                              xmax = 1.0)
+  xmin = 0.3, ymin = 1.4,
+  xmax = 1.0
+)
+# ggstatsplot绘制边际散点图
+library(ggstatsplot)
+ggscatterstats(
+  data = iris, x = Sepal.Length,
+  y = Sepal.Width,
+  xlab = "Sepal Length",
+  ylab = "Sepal Width",
+  marginal = TRUE,
+  marginal.type = "densigram",
+  margins = "both",
+  xfill = "blue", # 分别设置颜色
+  yfill = "#009E73",
+  title = "Relationship between Sepal Length and Sepal Width",
+  messages = FALSE
+)
+# https://zouhua.top/archives/208c251d.html
+library(ggpubr)
+ggdensity(plotdata,
+  x = "weight",
+  add = "mean",
+  rug = TRUE, # x轴显示分布密度
+  color = "sex",
+  fill = "sex",
+  palette = c("#00AFBB", "#E7B800")
+)
+
+# 添加ID列赋值序号，移动列
+getwd()
+d <- read.csv("./data/M_1018.csv")
+
+hist(d[, 2:10])
+summary(d)
+d1 <- na.omit(d)
+d1 <- transform(d, ID = seq(1, 1018, 1))
+d1$ID <- paste0("sub_", d1$ID, sep = "")
+# 列名数组
+cols <- colnames(d1)
+# 最后一列移到第二列
+n_cols <- c(cols[1], cols[length(cols)], cols[1:(length(cols) - 1)])
+# 最后一列移到第一列
+n_cols <- c(cols[length(cols)], cols[1:(length(cols) - 1)])
+# dataframe排序
+d2 <- d1[, n_cols]
+write.csv(d2, "./data/M_1018.csv", row.names = F)
+
 
