@@ -68,7 +68,7 @@ prop.table(table(test$Follow_up_timemon))
 prop.table(table(test$Rel._in_5yrs))
 prop.table(table(train$Rel._in_5yrs))
 
-三## 影像组学导论R语言实现冗余性分析（含代码）
+## 影像组学导论R语言实现冗余性分析（含代码）
 ## 影像组学导论 冗余性分析 你懂她嘛?(pearson OR spearman)
 # 9.feature selection: reduce redundancy
 # 9.1 calculate p of normality test
@@ -269,6 +269,7 @@ radscore_all <- as.numeric(Radscore_Matrix)
 # get radiomics score
 Radscore_train <- radscore_all[1:nrow(train_lasso)]
 Radscore_test <- radscore_all[(nrow(train_lasso) + 1):xn]
+
 # show Rad-score
 Rad_train <- as.data.frame(Radscore_train)
 Rad_test <- as.data.frame(Radscore_test)
@@ -328,17 +329,11 @@ for (i in names(dt)[c(12:22)]) {
 }
 # 批量分类变量转化为因子
 dt$Rel._in_5yrs <- as.numeric(as.character(dt$Rel._in_5yrs))
-vars <- c("Sex", "AEDs")
+vars <- c("Sex", "SE")
 dt <- dt %>% mutate(across(one_of(vars), as.factor))
 dt$Rel._in_5yrs <- as.factor(dt$Rel._in_5yrs)
 
 # 拆分数据集，临床资料单因素及多因素Cox回归筛选
-set.seed(123)
-ind <- sample(2, nrow(dt), replace = TRUE, prob = c(0.7, 0.3))
-# 训练集
-train <- dt[ind == 1, ] # the training data set
-# 测试集
-test <- dt[ind == 2, ] # the test data set
 dt$Rel._in_5yrs <- ifelse(dt$Rel._in_5yrs == "0", "Seizure-free", "Relapse")
 colnames(dt)[6] <- "Seizure Outcome"
 
@@ -657,21 +652,21 @@ train$rad <- factor(train$rad,
 )
 # 拟合cox回归
 # coxm1 <- cph(Surv(Follow_up_timemon,Rel._in_5yrs==1) ~ Radscore, x=T,y=T,data=train,surv=T)
-coxm0 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy + Durmon + SE , data = train)
-coxm1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore, data = train)
-coxm2 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE + Surgmon, data = train)
+coxm0 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy + Durmon + SE + Surgmon , data = test)
+coxm1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore, data = test)
+coxm2 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE , data = test)
 
 cox.zph(coxm2) # 等比例风险假定
-print(coxm0)
-summary(coxm0)
+print(coxm2)
+summary(coxm2)
 ## These models are significantly different by likelihood ratio test
 anova(coxm0, coxm1, coxm2, test = "LRT")
-summary(coxm1)$concordance # 未校准的时间C-index
+summary(coxm2)$concordance # 未校准的时间C-index
 
 ## Put linear predictors ("lp") into EP train dataset
-train$lp.clinic <- predict(coxm0, type = "lp")
-train$lp.rad <- predict(coxm1, type = "lp")
-train$lp.rad_clinic <- predict(coxm2, type = "lp")
+test$lp.clinic <- predict(coxm0, type = "lp")
+test$lp.rad <- predict(coxm1, type = "lp")
+test$lp.rad_clinic <- predict(coxm2, type = "lp")
 
 library(Hmisc)
 ## Model with clinic(Hmisc::rcorrcens)
@@ -857,7 +852,7 @@ train$lp.Radscore_clinic <- predict(full, type = "lp")
 ## Define a function
 fun.survivalROC <- function(lp, t) {
   res <- with(
-    train,
+    test,
     survivalROC(
       Stime = Follow_up_timemon,
       status = Rel._in_5yrs,
@@ -1346,10 +1341,11 @@ reportROC(
 
 # install.packages("party")
 library(party)
-tree <- ctree(Surv(Follow_up_timemon, Rel._in_5yrs) ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = train)
+tree <- ctree(Surv(Follow_up_timemon, Rel._in_5yrs) ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = test)
+tree <- ctree(Surv(Follow_up_timemon, Rel._in_5yrs) ~ radscore, data = train)
 plot(tree)
 
-# 简易评分系统, WALD,
+# 简易评分系统, WALD-1(变量重要性),
 # Total points
 library(nomogramEx)
 fita <- rms::cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
@@ -1411,7 +1407,7 @@ months <- train$Follow_up_timemon
 relapse <- train$Rel._in_5yrs
 
 x <- as.matrix(train[c("radscore", "SGS", "SE", "familial_epilepsy", "Durmon")])
-x <- as.matrix(train[c(3:5, 7:16, 18)])
+x <- as.matrix(train[c(7:22)])
 cbfit <- CoxBoost(
   time = months,
   status = relapse,
@@ -1441,7 +1437,7 @@ cv.res <- cv.CoxBoost(
   penalty = optim.res$penalty
 )
 plot(cv.res$mean.logplik)
-cv.res$optimal.step # 最优次数119
+cv.res$optimal.step # 最优次数
 
 cbfit <- CoxBoost(
   time = months,
@@ -1452,6 +1448,6 @@ cbfit <- CoxBoost(
 )
 summary(cbfit)
 
-names <- cbfit$xnames[which(cbfit$coefficients[120, ] != 0)]
-coef <- cbfit$coefficients[120, ][which(cbfit$coefficients[120, ] != 0)]
+names <- cbfit$xnames[which(cbfit$coefficients[111, ] != 0)]
+coef <- cbfit$coefficients[111, ][which(cbfit$coefficients[111, ] != 0)]
 cbind(names, coef)
