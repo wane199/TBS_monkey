@@ -448,7 +448,7 @@ d1$ID <- paste0("sub_", d1$ID, sep = "")
 # 列名数组
 cols <- colnames(d1)
 # 最后一列移到第二列
-n_cols <- c(cols[1], cols[length(cols)], cols[1:(length(cols) - 1)])
+n_cols <- c(cols[1], cols[length(cols)], cols[2:(length(cols) - 1)])
 # 最后一列移到第一列
 n_cols <- c(cols[length(cols)], cols[1:(length(cols) - 1)])
 # dataframe排序

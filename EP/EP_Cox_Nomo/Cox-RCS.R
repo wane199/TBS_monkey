@@ -14,17 +14,23 @@ str(train)
 S <- Surv(train$Follow_up_timemon, train$Rel._in_5yrs == 1)
 
 ## rcs
-fit <- cph(S ~ rcs(Durmon, 3) + SE, x = TRUE, y = TRUE, data = train)
+fit <- cph(S ~ rcs(radscore, 5), x = TRUE, y = TRUE, data = train)
 cox.zph(fit, "rank") # tests of PH
 ggcoxzph(cox.zph(fit, "rank")) # 可视化等比例假定
+ggcoxdiagnostics(fit, type = "dfbeta",
+                 linear.predictions = FALSE, ggtheme = theme_bw())
 anova(fit) # 非线性检验
 ## 注意：这里的R命令是“cph”，而不是常见的生存分析中用到的“coxph"
 ## Tips：若因变量为二分类变量，改用lrm函数拟合模型：fit<- lrm(y ~  rcs(x1),data=data)；若因变量为连续变量，改用ols函数拟合模型：fit<-ols(y~ rcs(x1)
 ## 2.检验比例风险假设-PH假设
 ## Cox比例风险模型构建的一个前提条件是比例风险(PH)的假定，可以通过假设检验和Schoenfeld残差图检验，前者P>0.05,表示满足假设检验，后者残差图的横轴是时间，纵轴是残差，如果残差与时间有相关趋势，则违反PH假定，如果残差均匀分布则表示残差与时间相互独立，满足假设。
+ggcoxfunctional(S ~ radscore + log(radscore) + sqrt(radscore), data = train)
+
+
+
 
 ## 不分组/总体
-Pre0 <- rms::Predict(fit, Durmon, fun = exp, type = "predictions", ref.zero = TRUE, conf.int = 0.95, digits = 2)
+Pre0 <- rms::Predict(fit, radscore, fun = exp, type = "predictions", ref.zero = TRUE, conf.int = 0.95, digits = 2)
 ggplot(Pre0,ylab="logRR(95%CI)") + theme_classic()
 View(Pre0)
 
@@ -182,9 +188,9 @@ library(rms)
 dt <- read.csv("jixian.csv")
 ## ---阈值效应分析--
 ## 计算拐点
-source("get_cutoff_cox.R")
-fml <- "Surv(time,status)~Hb+gender+age"
-cut_off <- get_cutoff_cox("Durmon", dt, fml)
+source("/home/wane/Documents/EP_code/git/Presentation/EP/EP_Cox_Nomo/get_cutoff_cox.R")
+fml <- "S~radscore"
+cut_off <- get_cutoff_cox("radscore", train, fml)
 cut_off # 定义临界点
 
 ### 计算拐点95%置信区间

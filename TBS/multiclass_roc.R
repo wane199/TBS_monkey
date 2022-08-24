@@ -101,3 +101,8 @@ multiclass.roc(responses, predictor, levels = c("X1", "X2"))
 data <- cbind(as.data.frame(predictor), "response" = responses)
 multiclass.roc(Label ~ Phy1+Phy2, dt)
 
+# CBCgrps中文版教程 https://zhuanlan.zhihu.com/p/110238149
+library(CBCgrps) 
+tab2 <- multigrps(dt, gvar = "type") 
+
+print(tab2, quote = T)

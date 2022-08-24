@@ -20,8 +20,8 @@ library(My.stepwise)
 
 # 读取数据集
 # write.csv(dt,"/home/wane/Desktop/EP/结构化数据/TableS1-2.csv", row.names = FALSE)
-dt0 <- read.csv("/home/wane/Desktop/EP/Structured_Data/PT_radiomic_features_temporal_ind2.csv")
-dt <- read.csv("/media/wane/wade/EP/EPTLE_PET/TLE_pet_ind/process_PT_tem.csv")
+dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/PT_radiomic_features_temporal_ind2.csv")
+dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/TLE234group.csv")
 dt <- dt[-3]
 dt <- as.data.frame(dt)
 as.matrix(head(dt))
@@ -31,38 +31,44 @@ summary(dt)
 
 corrlate <- cor(as.matrix(dt))
 corrplot.mixed(corrlate)
-set.seed(123)
 dt <- na.omit(dt) # 按行删除缺失值
 attach(dt)
 
-# 待筛选组学特征标准化(Standardization或Normalization)
-dtx <- scale(dt[, c(6:1138)])
-# x=scale(x,center=T,scale=T)  #Z-score标准化方法
-normal_para <- preProcess(x = train[, 5:1136], method = c("center", "scale")) # 提取训练集的标准化参数
-train_normal <- predict(object = normal_para, newdata = train[, 5:1136])
-test_normal <- predict(object = normal_para, newdata = test[, 5:1136])
-test_normal <- mutate(test[, 1:4], test_normal)
-
-dtx <- as.data.frame(dtx)
-head(dt[4:5])
-dt <- mutate(dt[, 4:5], dtx)
-write.csv(dt, "/media/wane/wade/EP/EPTLE_PET/TLE_pet_ind/process_PT_tem.csv", row.names = F)
 set.seed(123)
 ind <- sample(2, nrow(dt), replace = TRUE, prob = c(0.7, 0.3))
 # 训练集
 train <- dt[ind == 1, ] # the training data set
-train <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/train_nor.csv")
 # 测试集
 test <- dt[ind == 2, ] # the test data set
-test <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/test_nor.csv")
+# 待筛选组学特征标准化(Standardization或Normalization)
+dtx <- scale(dt[, c(6:1138)])
+# x=scale(x,center=T,scale=T)  #Z-score标准化方法
+normal_para <- preProcess(x = train[, 4:1135], method = c("center", "scale")) # 提取训练集的标准化参数
+train_normal <- predict(object = normal_para, newdata = train[, 4:1135])
+test_normal <- predict(object = normal_para, newdata = test[, 4:1135])
+train_normal <- mutate(train[, 1:3], train_normal)
+train1 <- transform(train_normal, Group = "Training")
+test1 <- transform(test_normal, Group = "Test")
+nor <- rbind(train1,test1)
+# 列名数组
+cols <- colnames(nor)
+# 最后一列移到第二列
+n_cols <- c(cols[1], cols[length(cols)], cols[2:(length(cols) - 1)])
+# 最后一列移到第一列
+n_cols <- c(cols[length(cols)], cols[1:(length(cols) - 1)])
+# dataframe排序
+nor1 <- nor[, n_cols]
+write.csv(nor1, "/home/wane/Desktop/EP/Structured_Data/Task2/process_PT_radiomic_features_temporal_ind2.csv", row.names = F)
 
+train <- subset(dt, dt$Group == "Training")
+test <- subset(dt, dt$Group == "Test")
 # 看一下，不要让临床信息差的太多，输出table1
 prop.table(table(train$Follow_up_timemon))
 prop.table(table(test$Follow_up_timemon))
 prop.table(table(test$Rel._in_5yrs))
 prop.table(table(train$Rel._in_5yrs))
 
-## 影像组学导论R语言实现冗余性分析（含代码）
+三## 影像组学导论R语言实现冗余性分析（含代码）
 ## 影像组学导论 冗余性分析 你懂她嘛?(pearson OR spearman)
 # 9.feature selection: reduce redundancy
 # 9.1 calculate p of normality test
@@ -97,8 +103,12 @@ nocv_lasso <- glmnet(
   x = cv_x, y = cv_y,
   family = "cox", alpha = 1,
 )
-par(font.lab = 2, mfrow = c(1, 2), mar = c(4.5, 5, 3, 2))
-p1 <- plot(nocv_lasso, xvar = "lambda", las = 1, lwd = 2, xlab = "log(lambda)") # Fig1
+par(font.lab = 2, mfrow = c(2, 1), mar = c(4.5, 5, 3, 2))
+## 设置画图参数: mar 以数值向量表示的边界大小，顺序为“下、左、上、右”，单位为英分*。默认值为c(5, 4, 4, 2) + 0.1 ,mgp 设定标题、坐标轴名称、坐标轴距图形边框的距离。默认值为c(3,1,0)，其中第一个值影响的是标题
+## cex.axis 坐标轴刻度放大倍数,cex.main 标题的放大倍数,legend.x，legend.y 图例位置的横坐标和纵坐标,legend.cex 图例文字大小
+# layout(matrix(c(1,2,3,3),2,2,byrow=F))
+
+plot(nocv_lasso, xvar = "lambda", las = 1, lwd = 2, xlab = "log(lambda)") # Fig1
 abline(v = log(nocv_lasso$lambda.min), lwd = 1, lty = 3, col = "black")
 
 lasso_selection <- cv.glmnet(
@@ -108,7 +118,7 @@ lasso_selection <- cv.glmnet(
 ) # cross validation
 # fitcv1 <- cv.glmnet(x, y, alpha = 1, family = "cox", type.measure = "C")
 lasso_selection
-p2 <- plot(x = lasso_selection, las = 1, xlab = "log(lambda)") # Fig2
+plot(x = lasso_selection, las = 1, xlab = "log(lambda)") # Fig2
 # 给每一副子图加上序号，tag_level选a，表示用小写字母来标注
 library(cowplot)
 plot_grid(p1, p2, labels = c("a", "b"))
@@ -171,7 +181,6 @@ ggplot(tidy_df, aes(lambda, estimate, group = nzero, color = nzero)) +
   ylab("Coefficients") +
   scale_color_manual(name = "variable", values = mypalette) +
   theme_bw()
-
 p2 <- ggplot(tidy_df, aes(lambda, estimate, group = term, color = term)) +
   geom_line(size = 1.2) +
   geom_hline(yintercept = 0) +
@@ -226,7 +235,7 @@ ggplot(lasso_coef, aes(x = reorder(Feature, Coef), y = Coef, fill = Coef)) +
   ylab("Coefficients") +
   coord_flip() +
   geom_bar(stat = "identity", colour = "black", width = 0.78, size = 0.25, position = position_dodge(0.7)) +
-  ylim(-0.40, 0.40) +
+  # ylim(-0.30, 0.20) +
   geom_text(aes(label = Coef), vjust = -0.2) +
   theme_bw() +
   theme(panel.grid.major.y = element_blank(), panel.grid.minor = element_blank()) +
@@ -236,7 +245,7 @@ ggplot(lasso_coef, aes(x = reorder(Feature, Coef), y = Coef, fill = Coef)) +
   theme(axis.text.y = element_blank()) + # hjust=1调整横轴距离
   geom_text(aes(y = ifelse(Coef > 0, -0.01, 0.01), label = Feature, fontface = 4, hjust = ifelse(Coef > 0, 1, 0))) +
   scale_fill_gradient2(low = "#366488", high = "red", mid = "white", midpoint = 0)
-write.csv(lasso_coef, file = "/media/wane/wade/EP/EPTLE_PET/TLE_pet_ind/coef.minPTcox13.csv", quote = T, row.names = F)
+write.csv(lasso_coef, file = "/home/wane/Desktop/EP/Structured_Data/Task2/coef.minPTcox9.csv", quote = T, row.names = F)
 # coef <- read_csv("/media/wane/wade/EP/EPTLE_PET/TLE_pet_ind/coef.minPTcox9.csv", show_col_types = FALSE)
 # 提取特征名
 var <- unlist(lasso_coef[, 1])
@@ -265,6 +274,11 @@ Rad_train <- as.data.frame(Radscore_train)
 Rad_test <- as.data.frame(Radscore_test)
 train1 <- mutate(Rad_train, train)
 test1 <- mutate(Rad_test, test)
+train1 %>%rename(radscore = Radscore_train) -> train1
+test1 %>%rename(radscore = Radscore_test) -> test1
+rad <- rbind(train1,test1)
+write.csv(rad, file = "/home/wane/Desktop/EP/Structured_Data/Task2/process_ind2_rad.csv", quote = T, row.names = F)
+
 ## Lasso筛选变量后进一步逐步回归筛选(训练集)stepwise
 ddist <- datadist(train)
 options(datadist = "ddist")
@@ -290,23 +304,16 @@ My.stepwise.coxph(
 # 计算radscore并z-score标准化，添加至临床资料表
 dt <- dt %>%
   as_tibble(dt) %>%
-  mutate(radscore = 0.169756512 * log.sigma.5.0.mm.3D_glcm_ClusterShade
-    - 0.067016115 * log.sigma.5.0.mm.3D_glszm_SmallAreaLowGrayLevelEmphasis
-    - 0.00124 * wavelet.LLH_gldm_LowGrayLevelEmphasis
-    + 0.047753223 * wavelet.LHL_firstorder_Median
-    + 0.046338186 * wavelet.LHL_firstorder_RootMeanSquared
-    - 0.231716152 * wavelet.LHL_glcm_Imc2
-    + 0.039466646 * wavelet.LHL_gldm_DependenceNonUniformity
-    + 0.06543544 * wavelet.HHH_glszm_ZoneEntropy
-    - 0.091605036 * wavelet.LLL_glcm_Imc2)
+  mutate(radscore = 0.1675 * log.sigma.5.0.mm.3D_glcm_ClusterShade
+    - 0.0648 * log.sigma.5.0.mm.3D_glszm_SmallAreaLowGrayLevelEmphasis
+    - 0.0012 * wavelet.LLH_gldm_LowGrayLevelEmphasis
+    + 0.0503 * wavelet.LHL_firstorder_Median
+    + 0.048 * wavelet.LHL_firstorder_RootMeanSquared
+    - 0.2359 * wavelet.LHL_glcm_Imc2
+    + 0.0407 * wavelet.LHL_gldm_DependenceNonUniformity
+    + 0.0662 * wavelet.HHH_glszm_ZoneEntropy
+    - 0.0841 * wavelet.LLL_glcm_Imc2)
 radscore <- as.data.frame(dt["radscore"])
-# dtx <- as.data.frame(dtx)
-# rad <- mutate(dt[,1:3],dtx)
-# write.csv(rad,"/home/wane/Desktop/EP/Structured_Data/radcox9.csv", row.names = FALSE)
-library(readxl)
-data <- read_xlsx("/media/wane/wade/EP/EPTLE_PET/TLE234.xlsx")
-rad <- mutate(data, radscore)
-write.csv(rad, "/media/wane/wade/EP/EPTLE_PET/TLE234-rad.csv", row.names = FALSE)
 
 ### 临床资料汇总、最佳cutoff值及标准化
 dt <- read.csv("/media/wane/wade/EP/EPTLE_PET/TLE234-rad.csv")
@@ -332,12 +339,8 @@ ind <- sample(2, nrow(dt), replace = TRUE, prob = c(0.7, 0.3))
 train <- dt[ind == 1, ] # the training data set
 # 测试集
 test <- dt[ind == 2, ] # the test data set
-train1 <- transform(train, Group = "Training")
-test1 <- transform(test, Group = "Test")
-dt1 <- rbind(train1, test1)
-str(dt1$Rel._in_5yrs)
-dt1$Rel._in_5yrs <- ifelse(dt1$Rel._in_5yrs == "0", "Seizure-free", "Relapse")
-colnames(dt1)[2] <- "Seizure Outcome"
+dt$Rel._in_5yrs <- ifelse(dt$Rel._in_5yrs == "0", "Seizure-free", "Relapse")
+colnames(dt)[6] <- "Seizure Outcome"
 
 dt1 <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/TLE234group.csv")
 str(dt1)
@@ -346,7 +349,6 @@ for (i in names(dt1)[c(6,8,9,13:22)]) {
 }
 train <- subset(dt1, dt1$Group == "Training")
 test <- subset(dt1, dt1$Group == "Test")
-
 # Train vs. Test set
 library(ggstatsplot)
 library(palmerpenguins)
@@ -378,14 +380,15 @@ p2 <- ggbetweenstats(
   ggeasy::easy_center_title()
 
 library(ggpubr)
+library(ggsci)
 # 根据变量分面绘制箱线图
-p <- ggboxplot(dt1,
+dt$Group = factor(dt$Group,levels = c('Training','Test')) # 调整分面顺序
+p <- ggboxplot(dt,
   x = "Seizure Outcome", y = "radscore", ylab = "Radiomics Score",
   color = "Seizure Outcome", palette = "jco",
   add = "jitter", xlab = "", legend = "right",
   facet.by = "Group", short.panel.labs = FALSE
-) +
-  labs(color = "Seizure Outcome", shape = "Seizure Outcome")
+) + labs(color = "Seizure Outcome", shape = "Seizure Outcome")
 # Use only p.format as label. Remove method name.
 p + stat_compare_means(label = "p.format", method = "t.test")
 # Or use significance symbol as label
@@ -419,15 +422,16 @@ ggarrange(p1, p2,
 )
 # tableone
 library(CBCgrps)
-tab1 <- twogrps(dt1[c(-1:-3)], gvar = "Group")
+tab1 <- twogrps(dt[c(-1,-2,-4)], gvar = "Group", skewvar = c("radscore"))
 print(tab1, quote = T)
-write.csv(tab1[1], "./EP/EP_Cox_Nomo/traintesttable1.csv", row.names = F)
+write.csv(tab1[1], "/home/wane/Desktop/EP/Structured_Data/Task2/traintesttable1.csv", row.names = F)
 # 基线资料汇总，tableone
 library(tableone)
 ## 需要转为分类变量的变量
 catVars <- c("Sex")
+paste0(unlist(names(train)),collapse = "+")
 ## Create a TableOne object
-tab <- CreateTableOne(data = T1, strata = "Group", factorVars = catVars, addOverall = TRUE)
+tab <- CreateTableOne(data = dt, strata = "Group", factorVars = catVars, addOverall = TRUE)
 print(tab, showAllLevels = TRUE)
 print(CreateTableOne(data = testset), showAllLevels = TRUE)
 tabMat <- print(tab, staquote = FALSE, noSpaces = TRUE, printToggle = FALSE, showAllLevels = TRUE)
@@ -436,9 +440,10 @@ write.csv(tabMat, file = "/media/wane/Data/CN/t1myTable.csv")
 
 # 最佳cutoff值
 library(cutoff)
-# library(ggpubr)
+str(train)
 train$Rel._in_5yrs <- as.numeric(as.character(train$Rel._in_5yrs))
 train$Rel._in_5yrs <- as.factor(train$Rel._in_5yrs)
+
 logresult <- cutoff::logrank(
   data = train, # 数据集
   time = "Follow_up_timemon", # 生存时间
@@ -460,7 +465,7 @@ res.cut <- surv_cutpoint(
   data = train, time = "Follow_up_timemon",
   event = "Rel._in_5yrs", variables = c("radscore")
 )
-summary(res.cut) # 最佳截断值为0.3346
+summary(res.cut) # 最佳截断值为0.528+-5.898
 plot(res.cut, "radscore", palette = "npg")
 res.cat <- surv_categorize(res.cut)
 fit <- survfit(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore, data = res.cat)
@@ -501,7 +506,6 @@ res.cat <- as.data.frame(res.cat)
 dt$rad <- cut(dt$radscore, breaks = c(-Inf, 0.3346, Inf), labels = c("low", "high"), right = FALSE)
 write.csv(dt, "/media/wane/wade/EP/EPTLE_PET/TLE234-rad.csv", row.names = FALSE)
 
-rm(list = ls())
 dt$Rad[dt$rad == "low"] <- "0"
 dt$Rad[dt$rad == "high"] <- "1"
 dtx <- scale(dt[, c(3:16, 18)]) # z标准化
@@ -513,32 +517,30 @@ dt <- read.csv("/media/wane/wade/EP/EPTLE_PET/TLE234-rad.csv")
 dt <- read.csv("./EP/EP_Cox_Nomo/TLE234-rad.csv")
 
 create_report(dt)
-dt <- dt[-17]
 # 对数据初步预处理(批量单因素分析变量保留数值型变量)
 # 用for循环语句将数值型变量转为因子变量
-for (i in names(dt)[c(2:4, 8:16)]) {
-  dt[, i] <- as.factor(dt[, i])
+for (i in names(train)[c(-1:-5, -7, -10:-12)]) {
+  train[, i] <- as.factor(train[, i])
 }
 
-set.seed(123)
-ind <- sample(2, nrow(dt), replace = TRUE, prob = c(0.7, 0.3))
-# 训练集
-train <- dt[ind == 1, ] # the training data set
-# 测试集
-test <- dt[ind == 2, ] # the test data set
 ddist <- datadist(train) # 数据打包
 options(datadist = "ddist")
 
 # 输出单因素和多因素结果
 library(finalfit)
-unlist(colnames(dt[c(-1, -2)]))
+str(train)
+train['Follow_up_timemon'] <- lapply(train['Follow_up_timemon'], FUN = function(y) {
+  as.numeric(y)
+}) # int类型转num类型
+
 paste0(colnames(dt[c(-1, -2)]), collapse = "\",\"")
 # Crosstable
-explanatory <- c(
-  "side", "Sex", "Surgmon", "Onsetmon", "Durmon", "SE", "SGS",
-  "early_brain_injury", "familial_epilepsy", "brain_hypoxia", "Central_Nervous_System_Infections", "traumatic_brain_injury", "history_of_previous_surgery", "MRI", "radscore"
-)
-dependent <- "Rel._in_5yrs"
+explanatory <- unlist(colnames(train)[c(-1:-6)])
+# explanatory <- c(
+#   "side", "Sex", "Surgmon", "Onsetmon", "Durmon", "SE", "SGS",
+#   "early_brain_injury", "familial_epilepsy", "brain_hypoxia", "Central_Nervous_System_Infections", "traumatic_brain_injury", "history_of_previous_surgery", "MRI", "radscore"
+# )
+dependent <- 'Rel._in_5yrs'
 train %>%
   summary_factorlist(dependent, explanatory,
     cont = "mean", # 连续性定量变量计算均数(标准差)，cont="median"计算中位数（四分位数间距）
@@ -555,7 +557,7 @@ knitr::kable(t1, align = c("l", "l", "r", "r", "r"), "simple")
 write.csv(t1, "/media/wane/wade/EP/EPTLE_PET/final_train.csv", row.names = F)
 
 # 指定自变量
-explanatory <- unlist(colnames(train)[7:22])
+explanatory <- unlist(colnames(train)[c(-1:-6)])
 # 指定因变量
 train$Rel._in_5yrs <- as.numeric(train$Rel._in_5yrs) # 拟合cox回归需要转为数值变量
 dependent <- "Surv(Follow_up_timemon, Rel._in_5yrs)"
@@ -566,11 +568,11 @@ train %>%
     add_dependent_label = F
   ) -> t2 # add_dependent_label=F表示不在表的左上角添加因变量标签。
 knitr::kable(t2, "simple")
-write.csv(t2, "/media/wane/wade/EP/EPTLE_PET/finalfit.csv", row.names = F)
+write.csv(t2, "/home/wane/Desktop/EP/Structured_Data/Task2/finalfit.csv", row.names = F)
 
 # hr_plot()生成Cox比例风险模型的风险比表和图, or_plot用于从glm()或lme4::glmer()模型中生成一个OR值表和图。
 # https://mp.weixin.qq.com/s?__biz=MzIzMzc1ODc4OA==&mid=2247485564&idx=1&sn=db5b0e544afa6f09e89d8c4606e21659&chksm=e8818157dff60841de4e60cc25785defca31241f2342d6b6a1b705151b6cbe7e023bfbd44aaa&mpshare=1&scene=1&srcid=0205aGisjDzv3Rrn1Raq1gUL&sharer_sharetime=1660926034730&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd
-explanatory <- unlist(colnames(dt)[c(7, 9, 11, 16, 17)])
+explanatory <- unlist(colnames(dt)[c(-1:-6)])
 train %>%
   hr_plot(dependent, explanatory)
 
@@ -602,7 +604,7 @@ str(train)
 ddist <- datadist(train)
 options(datadist = "ddist")
 paste0(colnames(dt)[3:17], collapse = '","')
-var <- unlist(colnames(train)[7:22])
+var <- unlist(colnames(train)[-1:-4])
 
 results <- ezcox(train,
   time = "Follow_up_timemon", status = "Rel._in_5yrs",
@@ -610,11 +612,11 @@ results <- ezcox(train,
 )
 results
 knitr::kable(results, "latex")
-write.csv(results, "/home/wane/Documents/EP_code/git/Presentation/EP/EP_Cox_Nomo/results.csv", row.names = FALSE)
+write.csv(results, "/home/wane/Desktop/EP/Structured_Data/Task2/results.csv", row.names = FALSE)
 
 show_forest(train,
   time = "Follow_up_timemon", status = "Rel._in_5yrs",
-  covariates = unlist(colnames(train)[c(7:22)]), controls = "radscore"
+  covariates = unlist(colnames(train)[c(-1:-4)]), controls = "radscore"
 )
 
 # Stepwise筛选变量
@@ -655,15 +657,16 @@ train$rad <- factor(train$rad,
 )
 # 拟合cox回归
 # coxm1 <- cph(Surv(Follow_up_timemon,Rel._in_5yrs==1) ~ Radscore, x=T,y=T,data=train,surv=T)
-coxm0 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy + Durmon + SE, data = train)
+coxm0 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy + Durmon + SE , data = train)
 coxm1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore, data = train)
-coxm2 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = train)
+coxm2 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE + Surgmon, data = train)
 
 cox.zph(coxm2) # 等比例风险假定
 print(coxm0)
 summary(coxm0)
 ## These models are significantly different by likelihood ratio test
 anova(coxm0, coxm1, coxm2, test = "LRT")
+summary(coxm1)$concordance # 未校准的时间C-index
 
 ## Put linear predictors ("lp") into EP train dataset
 train$lp.clinic <- predict(coxm0, type = "lp")

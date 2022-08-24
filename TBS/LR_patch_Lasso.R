@@ -282,28 +282,28 @@ testingset <- dt[-ss, ]
 library(flextable) # beautifying tables
 library(dplyr)
 library(dlookr)
-dlookr::describe(trainingset) %>% flextable()
+dlookr::describe(train) %>% flextable()
 
-dt1[c(-1, -2)] %>%
+dt[c(-1, -2, -4)] %>%
   group_by("Group") %>%
   univar_numeric() %>%
-  knitr::kable()
+  knitr::kable(format = "pipe")
 
 trainingset %>%
   diagnose_numeric() %>%
   flextable()
 
-SmartEDA::ExpNumStat(dt1[c(-1, -2)], by = "GA", gp = "Group", Outlier = TRUE, Qnt = c(.25, .75), round = 2) %>% flextable()
+SmartEDA::ExpNumStat(dt[c(-1, -2,-4)], by = "GA", gp = "Group", Outlier = TRUE, Qnt = c(.25, .75), round = 2) %>% flextable()
 
 library(summarytools)
-dt1[c(-1, -2)] %>%
+dt[c(-1, -2, -4)] %>%
   group_by("Group") %>%
   descr()
 
 library(psych)
 describeBy(
-  trainingset,
-  trainingset$Y
+  dt,
+  dt$Group
 )
 
 # Summary tools
@@ -340,7 +340,7 @@ as_kable(tra, format = "latex")
 as_kable_extra(tra, format = "latex")
 # 基线特征描述统计
 library(autoReg)
-ft <- gaze(Group ~ ., data = dt1[c(-1, -2)]) %>% myft()
+ft <- gaze(Group ~ ., data = dt[c(-1, -2, -4)]) %>% myft()
 ft
 library(rrtable)
 table2pptx(ft) # Exported table as Report.pptx
@@ -377,7 +377,7 @@ plot_histogram(trainingset, ggtheme = theme_classic())
 plot_density(dt)
 
 library(SmartEDA)
-ExpCatViz(dt1[c(-1, -2)], Page = c(3, 5))
+ExpCatViz(dt[c(-1, -2, -4)], Page = c(3, 5))
 library(tidyverse)
 ExpCatViz(
   trainingset %>%

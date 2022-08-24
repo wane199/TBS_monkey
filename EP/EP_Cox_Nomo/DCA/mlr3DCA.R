@@ -13,6 +13,11 @@ library(randomForestSRC)
 library(varSelRF) # 挑选变量
 library(reshape2)
 library(readxl)
+library(Boruta)
+library(mlbench)
+library(caret)
+library(pROC)
+library(ggplot2)
 source("./EP/EP_Cox_Nomo/DCA/dca.r") # 执行DCA的脚本
 rm(list = ls())
 getwd()
@@ -20,7 +25,7 @@ getwd()
 dt0 <- read.csv("/media/wane/wade/EP/EPTLE_PET/TLE_pet_ind/process_PT_tem.csv")
 dt0 <- read.csv("/home/wane/Desktop/EP/Structured_Data/PT_radiomic_features_temporal_ind2.csv")
 dt0 <- dt0[-1]
-dt1 <- read_excel("/home/wane/Desktop/EP/Structured_Data/Task2/TLE234group.xlsx")
+# dt1 <- read_excel("/home/wane/Desktop/EP/Structured_Data/Task2/TLE234group.xlsx")
 
 train <- subset(dt1, dt1$Group == "Training")
 test <- subset(dt1, dt1$Group == "Test")
@@ -28,7 +33,6 @@ normal_para <- preProcess(x = train[, 5:1136], method = c("center", "scale")) # 
 train_normal <- predict(object = normal_para, newdata = train[, 5:1136])
 test_normal <- predict(object = normal_para, newdata = test[, 5:1136])
 test_normal <- mutate(test[, 1:4], test_normal)
-write.csv(test1, "/home/wane/Desktop/EP/Structured_Data/Task2/test_nor.csv", row.names = F)
 
 dt0 <- na.omit(dt0) # 按行删除缺失值
 attach(dt0)
@@ -41,18 +45,46 @@ test <- dt0[ind == 2, ] # the test data set
 
 ## analysis, 生存随机森林因变量不设置分类变量
 set.seed(123)
+dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/TLE234group.csv")
+train <- subset(dt, dt$Group == "Training")
+test <- subset(dt, dt$Group == "Test")
 ddist <- datadist(train)
 options(datadist = "ddist")
-vars <- paste0(names(train[c(7:22)]), collapse = "+")
+vars <- paste0(colnames(train[c(7:22)]), collapse = "+")
 rad.obj <- rfsrc(Surv(Follow_up_timemon, Rel._in_5yrs) ~ radscore+side+Sex+Surgmon+Onsetmon+Durmon+Freq+SE+SGS+early_brain_injury+familial_epilepsy+brain_hypoxia+Central_Nervous_System_Infections+traumatic_brain_injury+history_of_previous_surgery+MRI,
   data = train, nsplit = 10, block.size = 10,
   mtry = 50, nodesize = 15, ntree = 400, importance = TRUE, samptype = "swor", splitrule = "logrank"
 )
-
+print(rad.obj)
 print(rad.obj$importance)
-print(sort(rad.obj$importance, decreasing = F)[1:12])
+print(sort(rad.obj$importance, decreasing = T)[1:6])
 plot(rad.obj)
-top <- sort(rad.obj$importance, decreasing = T)[1:12]
+top <- sort(rad.obj$importance, decreasing = T)[1:6]
 plot(top)
 
-vs.rad <- var.select(object = rad.obj)
+vs.rad <- var.select(object = rad.obj) # 变量筛选
+topvars <- vs.rad$topvars
+topvars
+
+max.subtree(rad.obj, conservative = T)$topvars
+
+vimp.obj <- vimp(rad.obj,importance = "random", block.size = 10)
+print(sort(vimp.obj$importance,decreasing = T))
+
+# 绘制变量与mortality的关系
+plot.variable(rad.obj, plots.per.page = 6)
+plot.variable(rad.obj, xvar.names = c("radscore"), surv.type = "mort")
+plot.variable(rad.obj, xvar.names = c("radscore"), surv.type = "rel.freq")
+
+# 绘制生存图形
+plot.variable(rad.obj, xvar.names = c("radscore"), surv.type = "surv", time = 36)
+
+plot.survival(rad.obj, subset = c(80))
+
+plot.survival(rad.obj, plots.one.page=F)
+
+which.min(rad.obj$err.rate)
+
+rad.pred <- predict(rad.obj, test)
+print(rad.pred)
+
