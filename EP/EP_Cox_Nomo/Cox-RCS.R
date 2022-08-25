@@ -6,6 +6,8 @@ library(rms) # RCS
 library(survminer) # 曲线
 library(ggplot2) # 画图
 library(ggsci) # 调色板
+library(ggrcs)
+library(scales)
 
 # 设定数据环境
 dd <- datadist(train)
@@ -15,7 +17,7 @@ train$Rel._in_5yrs <- as.factor(train$Rel._in_5yrs)
 S <- Surv(train$Follow_up_timemon, train$Rel._in_5yrs == 1)
 
 ## rcs
-fit <- cph(S ~ rcs(radscore, 3) + SGS, x = TRUE, y = TRUE, data = train)
+fit <- cph(S ~ rcs(radscore, 3), x = TRUE, y = TRUE, data = train)
 cox.zph(fit, "rank") # tests of PH
 ggcoxzph(cox.zph(fit, "rank")) # 可视化等比例假定
 ggcoxdiagnostics(fit,
@@ -29,6 +31,9 @@ anova(fit) # 非线性关系P-Nonlinear<0.05为存在非线性关系
 ## Cox比例风险模型构建的一个前提条件是比例风险(PH)的假定，可以通过假设检验和Schoenfeld残差图检验，前者P>0.05,表示满足假设检验，后者残差图的横轴是时间，纵轴是残差，如果残差与时间有相关趋势，则违反PH假定，如果残差均匀分布则表示残差与时间相互独立，满足假设。
 res.cox <- coxph(S ~ radscore + I(radscore^2), data = train)
 ggcoxfunctional(res.cox, data = train, point.col = "blue", point.alpha = 0.5)
+# ggrcs包，一个用于绘制直方图+限制立方样条+双坐标轴图的R包
+ggrcs(data=train,fit=fit,x="radscore", histbinwidth = 0.05, histcol="blue", ribcol="green",
+      histlimit=c(0,50),leftaxislimit=c(0,1),lift = T)
 
 ## 不分组/总体
 Pre0 <- rms::Predict(fit, radscore, fun = exp, type = "predictions", ref.zero = TRUE, conf.int = 0.95, digits = 2)
@@ -123,7 +128,7 @@ points(
   col = "red"
 )
 Text <- paste("Ref=", round(dd$limits$radscore[2], 3), sep = "")
-## 图像添加文字，这里添加参考点及箭头
+## 图像添加文字，这里添加参考点及箭头 ggannotate包
 text(Text, x = dd$limits$radscore[2], y = 0.5, cex = 1)
 arrows(0.183, 0.70, 0.183, 0.95, col = 'black', length = 0.14, angle = 30,
        code = 2)

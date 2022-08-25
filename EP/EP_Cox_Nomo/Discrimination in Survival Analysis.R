@@ -5,15 +5,16 @@ rm(list = ls())
 library(survival)
 library(rms)
 getwd()
-dt <- read.csv("./EP/EP_Cox_Nomo/TLE234-rad.csv")
+# dt <- read.csv("./EP/EP_Cox_Nomo/TLE234-rad.csv")
+dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/TLE234group.csv")
+train <- subset(dt, dt$Group == "Training")
+test <- subset(dt, dt$Group == "Test")
 
 # 对数据初步预处理(批量单因素分析变量保留数值型变量)
 # 用for循环语句将数值型变量转为因子变量
 for (i in names(dt)[c(2:4, 8:16)]) {
   dt[, i] <- as.factor(dt[, i])
 }
-dt$Rel._in_5yrs <- as.numeric(dt$Rel._in_5yrs == "1")
-
 set.seed(123)
 ind <- sample(2, nrow(dt), replace = TRUE, prob = c(0.7, 0.3))
 # 训练集
@@ -50,7 +51,7 @@ logit.clinic <- glm(Rel._in_5yrs ~ SGS + familial_epilepsy + Durmon + SE, data =
 lroc(logit.clinic, graph = F)$auc
 
 ## Model with age, sex, and albumin
-logit.rad.clinic <- glm(Rel._in_5yrs ~ radscore + Freq + Onsetmon + Durmon, data = train, family = binomial)
+logit.rad.clinic <- glm(Rel._in_5yrs ~ radscore + SGS + SE +  familial_epilepsy + Onsetmon + Durmon, data = train, family = binomial)
 lroc(logit.rad.clinic, graph = F)$auc
 
 ## Create a variable indicating 2-year event**
@@ -335,24 +336,78 @@ IDI.INF.OUT(res.IDI.INF)
 ## M1 red area; M2 distance between black points; M3 distance between gray points
 IDI.INF.GRAPH(res.IDI.INF)
 
-# 批量单因素Cox，比较C-index
+# 批量单因素Cox，比较C-index，回归结果导出
 # https://www.jianshu.com/p/617db057df37
 coxm0 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS, data = train)
 coxm1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore, data = train)
 coxm2 <- survival::coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = train)
 
-cox.zph(coxm1) # 等比例风险假定
+cox.zph(coxm2) # 等比例风险假定
 print(coxm2)
+library(broom) # 快速将回归模型的结果整理成数据框形式，再用Excel导出
+coxphtable <- tidy(coxm2)
+coxphtable
+glmaug <- augment(coxm2, data = train)
+glmaug
+glmgla <- glance(coxm2)
+glmgla
+library(openxlsx) # 加载R包
+write.xlsx(coxphtable, "/home/wane/Desktop/EP/Structured_Data/Task2/coxphtable.xlsx")
+write.xlsx(glmaug, "/home/wane/Desktop/EP/Structured_Data/Task2/glmaug.xlsx")
+write.xlsx(glmgla, "/home/wane/Desktop/EP/Structured_Data/Task2/glmgla.xlsx")
+library(texreg) # 加载R包，texreg包，一个比broom包功能更强的模型统计结果输出包
+library(dplyr)
+# 调整模型输出的样式
+screenreg(coxm2, 
+          custom.model.names = "coxphmodel", # 修改模型的名字
+          digits = 3, # 设置有效数字位数 
+          single.row = TRUE, # 将 standard errors和系数放在同一行
+          ci.force = TRUE)  # 将standard errors 替换为置信区间
+htmlreg(list(coxm1, coxm2),
+        file = "/home/wane/Desktop/EP/Structured_Data/Task2/模型输出.doc",
+        custom.model.names = c("glmmodel", "glmmodel1"), # 修改模型的名字
+        digits = 3, # 设置有效数字位数 
+        single.row = TRUE, # 将 standard errors和系数放在同一行
+        ci.force = TRUE,
+        inline.css = FALSE,
+        doctype = TRUE,
+        html.tag = TRUE,
+        head.tag = TRUE,
+        body.tag = TRUE)
+
+
 anova(coxm1)
 summary(coxm2)$concordance # 未校准的时间C-index
 
+# Pearson/Spearman: https://mp.weixin.qq.com/s?__biz=MzU4OTc0OTg2MA==&mid=2247497953&idx=1&sn=3c654f9bb1c3cb57bc65618e348a384a&chksm=fdca73eacabdfafcf5ee17aa7b9b68db3890c71c8c4a0e61272023822d7427b05704c3205818&scene=178&cur_album_id=1581956119214800896#rd
 library(corrplot)
+str(train)
+train$Rel._in_5yrs <- as.numeric(as.character(train$Rel._in_5yrs))
+for (i in names(train)[c(7:9, 11)]) {
+  train[, i] <- as.numeric(train[, i])
+}
 dfc <- train[, names(train) %in% c("radscore", "SGS", "familial_epilepsy", "Durmon", "SE")]
 corrplor <- cor(as.matrix(dfc))
-corrplot.mixed(corrplor)
+corrplot.mixed(corrplor, insig = "p-value")
+res1 <- cor.mtest(dfc, conf.level = .95)
+corrplot(corrplor, p.mat = res1$p, sig.level = .2,type = "lower",
+         insig = "p-value")
 data.frame(corrplor)
 library(GGally)
 ggpairs(dfc)
+library(bruceR)
+par(margin(2,2,1,1))
+Corr(dfc,  plot.color.levels = 50,  p.adjust = "none",
+     all.as.numeric = TRUE, 
+     digits = 2,
+     plot.file = NULL,
+     plot.width = 18,
+     plot.height = 16,
+     plot.dpi = 600)  + theme( cl.ratio = 0.5,title=element_text(family="myFont",size=12,color="red",
+                                                   face="italic",hjust=0.2,lineheight=0.2),
+                                axis.title.x=element_text(size=10,face="bold",color="blue",hjust=0.5),
+                                axis.title.y=element_text(size=14,color="green",hjust=0.5,angle=45),
+                                axis.text.x=element_text(family="myFont",size=8,color="red") )
 
 vif <- rms::vif(coxm2) # 检测共线性
 sqrt(vif) < 2

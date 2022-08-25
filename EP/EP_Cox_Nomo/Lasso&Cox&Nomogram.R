@@ -20,7 +20,7 @@ library(My.stepwise)
 
 # 读取数据集
 # write.csv(dt,"/home/wane/Desktop/EP/结构化数据/TableS1-2.csv", row.names = FALSE)
-dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/PT_radiomic_features_temporal_ind2.csv")
+# dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/PT_radiomic_features_temporal_ind2.csv")
 dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/TLE234group.csv")
 dt <- dt[-3]
 dt <- as.data.frame(dt)
@@ -48,7 +48,7 @@ test_normal <- predict(object = normal_para, newdata = test[, 4:1135])
 train_normal <- mutate(train[, 1:3], train_normal)
 train1 <- transform(train_normal, Group = "Training")
 test1 <- transform(test_normal, Group = "Test")
-nor <- rbind(train1,test1)
+nor <- rbind(train1, test1)
 # 列名数组
 cols <- colnames(nor)
 # 最后一列移到第二列
@@ -274,14 +274,12 @@ Rad_train <- as.data.frame(Radscore_train)
 Rad_test <- as.data.frame(Radscore_test)
 train1 <- mutate(Rad_train, train)
 test1 <- mutate(Rad_test, test)
-train1 %>%rename(radscore = Radscore_train) -> train1
-test1 %>%rename(radscore = Radscore_test) -> test1
-rad <- rbind(train1,test1)
+train1 %>% rename(radscore = Radscore_train) -> train1
+test1 %>% rename(radscore = Radscore_test) -> test1
+rad <- rbind(train1, test1)
 write.csv(rad, file = "/home/wane/Desktop/EP/Structured_Data/Task2/process_ind2_rad.csv", quote = T, row.names = F)
 
 ## Lasso筛选变量后进一步逐步回归筛选(训练集)stepwise
-ddist <- datadist(train)
-options(datadist = "ddist")
 vars <- c(
   "log.sigma.5.0.mm.3D_glcm_ClusterShade", "original_glszm_GrayLevelNonUniformity", "wavelet.HHH_glszm_ZoneEntropy",
   "wavelet.LHL_firstorder_RootMeanSquared", "wavelet.HHL_glszm_SizeZoneNonUniformityNormalized", "wavelet.LHL_firstorder_Median",
@@ -338,7 +336,7 @@ colnames(dt)[6] <- "Seizure Outcome"
 
 dt1 <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/TLE234group.csv")
 str(dt1)
-for (i in names(dt1)[c(6,8,9,13:22)]) {
+for (i in names(dt1)[c(6, 8, 9, 13:22)]) {
   dt1[, i] <- as.factor(dt1[, i])
 }
 train <- subset(dt1, dt1$Group == "Training")
@@ -376,7 +374,7 @@ p2 <- ggbetweenstats(
 library(ggpubr)
 library(ggsci)
 # 根据变量分面绘制箱线图
-dt$Group = factor(dt$Group,levels = c('Training','Test')) # 调整分面顺序
+dt$Group <- factor(dt$Group, levels = c("Training", "Test")) # 调整分面顺序
 p <- ggboxplot(dt,
   x = "Seizure Outcome", y = "radscore", ylab = "Radiomics Score",
   color = "Seizure Outcome", palette = "jco",
@@ -416,14 +414,14 @@ ggarrange(p1, p2,
 )
 # tableone
 library(CBCgrps)
-tab1 <- twogrps(dt[c(-1,-2,-4)], gvar = "Group", skewvar = c("radscore"))
+tab1 <- twogrps(dt[c(-1, -2, -4)], gvar = "Group", skewvar = c("radscore"))
 print(tab1, quote = T)
 write.csv(tab1[1], "/home/wane/Desktop/EP/Structured_Data/Task2/traintesttable1.csv", row.names = F)
 # 基线资料汇总，tableone
 library(tableone)
 ## 需要转为分类变量的变量
 catVars <- c("Sex")
-paste0(unlist(names(train)),collapse = "+")
+paste0(unlist(names(train)), collapse = "+")
 ## Create a TableOne object
 tab <- CreateTableOne(data = dt, strata = "Group", factorVars = catVars, addOverall = TRUE)
 print(tab, showAllLevels = TRUE)
@@ -523,18 +521,18 @@ options(datadist = "ddist")
 # 输出单因素和多因素结果
 library(finalfit)
 str(train)
-train['Follow_up_timemon'] <- lapply(train['Follow_up_timemon'], FUN = function(y) {
+train["Follow_up_timemon"] <- lapply(train["Follow_up_timemon"], FUN = function(y) {
   as.numeric(y)
 }) # int类型转num类型
 
 paste0(colnames(dt[c(-1, -2)]), collapse = "\",\"")
 # Crosstable
-explanatory <- unlist(colnames(train)[c(-1:-6)])
+explanatory <- unlist(colnames(train)[c(7, 12, 14, 15, 17)])
 # explanatory <- c(
 #   "side", "Sex", "Surgmon", "Onsetmon", "Durmon", "SE", "SGS",
 #   "early_brain_injury", "familial_epilepsy", "brain_hypoxia", "Central_Nervous_System_Infections", "traumatic_brain_injury", "history_of_previous_surgery", "MRI", "radscore"
 # )
-dependent <- 'Rel._in_5yrs'
+dependent <- "Rel._in_5yrs"
 train %>%
   summary_factorlist(dependent, explanatory,
     cont = "mean", # 连续性定量变量计算均数(标准差)，cont="median"计算中位数（四分位数间距）
@@ -562,7 +560,7 @@ train %>%
     add_dependent_label = F
   ) -> t2 # add_dependent_label=F表示不在表的左上角添加因变量标签。
 knitr::kable(t2, "simple")
-write.csv(t2, "/home/wane/Desktop/EP/Structured_Data/Task2/finalfit.csv", row.names = F)
+write.csv(t2, "/home/wane/Desktop/EP/Structured_Data/Task2/table2.csv", row.names = F)
 
 # hr_plot()生成Cox比例风险模型的风险比表和图, or_plot用于从glm()或lme4::glmer()模型中生成一个OR值表和图。
 # https://mp.weixin.qq.com/s?__biz=MzIzMzc1ODc4OA==&mid=2247485564&idx=1&sn=db5b0e544afa6f09e89d8c4606e21659&chksm=e8818157dff60841de4e60cc25785defca31241f2342d6b6a1b705151b6cbe7e023bfbd44aaa&mpshare=1&scene=1&srcid=0205aGisjDzv3Rrn1Raq1gUL&sharer_sharetime=1660926034730&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd
@@ -651,9 +649,9 @@ train$rad <- factor(train$rad,
 )
 # 拟合cox回归
 # coxm1 <- cph(Surv(Follow_up_timemon,Rel._in_5yrs==1) ~ Radscore, x=T,y=T,data=train,surv=T)
-coxm0 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy + Durmon + SE + Surgmon , data = test)
+coxm0 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy + Durmon + SE + Surgmon, data = test)
 coxm1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore, data = test)
-coxm2 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE , data = test)
+coxm2 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = test)
 
 cox.zph(coxm2) # 等比例风险假定
 print(coxm2)
@@ -1043,10 +1041,10 @@ plot(cal1,
 # lines(cal1[,c("mean.predicted","KM")],type="b",lwd=2,col="red",pch=16)
 abline(0, 1, lty = 3, lwd = 2, col = "black")
 
-full3 <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ rad + SGS + familial_epilepsy + Durmon + SE,
+full3 <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
   x = T, y = T, surv = T, data = test, time.inc = 36
 )
-cal2 <- rms::calibrate(coxmodel2,
+cal2 <- rms::calibrate(full3,
   cmethod = "KM",
   method = "boot",
   u = 36, # u与time.inc一致
@@ -1063,7 +1061,7 @@ plot(cal2,
   col = "red",
   subtitles = F
 )
-# lines(cal1[,c("mean.predicted","KM")],type="b",lwd=2,col="red",pch=16)
+lines(cal2[,c("mean.predicted","KM")],type="b",lwd=2,col="red",pch=16)
 abline(0, 1, lty = 3, lwd = 2, col = "black")
 
 full5 <- rms::cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
@@ -1345,19 +1343,52 @@ tree <- ctree(Surv(Follow_up_timemon, Rel._in_5yrs) ~ radscore, data = train)
 plot(tree)
 
 # 简易评分系统, WALD-1(变量重要性),
+# https://mp.weixin.qq.com/s?__biz=MzA4MzU2NjUyNA==&mid=2693907244&idx=2&sn=746b13a043f5279739f0fde8ca920f73&chksm=ba91e9ff8de660e95e1685d206bb7acc417da164acf1be2f502c05d45cc14702c7455aae18f9&mpshare=1&scene=1&srcid=0825m2He1JeD6l3aZgTniBJF&sharer_sharetime=1661420090049&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd
 # Total points
+library(rms)
 library(nomogramEx)
-fita <- rms::cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
-  data = train, x = TRUE, y = TRUE, surv = TRUE, time.inc = 12
+library(nomogramFormula) # formula_lp函数，计算原始数据中每个患者的总分值和生存概率
+ddist <- datadist(train)
+options(datadist = "ddist")
+train$Rel._in_5yrs <- as.factor(train$Rel._in_5yrs)
+fita <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
+  data = train, x = TRUE, y = TRUE, surv = TRUE
 )
 surv <- Survival(fita)
 nomo <- nomogram(fita,
-  fun = list(function(x) surv(12, x), function(x) surv(6, x)),
-  lp = TRUE, funlabel = c("12-Month Survival Prob", "6-Month Survival Prob")
+  fun = list(function(x) surv(12, x), function(x) surv(36, x), function(x) surv(60, x)),
+  lp = TRUE, funlabel = c("12-Months Relapse Prob", "36-Months Relapse Prob", "60-Months Relapse Prob")
 )
-nomogramEx(nomo = nomo, np = 2, digit = 9)
+nomogramEx(nomo = nomo, np = 3, digit = 5)
 
 # 二次验证，最终Cox模型，cutoff风险分层(12,36,60 months)，K-M曲线绘制**
+# Score card, get the formula of total points by the best power using formula_lp
+results <- formula_lp(nomogram = nomo)
+points <- points_cal(formula = results$formula, lp = fita$linear.predictors)
+head(points)
+# Then calculate the survival probabilities
+prob <- prob_cal(reg = fita, times = c(12,36,60))
+head(prob)
+# Finally integrate the calculation results into the original dataframe
+train$points <- points
+train <- cbind(train,prob)
+head(train)
+
+dt <- dt %>%
+  as_tibble(dt) %>%
+  mutate(radscore = 0.1675 * log.sigma.5.0.mm.3D_glcm_ClusterShade
+    - 0.0648 * log.sigma.5.0.mm.3D_glszm_SmallAreaLowGrayLevelEmphasis
+    - 0.0012 * wavelet.LLH_gldm_LowGrayLevelEmphasis
+    + 0.0503 * wavelet.LHL_firstorder_Median
+    + 0.048 * wavelet.LHL_firstorder_RootMeanSquared
+    - 0.2359 * wavelet.LHL_glcm_Imc2
+    + 0.0407 * wavelet.LHL_gldm_DependenceNonUniformity
+    + 0.0662 * wavelet.HHH_glszm_ZoneEntropy
+    - 0.0841 * wavelet.LLL_glcm_Imc2)
+radscore <- as.data.frame(dt["radscore"])
+
+
+
 summary(fita)
 summary(m.new)
 train$lp.rad_clinic <- predict(m.new, type = "lp")
