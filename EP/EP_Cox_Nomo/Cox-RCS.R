@@ -11,41 +11,47 @@ library(ggsci) # 调色板
 dd <- datadist(train)
 options(datadist = "dd")
 str(train)
+train$Rel._in_5yrs <- as.factor(train$Rel._in_5yrs)
 S <- Surv(train$Follow_up_timemon, train$Rel._in_5yrs == 1)
 
 ## rcs
-fit <- cph(S ~ rcs(radscore, 5), x = TRUE, y = TRUE, data = train)
+fit <- cph(S ~ rcs(radscore, 3) + SGS, x = TRUE, y = TRUE, data = train)
 cox.zph(fit, "rank") # tests of PH
 ggcoxzph(cox.zph(fit, "rank")) # 可视化等比例假定
-ggcoxdiagnostics(fit, type = "dfbeta",
-                 linear.predictions = FALSE, ggtheme = theme_bw())
-anova(fit) # 非线性检验
+ggcoxdiagnostics(fit,
+  type = "dfbeta",
+  linear.predictions = FALSE, ggtheme = theme_bw()
+)
+anova(fit) # 非线性关系P-Nonlinear<0.05为存在非线性关系
 ## 注意：这里的R命令是“cph”，而不是常见的生存分析中用到的“coxph"
 ## Tips：若因变量为二分类变量，改用lrm函数拟合模型：fit<- lrm(y ~  rcs(x1),data=data)；若因变量为连续变量，改用ols函数拟合模型：fit<-ols(y~ rcs(x1)
 ## 2.检验比例风险假设-PH假设
 ## Cox比例风险模型构建的一个前提条件是比例风险(PH)的假定，可以通过假设检验和Schoenfeld残差图检验，前者P>0.05,表示满足假设检验，后者残差图的横轴是时间，纵轴是残差，如果残差与时间有相关趋势，则违反PH假定，如果残差均匀分布则表示残差与时间相互独立，满足假设。
-ggcoxfunctional(S ~ radscore + log(radscore) + sqrt(radscore), data = train)
-
-
-
+res.cox <- coxph(S ~ radscore + I(radscore^2), data = train)
+ggcoxfunctional(res.cox, data = train, point.col = "blue", point.alpha = 0.5)
 
 ## 不分组/总体
 Pre0 <- rms::Predict(fit, radscore, fun = exp, type = "predictions", ref.zero = TRUE, conf.int = 0.95, digits = 2)
-ggplot(Pre0,ylab="logRR(95%CI)") + theme_classic()
+ggplot(Pre0, ylab = "logRR(95%CI)") +
+  theme_classic() +
+  geom_hline(aes(yintercept = 1), linetype = "dashed", colour = "red")
 View(Pre0)
 
 ## 分组展示
-Pre1 <- rms::Predict(fit, Durmon, SE = c("0", "1"), fun = exp, type = "predictions", ref.zero = TRUE, conf.int = 0.95, digits = 2)
+Pre1 <- rms::Predict(fit, radscore, SGS = c("0", "1"), fun = exp, type = "predictions", ref.zero = TRUE, conf.int = 0.95, digits = 2)
 par(mfrow = c(1, 2))
-ggplot(Pre1,ylab="logRR(95%CI)") + theme_classic()
+ggplot(Pre1, ylab = "logRR(95%CI)") +
+  theme_classic() +
+  geom_hline(aes(yintercept = 1), linetype = "dashed", colour = "red")
 View(Pre1)
 
 ## 自定义ggpot作图
 ## 不分组
+str(train)
 ggplot() +
   geom_line(
     data = Pre0,
-    aes(Durmon, yhat, colour = SE), # xy轴的数据
+    aes(radscore, yhat, colour = factor(SGS)), # xy轴的数据
     linetype = 1,
     alpha = 0.7,
     size = 1
@@ -54,9 +60,9 @@ ggplot() +
   scale_color_nejm() +
   geom_ribbon(
     data = Pre0,
-    aes(Durmon,
+    aes(radscore,
       ymin = lower, ymax = upper,
-      fill = SE
+      fill = factor(SGS)
     ),
     alpha = 0.1
   ) +
@@ -69,7 +75,60 @@ ggplot() +
     x = "radcore",
     y = "HR(95%CI)"
   )
-col <- c("darkcyan", "tomato", "purple")
+
+# 基于Cox+限制性立方样条：密度曲线+平滑曲线双坐标轴超详细绘图 https://zhuanlan.zhihu.com/p/444672731
+# https://blog.csdn.net/Tuo1uo/article/details/121267836
+fit <- cph(S ~ rcs(radscore,3), x=TRUE, y=TRUE,data=train)
+Pre0<-rms::Predict(fit,radscore,fun=exp,type="predictions",ref.zero=T,conf.int = 0.95,digits=2)
+par(mar = c(5, 4, 4, 5)) # 说明见下,BLTR
+col <- c("#5BA5DA", "#F06955", "#FDC059", "skyblue", "blue") ## 颜色变量 col <- c("darkcyan", "tomato", "purple")
+plot(density(train$radscore), ### 密度估计曲线
+  axes = F, ## 不展示坐标轴，这是下面添加坐标轴的前提
+  xlab = "", ylab = "", ## X轴和Y轴标签
+  las = 1, ylim = c(0, 1.5), ## Y轴刻度范围
+  xlim = c(-1.0, 1.5),
+  type = "l", # 说明见下
+  lty = 2, ## 线条样式 取值0，1，2，分别是不划线；实线；虚线；
+  lwd = 2, ## 线条宽度 默认是1
+  col = col[4], # 颜色
+  main = ""
+) ## 标题
+# axis(side=2,col='red')
+## 绘制图形填充颜色
+polygon(density(train$radscore),angle = c(-45, 45), lty = c("dashed"),##### 密度估计曲线
+  col = col[4], ## 填充颜色
+  border = col[1]
+) ## 边界颜色
+## 添加坐标轴
+axis(4, las = 1) ## 加右边Y轴；说明见下
+par(new = T) ## 创建新的画布，类似于ggplot2中的图层叠加
+### 叠加平滑曲线
+plot(Pre0[, 1], Pre0$yhat, las = 1,
+  axes = T, type = "l", lty = 1, lwd = 2, col = col[2],
+  ylim = c(0, 5.0), ## Y轴刻度范围
+  xlim = c(-1.0, 1.5), ## 注意刻度范围要和上面保持一致
+  xlab = "radscore", ylab = "HR(95%CI)"
+)
+## 叠加平滑曲线的95%直线区间
+lines(Pre0[, 1], Pre0$lower, type = "l", lty = 2, lwd = 2, col = col[2])
+lines(Pre0[, 1], Pre0$upper, type = "l", lty = 2, lwd = 2, col = col[2])
+abline(h = 1.0, lty = 3, lwd = 2, col = 'lightgray')
+## 图形周边添加文本
+mtext("density", side = 4) ## 取值1，2，3，4分别代表下左上右，本例右边添加文本
+## 图形添加散点
+points(
+  x = dd$limits$radscore[2], ## 散点X轴坐标
+  y = 1, #### 散点y轴坐标
+  pch = 19, ## pch是点的形状，数字从1-25代表不同的点形状。
+  col = "red"
+)
+Text <- paste("Ref=", round(dd$limits$radscore[2], 3), sep = "")
+## 图像添加文字，这里添加参考点及箭头
+text(Text, x = dd$limits$radscore[2], y = 0.5, cex = 1)
+arrows(0.183, 0.70, 0.183, 0.95, col = 'black', length = 0.14, angle = 30,
+       code = 2)
+
+
 ### 分组做
 ggplot() +
   geom_line(
@@ -118,70 +177,79 @@ survplot(fit,
   xlab = "months"
 )
 
-###########------
+############# --------------
 # Cox模型:连续变量计算最佳阈值
 # 计算拟合值logRR
 fit <- coxph(S ~ rcs(Durmon, 3) + SE, data = train)
 
-pred<-predict(fit,type="terms",se.fit=TRUE)
-mfit <- pred$fit[,"rcs(Durmon, 3)"]
-sfit <- pred$se.fit[,"rcs(Durmon, 3)"]
-train<-cbind(train,'yhat'=mfit,'se'= sfit)
+pred <- predict(fit, type = "terms", se.fit = TRUE)
+mfit <- pred$fit[, "rcs(Durmon, 3)"]
+sfit <- pred$se.fit[, "rcs(Durmon, 3)"]
+train <- cbind(train, "yhat" = mfit, "se" = sfit)
 
 # 计算95%CI
-train$lower <- train[,'yhat']-1.96*train[,'se']
-train$upper <- train[,'yhat']+1.96*train[,'se']
-train<-train[order(train[,"Durmon"]),]
+train$lower <- train[, "yhat"] - 1.96 * train[, "se"]
+train$upper <- train[, "yhat"] + 1.96 * train[, "se"]
+train <- train[order(train[, "Durmon"]), ]
 
 # plot作图
-co <- c(65,162,-2,4)
-col = c("darkcyan","tomato","purple")  ##制作一个颜色变量
-plot(train$Durmon,train$yhat,col=col[1],type="l",lty=1,pch=2, ylab="", xlab="")
-par(new=TRUE); 
-plot(train$Durmon,train$lower,col=col[2],type="l",lty=2,ylab="", xlab="")
-par(new=TRUE); 
-plot(train$Durmon,train$upper,col=col[2],type="l",lty=2, ylab='Log RR', xlab='Durmon')
+co <- c(65, 162, -2, 4)
+col <- c("darkcyan", "tomato", "purple") ## 制作一个颜色变量
+plot(train$Durmon, train$yhat, col = col[1], type = "l", lty = 1, pch = 2, ylab = "", xlab = "")
+par(new = TRUE)
+plot(train$Durmon, train$lower, col = col[2], type = "l", lty = 2, ylab = "", xlab = "")
+par(new = TRUE)
+plot(train$Durmon, train$upper, col = col[2], type = "l", lty = 2, ylab = "Log RR", xlab = "Durmon")
 
-# 
-before.cox.curve.1 <- coxph(S ~ rcs(radscore, 3), data = train, x = T)
+
+# 绘制Cox回归模型中的样条曲线(spline)
+before.cox.curve.1 <- coxph(S ~ pspline(radscore), data = train, x = T)
 # pspline()拟合惩罚性样条曲线
 before.cox.curve.1
 library(smoothHR)
-hr1 <- smoothHR(data=train, coxfit= before.cox.curve.1)
+hr1 <- smoothHR(data = train, coxfit = before.cox.curve.1)
 print(hr1)
-plot(hr1,predictor="radscore",prob=0,conf.level=0.95,ref.label="radscore")
-
-Pre0 <- rms::Predict(before.cox.curve.1, radscore, fun = exp, type = "predictions", ref.zero = TRUE, conf.int = 0.95, digits = 2)
-plot(Pre0, predictor="radscore",prob=0,conf.level=0.95,ref.label="radscore",
+plot(hr1, predictor = train$radscore, prob=0,conf.level=0.95,ref.label="radscore",
      col=c("red","blue","green"), 
      #分别设置拟合曲线、95%置信线和区域范围的颜色
      xlab="radscore",ylab="调整的HR自然对数",main="")
 
-hist(train$radscore,  
-     breaks=30,
-     col="peachpuff",  
-     border="black",
-     prob = T,ylab="",yaxt = "n")#隐去X、Y轴标签和刻度
+Pre0 <- rms::Predict(before.cox.curve.1, radscore, fun = exp, type = "predictions", ref.zero = TRUE, conf.int = 0.95, digits = 2)
+plot(Pre0,
+  predictor = "radscore", prob = 0, conf.level = 0.95, ref.label = "radscore",
+  col = c("blue", "green"),
+  # 分别设置拟合曲线、95%置信线和区域范围的颜色
+  xlab = "radscore", ylab = "调整的HR自然对数", main = ""
+)
+
+hist(train$radscore,
+  breaks = 30,
+  col = "peachpuff",
+  border = "black",
+  prob = T, ylab = "", yaxt = "n"
+) # 隐去X、Y轴标签和刻度
 
 library(Greg)
-par(new=TRUE)     #继续在原来图上加图形
-plotHR(before.cox.curve.1, term = "radscore",  #指定目标变量
-       xlim = c(2,10), 
-       xlab = "K", #X轴标签
-       ylab="log(Hazard Ratio)", #Y轴标签
-       rug = "ticks", #目标变量密度(density)或抖动图(ticks)
-       ylog=T, # Y轴对数值（建议）
-       col.term =  "red", #曲线颜色
-       lwd.term = 3, #曲线粗细
-       lwd.se=2,    #置信线粗细
-       lty.term="solid",#曲线样式
-       lty.se="dashed",#置信线样式
-       polygon_ci = F,#不显示置信区间多边形
-       col.se ="blue", #置信线颜色
-       alpha=0.05,#95%CI
-       cex = 1.2)#字体大小
+par(new = TRUE) # 继续在原来图上加图形
+plotHR(before.cox.curve.1,
+  term = "radscore", # 指定目标变量
+  xlim = c(2, 10),
+  xlab = "K", # X轴标签
+  ylab = "log(Hazard Ratio)", # Y轴标签
+  rug = "ticks", # 目标变量密度(density)或抖动图(ticks)
+  ylog = T, # Y轴对数值（建议）
+  col.term = "red", # 曲线颜色
+  lwd.term = 3, # 曲线粗细
+  lwd.se = 2, # 置信线粗细
+  lty.term = "solid", # 曲线样式
+  lty.se = "dashed", # 置信线样式
+  polygon_ci = F, # 不显示置信区间多边形
+  col.se = "blue", # 置信线颜色
+  alpha = 0.05, # 95%CI
+  cex = 1.2
+) # 字体大小
 
-##################----------------
+#################### -------------------
 # 连续变量阈值效应分析
 library(survival)
 library(rms)
@@ -195,9 +263,9 @@ cut_off # 定义临界点
 
 ### 计算拐点95%置信区间
 source("get_cutoff_ci.R")
-get_cutoff_ci("Hb", dt, fml, cut_off)
+get_cutoff_ci("radscore", train, fml, cut_off)
 ## 生成分段变量
-x <- dt[, "Hb"]
+x <- train[, "radscore"]
 
 X1 <- (x <= cut_off) * (x - cut_off)
 X2 <- (x > cut_off) * (x - cut_off)

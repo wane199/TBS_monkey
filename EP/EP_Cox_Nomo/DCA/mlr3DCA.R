@@ -22,7 +22,7 @@ source("./EP/EP_Cox_Nomo/DCA/dca.r") # 执行DCA的脚本
 rm(list = ls())
 getwd()
 
-dt0 <- read.csv("/media/wane/wade/EP/EPTLE_PET/TLE_pet_ind/process_PT_tem.csv")
+dt1 <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/TLE234group.csv")
 dt0 <- read.csv("/home/wane/Desktop/EP/Structured_Data/PT_radiomic_features_temporal_ind2.csv")
 dt0 <- dt0[-1]
 # dt1 <- read_excel("/home/wane/Desktop/EP/Structured_Data/Task2/TLE234group.xlsx")

@@ -338,13 +338,13 @@ IDI.INF.GRAPH(res.IDI.INF)
 # 批量单因素Cox，比较C-index
 # https://www.jianshu.com/p/617db057df37
 coxm0 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS, data = train)
-coxm1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ Durmon, data = train)
-coxm2 <- survival::coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = test)
+coxm1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore, data = train)
+coxm2 <- survival::coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = train)
 
-cox.zph(coxm2) # 等比例风险假定
+cox.zph(coxm1) # 等比例风险假定
 print(coxm2)
+anova(coxm1)
 summary(coxm2)$concordance # 未校准的时间C-index
-
 
 library(corrplot)
 dfc <- train[, names(train) %in% c("radscore", "SGS", "familial_epilepsy", "Durmon", "SE")]

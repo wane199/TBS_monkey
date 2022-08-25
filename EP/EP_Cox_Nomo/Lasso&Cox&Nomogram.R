@@ -28,7 +28,6 @@ as.matrix(head(dt))
 
 str(dt) ## 查看每个变量结构
 summary(dt)
-
 corrlate <- cor(as.matrix(dt))
 corrplot.mixed(corrlate)
 dt <- na.omit(dt) # 按行删除缺失值
