@@ -60,6 +60,8 @@ nor1 <- nor[, n_cols]
 write.csv(nor1, "/home/wane/Desktop/EP/Structured_Data/Task2/process_PT_radiomic_features_temporal_ind2.csv", row.names = F)
 
 train <- subset(dt, dt$Group == "Training")
+train <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/train-points.csv")
+
 test <- subset(dt, dt$Group == "Test")
 # 看一下，不要让临床信息差的太多，输出table1
 prop.table(table(train$Follow_up_timemon))
@@ -954,9 +956,7 @@ times = seq(1, 36, 6)
 auc <- plotAUC(pk)
 auc
 # 3.美化，加载两个包
-library(ggplot2)
 library(ggprism)
-
 # 设置配色
 cols <- c("red", "blue", "darkgreen")
 # 画图，注意这里的数据来源是刚刚做好的auc数据
@@ -1086,7 +1086,6 @@ plot(cal3,
 )
 abline(0, 1, lty = 3, lwd = 2, col = "black")
 
-
 # 临床决策曲线分析(DCA&CIC)
 # https://blog.csdn.net/dege857/article/details/115061901
 # https://blog.csdn.net/dege857/article/details/119373671?spm=1001.2014.3001.5501
@@ -1196,6 +1195,10 @@ ggplot(fig1, linetype = F, lwd = 1.2) +
 library(ggrisk)
 as.matrix(head(train))
 str(train)
+train$SGS <- ifelse(train$SGS=="No",0,1)
+train$SE <- ifelse(train$SE=="No",0,1)
+train$familial_epilepsy <- ifelse(train$familial_epilepsy =="No",0,1)
+
 fit <- rms::cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
   data = train
 )
@@ -1230,7 +1233,6 @@ ggrisk(fit,
 
 # NRI计算与绘制
 library(nricens)
-as.matrix(head(train))
 m.old <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy + Durmon + SE,
   data = train, x = TRUE
 )
@@ -1361,7 +1363,7 @@ nomo <- nomogram(fita,
 )
 nomogramEx(nomo = nomo, np = 3, digit = 5)
 
-# 二次验证，最终Cox模型，cutoff风险分层(12,36,60 months)，K-M曲线绘制**
+# 二次验证，最终Cox模型，cutoff风险分层(12,36,60 months)，K-M曲线绘制***
 # Score card, get the formula of total points by the best power using formula_lp
 results <- formula_lp(nomogram = nomo)
 points <- points_cal(formula = results$formula, lp = fita$linear.predictors)
@@ -1387,8 +1389,6 @@ dt <- dt %>%
     - 0.0841 * wavelet.LLL_glcm_Imc2)
 radscore <- as.data.frame(dt["radscore"])
 
-
-
 summary(fita)
 summary(m.new)
 train$lp.rad_clinic <- predict(m.new, type = "lp")
@@ -1396,8 +1396,8 @@ logresult <- cutoff::logrank(
   data = train, # 数据集
   time = "Follow_up_timemon", # 生存时间
   y = "Rel._in_5yrs", # 生存状态
-  x = "lp.rad_clinic", # 连续自变量
-  cut.numb = 1, # 截断值选择1个分界点
+  x = "points", # 连续自变量
+  cut.numb = 2, # 截断值选择1个分界点
   n.per = 0.10, # 分组后自变量组最少比例
   y.per = 0.10, # 分组后因变量组最少比例
   p.cut = 0.005, # 检验水准，结果只显示pvalue小于0.05的截断值
@@ -1411,20 +1411,27 @@ ggpubr::ggline(logresult,
 
 res.cut <- surv_cutpoint(
   data = train, time = "Follow_up_timemon",
-  event = "Rel._in_5yrs", variables = c("lp.rad_clinic")
+  event = "Rel._in_5yrs", variables = c("points")
 )
-summary(res.cut) # 最佳截断值为1.877
-plot(res.cut, "lp.rad_clinic", palette = "npg")
+summary(res.cut) # 最佳截断值为102
+plot(res.cut, "points", palette = "npg")
 res.cat <- surv_categorize(res.cut)
-fit <- survfit(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ lp.rad_clinic, data = res.cat)
+fit <- survfit(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ points, data = res.cat)
 summary(fit)
-survdiff(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ lp.rad_clinic, data = res.cat)
+survdiff(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ points, data = res.cat)
 
 ggsurvplot(fit,
   data = res.cat,
   risk.table = TRUE, conf.int = TRUE,
   surv.median.line = "hv", # 同时显示垂直和水平参考线
   pval = T, xlab = "months", ylab = "Free of Relapse(%)"
+)
+
+str(train)
+fi3 <- survfit(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ factor(Freq), data = train)
+ggsurvplot(fi3, data = train, risk.table = TRUE, conf.int = TRUE,
+           surv.median.line = "hv", # 同时显示垂直和水平参考线
+           pval = T, xlab = "months", ylab = "Free of Relapse(%)"
 )
 
 # 交叉验证与重抽样, 重复论证
