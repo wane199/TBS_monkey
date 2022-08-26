@@ -674,7 +674,7 @@ rcorrcens(formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS 
 model1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = train)
 print(model1, data = train)
 
-library(eoffice)
+library(eoffice) # export figure to pptx
 p <- ggforest(model1, data = train) # https://cache.one/read/16896085
 topptx(figure = p, filename = "./EP/EP_Cox_Nomo/forest.pptx")
 
