@@ -3,7 +3,7 @@
 rm(list = ls())
 library(pROC) # 三分类
 library(readxl)
-dt <- read_excel("/home/wane/Desktop/EP/Structured_Data/Physician.xlsx")
+# dt <- read_excel("/home/wane/Desktop/EP/Structured_Data/Physician.xlsx")
 dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/Physician1.csv")
 dt <- read.csv('/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/process_T1-22-lr.csv')
 table(dt$Label)
@@ -110,3 +110,8 @@ library(CBCgrps)
 tab2 <- multigrps(dt, gvar = "type") 
 
 print(tab2, quote = T)
+
+## 分组柱状图展示多个模型三分类AUROC及AUPRC
+
+
+
