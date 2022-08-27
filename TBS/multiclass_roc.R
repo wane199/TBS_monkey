@@ -5,6 +5,7 @@ library(pROC) # 三分类
 library(readxl)
 dt <- read_excel("/home/wane/Desktop/EP/Structured_Data/Physician.xlsx")
 dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/Physician1.csv")
+dt <- read.csv('/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/process_T1-22-lr.csv')
 table(dt$Label)
 str(dt)
 # 批量数值转因子
@@ -15,19 +16,22 @@ dt$Label <- as.factor(dt$Label)
 train[16:18] = lapply(train[16:18], FUN = function(y){as.numeric(y)})  # int类型转num类型
 # 有序多分类LR
 library(MASS)
-fit2 <- polr(Label ~ Phy2, data = dt)
+fit2 <- polr(Label ~ lr, data = dt)
 summary(fit2)
+fit2
 fit2$coefficients
+multiclass.roc(dt$Label, dt$lr)
+
 # 训练集预测概率
 pred2 <- predict(fit2, newdata = dt, type = "class")
 prob2 <- predict(fit2, newdata = dt, type = "probs")
 head(prob2)
-Phy2prob <- as.data.frame(prob2)  # Converting list to dataframe in R
-dt1 <- dplyr::mutate(dt1,Phy2prob)
-names(dt1)[6] <-"Phy1_0"
-names(dt1)[7] <-"Phy1_1"
-names(dt1)[8] <-"Phy1_2"
-write.csv(dt1,"/home/wane/Desktop/EP/Structured_Data/Physician2.csv")
+LRprob <- as.data.frame(prob2)  # Converting list to dataframe in R
+dt <- dplyr::mutate(dt,LRprob)
+names(dt)[4] <-"LR1_0"
+names(dt)[5] <-"LR1_1"
+names(dt)[6] <-"LR1_2"
+write.csv(dt,"/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/LR-T1.csv")
 
 # Basic example
 roc1 <- multiclass.roc(dt$Label, prob2[,3])
@@ -52,7 +56,7 @@ multiclass.roc(dt$Label, dt$Phy3, percent=TRUE)
 
 # 仅限二分类任务
 library(reportROC)
-reportROC(gold=dt$Label,predictor=dt$Phy3, plot = T)
+reportROC(gold=dt$Label,predictor=dt$lr, plot = T)
 reportROC(gold=dt$Label,predictor.binary=dt$Phy3,
           plot = T, important = "se", exact=FALSE)
 
