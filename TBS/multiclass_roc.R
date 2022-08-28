@@ -34,8 +34,8 @@ names(dt)[6] <-"LR1_2"
 write.csv(dt,"/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/LR-T1.csv")
 
 # Basic example
-roc1 <- multiclass.roc(dt$Label, prob2[,3])
-multiclass.roc(dt$Label, prob2[,2])
+roc1 <- multiclass.roc(dt$Label, prob2[,1])
+multiclass.roc(dt$Label, prob2[,3])
 Phy1prob <- as.data.frame(roc1[2])
 auc(roc1)
 plot.roc(roc1$rocs[[1]],col='blue',print.auc =TRUE,print.auc.adj=c(0,1))
