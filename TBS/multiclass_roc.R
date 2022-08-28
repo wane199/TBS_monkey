@@ -5,7 +5,7 @@ library(pROC) # 三分类
 library(readxl)
 # dt <- read_excel("/home/wane/Desktop/EP/Structured_Data/Physician.xlsx")
 dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/Physician1.csv")
-dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/process_PT-22-lr.csv")
+dt <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/LR.csv")
 table(dt$Label)
 str(dt)
 # 批量数值转因子
@@ -36,15 +36,9 @@ names(dt)[6] <- "LR1_2"
 write.csv(dt, "/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/LR-T1.csv")
 
 # Basic example
-<<<<<<< HEAD
-roc1 <- multiclass.roc(dt$Label, prob2[,1])
+roc1 <- multiclass.roc(dt$Label, prob2[,3])
 multiclass.roc(dt$Label, prob2[,3])
 Phy1prob <- as.data.frame(roc1[2])
-=======
-roc1 <- multiclass.roc(dt$Label, prob2[, 3])
-multiclass.roc(dt$Label, prob2[, 1])
-Phy1prob <- as.data.frame(roc1[3])
->>>>>>> 47f1bee6f515de4d36f48a1db1b4560e24d761f3
 auc(roc1)
 plot.roc(roc1$rocs[[1]], col = "blue", print.auc = TRUE, print.auc.adj = c(0, 1))
 plot.roc(roc1$rocs[[2]], add = T, col = "red", print.auc = TRUE, print.auc.adj = c(0, 0))
@@ -130,20 +124,19 @@ print(tab2, quote = T)
 library(ggplot2)
 library(dplyr)
 
-auc <- read.csv("/home/wane/Desktop/EP/Structured_Data/AUC.csv")
+auc <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/AUC.csv")
 auc$AUC <- as.numeric(auc$AUC)
-fix(auc)
+# fix(auc)
 # Grouped
 auc %>%
-  mutate(Legend = factor(Model, levels = c("B-Sia Net", "Sia Net", "RF", "KNN", "LR", "Physian2", "Physian1"))) %>%
-ggplot(aes(fill = Legend, y = reorder(AUC, Image), x = reorder(Image,AUC))) +
-  geom_bar(position = "dodge", stat = "identity") + theme_classic() + 
-  labs(x = "Images", y = "AUC") + scale_y_continuous(breaks=seq(0, 1.0, 0.05)) 
-  geom_text(aes(label = auc$AUC),
-    position = position_dodge2(width = 0.9, preserve = "single"),
-    vjust = -0.2, hjust = 0.5) + scale_fill_grey(start = 0.0, end = 1.0)
-
-
-
-
-
+  mutate(Methods = factor(Model, levels = c("Physian1", "Physian2", "LR", "KNN", "RF","Sia Net", "B-Sia Net"))) %>%
+  ggplot(mapping=aes(x = reorder(Image, Methods), y = AUC, fill= Methods))+
+  geom_bar(stat="identity",position=position_dodge(0.75),width=0.6)+
+  coord_cartesian(ylim=c(0.5,1))+
+  scale_y_continuous(expand = c(0, 0))+#消除x轴与绘图区的间隙
+  # scale_fill_grey(start = 0.2, end = 1.0) + 
+  scale_fill_brewer(palette="Set2") +
+  labs(x = "Images", y = "AUC") + theme_classic() +
+  geom_text(aes(label = auc$AUC),size = 2.2,
+            position = position_dodge2(width = 0.75, preserve = "single"),
+            vjust = -0.2, hjust = 0.5) 
