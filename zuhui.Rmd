@@ -66,12 +66,12 @@ https://huhuaping.com/2021/02/01/css-base-xaringan/
 TLE220 Dataset BLS 三分类结果汇总：
 ![ROC-BLS](./images/ROC_bls.png)
 ---
---
 ## Second
 Task 2. Benchmark:
 [A dynamic online FDG PET-based radiomics nomogram for predicting seizure outcomes after TLE surgery]( https://wane199.shinyapps.io/DynNomapp/);
 
-\
+
+--
 
 | term               | estimate     | scorecard |
 |--------------------|--------------|-----------|
