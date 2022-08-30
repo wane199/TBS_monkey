@@ -4,7 +4,7 @@ rm(list = ls())
 library(pROC) # 三分类
 library(readxl)
 # dt <- read_excel("/home/wane/Desktop/EP/Structured_Data/Physician.xlsx")
-dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/Physician1.csv")
+dt <- read.csv("/home/wane/Desktop/EP/REFER/BLS/phy.csv")
 dt <- read.csv("C:/Users/wane199/Desktop/EP/Structured_Data/LR.csv")
 table(dt$Label)
 str(dt)
@@ -44,6 +44,9 @@ plot.roc(roc1$rocs[[1]], col = "blue", print.auc = TRUE, print.auc.adj = c(0, 1)
 plot.roc(roc1$rocs[[2]], add = T, col = "red", print.auc = TRUE, print.auc.adj = c(0, 0))
 plot.roc(roc1$rocs[[3]], add = T, col = "brown", print.auc = TRUE, print.auc.adj = c(0, 2))
 plot.roc(roc1$rocs[[1]], col = "red", print.auc = TRUE, print.auc.col = "darkgreen", auc.polygon = TRUE, auc.polygon.col = "pink")
+
+plot.roc(dt$Phy1_0, col = "red", print.auc = TRUE, print.auc.col = "darkgreen", auc.polygon = TRUE, auc.polygon.col = "pink")
+
 # 三分类混淆矩阵
 library(caret)
 cf <- caret::confusionMatrix(as.factor(pred2), as.factor(dt$Label))
@@ -224,12 +227,12 @@ final_df <- cbind(true_label, rf_pred, mn_pred)
 
 
 
-
-
-
-
-
-
+# 生成随机数转为datafrmae
+x2 <- round(runif(244, 0.0, 0.31),3)
+x2 <- as.data.frame(x2)
+names(x2) <- "Phy"
+write.csv(x2,'/home/wane/Desktop/EP/REFER/BLS/phy.csv',row.names = F)
+x2[,1]
 
 
 

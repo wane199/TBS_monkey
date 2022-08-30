@@ -60,7 +60,6 @@ PET/CT-MRI, JNU
 https://huhuaping.com/2021/02/01/css-base-xaringan/
 ---
 # 吴环华工作汇报0829
---
 
 ## First
 TLE220 Dataset BLS 三分类结果汇总：
@@ -68,10 +67,9 @@ TLE220 Dataset BLS 三分类结果汇总：
 ---
 ## Second
 Task 2. Benchmark:
+
 [A dynamic online FDG PET-based radiomics nomogram for predicting seizure outcomes after TLE surgery]( https://wane199.shinyapps.io/DynNomapp/);
 
-
---
 
 | term               | estimate     | scorecard |
 |--------------------|--------------|-----------|
@@ -80,7 +78,6 @@ Task 2. Benchmark:
 | familial_epilepsy(yes) | 1.088541494  | 488.91    |
 | Durmon             | 0.00222645   | 1.00      |
 | SE(yes)            | -0.458276368 | -205.83   |
----
 ---
 # 吴环华工作汇报0822
 
