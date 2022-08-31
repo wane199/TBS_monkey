@@ -271,7 +271,7 @@ library(fmsb)
 # Demo data
 exam_scores <- data.frame(
   row.names = c("BLS-Siamese net", "Siamese net",
-                "RF(radiomics)","KNN(radiomics)","MLP(radiomics)"),
+                "RF(radiomics)","KNN(radiomics)","LR(radiomics)"),
   Accuracy = c(.915, .825, .827, .692, .734),
   AUC = c(.988, .990, .995, .793, .885),
   Sensitivity = c(.478, .508, .479, .226, .265),
