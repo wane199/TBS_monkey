@@ -127,27 +127,34 @@ print(tab2, quote = T)
 library(ggplot2)
 library(dplyr)
 
-auc <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/AUC.csv")
-auc$AUC <- as.numeric(auc$AUC)
+auc <- read.csv("/home/wane/Desktop/EP/REFER/BLS/ACC.csv")
+str(auc)
+auc$ACC <- as.numeric(auc$ACC)
 # fix(auc)
 # Grouped
 auc %>%
   mutate(Methods = factor(Model, levels = c("Physian1", "Physian2", "LR", "KNN", "RF", "Sia Net", "B-Sia Net"))) %>%
-  ggplot(mapping = aes(x = reorder(Image, Methods), y = AUC, fill = Methods)) +
+  ggplot(mapping = aes(x = reorder(Image, Methods), y = ACC, fill = Methods)) +
   geom_bar(stat = "identity", position = position_dodge(0.75), width = 0.6) +
   coord_cartesian(ylim = c(0.5, 1)) +
   scale_y_continuous(expand = c(0, 0)) + # 消除x轴与绘图区的间隙
   # scale_fill_grey(start = 0.2, end = 1.0) +
   scale_fill_brewer(palette = "Set2") +
-  labs(x = "Images", y = "AUC") +
+  labs(x = "Images", y = "ACC") +
   theme_classic() +
-  geom_text(aes(label = auc$AUC),
+  geom_text(aes(label = auc$ACC),
     size = 2.2,
     position = position_dodge2(width = 0.75, preserve = "single"),
     vjust = -0.2, hjust = 0.5
   )
 
-
+# 拼接pdf文件
+library(qpdf) 
+# Merge multiple PDF files into one
+## 一行代码搞定
+setwd('/home/wane/Desktop/EP/REFER/BLS/roc/')
+pdf_combine(c("rocforleft_mri.pdf","rocforright_mri.pdf"),
+            output = "./joined.pdf")
 
 ################# -----------------
 # [multiROC](https://github.com/WandeRum/multiROC)
@@ -224,8 +231,6 @@ true_label <- data.frame(true_label)
 colnames(true_label) <- gsub(".*?\\.", "", colnames(true_label))
 colnames(true_label) <- paste(colnames(true_label), "_true")
 final_df <- cbind(true_label, rf_pred, mn_pred)
-
-
 
 # 生成随机数转为datafrmae
 x2 <- round(runif(244, 0.0, 0.31),3)
