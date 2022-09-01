@@ -63,7 +63,69 @@ plot(effect, features = num_features)
 library("DALEX")
 fifa[1:2, c("value_eur", "age", "height_cm", "nationality", "attacking_crossing")]
 
+dim(fifa)
 
+fifa[, c("nationality", "overall", "potential", "wage_eur")] = NULL
+for (i in 1:ncol(fifa)) fifa[, i] = as.numeric(fifa[, i])
+
+library("mlr3")
+library("mlr3learners")
+
+fifa_task = as_task_regr(fifa, target = "value_eur")
+fifa_ranger = lrn("regr.ranger")
+fifa_ranger$param_set$values = list(num.trees = 250)
+fifa_ranger$train(fifa_task)
+fifa_ranger
+
+library("DALEX")
+library("DALEXtra")
+
+ranger_exp = explain_mlr3(fifa_ranger,
+                          data     = fifa,
+                          y        = fifa$value_eur,
+                          label    = "Ranger RF",
+                          colorize = FALSE)
+
+fifa_vi = model_parts(ranger_exp)
+head(fifa_vi)
+
+plot(fifa_vi, max_vars = 12, show_boxplots = FALSE)
+
+selected_variables = c("age", "movement_reactions",
+                       "skill_ball_control", "skill_dribbling")
+
+fifa_pd = model_profile(ranger_exp,
+                        variables = selected_variables)$agr_profiles
+fifa_pd
+
+library("ggplot2")
+plot(fifa_pd) +
+  scale_y_continuous("Estimated value in Euro", labels = scales::dollar_format(suffix = "€", prefix = "")) +
+  ggtitle("Partial Dependence profiles for selected variables")
+
+
+ronaldo = fifa["Cristiano Ronaldo", ]
+ronaldo_bd_ranger = predict_parts(ranger_exp,
+                                  new_observation = ronaldo)
+head(ronaldo_bd_ranger)
+
+plot(ronaldo_bd_ranger)
+
+ronaldo_shap_ranger = predict_parts(ranger_exp,
+                                    new_observation = ronaldo,
+                                    type = "shap")
+
+plot(ronaldo_shap_ranger) +
+  scale_y_continuous("Estimated value in Euro", labels = scales::dollar_format(suffix = "€", prefix = ""))
+
+
+selected_variables = c("age", "movement_reactions",
+                       "skill_ball_control", "skill_dribbling")
+
+ronaldo_cp_ranger = predict_profile(ranger_exp, ronaldo, variables = selected_variables)
+
+plot(ronaldo_cp_ranger, variables = selected_variables) +
+  scale_y_continuous("Estimated value of Christiano Ronaldo", labels = scales::dollar_format(suffix = "€", prefix = ""))
 
 
 
