@@ -8,22 +8,23 @@ library(writexl)
 library(dplyr)
 
 dt <- read.csv("jixian.csv")
-dt <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/QIANG/PartⅡ猴脑代谢发育数据分析/SUVr_whole.csv")
+dt <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/QIANG/PartⅡ猴脑代谢发育数据分析/SUVrL&R.csv")
 # TLM <- read_excel("/home/wane/Desktop/TBS/TLMey/BMC.xlsx")
 # 数据探索
 dt <- dt[c(-1,-2,-5)]
 dt$Sex <- as.factor(dt$Sex)
+dt$Side <- as.factor(dt$Side)
 summary(dt)
-# colnames(dt) <- toupper(colnames(dt))
 str(dt)
-fml <- "SUVr_whole_refPons~s(Age,k=5,fx=FALSE)+factor(Sex)"
+# colnames(dt) <- toupper(colnames(dt))
+fml <- "SUVr_whole_refPons~s(Age,k=3,fx=FALSE)+factor(Sex)"
 gam1 <- mgcv::gam(formula(fml), weights=dt$weights, data = dt, family = gaussian(link = "identity"))
 summary(gam1)
 vis.gam(gam1,color="heat",theta=30,phi=30)
 gam1$weights
 plot(gam1, pages = 1, col = "blue", las = 1, se = T, rug = T)
 
-m <- mgcv::gam(SUVr_whole_refPons ~ s(Age, k=5, by = Sex) + factor(Sex), data = dt)
+m <- mgcv::gam(SUVr_whole_refPons ~ s(Age, k=3, by = Sex) + factor(Sex), data = dt)
 plot(modelbased::estimate_relation(m, length = 100, preserve_range = FALSE))
 
 plot(gam1, scale=0, page=1, shade = TRUE, las = 1, all.terms=TRUE, cex.axis=1.2, cex.lab=1.5, main="Univariable Model")
@@ -63,21 +64,34 @@ data.frame(
   R2 = R2(pr.gam, dt$Frontal_Cortex)
 )
 # 查看模型拟合情况
-p1 <- ggplot(dt, aes(Age, whole)) + scale_x_continuous(breaks = seq(0,26,2)) +
+ggplot(dt, aes(Age, whole)) + scale_x_continuous(breaks = seq(0,26,2)) +
   geom_point() + geom_vline(aes(xintercept=8.0),linetype=4,col="red") +
   theme_classic() +
   stat_smooth(method = mgcv::gam, formula = y ~ s(x, k=5))
-p1
+
 # 分类gam曲线拟合
 library(ggsci)
-?formula.gam
-ggplot(dt, aes(x = Age, y = SUVr_whole_refPons, color = Sex)) +
-  geom_point(aes(color = Sex), size = 1) + scale_x_continuous(breaks = seq(0,26,2)) +
+paste0(colnames(dt[5:20]),collapse = "+")
+
+Frontal_Cortex+Temporal_Cortex+Parietal_Cortex+Occipital_Cortex+Insula_Cortex+Cerebellum+Pons+Amydala+Cingulate+
+  Claustrum+Globus_pallidus+Hippocampus+Striatum_Caudate+Striatum_Putamen+Thalamus
+# ?formula.gam
+p15 <- ggplot(dt, aes(x = Age, y = Thalamus, color = Side)) + 
+  # xlab("") +
+  geom_point(aes(color = Side), size = 1) + scale_x_continuous(breaks = seq(0,26,2)) +
   # scale_fill_nejm() + scale_colour_nejm() + 
   theme_classic() + 
   # geom_vline(aes(xintercept=8.0),linetype=4,col="red") +
   geom_smooth(method = mgcv::gam, formula = y ~ s(x, k = 3), se = T)
+p
+# [combine into single plot](https://www.math.pku.edu.cn/teachers/lidf/docs/Rbook/html/_Rbook/ggplot2.html)
+library("patchwork")
+p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8 +p9 + p10+ 
+  p11 + p12 +p13  + p14 + p15 + plot_annotation(tag_levels = 'A') +
+  plot_layout(guides='collect')
 
+p1 + p2 + plot_annotation(tag_levels = 'A') +
+  plot_layout(guides='collect')
 # gam
 coef(gam1)[1] # Intercept
 par(mfrow = c(1, 2)) # 2*2画布
