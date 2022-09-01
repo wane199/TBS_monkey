@@ -7,8 +7,8 @@ list.files() # 查看当前工作目录下的文件
 library(dplyr)
 dt <- read.csv("/home/wane/Desktop/Disk/bk/RDocu/M-TBS.csv")
 dt1 <- read.csv("/home/wane/Desktop/Disk/bk/RDocu/F-TBS.csv")
-data <- read.csv("D:\\RDocu\\M_1018.csv")
-data1 <- read.csv("F_3061.csv", fileEncoding = "GBK", header = T)
+dt <- read.csv("/home/wane/Documents/RDocu/M_1018.csv")
+dt1 <- read.csv("/home/wane/Documents/RDocu/F_3061.csv")
 data1 <- data1[complete.cases(data1[, c(1, 2)]), ]
 
 data <- data[data$Age >= 50 & data$Age < 75, ]
@@ -82,7 +82,6 @@ df1$Group <- factor(df1$Group,
 df1$variable <- factor(df1$variable,
   levels = c("TBS normal", "TBS partially reduced", "TBS reduced")
 )
-
 
 ggplot(data = df1, aes(x = Group, y = value, fill = variable)) +
   geom_bar(stat = "identity", position = "stack", width = 0.6) +
@@ -241,6 +240,69 @@ table(Age_Group_5)
 ## 保存等级划分结果
 x1 <- cbind(df, Age_Group_5)
 write.csv(x1, file = "./TBS/Age_Group_method2.csv")
+
+# 
+# Libraries
+library(tidyverse)
+library(hrbrthemes)
+library(viridis)
+library(ggsci)
+total<-rbind(dt,dt1) #合并提取的列
+str(total$Sex)
+total$Sex <- as.factor(total$Sex)
+total$Age_group <- as.factor(total$Age_group)
+summary(total)
+hist(total$Age)
+
+total %>%
+  mutate(Sex = factor(Sex, levels = c("Women", "Men"))) -> total
+ggplot(total, aes(x = Age, y = TBSL1L4, color = Sex)) +
+  geom_point(aes(color = Sex), size = 0.2) + scale_x_continuous(breaks = seq(20,75,5)) +
+  # scale_fill_nejm() + scale_colour_nejm() + 
+  theme_classic() + 
+  # geom_vline(aes(xintercept=8.0),linetype=4,col="red") +
+  geom_smooth(method = lm, formula = y ~ x, se = T)
+
+# Plot，https://blog.csdn.net/weixin_44607829/article/details/120447833
+total %>%
+  ggplot(aes(x=Age_group, y=TBSL1L4, fill=Sex)) + stat_summary(fun=mean,geom="point",color="red",alpha=0.8,size=1.5,position=position_dodge(0.8)) +
+  geom_jitter(alpha = 0.2, size = 0.2) + 
+  # geom_boxplot(aes(middle = mean(TBSL1L4)), alpha = 0.3, size = 0.2, outlier.size = 0) +
+  scale_fill_nejm() + scale_colour_nejm() + 
+  theme(plot.title = element_text(size=11)) + 
+  xlab('Age(years)')+ylab('TBS') +
+  # ylab(expression(BMD(g/cm^2))) +
+  theme(plot.title = element_text(hjust = 0.5)) 
+
+library(dplyr)
+total.summary1 <- total %>%
+  group_by(Sex,Age_group) %>%
+  summarise(
+    sd = sd(TBSL1L4, na.rm = TRUE),
+    len = mean(TBSL1L4)
+  )
+total.summary2
+total.summary2 <- total %>%
+  group_by(Sex,Age_group) %>%
+  summarise(
+    sd = sd(BMDL1L4, na.rm = TRUE),
+    len = mean(BMDL1L4)
+  )
+
+# https://blog.csdn.net/zhouhucheng00/article/details/106368179
+# 创建具有多个分组的均值 ± 标准差图。使用ggpubr包，将自动计算汇总统计信息并创建图形。
+library(ggpubr)
+# Create line plots of means
+ggline(total, x = "Age_group", y = "TBSL1L4", group = "Sex", position = position_dodge(width=0.5),
+       add = c("mean_sd", "jitter"),size=0.5,add.params = list(size = 0.5, alpha = 0.3),
+       color = "Sex", xlab='Age(years)',ylab='TBS',font.label = list(size = 15, color = "black"),
+       legend = "right",ggtheme = theme_pubr(),palette = c("jco")) + ylim(1.0,1.6) +
+    # ylab(expression(BMD(g/cm^2))) 
+      rotate_x_text(30)  -> p1
+
+# ylab(expression(BMD(g/cm^2)))
+library(patchwork)
+p1 + p2 + plot_layout(guides='collect') + plot_annotation(tag_levels = 'A')
 
 
 # World map is available in the maps package
