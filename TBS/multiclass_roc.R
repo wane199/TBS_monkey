@@ -130,6 +130,7 @@ library(dplyr)
 auc <- read.csv("/home/wane/Desktop/EP/REFER/BLS/ACC.csv")
 str(auc)
 auc$ACC <- as.numeric(auc$ACC)
+auc$ACC <- round(auc$ACC,2)
 # fix(auc)
 # Grouped
 auc %>%
