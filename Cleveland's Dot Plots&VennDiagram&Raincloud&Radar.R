@@ -217,7 +217,6 @@ density.p + annotation_custom(ggplotGrob(stable.p),
 library(ggdist)
 library(ggplot2)
 library(readxl)
-# dt <- read.csv("C:\\Users\\wane199\\Desktop\\EP\\Structured_Data\\2014-2019TLE220.csv")
 dt <- read_excel("/media/wane/Data/CN/CN_T1.xlsx")
 dt <- read.csv('/media/wane/Data/CN/t1popu.csv')
 dt <- base::transform(dt, Age = Surgmon / 12)
@@ -243,27 +242,30 @@ glimpse(sub)
 write.csv(dt, file = "/media/wane/Data/CN/TLE220.csv")
 
 # https://zhuanlan.zhihu.com/p/261741176
-ggplot(data = dt,aes(x=age))+
-  geom_histogram(bins = 20)
-ggplot(data = dt,aes(x=age,fill=cut(age,breaks = c(2,18,61)))) + 
-  theme_classic() +
-  ggtitle("TLE Patients Age Distribution")+
-  xlab("Age")+
-  ylab("Distribution")+
-  geom_vline(aes(xintercept=18), colour = "#990000", linetype="dashed") +
-  geom_histogram(bins=50,show.legend = F)
+library(ggplot2)
+library(ggannotate)
+dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/RAW/MRIneg-98-0.csv")
 
-ggplot(data = dt,aes(x=age,y=..density..))+
+p <- ggplot(data = dt,aes(x=Age,fill=cut(Age,breaks = c(2,18,56)))) + 
+  theme_classic() + scale_x_continuous(breaks=seq(2,56,2)) +
+  ggtitle("TLE Patients Age Distribution") +
+  xlab("Age(years)") + ylab("Distribution") + #labs(fill='Age(years)') + 
+  geom_vline(aes(xintercept=18), colour = "#990000", linetype="dashed") +
+  geom_histogram(bins=45,show.legend = F)  
+p
+ggannotate(p)
+
+ggplot(data = dt,aes(x=Age,y=..density..))+
   geom_histogram(bins = 50)+
   geom_density(size=1)
-ggplot(data = dt,aes(x=age,fill=cut(age,breaks = c(0,18,60))))+
+ggplot(data = dt,aes(x=Age,fill=cut(Age,breaks = c(0,18,60))))+
   geom_histogram(bins=40)+
-  scale_fill_discrete()+
+  scale_fill_discrete() +
   ggtitle("MRI Negative Epilepsy Patients Age Distribution")+
-  xlab("Age")+
-  ylab("Distribution")+
+  xlab("Age") + ylab("Distribution")+
   theme(plot.title = element_text(hjust = 0.5))+
   scale_y_continuous(limits = c(0,10),breaks = c(5))
+
 
 # https://cloud.tencent.com/developer/article/1801036
 # https://www.datanovia.com/en/blog/beautiful-radar-chart-in-r-using-fmsb-and-ggplot-packages/

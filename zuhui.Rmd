@@ -106,7 +106,7 @@ class: center, middle
 ## First
 TLE220 Dataset & BLS-Siamese Net 三分类模型构建(疾病筛查+定侧);
 ```{r echo=FALSE}
-knitr::include_graphics("./images/frame.png")
+knitr::include_graphics("./images/Frame.jpg")
 ```
 ???
 .footnote[Graphical Abstrct: BLS-Siamese Net in PET/T1 Imaging of TLE]
@@ -249,7 +249,7 @@ MLP模型拟合，
 ---
 class: center, middle
 ```{r echo=FALSE,out.width="150%"}
-knitr::include_graphics("./images/Framework.png")
+knitr::include_graphics("./images/Frame.jpg")
 ```
 .footnote[Proposed Framework]
 
