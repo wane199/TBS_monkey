@@ -8,7 +8,7 @@ library(writexl)
 library(dplyr)
 
 dt <- read.csv("jixian.csv")
-dt <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/QIANG/PartⅡ猴脑代谢发育数据分析/SUVrL&R.csv")
+dt <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/QIANG/PartⅠ猴脑体积发育数据分析/L&R.csv")
 # TLM <- read_excel("/home/wane/Desktop/TBS/TLMey/BMC.xlsx")
 # 数据探索
 dt <- dt[c(-1,-2,-5)]
@@ -71,12 +71,13 @@ ggplot(dt, aes(Age, whole)) + scale_x_continuous(breaks = seq(0,26,2)) +
 
 # 分类gam曲线拟合
 library(ggsci)
-paste0(colnames(dt[5:20]),collapse = "+")
+paste0(colnames(dt[4:18]),collapse = "+")
+Frontal_Cortex+Temporal_Cortex+Parietal_Cortex+Occipital_Cortex+Insula_Cortex+Cerebellum+Pons+Striatum+
+  Hippocampus+Thalamus+Amygdala+Cingulate+Globus_pallidus+corpus_callosum
 
-Frontal_Cortex+Temporal_Cortex+Parietal_Cortex+Occipital_Cortex+Insula_Cortex+Cerebellum+Pons+Amydala+Cingulate+
-  Claustrum+Globus_pallidus+Hippocampus+Striatum_Caudate+Striatum_Putamen+Thalamus
 # ?formula.gam
-p15 <- ggplot(dt, aes(x = Age, y = Thalamus, color = Side)) + 
+p14 <- ggplot(dt, aes(x = Age, y = corpus_callosum, color = Side)) + 
+  # ylab(bquote(TBV/BW(cm^3/kg)))  + # 上下标
   # xlab("") +
   geom_point(aes(color = Side), size = 1) + scale_x_continuous(breaks = seq(0,26,2)) +
   # scale_fill_nejm() + scale_colour_nejm() + 
@@ -87,7 +88,7 @@ p
 # [combine into single plot](https://www.math.pku.edu.cn/teachers/lidf/docs/Rbook/html/_Rbook/ggplot2.html)
 library("patchwork")
 p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8 +p9 + p10+ 
-  p11 + p12 +p13  + p14 + p15 + plot_annotation(tag_levels = 'A') +
+  p11 + p12 + p13 + p14 + plot_annotation(tag_levels = 'A') +
   plot_layout(guides='collect')
 
 p1 + p2 + plot_annotation(tag_levels = 'A') +
