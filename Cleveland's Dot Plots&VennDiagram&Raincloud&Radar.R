@@ -233,7 +233,7 @@ ggplot(data = dt, aes(y = age, x = factor(side), fill = factor(side))) +
   geom_boxplot(width = 0.15, outlier.color = NA) + theme_classic() +
   ggdist::stat_dots(side = "left", dotsize = 0.5, justification = 1.1)
 # dev.off()
-con <- subset(dt, dt$age < 18)
+con <- subset(dt, dt$Age < 18)
 sub <- subset(monk, monk$Group == "sub")
 dt$Sex <- factor(dt$Sex)
 summary(dt)
@@ -301,7 +301,7 @@ rownames(max_min) <- c("Max", "Min")
 df <- rbind(max_min, exam_scores)
 df
 # 使用radarchart函数绘制雷达图
-radarchart(df, caxislabels = c("0%", "", "", "", "100%"),
+radarchart(df, caxislabels = c("10%", "", "", "", "100%"),
            axistype = 1, 
            vlcex = 1.0, # 设置标签的字体粗细大小
            vlabels = c(
@@ -314,6 +314,22 @@ radarchart(df, caxislabels = c("0%", "", "", "", "100%"),
 legend(x=1.5, y=1, legend = rownames(df[-c(1,2),]), 
        bty = "n", pch=20, col = topo.colors(10),
        text.col = "black", cex=0.80, pt.cex=3.0)
+
+opar <- par() 
+# Define settings for plotting in a 3x4 grid, with appropriate margins:
+par(mar = rep(0.8,4))
+par(mfrow = c(3,3))
+# Produce a radar-chart for each student
+for (i in 3:nrow(df)) {
+  radarchart(
+    df[c(1:2, i), ],caxislabels = c("10%", "", "", "", "100%"),
+    pfcol = c("orange",alpha=0.1),
+    pcol= c(5), plty = 4, plwd = 2,
+    title = row.names(df)[i]
+  )
+}
+# Restore the standard par() settings
+par <- par(opar) 
 # col = c("#00AFBB", "#E7B800", "#FC4E07","#E69F00", "#56B4E9"), 
 # colors_in=c( rgb(0.2,0.5,0.5,0.4), rgb(0.8,0.2,0.5,0.4) , rgb(0.7,0.5,0.1,0.4) )
 # Set graphic colors
@@ -402,3 +418,4 @@ legend(
   text.col = "black", cex = 1, pt.cex = 1.5
 )
 par(op)
+

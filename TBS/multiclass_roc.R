@@ -89,7 +89,6 @@ multiclass.roc(dt$Label, predictions,
 )
 
 
-
 # Let's see an other example with an artificial dataset
 n <- c(100, 80, 150)
 responses <- factor(c(rep("X1", n[1]), rep("X2", n[2]), rep("X3", n[3])))
@@ -127,24 +126,25 @@ print(tab2, quote = T)
 library(ggplot2)
 library(dplyr)
 
-auc <- read.csv("/home/wane/Desktop/EP/REFER/BLS/ACC.csv")
+auc <- read.csv("/home/wane/Desktop/EP/REFER/BLS/roc/SPE.csv")
 str(auc)
+summary(auc)
 auc$ACC <- as.numeric(auc$ACC)
-auc$ACC <- round(auc$ACC,2)
+auc$ACC <- round(auc$ACC,3)
 # fix(auc)
 # Grouped
 auc %>%
   mutate(Methods = factor(Model, levels = c("Physian1", "Physian2", "LR", "KNN", "RF", "Sia Net", "B-Sia Net"))) %>%
-  ggplot(mapping = aes(x = reorder(Image, Methods), y = ACC, fill = Methods)) +
+  ggplot(mapping = aes(x = reorder(Image, Methods), y = SPE, fill = Methods)) +
   geom_bar(stat = "identity", position = position_dodge(0.75), width = 0.6) +
-  coord_cartesian(ylim = c(0.5, 1)) +
+  coord_cartesian(ylim = c(0.3, 1)) +
   scale_y_continuous(expand = c(0, 0)) + # 消除x轴与绘图区的间隙
   # scale_fill_grey(start = 0.2, end = 1.0) +
   scale_fill_brewer(palette = "Set2") +
-  labs(x = "Images", y = "ACC") +
+  labs(x = "", y = "Sensitivity") +
   theme_classic() +
-  geom_text(aes(label = auc$ACC),
-    size = 2.2,
+  geom_text(aes(label = auc$SPE),
+    size = 3.0,
     position = position_dodge2(width = 0.75, preserve = "single"),
     vjust = -0.2, hjust = 0.5
   )
