@@ -106,7 +106,6 @@ venn.diagram(
 )
 
 # Load library
-library(VennDiagram)
 # Generate 3 sets of 200 words
 set1 <- paste(rep("word_", 200), sample(c(1:1000), 200, replace = F), sep = "")
 set2 <- paste(rep("word_", 200), sample(c(1:1000), 200, replace = F), sep = "")
@@ -167,31 +166,37 @@ plot(v,
 )
 
 
-# 添加统计图表及文本信息
-# https://zhuanlan.zhihu.com/p/77167731
-# 密度图
+# [添加统计图表及文本信息](https://zhuanlan.zhihu.com/p/77167731)
+# [可视化神器ggstatsplot = 绘图+统计](https://www.jianshu.com/p/ca566bc17ba7)
 library(ggpubr)
+library(readxl)
 dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/PET-TLE234-radscore-RCS.csv")
+dt <- read_xlsx('/home/wane/Desktop/EP/Structured_Data/2014-2019TLE220-2.xlsx')
 psych::describe(dt)
+str(dt)
 dt$side <- factor(dt$side, levels = c(1,2),labels = c('Left', 'Right'))
-dt$Sex <- factor(dt$Sex, levels = c(1,0),labels = c('Male', 'Female'))
+dt$Sex <- factor(dt$Sex)
+                 # , levels = c(1,0),labels = c('Male', 'Female'))
 aggregate(dt$Sex, by=list(type=dt$side, dt$Sex),length)
 dt$oneyr <- as.factor(dt$oneyr)
 dt <- base::transform(dt, age = Surgmon / 12)
 density.p <- ggdensity(dt,
-  x = "radscore",
-  fill = "side", palette = "jco"
+  x = "Age", rug = T, xlim = c(2,60),
+  fill = "side", palette = "Tableau"
 )
 # Sepal.Length描述性统计
 stable <- desc_statby(dt,
-  measure.var = "radscore",
+  measure.var = "Age",
   grps = "side"
 )
 stable <- stable[, c("side", "length", "mean", "sd")]
 # 设置table的主题
 stable.p <- ggtexttable(stable,
-  rows = NULL,
-  theme = ttheme("mOrange") # ttheme(): customize table theme, mBlue/classic
+  rows = NULL, theme = ttheme("classic")
+  # theme = ttheme(
+  #   colnames.style = colnames_style(fill = "white"),
+  #   tbody.style = tbody_style(fill = get_palette("grey", 6)))
+  # ttheme(): customize table theme, mBlue/classic
 )
 #  text 信息
 text <- paste("iris data set gives the measurements in cm",
@@ -204,13 +209,33 @@ text <- paste("iris data set gives the measurements in cm",
 text.p <- ggparagraph(text = text, face = "italic", size = 11, color = "black")
 # 组图展示，调整高度和宽度
 ggarrange(density.p, stable.p, text.p,
-  ncol = 1, nrow = 3,
+  ncol = 1, nrow = 3, 
   heights = c(1, 0.5, 0.3)
 )
 # 子母图展示
 density.p + annotation_custom(ggplotGrob(stable.p),
-  xmin = 0, ymin = 1.0,
-  xmax = 1.3
+  xmin = 55, ymin = .05,
+  xmax = 50
+)
+
+set.seed(123)
+# as a default this function outputs a correlalogram plot
+ggstatsplot::ggcorrmat(
+  data = ggplot2::msleep,
+  corr.method = "robust", # correlation method
+  sig.level = 0.001, # threshold of significance
+  p.adjust.method = "holm", # p-value adjustment method for multiple comparisons
+  cor.vars = c(sleep_rem, awake:bodywt), # a range of variables can be selected
+  cor.vars.names = c(
+    "REM sleep", # variable names
+    "time awake",
+    "brain weight",
+    "body weight"
+  ),
+  matrix.type = "upper", # type of visualization matrix
+  colors = c("#B2182B", "white", "#4D4D4D"),
+  title = "Correlalogram for mammals sleep dataset",
+  subtitle = "sleep units: hours; weight units: kilograms"
 )
 
 # Raincloud
@@ -228,7 +253,7 @@ dt$Sex <- factor(dt$Sex, levels = c(1,0),labels = c('Male', 'Female'))
 dt$Sex <- factor(dt$Sex)
 aggregate(dt$Sex, by=list(type=dt$side, dt$Sex),length)
 # pdf("/media/wane/wade/EP/EPTLE_PET/CN_PET_csv/raincloud.pdf",width=20, height=10)
-ggplot(data = dt, aes(y = age, x = factor(side), fill = factor(side))) +
+ggplot(data = dt, aes(y = Age, x = factor(side), fill = factor(side))) +
   ggdist::stat_halfeye(adjust = 0.50, justification = -0.2, .width = 0, point_colour = NA) +
   geom_boxplot(width = 0.15, outlier.color = NA) + theme_classic() +
   ggdist::stat_dots(side = "left", dotsize = 0.5, justification = 1.1)
