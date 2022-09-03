@@ -336,7 +336,7 @@ dt$Rel._in_5yrs <- as.factor(dt$Rel._in_5yrs)
 dt$Rel._in_5yrs <- ifelse(dt$Rel._in_5yrs == "0", "Seizure-free", "Relapse")
 colnames(dt)[6] <- "Seizure Outcome"
 
-dt1 <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/TLE234group.csv")
+dt1 <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/Task2/TLE234group.csv")
 str(dt1)
 for (i in names(dt1)[c(6, 8, 9, 13:22)]) {
   dt1[, i] <- as.factor(dt1[, i])
@@ -676,6 +676,7 @@ print(model1, data = train)
 
 library(eoffice) # export figure to pptx
 p <- ggforest(model1, data = train) # https://cache.one/read/16896085
+p
 topptx(figure = p, filename = "./EP/EP_Cox_Nomo/forest.pptx")
 
 ### 开始cox-nomo graph
