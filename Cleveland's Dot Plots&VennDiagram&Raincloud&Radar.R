@@ -272,29 +272,20 @@ ggplot(data = dt,aes(x=Age,fill=cut(Age,breaks = c(0,18,60))))+
 library(fmsb)
 # Demo data
 exam_scores <- data.frame(
-  row.names = c("BLS-Siamese net", "Siamese net",
-                "RF(radiomics)","KNN(radiomics)","LR(radiomics)"),
-  Accuracy = c(.915, .825, .827, .692, .734),
-  AUC = c(.988, .990, .995, .793, .885),
-  Sensitivity = c(.478, .508, .479, .226, .265),
-  Specificity = c(.909, .899, .917, .953, .933),
-  Precision = c(.509, .466, .533, .403, .365),
-  F1score = c(.435, .434, .487, .286, .264)
-)
-exam_scores <- data.frame(
-  row.names = c("BLS-Siamese net", "Siamese net"),
-  Accuracy = c(.914, .907),
-  AUC = c(.999, .998),
-  Sensitivity = c(.753, .779),
-  Specificity = c(.957, .949),
-  Precision = c(.795, .756),
-  F1score = c(.766, .763)
+  row.names = c("BLS-Siamese net", "Siamese net","RF(radiomics)","KNN(radiomics)",
+                "LR(radiomics)","Senior level","Junior level"),
+  Accuracy = c(.961, .956, .811, .632, .661, .811, .586),
+  F1_score = c(.971, .968, .876, .706, .746, .890, .723),
+  Precision = c(.955, .944, .938, .756, .745, .935, .910),
+  Specificity = c(.907, .883, .764, .573, .489, .458, .458),
+  Sensitivity = c(.988, .993, .835, .661, .746, .850, .600),
+  AUC = c(.969, .949, .855, .855, .676, .643, .532)
 )
 exam_scores
 # Define the variable ranges: maximum and minimum
 max_min <- data.frame(
-  Accuracy = c(1, 0.00), AUC = c(1, 0.00), Sensitivity = c(1, 0.00),
-  Specificity = c(1, 0.00), Precision = c(1, 0.00), F1score = c(1, 0.00)
+  Accuracy = c(1, 0.00), F1_score = c(1, 0.00), Precision = c(1, 0.00), 
+  Specificity = c(1, 0.00), Sensitivity = c(1, 0.00), AUC = c(1, 0.00)
 )
 rownames(max_min) <- c("Max", "Min")
 # Bind the variable ranges to the data
@@ -320,16 +311,18 @@ opar <- par()
 par(mar = rep(0.8,4))
 par(mfrow = c(3,3))
 # Produce a radar-chart for each student
-for (i in 3:nrow(df)) {
+p1 <- for (i in 3:nrow(df)) {
   radarchart(
-    df[c(1:2, i), ],caxislabels = c("10%", "", "", "", "100%"),
-    pfcol = c("orange",alpha=0.1),
+    df[c(1:2, i), ],#caxislabels = c("10%", "", "", "", "100%"),
+    pfcol = c(rgb(0.2,0.5,0.5,0.2),alpha=0.1),
     pcol= c(5), plty = 4, plwd = 2,
+    #custom the grid
+    cglcol="grey", cglty=1, axislabcol="grey", caxislabels=seq(0,20,5), cglwd=0.8,
     title = row.names(df)[i]
   )
 }
-# Restore the standard par() settings
-par <- par(opar) 
+
+
 # col = c("#00AFBB", "#E7B800", "#FC4E07","#E69F00", "#56B4E9"), 
 # colors_in=c( rgb(0.2,0.5,0.5,0.4), rgb(0.8,0.2,0.5,0.4) , rgb(0.7,0.5,0.1,0.4) )
 # Set graphic colors
