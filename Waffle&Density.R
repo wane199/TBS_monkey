@@ -1,3 +1,4 @@
+# 
 library(waffle)
 library(magrittr)
 library(hrbrthemes)
@@ -63,7 +64,7 @@ xdf %>%
   count(fct, wt = vals) %>%
   ggplot(aes(label = fct, values = n)) +
   geom_pictogram(
-    n_rows = 20, size = 10, aes(colour = fct), flip = TRUE,
+    n_rows = 20, size = 10, aes(colour = fct), flip = T,
     family = "FontAwesome5Brands-Regular"
   ) +
   scale_color_manual(
@@ -85,7 +86,7 @@ xdf %>%
 xdf %>%
   count(fct, wt = vals) %>%
   ggplot(aes(label = fct, values = n)) +
-  geom_pictogram(n_rows = 20, aes(colour = fct), size = 50, flip = T, make_proportional = F) +
+  geom_pictogram(n_rows = 20, aes(colour = fct), size = 10, flip = T, make_proportional = F) +
   scale_color_manual(
     name = NULL,
     values = c("#c68958", "grey"),
