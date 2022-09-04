@@ -1,5 +1,6 @@
 # R语言|平滑曲线与阈值效应分析(一)
 # R语言绘图|2.基于GAMM：分层的平滑曲线怎么画？https://zhuanlan.zhihu.com/p/489149912
+# https://www.bilibili.com/read/cv16417407?spm_id_from=333.999.0.0
 rm(list=ls())##清空当前环境
 library(mgcv) ##GAMM
 library(ggplot2)#画图
@@ -24,7 +25,9 @@ vis.gam(gam1,color="heat",theta=30,phi=30)
 gam1$weights
 plot(gam1, pages = 1, col = "blue", las = 1, se = T, rug = T)
 
-m <- mgcv::gam(SUVr_whole_refPons ~ s(Age, k=3, by = Sex) + factor(Sex), data = dt)
+m <- mgcv::gam(Frontal_Cortex ~ s(Age, k=3, by = Side) + factor(Sex), data = dt)
+summary(m)
+anova(m)
 plot(modelbased::estimate_relation(m, length = 100, preserve_range = FALSE))
 
 plot(gam1, scale=0, page=1, shade = TRUE, las = 1, all.terms=TRUE, cex.axis=1.2, cex.lab=1.5, main="Univariable Model")
@@ -76,7 +79,7 @@ Frontal_Cortex+Temporal_Cortex+Parietal_Cortex+Occipital_Cortex+Insula_Cortex+Ce
   Hippocampus+Thalamus+Amygdala+Cingulate+Globus_pallidus+corpus_callosum
 
 # ?formula.gam
-p14 <- ggplot(dt, aes(x = Age, y = corpus_callosum, color = Side)) + 
+p1 <- ggplot(dt, aes(x = Age, y = Frontal_Cortex, color = Side)) + 
   # ylab(bquote(TBV/BW(cm^3/kg)))  + # 上下标
   # xlab("") +
   geom_point(aes(color = Side), size = 1) + scale_x_continuous(breaks = seq(0,26,2)) +
@@ -166,5 +169,59 @@ par(new = TRUE)
 plot(dt$y.upp ~ dt$Age, ylim = c(co[3], co[4]), xlim = c(co[1], co[2]), col = col[2], type = "l", lty = 3, lwd = 1, ylab = "Frontal_Cortex", xlab = "Age")
 rug(dt$AGE, col = "blue")
 abline(v = cut_off, col = "black", lty = 2)
+
+
+# 限制性立方样条RCS-R语言代码实战 
+library(rms) #限制性立方样条需要的包
+library(survminer)#曲线
+library(ggplot2)#画图
+library(ggsci) #调色板 作者：data小白 https://www.bilibili.com/read/cv16417407?spm_id_from=333.999.0.0 出处：bilibili
+str(dt)
+dt$Sex <- factor(dt$Sex)
+dt$Side <- as.numeric(as.character(dt$Side,levels = c('Left','Right'),labels = c('1','2')))
+
+
+dd <- datadist(dt) #为后续程序设定数据环境
+options(datadist='dd') #为后续程序设定数据环境
+fit <-ols(Frontal_Cortex ~ rcs(Age, 4) + Side, data=dt) #做变量的回归
+summary(fit)
+an<-anova(fit) 
+an
+
+Predict(fit,Age)
+plot(Predict(fit,Age),anova=an, pval=T)
+OLS1<-Predict(fit, Age)
+
+# RCS绘图，不分组
+ggplot() +
+  geom_line(data = OLS1, aes(Age, yhat), linetype = 1, size = 1, alpha = 0.9, colour = "grey") +
+  geom_ribbon(data = OLS1, aes(Age, ymin = lower, ymax = upper), alpha = 0.3, fill = "grey") +
+  theme_classic() +
+  labs(title = "RCS", x = "Age", y = "Frontal_Cortex")
+
+# 不同分组(男女组)之间HR与协变量变化关系
+Pre1 <- rms::Predict(fit, Age, Side = c("1", "2"), type = "predictions", ref.zero = T, conf.int = 0.95, digits = 2)
+par(mfrow = c(1, 2))
+ggplot(Pre1) +
+  geom_line(
+    data = Pre1,
+    aes(Age, yhat), alpha = 0.7
+  ) +
+  scale_color_nejm() + ## 采用ggsci包中英格兰调色，也可以其他
+  geom_ribbon(
+    data = Pre1,
+    aes(Age, ymin = lower, ymax = upper), alpha = 0.1
+  ) +
+  scale_fill_nejm() +
+  scale_colour_discrete(
+    name = "Side", breaks = c("1", "2"),
+    labels = c("L", "R")
+  ) +
+  scale_shape_discrete(
+    name = "Side", breaks = c("1", "2"),
+    labels = c("L", "R")
+  ) +
+  geom_hline(yintercept = 1, linetype = 2, size = 0.75)
+View(Pre1)
 
 
