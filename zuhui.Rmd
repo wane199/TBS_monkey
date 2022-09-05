@@ -61,15 +61,12 @@ https://huhuaping.com/2021/02/01/css-base-xaringan/
 ---
 # 吴环华工作汇报0905
 
---
 ## First
 准备中期考核；
 
---
 ## Second
 BLS论文初稿；
 
---
 ## Third
 可解释性机器学习模块及图表复现。
 
@@ -77,7 +74,6 @@ BLS论文初稿；
 class: center, middle
 Pipeline of IML/EML/XML
 ![IML](./images/XML_IML.png)
----
 ---
 # 吴环华工作汇报0829
 
