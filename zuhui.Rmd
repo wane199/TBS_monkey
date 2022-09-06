@@ -59,6 +59,14 @@ PET/CT-MRI, JNU
 ???
 https://huhuaping.com/2021/02/01/css-base-xaringan/
 ---
+# 吴环华工作汇报0912
+## First
+可解释性机器学习框架OmniXAI复现；
+
+
+
+
+---
 # 吴环华工作汇报0905
 
 ## First
@@ -69,7 +77,6 @@ BLS论文初稿；
 
 ## Third
 可解释性机器学习模块及图表复现。
-
 ---
 class: center, middle
 Pipeline of IML/EML/XML
