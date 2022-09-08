@@ -4,7 +4,8 @@ if (!"devtools" %in% installed.packages()[, "Package"]) {
 }
 if (!"ms.lesion" %in% installed.packages()[, "Package"]) {
   devtools::install_github("muschellij2/ms.lesion")
-}
+
+  }
 source("https://neuroconductor.org/neurocLite.R")
 pkgs = c("neurobase", "fslr", "dcm2niir","divest", 
          "RNifti", "oro.dicom", 
