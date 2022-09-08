@@ -20,6 +20,7 @@ neuro_install(c("ITKR", "ANTsRCore", "ANTsR", "extrantsr"),
               upgrade_dependencies = FALSE)
 
 neuro_install("malf.templates")
+
 ## ---- echo = FALSE-------------------------------------------------------
 library(methods)
 library(knitr)
