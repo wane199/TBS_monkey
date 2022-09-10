@@ -18,14 +18,14 @@ dt$Side <- as.factor(dt$Side)
 summary(dt)
 str(dt)
 # colnames(dt) <- toupper(colnames(dt))
-fml <- "SUVr_whole_refPons~s(Age,k=3,fx=FALSE)+factor(Sex)"
+fml <- "Frontal_Cortex~s(Age,k=3,fx=FALSE)+factor(Side)"
 gam1 <- mgcv::gam(formula(fml), weights=dt$weights, data = dt, family = gaussian(link = "identity"))
-summary(gam1)
+summary(gam1) # 检验自变量的显著性以及评估回归整体的方差解释率
 vis.gam(gam1,color="heat",theta=30,phi=30)
 gam1$weights
 plot(gam1, pages = 1, col = "blue", las = 1, se = T, rug = T)
 
-m <- mgcv::gam(Frontal_Cortex ~ s(Age, k=3, by = Side) + factor(Sex), data = dt)
+m <- mgcv::gam(Frontal_Cortex ~ s(Age, k=3, by = Side) + factor(Side), data = dt)
 summary(m)
 anova(m)
 plot(modelbased::estimate_relation(m, length = 100, preserve_range = FALSE))
@@ -67,7 +67,7 @@ data.frame(
   R2 = R2(pr.gam, dt$Frontal_Cortex)
 )
 # 查看模型拟合情况
-ggplot(dt, aes(Age, whole)) + scale_x_continuous(breaks = seq(0,26,2)) +
+ggplot(dt, aes(Age, whole)) + scale_x_continuous(breaks = seq(0,30,2)) +
   geom_point() + geom_vline(aes(xintercept=8.0),linetype=4,col="red") +
   theme_classic() +
   stat_smooth(method = mgcv::gam, formula = y ~ s(x, k=5))
@@ -82,12 +82,12 @@ Frontal_Cortex+Temporal_Cortex+Parietal_Cortex+Occipital_Cortex+Insula_Cortex+Ce
 p1 <- ggplot(dt, aes(x = Age, y = Frontal_Cortex, color = Side)) + 
   # ylab(bquote(TBV/BW(cm^3/kg)))  + # 上下标
   # xlab("") +
-  geom_point(aes(color = Side), size = 1) + scale_x_continuous(breaks = seq(0,26,2)) +
+  geom_point(aes(color = Side), size = 1) + scale_x_continuous(breaks = seq(0,30,2)) +
   # scale_fill_nejm() + scale_colour_nejm() + 
   theme_classic() + 
   # geom_vline(aes(xintercept=8.0),linetype=4,col="red") +
   geom_smooth(method = mgcv::gam, formula = y ~ s(x, k = 3), se = T)
-p
+p1
 # [combine into single plot](https://www.math.pku.edu.cn/teachers/lidf/docs/Rbook/html/_Rbook/ggplot2.html)
 library("patchwork")
 p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8 +p9 + p10+ 
@@ -112,6 +112,37 @@ gam.check(gam1)
 concurvity(gam1, full = F)
 anova(model.log, model.gam)
 
+# 组间比较
+library(ggpubr)
+library(ggsci)
+# 根据变量分面绘制箱线图
+dt$Group <- factor(dt$Side, levels = c("Left", "Right")) # 调整分面顺序
+ggviolin(dt, x = "Side", y = "Frontal_Cortex", ylab = "Frontal_Cortex",
+         color = "Side", palette = "jco", add = "jitter", xlab = "", legend = "right")
+
+library(ggstatsplot)
+ggbetweenstats(
+  data = dt,
+  x = Side,
+  y = Frontal_Cortex,
+  xlab = "",
+  ylab = "Frontal_Cortex",
+  plot.type = "violin",
+  package = "ggsci",
+  palette = "uniform_startrek"
+) +
+  ggtitle("") +
+  ggeasy::easy_center_title()
+p <- ggboxplot(dt,
+               x = "Age", y = "Frontal_Cortex", ylab = "Frontal_Cortex",
+               color = "Side", palette = "jco",
+               add = "jitter", xlab = "", legend = "right",
+               facet.by = "Side", short.panel.labs = FALSE
+) + labs(color = "Side", shape = "Side")
+# Use only p.format as label. Remove method name.
+p + stat_compare_means(label = "p.format", method = "t.test")
+# Or use significance symbol as label
+p + stat_compare_means(label = "p.signif", label.x = 1.5)
 # https://cloud.tencent.com/developer/article/1972411
 library(patchwork)
 p4 + p1 + p6 + plot_layout(nrow = 2, byrow = FALSE) #  从上到下
