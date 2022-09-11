@@ -3,6 +3,8 @@ library(ggseg3d)
 vignette("ggseg3d")
 library(ggsegAal)
 library(dplyr)
+library(ggsegExtra)
+ggseg_atlas_repos()
 
 data(aal)
 a <- data(aal_3d)
@@ -22,6 +24,12 @@ p1 <- ggseg3d(atlas=aseg_3d) %>%
   pan_camera("right lateral")
 p1
 
+# Enable this universe
+options(repos = c(
+  ggseg = 'https://ggseg.r-universe.dev',
+  CRAN = 'https://cloud.r-project.org'))
+# Install some packages
+install.packages('ggsegSchaefer')
 library(ggsegSchaefer)
 library(ggseg)
 library(ggplot2)

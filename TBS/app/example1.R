@@ -1,3 +1,6 @@
+# Multi-page {shiny} Applications with {brochure
+# https://colinfay.me/brochure-r-package/
+
 # Load R packages/libraries
 library(shiny)
 library(shinythemes)
