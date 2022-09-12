@@ -124,9 +124,6 @@ qqPlot(lm(value ~ group, data = richness_ACE), simulate = TRUE, main = "QQ Plot"
 t.test(richness_ACE$value, richness_ACE$variable, paired = F)
 t_test_ACE <- t.test(value ~ variable, richness_ACE, paired = FALSE, alternative = "two.sided")
 
-# https://shixiangwang.github.io/home/cn/post/ggpubr-add-pvalue-and-siglevels/
-library(ggpubr)
-
 # https://www.codenong.com/58744507/
 library(dplyr)
 df1_pct <- df1 %>%
@@ -207,7 +204,7 @@ plot(df$Age, col = equal_width$X)
 ### 保存每个等分切割点的值（阙值）
 # 计算各个分类相应的切割点
 width <- (max(df$Age) - min(df$Age)) / nbins
-# 保存阙值
+# 保存阈值
 depreciation <- width * c(1:nbins) + min(df$Age)
 
 ################### 等级划分###################
@@ -243,8 +240,7 @@ table(Age_Group_5)
 x1 <- cbind(df, Age_Group_5)
 write.csv(x1, file = "./TBS/Age_Group_method2.csv")
 
-# 
-# Libraries
+# 分组折线图+散点图
 library(tidyverse)
 library(hrbrthemes)
 library(viridis)
@@ -293,6 +289,7 @@ total.summary2 <- total %>%
 
 # https://blog.csdn.net/zhouhucheng00/article/details/106368179
 # 创建具有多个分组的均值 ± 标准差图。使用ggpubr包，将自动计算汇总统计信息并创建图形。
+# 分组汇总，折线+散点组图
 library(ggpubr)
 # Create line plots of means
 ggline(total, x = "Age_group", y = "TBSL1L4", group = "Sex", position = position_dodge(width=0.5),
@@ -301,7 +298,7 @@ ggline(total, x = "Age_group", y = "TBSL1L4", group = "Sex", position = position
        legend = "right",ggtheme = theme_pubr(),palette = c("jco")) + ylim(1.0,1.6) +
     # ylab(expression(BMD(g/cm^2))) 
       rotate_x_text(30)  -> p1
-
+p1
 # ylab(expression(BMD(g/cm^2)))
 library(patchwork)
 p1 + p2 + plot_layout(guides='collect') + plot_annotation(tag_levels = 'A')
@@ -336,6 +333,7 @@ ggscatterstats(
   messages = FALSE
 )
 # https://zouhua.top/archives/208c251d.html
+# https://shixiangwang.github.io/home/cn/post/ggpubr-add-pvalue-and-siglevels/
 library(ggpubr)
 ggdensity(plotdata,
   x = "weight",
