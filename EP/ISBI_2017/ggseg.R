@@ -21,6 +21,10 @@ ggseg3d(atlas=glasser_3d)
 ggseg3d(hemisphere = "left")
 ggseg3d(surface = "inflated")
 ggseg3d(show.legend = FALSE)
+ggseg3d(atlas="aseg_3d") %>%
+  add_glassbrain("left")
+ggseg3d(atlas="dk_3d") %>%
+  add_glassbrain("left")
 
 repo=ggseg_atlas_repos("yeo", ignore.case = TRUE)
 install_ggseg_atlas(repo$Package)
