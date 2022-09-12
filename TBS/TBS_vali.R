@@ -7,8 +7,10 @@ list.files() # 查看当前工作目录下的文件
 library(dplyr)
 dt <- read.csv("/home/wane/Desktop/Disk/bk/RDocu/M-TBS.csv")
 dt1 <- read.csv("/home/wane/Desktop/Disk/bk/RDocu/F-TBS.csv")
-dt <- read.csv("/home/wane/Documents/RDocu/M_1018.csv")
-dt1 <- read.csv("/home/wane/Documents/RDocu/F_3061.csv")
+dt <- read.csv("/Users/mac/Desktop/Nomo-TBS/RDocu/M_1018.csv")
+dt1 <- read.csv("/Users/mac/Desktop/Nomo-TBS/RDocu/F_3061.csv")
+data <- rbind(dt,dt1)
+write.csv(data,"/Users/mac/Desktop/Nomo-TBS/RDocu/total_4079.csv",row.names = F)
 data1 <- data1[complete.cases(data1[, c(1, 2)]), ]
 
 data <- data[data$Age >= 50 & data$Age < 75, ]
