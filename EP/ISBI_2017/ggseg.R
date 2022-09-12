@@ -24,7 +24,9 @@ ggseg3d(show.legend = FALSE)
 ggseg3d(atlas="aseg_3d") %>%
   add_glassbrain("left")
 ggseg3d(atlas="dk_3d") %>%
-  add_glassbrain("left")
+  add_glassbrain(hemisphere = c("left", "right"),
+                 colour = "#cecece",
+                 opacity = 0.3)
 
 repo=ggseg_atlas_repos("yeo", ignore.case = TRUE)
 install_ggseg_atlas(repo$Package)
