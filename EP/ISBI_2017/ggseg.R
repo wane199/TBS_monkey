@@ -81,7 +81,7 @@ someData %>%
   geom_sf(aes(fill = p))
 
 # 注意此处数据结果和2d绘图数据的结构略微不同
-someData = glasser_3d %>% 
+someData = aal_3d %>% 
   filter(surf == "inflated" & hemi == "right") %>% 
   tidyr::unnest(ggseg_3d) %>% 
   ungroup() %>% 
@@ -90,7 +90,7 @@ someData = glasser_3d %>%
   mutate(p = sample(seq(0,.5, length.out = 1000 ), nrow(.)) %>% 
            round(2)) 
 ggseg3d(.data = someData, 
-        atlas = glasser_3d,
+        atlas = aal_3d,
         colour = "p", text = "p") %>% 
   remove_axes() %>% #去网格
   pan_camera("right medial")
