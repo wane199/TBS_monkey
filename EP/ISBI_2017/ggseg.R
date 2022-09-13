@@ -16,7 +16,7 @@ print(dk_3d)
 
 ggseg(atlas=dk, mapping=aes(fill=region))
 ggseg(atlas=aseg, mapping=aes(fill=label))
-ggseg(atlas=aal, mapping=aes(fill=region))
+ggseg(atlas=aal, mapping=aes(fill=label))
 ggseg3d(atlas=glasser_3d)
 ggseg3d(hemisphere = "left")
 ggseg3d(surface = "inflated")
@@ -56,7 +56,7 @@ ggseg3d(atlas = schaefer7_400_3d, surface = "inflated") %>%
 ggsegDesterieux::desterieux
 ggsegDesterieux::desterieux_3d
 ggsegYeo2011::yeo17_3d
-ggsegAal::aal_3d
+ggsegAal::aal
 
 ats_info=aal
 someData = tibble(
@@ -68,6 +68,27 @@ someData = tibble(
   ggplot() + 
   geom_sf(aes(fill = p))
 
+
+someData <- tibble(
+  region = rep(c("transverse temporal", "insula",
+                 "precentral","superior parietal"), 2), 
+  p = sample(seq(0,.5,.001), 8),
+  groups = c(rep("g1", 4), rep("g2", 4))
+)
+someData <- tibble(
+  region = rep(c("1", "14","26","35"), 2), 
+  p = sample(seq(0,.5,.001), 8),
+  groups = c(rep("g1", 4), rep("g2", 4))
+)
+someData %>%
+  group_by(groups) %>%
+  ggplot() +
+  geom_brain(atlas = aal, 
+             position = position_brain(hemi ~ side),
+             aes(fill = p)) +
+  facet_wrap(~groups)
+
+
 library(ggsegYeo2011)
 ats_info=yeo17
 someData = tibble(
@@ -77,7 +98,7 @@ someData = tibble(
 someData %>% 
   brain_join(yeo17) %>% 
   reposition_brain(hemi ~ side) %>% 
-  ggplot() + 
+  ggplot() + theme_void() + theme(legend.position = 'none' ) +
   geom_sf(aes(fill = p))
 
 # 注意此处数据结果和2d绘图数据的结构略微不同
