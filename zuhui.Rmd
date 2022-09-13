@@ -45,6 +45,9 @@ xaringanExtra::use_clipboard()
 ```
 ```{r options(servr.daemon = TRUE)}
 ```
+```{r share-again, echo=FALSE}
+xaringanExtra::use_share_again()
+```
 
 .bold[## Team Seminar Weekly]
 
