@@ -34,3 +34,7 @@ plot<-plotSimpleGamlss(Frontal_Cortex,Age,mod,data=dt,
                        ylim=c(0.075,0.115),val=50) #纵轴的起止点为0，500
 
 
+
+
+
+
