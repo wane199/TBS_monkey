@@ -282,7 +282,6 @@ fit2 <- coxph(Surv(time, status) ~ X1 + X2 + age + factor(gender), data = dt)
 Coef(fit0)
 Coef(fit1)
 Coef(fit2)
-###
 
 Coef <- function(Obj) {
   coef <- summary(Obj)
@@ -298,3 +297,5 @@ plrt <- 1 - pchisq(2 * (logLik(fit2)[1] - logLik(fit0)[1]), 1)
 plrt
 ##  method2
 anova(fit0, fit2)$"P(>|Chi|)"[2]
+
+

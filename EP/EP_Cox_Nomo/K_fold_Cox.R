@@ -12,7 +12,7 @@ library(pec)
 # 清理工作环境
 rm(list = ls())
 # 读入数据
-dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/TLE234group.csv")
+dt <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/Task2/TLE234group.csv")
 train <- subset(dt, dt$Group == "Training")
 test <- subset(dt, dt$Group == "Test")
 

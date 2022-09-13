@@ -2,7 +2,7 @@
 library(gamlss)
 library(gamlss.util)
 
-dt <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/QIANG/PartⅠ猴脑体积发育数据分析/L&R.csv")
+dt <- read.csv("/Users/mac/Desktop/Nomo-TBS/TBS&Mon/Monkey/QIANG/PartⅠ猴脑体积发育数据分析/L&R.csv")
 dt$Sex <- as.factor(dt$Sex)
 dt$Side <- as.factor(dt$Side)
 summary(dt)
