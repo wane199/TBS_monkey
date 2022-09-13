@@ -65,6 +65,8 @@ https://huhuaping.com/2021/02/01/css-base-xaringan/
 ## First
 可解释性机器学习框架OmniXAI复现；
 
+Data Manipulation with Nibabel and Nilearn；
+
 --
 ## Second
 [The Lancet Digital Health](https://www.editorialmanager.com/tldigitalhealth/default1.aspx)；
