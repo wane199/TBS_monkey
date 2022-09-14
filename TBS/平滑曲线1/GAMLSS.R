@@ -51,6 +51,7 @@ plot<-plotSimpleGamlss(Frontal_Cortex,Age,mod,data=dt,
                        x.val=seq(0,30,2), #定义数据分组
                        xlim=c(0,30), #横轴的起止点为-2，23
                        ylim=c(0.075,0.115),val=50) #纵轴的起止点为0，500
+
 z.scores(mod, x=c(2,15,30,40),y=c(45,50,56,63))
 
 

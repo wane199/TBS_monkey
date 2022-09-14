@@ -11,19 +11,21 @@ ggseg_atlas_repos()
 
 print(aal)
 force(aal_3d)
-print(aal_3d)
+print(aal_3d[[4]][1])
 print(dk_3d)
 
-ggseg(atlas=dk, mapping=aes(fill=region))
+ggseg(atlas=dk, mapping=aes(fill=label))
 ggseg(atlas=aseg, mapping=aes(fill=label))
-ggseg(atlas=aal, mapping=aes(fill=label))
-ggseg3d(atlas=glasser_3d)
+ggseg(atlas=aal, mapping=aes(fill=region))
+
 ggseg3d(hemisphere = "left")
 ggseg3d(surface = "inflated")
-ggseg3d(show.legend = FALSE)
-ggseg3d(atlas="aseg_3d") %>%
-  add_glassbrain("left")
-ggseg3d(atlas="dk_3d") %>%
+ggseg3d(atlas="aseg_3d",show.legend = FALSE) %>% 
+  remove_axes() %>% #去网格
+  add_glassbrain(c("left","right")) 
+ggseg3d(atlas=aal_3d)
+ggseg3d(atlas="aal_3d") %>%
+  remove_axes() %>% #去网格
   add_glassbrain(hemisphere = c("left", "right"),
                  colour = "#cecece",
                  opacity = 0.3)
@@ -38,7 +40,7 @@ p
 p1 <- ggseg3d(atlas=aal_3d) %>% 
   add_glassbrain() %>% 
   remove_axes() %>% 
-  pan_camera("right lateral")
+  pan_camera("left lateral")
 p1
 
 # Enable this universe
@@ -56,7 +58,8 @@ ggseg3d(atlas = schaefer7_400_3d, surface = "inflated") %>%
 ggsegDesterieux::desterieux
 ggsegDesterieux::desterieux_3d
 ggsegYeo2011::yeo17_3d
-ggsegAal::aal
+ggsegAal::aal_3d[[4]]
+ggsegAal::aal_3d[[4]][[2]][[4]]
 
 ats_info=aal
 someData = tibble(
@@ -67,7 +70,6 @@ someData = tibble(
   reposition_brain(hemi ~ side) %>% 
   ggplot() + 
   geom_sf(aes(fill = p))
-
 
 someData <- tibble(
   region = rep(c("transverse temporal", "insula",
@@ -88,7 +90,6 @@ someData %>%
              aes(fill = p)) +
   facet_wrap(~groups)
 
-
 library(ggsegYeo2011)
 ats_info=yeo17
 someData = tibble(
@@ -106,12 +107,25 @@ someData = aal_3d %>%
   filter(surf == "inflated" & hemi == "right") %>% 
   tidyr::unnest(ggseg_3d) %>% 
   ungroup() %>% 
-  select(region) %>% 
+  select(label) %>% 
   na.omit() %>% 
   mutate(p = sample(seq(0,.5, length.out = 1000 ), nrow(.)) %>% 
            round(2)) 
+someData <- tibble(
+  region = c("1","14","26","35"), 
+  p = c("0.179", "0.373", "0.188", "0.044")
+)
+p2 <- ggseg3d(.data = someData, colour = "p", text = "p",
+        atlas = aal_3d)
+p2
 ggseg3d(.data = someData, 
-        atlas = aal_3d,
+        atlas = aal_3d, 
         colour = "p", text = "p") %>% 
-  remove_axes() %>% #去网格
+  remove_axes() %>% #去网格 
+  add_glassbrain(hemisphere = c("left", "right"),
+               colour = "#cecece",
+               opacity = 0.3) %>% 
   pan_camera("right medial")
+
+plotly::save_image(p2, file = sprintf('%s/test.png',dir2save))
+
