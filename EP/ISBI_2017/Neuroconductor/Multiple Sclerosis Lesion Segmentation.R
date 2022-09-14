@@ -3,7 +3,7 @@
 ## ----setup, include=FALSE-----------------------------------------------------
 # install.packages("devtools")
 devtools::install_github("muschellij2/extrantsr")
-library(methods)
+library(methods) 
 library(oasis)
 library(extrantsr)
 library(neurobase)

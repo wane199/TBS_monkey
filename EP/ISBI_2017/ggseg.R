@@ -112,14 +112,20 @@ someData = aal_3d %>%
   mutate(p = sample(seq(0,.5, length.out = 1000 ), nrow(.)) %>% 
            round(2)) 
 someData <- tibble(
-  region = c("1","14","26","35"), 
-  p = c("0.179", "0.373", "0.188", "0.044")
+  region = c("37","38","39","40","41"), 
+  p = sample(seq(0,.5, length.out = 5 ))
 )
+someData <- tibble(
+  label = c("rh_RH_region_36","rh_RH_region_37","rh_RH_region_38",
+            "rh_RH_region_39","rh_RH_region_40","rh_RH_region_41"), 
+  p = c(".0", ".0", ".0", ".0", ".0", ".0")
+)
+
 p2 <- ggseg3d(.data = someData, colour = "p", text = "p",
-        atlas = aal_3d)
+              show.legend = F, atlas = aal_3d)
 p2
 ggseg3d(.data = someData, 
-        atlas = aal_3d, 
+        atlas = aal_3d, show.legend = F,
         colour = "p", text = "p") %>% 
   remove_axes() %>% #去网格 
   add_glassbrain(hemisphere = c("left", "right"),
