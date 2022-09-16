@@ -146,7 +146,7 @@ auc %>%
   geom_text(aes(label = auc$ACC),
     size = 2.0,
     position = position_dodge2(width = 0.75, preserve = "single"),
-    vjust = -0.35, hjust = 0.5
+    vjust = -0.5, hjust = 0.5
   )
 
 # 拼接pdf文件
