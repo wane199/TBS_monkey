@@ -4,6 +4,7 @@ library(gamlss)
 library(gamlss.util)
 
 dt <- read.csv("/Users/mac/Desktop/Nomo-TBS/TBS&Mon/Monkey/QIANG/PartⅠ猴脑体积发育数据分析/Gender.csv")
+dt <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/QIANG/PartⅠ猴脑体积发育数据分析/L&R.csv")
 dt$Sex <- as.factor(dt$Sex)
 dt$Side <- as.factor(dt$Side)
 summary(dt)
@@ -11,9 +12,23 @@ str(dt)
 
 # 构建LMS模型（该模型为GAMLSS方法下的一个特例）
 m0a<-lms(Frontal_Cortex,Age,data=dt,
-         trans.x=TRUE,k=3,families ="BCCG") #自由度选择2，方法为BCCG
+         trans.x=TRUE,k=3,families ="BCTo") #自由度选择2，方法为"BCCGo", "BCPEo", "BCTo"
+m0a
 m1 <- lms(y=Frontal_Cortex, x=Age, data=dt, trans.x=TRUE)
+m1 <- lms(y=Frontal_Cortex, x=Age, data=dt, n.cyc=30)
+m2 <- lms(y=Frontal_Cortex, x=Age, data=dt, method.pb="GAIC", k=log(610))
+mDEG_zip <- gamlss(formula = deg ~ pb(SE_score) + TL + species + sex + season + 
+                     year + re(random = ~1|code) +  re(random = ~1|station),
+                   family=ZIP(), data = node_dat,
+                   control = gamlss.control(n.cyc = 200))
+m=gamlss(Frontal_Cortex~cs(Age,df=3),family = BCT,data=dt)
+plot(m)
+# 分位数曲线，没有给出图例，因为没找到更改图例位置的参数，legend=TRUE有图例，ylim限定了y轴范围
+centiles(m,dt$Age,cent = c(1,3,5,10,25,50,75,90,95,97,99),legend = FALSE,ylab = "Frontal_Cortex",xlab = "Age",main = "",ylim=c(0.08,0.12))
 
+gamlss(Frontal_Cortex~cs(Age,df=3),sigma.fo=log(Age),nu.fo=~1,tau.fo=~1,family=BCT,data=dt)
+       
+       
 Output1<-gamlss(Frontal_Cortex ~ Age, 
                 sigma.fo=~Age,
                 nu.fo=~1, 
