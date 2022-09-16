@@ -292,23 +292,14 @@ total.summary2 <- total %>%
 # 分组汇总，折线+散点组图
 library(ggpubr)
 # Create line plots of means
-<<<<<<< HEAD
 ggline(total, x = "Age_group", y = "BMDL1L4", group = "Sex", position = position_dodge(width=0.5),
        add = c("mean_sd", "jitter"),size=0.5,add.params = list(size = 0.5, alpha = 0.3),
        color = "Sex", xlab='Age(years)', ylab=(expression(BMD(g/cm^2))),
        font.label = list(size = 15, color = "black"),
        legend = "right",ggtheme = theme_pubr(),palette = c("jco")) + ylim(0.4,1.6) +
   # ylab=(expression(BMD(g/cm^2))) 
-  rotate_x_text(30)  -> p1
-ggline(total, x = "Age_group", y = "TBSL1L4", group = "Sex", position = position_dodge(width=0.5),
-       add = c("mean_sd", "jitter"),size=0.5,add.params = list(size = 0.5, alpha = 0.3),
-       color = "Sex", xlab='Age(years)',ylab='TBS',font.label = list(size = 15, color = "black"),
-       legend = "right",ggtheme = theme_pubr(),palette = c("jco")) + ylim(1.0,1.6) +
-    # ylab=(expression(BMD(g/cm^2))) 
-      rotate_x_text(30)  -> p2
-p2
-# ylab(expression(BMD(g/cm^2)))
-=======
+  rotate_x_text(30)  -> p1 
+
 total$Sex <- factor(total$Sex, levels = c("Women", "Men")) # 调整图例顺序
 ggline(total, x = "Age_group", y = "BMDL1L4", group = "Sex", position = position_dodge(width=0.5),
        add = c("mean_sd", "jitter"),size=0.5,add.params = list(size = 0.5, alpha = 0.3),
@@ -335,10 +326,8 @@ ggline(total, x = "Age_group", y = "TBSL1L4", group = "Sex", position = position
        # ylab=(expression(BMD(g/cm^2))) 
        rotate_x_text(30)  -> p2
 
->>>>>>> 1ff98e83c241bdc4da29b99fd413ff17e7a49d2f
 library(patchwork)
 p1 + p2 + plot_layout(guides='collect') + plot_annotation(tag_levels = 'A')
-
 
 # World map is available in the maps package
 library(maps)
