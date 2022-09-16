@@ -5,10 +5,10 @@ setwd("C:\\Users\\wane\\Desktop\\R&Py\\RDocu")
 getwd()
 list.files() # 查看当前工作目录下的文件
 library(dplyr)
-dt <- read.csv("/home/wane/Desktop/Disk/bk/RDocu/M-TBS.csv")
-dt1 <- read.csv("/home/wane/Desktop/Disk/bk/RDocu/F-TBS.csv")
-dt <- read.csv("/Users/mac/Desktop/Nomo-TBS/RDocu/M_1018.csv")
-dt1 <- read.csv("/Users/mac/Desktop/Nomo-TBS/RDocu/F_3061.csv")
+dt <- read.csv("/home/wane/Documents/RDocu/M-TBS.csv")
+dt1 <- read.csv("/home/wane/Documents/RDocu/F-TBS.csv")
+dt <- read.csv("/home/wane/Documents/RDocu/M_1018.csv")
+dt1 <- read.csv("/home/wane/Documents/RDocu//F_3061.csv")
 data <- rbind(dt,dt1)
 write.csv(data,"/Users/mac/Desktop/Nomo-TBS/RDocu/total_4079.csv",row.names = F)
 data1 <- data1[complete.cases(data1[, c(1, 2)]), ]
@@ -292,14 +292,30 @@ total.summary2 <- total %>%
 # 分组汇总，折线+散点组图
 library(ggpubr)
 # Create line plots of means
+total$Sex <- factor(total$Sex, levels = c("Women", "Men")) # 调整图例顺序
+ggline(total, x = "Age_group", y = "BMDL1L4", group = "Sex", position = position_dodge(width=0.5),
+       add = c("mean_sd", "jitter"),size=0.5,add.params = list(size = 0.5, alpha = 0.3),
+       color = "Sex", shape = "Sex", xlab='Age(years)', ylab=(expression(BMD(g/cm^2))),
+       font.label = list(size = 15, color = "black"),
+       legend = "right",ggtheme = theme_pubr(),palette = c("black","gray")) + ylim(0.4,1.6) +
+       # ylab=(expression(BMD(g/cm^2))) 
+       rotate_x_text(30) -> p1
+
+ggline(total, x = "Age_group", y = "BMDL1L4", group = "Sex", position = position_dodge(width=0.5),
+       add = c("mean_sd", "jitter"),size=0.5,add.params = list(size = 0.5, alpha = 0.3),
+       color = "Sex", xlab='Age(years)', ylab=(expression(BMD(g/cm^2))),
+       font.label = list(size = 15, color = "black"),
+       legend = "right",ggtheme = theme_pubr(),palette = c("jco")) + ylim(0.4,1.6) +
+       # ylab=(expression(BMD(g/cm^2))) 
+       rotate_x_text(30)
 ggline(total, x = "Age_group", y = "TBSL1L4", group = "Sex", position = position_dodge(width=0.5),
        add = c("mean_sd", "jitter"),size=0.5,add.params = list(size = 0.5, alpha = 0.3),
-       color = "Sex", xlab='Age(years)',ylab='TBS',font.label = list(size = 15, color = "black"),
-       legend = "right",ggtheme = theme_pubr(),palette = c("jco")) + ylim(1.0,1.6) +
-    # ylab(expression(BMD(g/cm^2))) 
-      rotate_x_text(30)  -> p1
-p1
-# ylab(expression(BMD(g/cm^2)))
+       color = "Sex", shape = "Sex",xlab='Age(years)', ylab='TBS',
+       font.label = list(size = 15, color = "black"),
+       legend = "right",ggtheme = theme_pubr(),palette = c("black","gray")) + ylim(1.0,1.6) +
+       # ylab=(expression(BMD(g/cm^2))) 
+       rotate_x_text(30)  -> p2
+
 library(patchwork)
 p1 + p2 + plot_layout(guides='collect') + plot_annotation(tag_levels = 'A')
 
