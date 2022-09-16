@@ -295,24 +295,26 @@ library(ggpubr)
 total$Sex <- factor(total$Sex, levels = c("Women", "Men")) # 调整图例顺序
 ggline(total, x = "Age_group", y = "BMDL1L4", group = "Sex", position = position_dodge(width=0.5),
        add = c("mean_sd", "jitter"),size=0.5,add.params = list(size = 0.5, alpha = 0.3),
-       color = "Sex", shape = "Sex", xlab='Age(years)', ylab=(expression(BMD(g/cm^2))),
-       font.label = list(size = 15, color = "black"),
-       legend = "right",ggtheme = theme_pubr(),palette = c("black","gray")) + ylim(0.4,1.6) +
+       color = "Sex", shape = "Sex", linetype = "Sex", xlab='Age(years)', ylab=(expression(BMD(g/cm^2))),
+       font.label = list(size = 15, color = "black"), 
+       legend = "right",ggtheme = theme_pubr(),palette = c("black","gray2")) + ylim(0.4,1.6) + 
        # ylab=(expression(BMD(g/cm^2))) 
        rotate_x_text(30) -> p1
 
 ggline(total, x = "Age_group", y = "BMDL1L4", group = "Sex", position = position_dodge(width=0.5),
-       add = c("mean_sd", "jitter"),size=0.5,add.params = list(size = 0.5, alpha = 0.3),
-       color = "Sex", xlab='Age(years)', ylab=(expression(BMD(g/cm^2))),
+       add = c("mean_sd", "jitter"),size=0.8,add.params = list(size = 0.8, alpha = 0.5),
+       color = "Sex", shape = "Sex", linetype = "solid", xlab='Age(years)', ylab=(expression(BMD(g/cm^2))),
        font.label = list(size = 15, color = "black"),
-       legend = "right",ggtheme = theme_pubr(),palette = c("jco")) + ylim(0.4,1.6) +
+       legend = "right",ggtheme = theme_pubr(),palette = c("black","#868686FF")) + ylim(0.4,1.6) + 
+       scale_linetype_manual(values = c('twodash', 'longdash'))  + 
        # ylab=(expression(BMD(g/cm^2))) 
        rotate_x_text(30)
+
 ggline(total, x = "Age_group", y = "TBSL1L4", group = "Sex", position = position_dodge(width=0.5),
        add = c("mean_sd", "jitter"),size=0.5,add.params = list(size = 0.5, alpha = 0.3),
-       color = "Sex", shape = "Sex",xlab='Age(years)', ylab='TBS',
+       color = "Sex", shape = "Sex", linetype = "Sex", xlab='Age(years)', ylab='TBS',
        font.label = list(size = 15, color = "black"),
-       legend = "right",ggtheme = theme_pubr(),palette = c("black","gray")) + ylim(1.0,1.6) +
+       legend = "right",ggtheme = theme_pubr(),palette = c("black","gray2")) + ylim(1.0,1.6) +
        # ylab=(expression(BMD(g/cm^2))) 
        rotate_x_text(30)  -> p2
 
