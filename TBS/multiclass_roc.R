@@ -126,7 +126,7 @@ print(tab2, quote = T)
 library(ggplot2)
 library(dplyr)
 
-auc <- read.csv("/home/wane/Desktop/EP/REFER/BLS/roc/SPE.csv")
+auc <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/REFER/BLS/roc/ACC.csv")
 str(auc)
 summary(auc)
 auc$ACC <- as.numeric(auc$ACC)
@@ -134,19 +134,19 @@ auc$ACC <- round(auc$ACC,3)
 # fix(auc)
 # Grouped
 auc %>%
-  mutate(Methods = factor(Model, levels = c("Physian1", "Physian2", "LR", "KNN", "RF", "Sia Net", "B-Sia Net"))) %>%
-  ggplot(mapping = aes(x = reorder(Image, Methods), y = SPE, fill = Methods)) +
+  mutate(Methods = factor(Model, levels = c("Junior level", "Senior level", "LR", "KNN", "RF", "Sia net", "BLS-Sia net"))) %>%
+  ggplot(mapping = aes(x = reorder(Image, Methods), y = ACC, fill = Methods)) +
   geom_bar(stat = "identity", position = position_dodge(0.75), width = 0.6) +
   coord_cartesian(ylim = c(0.3, 1)) +
   scale_y_continuous(expand = c(0, 0)) + # 消除x轴与绘图区的间隙
   # scale_fill_grey(start = 0.2, end = 1.0) +
   scale_fill_brewer(palette = "Set2") +
-  labs(x = "", y = "Sensitivity") +
+  labs(x = "", y = "Accuracy") +
   theme_classic() +
-  geom_text(aes(label = auc$SPE),
-    size = 3.0,
+  geom_text(aes(label = auc$ACC),
+    size = 2.0,
     position = position_dodge2(width = 0.75, preserve = "single"),
-    vjust = -0.2, hjust = 0.5
+    vjust = -0.35, hjust = 0.5
   )
 
 # 拼接pdf文件
