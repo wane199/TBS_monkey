@@ -297,8 +297,8 @@ ggline(total, x = "Age_group", y = "BMDL1L4", group = "Sex", position = position
        color = "Sex", xlab='Age(years)', ylab=(expression(BMD(g/cm^2))),
        font.label = list(size = 15, color = "black"),
        legend = "right",ggtheme = theme_pubr(),palette = c("jco")) + ylim(0.4,1.6) +
-  # ylab=(expression(BMD(g/cm^2))) 
-  rotate_x_text(30)  -> p1 
+       # ylab=(expression(BMD(g/cm^2))) 
+       rotate_x_text(30)  -> p1 
 
 total$Sex <- factor(total$Sex, levels = c("Women", "Men")) # 调整图例顺序
 ggline(total, x = "Age_group", y = "BMDL1L4", group = "Sex", position = position_dodge(width=0.5),
