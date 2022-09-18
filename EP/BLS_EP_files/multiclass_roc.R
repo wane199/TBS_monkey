@@ -125,8 +125,8 @@ print(tab2, quote = T)
 # 多模型效能比较，除了ROC还有别的选择吗？
 library(ggplot2)
 library(dplyr)
-
-auc <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/REFER/BLS/roc/ACC.csv")
+getwd()
+auc <- read.csv("./EP/BLS_EP_files/ACC.csv")
 str(auc)
 summary(auc)
 auc$ACC <- as.numeric(auc$ACC)
@@ -147,7 +147,11 @@ auc %>%
     size = 2.0,
     position = position_dodge2(width = 0.75, preserve = "single"),
     vjust = -0.5, hjust = 0.5
-  )
+  ) -> p1
+
+# 拼图合并相同图例
+library(patchwork)
+p1 + p2 + plot_layout(guides='collect') + plot_annotation(tag_levels = 'A')
 
 # 拼接pdf文件
 library(qpdf) 

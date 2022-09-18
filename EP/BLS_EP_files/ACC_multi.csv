@@ -1,0 +1,29 @@
+Image,Model,ACC,SEN,SPE
+T1-Left,BLS-Sia net,0.698 ,0.739 ,0.676 
+T1-Left,Sia net,0.690 ,0.676 ,0.697 
+T1-Left,RF,0.651 ,0.661 ,0.645 
+T1-Left,KNN,0.560 ,0.472 ,0.618 
+T1-Left,LR,0.569 ,0.513 ,0.606 
+T1-Left,Senior level,0.574 ,0.738 ,0.398 
+T1-Left,Junior level,0.561 ,0.532 ,0.593 
+T1-Right,BLS-Sia net,0.703 ,0.340 ,0.848 
+T1-Right,Sia net,0.694 ,0.405 ,0.806 
+T1-Right,RF,0.701 ,0.240 ,0.871 
+T1-Right,KNN,0.659 ,0.176 ,0.838 
+T1-Right,LR,0.648 ,0.267 ,0.788 
+T1-Right,Senior level,0.639 ,0.223 ,0.900 
+T1-Right,Junior level,0.631 ,0.181 ,0.913 
+PET-Left,BLS-Sia net,0.844 ,0.868 ,0.831 
+PET-Left,Sia net,0.824 ,0.767 ,0.859 
+PET-Left,RF,0.654 ,0.621 ,0.676 
+PET-Left,KNN,0.560 ,0.474 ,0.616 
+PET-Left,LR,0.575 ,0.315 ,0.747 
+PET-Left,Senior level,0.574 ,0.738 ,0.398 
+PET-Left,Junior level,0.561 ,0.532 ,0.593 
+PET-Right,BLS-Sia net,0.859 ,0.708 ,0.920 
+PET-Right,Sia net,0.842 ,0.834 ,0.845 
+PET-Right,RF,0.728 ,0.375 ,0.859 
+PET-Right,KNN,0.673 ,0.249 ,0.830 
+PET-Right,LR,0.593 ,0.428 ,0.654 
+PET-Right,Senior level,0.639 ,0.223 ,0.900 
+PET-Right,Junior level,0.631 ,0.181 ,0.913 
