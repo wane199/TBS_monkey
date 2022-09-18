@@ -123,10 +123,10 @@ print(tab2, quote = T)
 
 ## 分组柱状图展示多个模型三分类AUROC及AUPRC
 # 多模型效能比较，除了ROC还有别的选择吗？
-library(ggplot2)
+library(ggplot2) 
 library(dplyr)
 getwd()
-auc <- read.csv("./EP/BLS_EP_files/ACC.csv")
+auc <- read.csv("./EP/BLS_EP_files/ACC_multi.csv")
 str(auc)
 summary(auc)
 auc$ACC <- as.numeric(auc$ACC)
@@ -135,23 +135,23 @@ auc$ACC <- round(auc$ACC,3)
 # Grouped
 auc %>%
   mutate(Methods = factor(Model, levels = c("Junior level", "Senior level", "LR", "KNN", "RF", "Sia net", "BLS-Sia net"))) %>%
-  ggplot(mapping = aes(x = reorder(Image, Methods), y = ACC, fill = Methods)) +
+  ggplot(mapping = aes(x = reorder(Image, Methods), y = SEN, fill = Methods)) +
   geom_bar(stat = "identity", position = position_dodge(0.75), width = 0.6) +
   coord_cartesian(ylim = c(0.3, 1)) +
   scale_y_continuous(expand = c(0, 0)) + # 消除x轴与绘图区的间隙
   # scale_fill_grey(start = 0.2, end = 1.0) +
   scale_fill_brewer(palette = "Set2") +
-  labs(x = "", y = "Accuracy") +
+  labs(x = "", y = "Sensitivity") +
   theme_classic() +
-  geom_text(aes(label = auc$ACC),
+  geom_text(aes(label = auc$SEN),
     size = 2.0,
     position = position_dodge2(width = 0.75, preserve = "single"),
     vjust = -0.5, hjust = 0.5
-  ) -> p1
-
+  ) -> p2
+p1
 # 拼图合并相同图例
 library(patchwork)
-p1 + p2 + plot_layout(guides='collect') + plot_annotation(tag_levels = 'A')
+p1 + plot_layout(guides='collect') + plot_annotation(tag_levels = 'A')
 
 # 拼接pdf文件
 library(qpdf) 
