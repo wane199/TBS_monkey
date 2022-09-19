@@ -267,29 +267,18 @@ ggplot(total, aes(x = Age, y = TBSL1L4, color = Sex)) +
   # scale_fill_nejm() + scale_colour_nejm() + 
   theme_classic() + 
   # geom_vline(aes(xintercept=8.0),linetype=4,col="red") +
-  geom_smooth(method = gam, formula = y ~ x, se = T)
-
-# Plot，https://blog.csdn.net/weixin_44607829/article/details/120447833
-total %>%
-  ggplot(aes(x=Age_group, y=TBSL1L4, fill=Sex)) + stat_summary(fun=mean,geom="point",color="red",alpha=0.8,size=1.5,position=position_dodge(0.8)) +
-  geom_jitter(alpha = 0.2, size = 0.2) + 
-  # geom_boxplot(aes(middle = mean(TBSL1L4)), alpha = 0.3, size = 0.2, outlier.size = 0) +
-  scale_fill_nejm() + scale_colour_nejm() + 
-  theme(plot.title = element_text(size=11)) + 
-  xlab('Age(years)')+ylab('TBS') +
-  # y=lab(expression(BMD(g/cm^2))) +
-  theme(plot.title = element_text(hjust = 0.5)) 
+  geom_smooth(method = lm, formula = y ~ x, se = T)
 
 library(dplyr)
 total.summary1 <- total %>%
-  group_by(Sex,Age_group) %>%
+  group_by(Age_group,Sex) %>%
   summarise(
-    sd = sd(TBSL1L4, na.rm = TRUE),
+    sd = sd(TBSL1L4),
     len = mean(TBSL1L4)
   )
-total.summary2
+total.summary1
 total.summary2 <- total %>%
-  group_by(Sex,Age_group) %>%
+  group_by(Age_group,Sex) %>%
   summarise(
     sd = sd(BMDL1L4, na.rm = TRUE),
     len = mean(BMDL1L4)
@@ -308,8 +297,26 @@ total$Sex <- factor(total$Sex, levels = c("Women", "Men")) # 调整图例顺序
 ggplot(total, aes(x=Age, y=BMDL1L4, shape = Sex)) + 
   geom_point(colour = "black", size = 2.5, alpha = 0.5) + theme_classic()
 
-ggline(total, x = "Age_group", y = "BMDL1L4", group = "Sex", position = position_dodge(width=0.5),
-       add = c("mean_sd", "jitter"), size = 1.0, add.params = list(size = 4.5, alpha = 0.2),
+# Plot，https://blog.csdn.net/weixin_44607829/article/details/120447833
+total %>%
+  ggplot(aes(x=Age_group, y=TBSL1L4, fill=Sex)) + stat_summary(fun=mean,geom="point",color="red",alpha=0.8,size=1.5,position=position_dodge(1.8)) +
+  geom_jitter(alpha = 0.2, size = 2.8) + 
+  geom_line(aes(group = Sex, color = Sex), data = total.summary1) +
+  geom_errorbar(aes(ymin = len-sd, ymax = len+sd, color = supp),
+    data = total.summary1, width = 0.2) +
+  # geom_boxplot(aes(middle = mean(TBSL1L4)), alpha = 0.3, size = 0.2, outlier.size = 0) +
+  scale_fill_nejm() + scale_colour_nejm() + 
+  theme(plot.title = element_text(size=11)) + 
+  xlab('Age(years)')+ylab('TBS') +
+  # y=lab(expression(BMD(g/cm^2))) +
+  theme(plot.title = element_text(hjust = 0.5)) 
+
+ggplot(aes(x=Age_group, y=TBSL1L4, fill=Sex)) + 
+  geom_line(aes(group = Sex, color = Sex), data = total.summary1) +
+  geom_errorbar(aes(ymin = len-sd, ymax = len+sd, color = Sex),
+                data = total.summary1, width = 0.2)
+ggline(total, x = "Age_group", y = "BMDL1L4", group = "Sex", position = position_dodge(width=.8),
+       add = c("mean_sd", "jitter"), size = 1.0, add.params = list(size = 4.5, alpha = 0.2,position=position_dodge(width=58)),
        color = "Sex", shape = "Sex", linetype = "Sex", xlab='Age(years)', ylab=(expression(BMD(g/cm^2))),
        font.label = list(size = 15, color = "black"),
        legend = "right",ggtheme = theme_pubr(),palette = c("black","gray2")) + ylim(0.4,1.6) + 
