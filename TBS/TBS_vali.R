@@ -254,6 +254,12 @@ hist(total$Age)
 
 total %>%
   mutate(Sex = factor(Sex, levels = c("Women", "Men"))) -> total
+
+ggplot(total, aes(x = Age, y = BMDL1L4, color = Sex)) +
+  geom_point(aes(color = Sex), size = 0.2) + scale_x_continuous(breaks = seq(20,75,5)) +
+  # scale_fill_nejm() + scale_colour_nejm() + 
+  theme_classic()
+
 ggplot(total, aes(x = Age, y = TBSL1L4, color = Sex)) +
   geom_point(aes(color = Sex), size = 0.2) + scale_x_continuous(breaks = seq(20,75,5)) +
   # scale_fill_nejm() + scale_colour_nejm() + 
