@@ -62,18 +62,17 @@ PET/CT-MRI, JNU
 ???
 https://huhuaping.com/2021/02/01/css-base-xaringan/
 ---
-# 吴环华工作汇报0912
+# 吴环华工作汇报0919-0912
 
 --
 ## First
 可解释性机器学习框架OmniXAI复现；
 
-Data Manipulation with Nibabel and Nilearn；
-
 --
 ## Second
-[The Lancet Digital Health](https://www.editorialmanager.com/tldigitalhealth/default1.aspx)；
-
+[The Lancet Digital Health](https://www.editorialmanager.com/tldigitalhealth/default1.aspx).
+???
+Data Manipulation with Nibabel and Nilearn
 ---
 ---
 # 吴环华工作汇报0905

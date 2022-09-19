@@ -134,24 +134,77 @@ auc$ACC <- round(auc$ACC,3)
 # fix(auc)
 # Grouped
 auc %>%
-  mutate(Methods = factor(Model, levels = c("Junior level", "Senior level", "LR", "KNN", "RF", "Sia net", "BLS-Sia net"))) %>%
+  mutate(Methods = factor(Model, levels = c("BLS-Sia net", "Sia net", "RF", "KNN", "LR", "Senior level", "Junior level"))) %>%
+  ggplot(mapping = aes(x = reorder(Image, Methods), y = ACC, fill = Methods)) +
+  geom_bar(stat = "identity", position = position_dodge(0.75), width = 0.6) +
+  coord_cartesian(ylim = c(0.5, 1.0)) +
+  scale_y_continuous(expand = c(0, 0)) + # 消除x轴与绘图区的间隙
+  # scale_fill_grey(start = 0.2, end = 1.0) +
+  scale_fill_brewer(palette = "Set2") +
+  labs(x = "", y = "Accuracy") +
+  theme_classic() +  theme(legend.position = c(0.98, 0.80),
+    legend.justification = c(0.98, 0.80)) + 
+  geom_text(aes(label = auc$ACC),
+            size = 2.0,
+            position = position_dodge2(width = 0.75, preserve = "single"),
+            vjust = -0.5, hjust = 0.5
+  ) -> p1
+p1
+auc %>%
+  mutate(Methods = factor(Model, levels = c("BLS-Sia net", "Sia net", "RF", "KNN", "LR", "Senior level", "Junior level"))) %>%
+  ggplot(mapping = aes(x = reorder(Image, Methods), y = F1_score, fill = Methods)) +
+  geom_bar(stat = "identity", position = position_dodge(0.75), width = 0.6) +
+  coord_cartesian(ylim = c(0.1, 1.0)) +
+  scale_y_continuous(expand = c(0, 0)) + # 消除x轴与绘图区的间隙
+  # scale_fill_grey(start = 0.2, end = 1.0) +
+  scale_fill_brewer(palette = "Set2") +
+  labs(x = "", y = "F1 score") +
+  theme_classic() + theme(legend.position = c(0.98, 0.80),
+                          legend.justification = c(0.98, 0.80)) + 
+  geom_text(aes(label = auc$F1_score),
+            size = 2.0,
+            position = position_dodge2(width = 0.75, preserve = "single"),
+            vjust = -0.5, hjust = 0.5
+  ) -> p2
+
+auc %>%
+  mutate(Methods = factor(Model, levels = c("BLS-Sia net", "Sia net", "RF", "KNN", "LR", "Senior level", "Junior level"))) %>%
   ggplot(mapping = aes(x = reorder(Image, Methods), y = SEN, fill = Methods)) +
   geom_bar(stat = "identity", position = position_dodge(0.75), width = 0.6) +
-  coord_cartesian(ylim = c(0.3, 1)) +
+  coord_cartesian(ylim = c(0.1, 1.0)) +
   scale_y_continuous(expand = c(0, 0)) + # 消除x轴与绘图区的间隙
   # scale_fill_grey(start = 0.2, end = 1.0) +
   scale_fill_brewer(palette = "Set2") +
   labs(x = "", y = "Sensitivity") +
-  theme_classic() +
+  theme_classic() + theme(legend.position = c(0.98, 0.80),
+    legend.justification = c(0.98, 0.80)) + 
   geom_text(aes(label = auc$SEN),
     size = 2.0,
     position = position_dodge2(width = 0.75, preserve = "single"),
     vjust = -0.5, hjust = 0.5
-  ) -> p2
-p1
+  ) -> p3
+
+auc %>%
+  mutate(Methods = factor(Model, levels = c("BLS-Sia net", "Sia net", "RF", "KNN", "LR", "Senior level", "Junior level"))) %>%
+  ggplot(mapping = aes(x = reorder(Image, Methods), y = SPE, fill = Methods)) +
+  geom_bar(stat = "identity", position = position_dodge(0.75), width = 0.6) +
+  coord_cartesian(ylim = c(0.3, 1.0)) +
+  scale_y_continuous(expand = c(0, 0)) + # 消除x轴与绘图区的间隙
+  # scale_fill_grey(start = 0.2, end = 1.0) +
+  scale_fill_brewer(palette = "Set2") +
+  labs(x = "", y = "Specificity") +
+  theme_classic() + theme(legend.position = c(0.98, 0.80),
+                          legend.justification = c(0.98, 0.80)) + 
+  geom_text(aes(label = auc$SPE),
+            size = 2.0,
+            position = position_dodge2(width = 0.75, preserve = "single"),
+            vjust = -0.5, hjust = 0.5
+  ) -> p4
+
 # 拼图合并相同图例
 library(patchwork)
-p1 + plot_layout(guides='collect') + plot_annotation(tag_levels = 'A')
+p1 + p2 + p3 + p4 + plot_layout(guides='collect') + plot_annotation(tag_levels = 'A') + theme(legend.position = c(0.98, 0.80),
+                                                                                    legend.justification = c(0.98, 0.80))
 
 # 拼接pdf文件
 library(qpdf) 
