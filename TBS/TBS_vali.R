@@ -7,8 +7,8 @@ list.files() # 查看当前工作目录下的文件
 library(dplyr)
 dt <- read.csv("/home/wane/Documents/RDocu/M-TBS.csv")
 dt1 <- read.csv("/home/wane/Documents/RDocu/F-TBS.csv")
-dt <- read.csv("D:/RDocu/M_1018.csv")
-dt1 <- read.csv("D:/RDocu/F_3061.csv")
+dt <- read.csv("/Users/mac/Desktop/Nomo-TBS/RDocu/M_1018.csv")
+dt1 <- read.csv("/Users/mac/Desktop/Nomo-TBS/RDocu/F_3061.csv")
 data <- rbind(dt,dt1)
 write.csv(data,"/Users/mac/Desktop/Nomo-TBS/RDocu/total_4079.csv",row.names = F)
 data1 <- data1[complete.cases(data1[, c(1, 2)]), ]
@@ -144,7 +144,6 @@ ggplot(
     position = position_stack(vjust = .5)
   )
 
-
 # http://www.360doc.com/content/21/0118/21/29540381_957669799.shtml
 # https://rpubs.com/chixinzero/490992
 library(readxl)
@@ -257,8 +256,26 @@ total %>%
 
 # https://blog.csdn.net/weixin_40575651/article/details/107575012
 # 各类回归模型的回归线绘制方法
-ggplot(total, aes(x = Age, y = BMDL1L4, color = Sex)) +
-  geom_point(aes(color = Sex), size = 0.2) + scale_x_continuous(breaks = seq(20,75,5)) +
+dd <- datadist(total) # 为后续程序设定数据环境
+options(datadist = "dd")
+ggplot(total, aes(x = Age, y = TBSL1L4, shape = Sex)) +
+  geom_point() # 绘制散点图
+p <- ggplot() +
+  geom_point(data = total, mapping = aes(x = Age, y = TBSL1L4, shape = Sex)) +
+  theme_classic()
+p
+
+# 建立线性回归模型
+model.lm <- lm(TBSL1L4 ~ Age, data = total) # 构建线性回归模型
+summary(model.lm) # 查看回归模型结果
+p1 <- ggplot(total, aes(x = Age, y = TBSL1L4, shape = Sex)) +
+  geom_point() +
+  theme_classic() +
+  stat_smooth(method = lm, formula = y ~ x)
+p1
+
+ggplot(total, aes(x = Age, y = BMDL1L4, color = Sex, shape =Sex)) +
+  geom_point(aes(color = Sex, shape = Sex), size = 3.5, alpha = 0.2) + scale_x_continuous(breaks = seq(20,75,2)) +
   # scale_fill_nejm() + scale_colour_nejm() + 
   theme_classic()
 
@@ -269,7 +286,14 @@ ggplot(total, aes(x = Age, y = TBSL1L4, color = Sex)) +
   # geom_vline(aes(xintercept=8.0),linetype=4,col="red") +
   geom_smooth(method = lm, formula = y ~ x, se = T)
 
+# (1) Line plot + error bars
 library(dplyr)
+total.summary2 <- total %>%
+  group_by(Age_group,Sex) %>%
+  summarise(
+    sd = sd(BMDL1L4, na.rm = TRUE),
+    len = mean(BMDL1L4)
+  )
 total.summary1 <- total %>%
   group_by(Age_group,Sex) %>%
   summarise(
@@ -277,12 +301,30 @@ total.summary1 <- total %>%
     len = mean(TBSL1L4)
   )
 total.summary1
-total.summary2 <- total %>%
-  group_by(Age_group,Sex) %>%
-  summarise(
-    sd = sd(BMDL1L4, na.rm = TRUE),
-    len = mean(BMDL1L4)
-  )
+
+total %>%
+  ggplot(aes(x=Age_group, y=BMDL1L4, fill=Sex, shape = Sex)) + 
+  stat_summary(fun=mean,geom="point",color="black",alpha=1.5,size=3.5,position=position_dodge(0.3)) +
+  geom_jitter(alpha = 0.2, size = 3.0) + 
+  geom_line(aes(x=Age_group, y=len, group = Sex, linetype = Sex), size = 1.0, data = total.summary2, position=position_dodge(0.3)) + 
+  theme_classic() + theme(plot.title = element_text(size=11)) + ylim(0.4,1.6) + 
+  xlab('') + ylab(expression(BMD(g/cm^2))) + theme(plot.title = element_text(hjust = 0.5)) +
+  rotate_x_text(30) +
+  theme(axis.text = element_text(size = 10, face = "bold")) -> p3
+p3
+total %>%
+  ggplot(aes(x=Age_group, y=TBSL1L4, fill=Sex, shape = Sex)) + 
+  stat_summary(fun=mean,geom="point",color="black",alpha=1.5,size=3.5,position=position_dodge(0.3)) +
+  geom_jitter(alpha = 0.2, size = 3.0) + 
+  geom_line(aes(x=Age_group, y=len, group = Sex, linetype = Sex), size = 1.0, data = total.summary1, position=position_dodge(0.3)) + 
+  theme_classic() + theme(plot.title = element_text(size=11)) + ylim(1.0,1.6) + 
+  xlab('Age(years)')+ylab('TBS') + theme(plot.title = element_text(hjust = 0.5)) +
+  rotate_x_text(30) +
+  theme(axis.text = element_text(size = 10, face = "bold")) -> p4
+  # ylab=(expression(BMD(g/cm^2))) + 
+
+library(patchwork)
+p3/p4 + plot_layout(guides='collect') + plot_annotation(tag_levels = 'A')
 
 # https://blog.csdn.net/zhouhucheng00/article/details/106368179
 # 创建具有多个分组的均值 ± 标准差图。使用ggpubr包，将自动计算汇总统计信息并创建图形。
@@ -294,50 +336,23 @@ library(hrbrthemes)
 total$Sex <- factor(total$Sex, levels = c("Women", "Men")) # 调整图例顺序
 
 # A basic scatterplot with color depending on Species
-ggplot(total, aes(x=Age, y=BMDL1L4, shape = Sex)) + 
+ggplot(total, aes(x=Age, y=BMDL1L4, colour = Sex, shape = Sex)) + scale_x_continuous(breaks = seq(20,75,5)) +
   geom_point(colour = "black", size = 2.5, alpha = 0.5) + theme_classic()
 
 # Plot，https://blog.csdn.net/weixin_44607829/article/details/120447833
-total %>%
-  ggplot(aes(x=Age_group, y=TBSL1L4, fill=Sex)) + stat_summary(fun=mean,geom="point",color="red",alpha=0.8,size=1.5,position=position_dodge(1.8)) +
-  geom_jitter(alpha = 0.2, size = 2.8) + 
-  geom_line(aes(group = Sex, color = Sex), data = total.summary1) +
-  geom_errorbar(aes(ymin = len-sd, ymax = len+sd, color = supp),
-    data = total.summary1, width = 0.2) +
-  # geom_boxplot(aes(middle = mean(TBSL1L4)), alpha = 0.3, size = 0.2, outlier.size = 0) +
-  scale_fill_nejm() + scale_colour_nejm() + 
-  theme(plot.title = element_text(size=11)) + 
-  xlab('Age(years)')+ylab('TBS') +
-  # y=lab(expression(BMD(g/cm^2))) +
-  theme(plot.title = element_text(hjust = 0.5)) 
-
-ggplot(aes(x=Age_group, y=TBSL1L4, fill=Sex)) + 
-  geom_line(aes(group = Sex, color = Sex), data = total.summary1) +
-  geom_errorbar(aes(ymin = len-sd, ymax = len+sd, color = Sex),
-                data = total.summary1, width = 0.2)
-ggline(total, x = "Age_group", y = "BMDL1L4", group = "Sex", position = position_dodge(width=.8),
-       add = c("mean_sd", "jitter"), size = 1.0, add.params = list(size = 4.5, alpha = 0.2,position=position_dodge(width=58)),
-       color = "Sex", shape = "Sex", linetype = "Sex", xlab='Age(years)', ylab=(expression(BMD(g/cm^2))),
-       font.label = list(size = 15, color = "black"),
-       legend = "right",ggtheme = theme_pubr(),palette = c("black","gray2")) + ylim(0.4,1.6) + 
-       # scale_x_continuous(limits=c(0.1,1.1),breaks=c(0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.1), labels = c('a','b','c','d','e','f','g','h','i','j','k')) + #设置x轴的范围，将x轴的刻度替换成相应的标签
-       # ylab=(expression(BMD(g/cm^2))) 
-       rotate_x_text(30)
-
 ggline(total, x = "Age_group", y = "BMDL1L4", group = "Sex", position = position_dodge(width=0.5),
-       add = c("mean_sd", "jitter"),size=1.0,add.params = list(size = 0.5, alpha = 0.3),
+       add = c("mean", "jitter"),size=1.5,add.params = list(size = 4.5, alpha = 0.1, color = "Sex", shape = "Sex"),
        color = "Sex", shape = "Sex", linetype = "Sex", xlab='Age(years)', ylab=(expression(BMD(g/cm^2))),
-       font.label = list(size = 15, color = "black"), 
-       legend = "right",ggtheme = theme_pubr(),palette = c("black","gray2")) + ylim(0.4,1.6) + 
+       font.label = list(size = 10, color = "black"), 
+       legend = "right",ggtheme = theme_pubr(),palette = c("black","gray20")) + ylim(0.4,1.6) + 
        # ylab=(expression(BMD(g/cm^2))) 
        rotate_x_text(30) -> p1
-p1
 
 ggline(total, x = "Age_group", y = "TBSL1L4", group = "Sex", position = position_dodge(width=0.5),
-       add = c("mean_sd", "jitter"),size=0.5,add.params = list(size = 0.5, alpha = 0.3),
+       add = c("mean", "jitter"),size=1.5,add.params = list(size = 4.5, alpha = 0.1, color = "Sex", shape = "Sex"),
        color = "Sex", shape = "Sex", linetype = "Sex", xlab='Age(years)', ylab='TBS',
-       font.label = list(size = 15, color = "black"),
-       legend = "right",ggtheme = theme_pubr(),palette = c("black","gray2")) + ylim(1.0,1.6) +
+       font.label = list(size = 10, color = "black"),
+       legend = "right",ggtheme = theme_pubr(),palette = c("black","gray20")) + ylim(1.0,1.6) +
        # ylab=(expression(BMD(g/cm^2))) 
        rotate_x_text(30)  -> p2
 

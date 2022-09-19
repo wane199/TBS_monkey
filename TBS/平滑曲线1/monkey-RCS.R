@@ -325,7 +325,6 @@ ggplot(TLM, aes(x = LM_L3, y = TLM, color = Gender)) +
 # 显著性检验stat_cor(data=data, method = "pearson")意为用pearson相关进行相关性分析，可编辑更改。
 
 
-
 # 平滑曲线与阈值效应分析(一)gam
 rm(list = ls())
 dt <- read.csv("/home/wane/Desktop/TBS/TLMey/VoxelNumbers_InMachin_atlas_whole.csv")
