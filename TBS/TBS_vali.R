@@ -261,11 +261,11 @@ ggplot(total, aes(x = Age, y = BMDL1L4, color = Sex)) +
   theme_classic()
 
 ggplot(total, aes(x = Age, y = TBSL1L4, color = Sex)) +
-  geom_point(aes(color = Sex), size = 0.2) + scale_x_continuous(breaks = seq(20,75,5)) +
+  geom_point(aes(color = Sex), size = 0.2) + scale_x_continuous(breaks = seq(20,75,1)) +
   # scale_fill_nejm() + scale_colour_nejm() + 
   theme_classic() + 
   # geom_vline(aes(xintercept=8.0),linetype=4,col="red") +
-  geom_smooth(method = lm, formula = y ~ x, se = T)
+  geom_smooth(method = gam, formula = y ~ x, se = T)
 
 # Plot，https://blog.csdn.net/weixin_44607829/article/details/120447833
 total %>%
