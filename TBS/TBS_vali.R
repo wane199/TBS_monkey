@@ -299,23 +299,32 @@ total.summary2 <- total %>%
 # 创建具有多个分组的均值 ± 标准差图。使用ggpubr包，将自动计算汇总统计信息并创建图形。
 # 分组汇总，折线+散点组图
 library(ggpubr)
+library(ggplot2)
+library(hrbrthemes)
 # Create line plots of means
-ggline(total, x = "Age_group", y = "BMDL1L4", group = "Sex", position = position_dodge(width=0.5),
-       add = c("mean_sd", "jitter"),size=0.5,add.params = list(size = 0.5, alpha = 0.3),
-       color = "Sex", xlab='Age(years)', ylab=(expression(BMD(g/cm^2))),
-       font.label = list(size = 15, color = "black"),
-       legend = "right",ggtheme = theme_pubr(),palette = c("jco")) + ylim(0.4,1.6) +
-       # ylab=(expression(BMD(g/cm^2))) 
-       rotate_x_text(30)  -> p1 
-
 total$Sex <- factor(total$Sex, levels = c("Women", "Men")) # 调整图例顺序
+
+# A basic scatterplot with color depending on Species
+ggplot(total, aes(x=Age, y=BMDL1L4, shape = Sex)) + 
+  geom_point(colour = "black", size = 2.5, alpha = 0.5) + theme_classic()
+
 ggline(total, x = "Age_group", y = "BMDL1L4", group = "Sex", position = position_dodge(width=0.5),
-       add = c("mean_sd", "jitter"),size=0.5,add.params = list(size = 0.5, alpha = 0.3),
+       add = c("mean_sd", "jitter"), size = 1.0, add.params = list(size = 4.5, alpha = 0.2),
+       color = "Sex", shape = "Sex", linetype = "Sex", xlab='Age(years)', ylab=(expression(BMD(g/cm^2))),
+       font.label = list(size = 15, color = "black"),
+       legend = "right",ggtheme = theme_pubr(),palette = c("black","gray2")) + ylim(0.4,1.6) + 
+       # scale_x_continuous(limits=c(0.1,1.1),breaks=c(0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.1), labels = c('a','b','c','d','e','f','g','h','i','j','k')) + #设置x轴的范围，将x轴的刻度替换成相应的标签
+       # ylab=(expression(BMD(g/cm^2))) 
+       rotate_x_text(30)
+
+ggline(total, x = "Age_group", y = "BMDL1L4", group = "Sex", position = position_dodge(width=0.5),
+       add = c("mean_sd", "jitter"),size=1.0,add.params = list(size = 0.5, alpha = 0.3),
        color = "Sex", shape = "Sex", linetype = "Sex", xlab='Age(years)', ylab=(expression(BMD(g/cm^2))),
        font.label = list(size = 15, color = "black"), 
        legend = "right",ggtheme = theme_pubr(),palette = c("black","gray2")) + ylim(0.4,1.6) + 
        # ylab=(expression(BMD(g/cm^2))) 
        rotate_x_text(30) -> p1
+p1
 
 ggline(total, x = "Age_group", y = "TBSL1L4", group = "Sex", position = position_dodge(width=0.5),
        add = c("mean_sd", "jitter"),size=0.5,add.params = list(size = 0.5, alpha = 0.3),
