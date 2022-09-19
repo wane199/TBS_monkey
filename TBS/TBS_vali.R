@@ -7,8 +7,8 @@ list.files() # 查看当前工作目录下的文件
 library(dplyr)
 dt <- read.csv("/home/wane/Documents/RDocu/M-TBS.csv")
 dt1 <- read.csv("/home/wane/Documents/RDocu/F-TBS.csv")
-dt <- read.csv("/Users/mac/Desktop/Nomo-TBS/RDocu/M_1018.csv")
-dt1 <- read.csv("/Users/mac/Desktop/Nomo-TBS/RDocu/F_3061.csv")
+dt <- read.csv("/home/wane/Documents/RDocu/M_1018.csv")
+dt1 <- read.csv("/home/wane/Documents/RDocu/F_3061.csv")
 data <- rbind(dt,dt1)
 write.csv(data,"/Users/mac/Desktop/Nomo-TBS/RDocu/total_4079.csv",row.names = F)
 data1 <- data1[complete.cases(data1[, c(1, 2)]), ]
@@ -239,14 +239,16 @@ table(Age_Group_5)
 x1 <- cbind(df, Age_Group_5)
 write.csv(x1, file = "./TBS/Age_Group_method2.csv")
 
+
 # 分组折线图+散点图
 library(tidyverse)
 library(hrbrthemes)
 library(viridis)
 library(ggsci)
 total<-rbind(dt,dt1) #合并提取的列
-str(total$Sex)
+str(total)
 total$Sex <- as.factor(total$Sex)
+total$Age <- as.factor(total$Age)
 total$Age_group <- as.factor(total$Age_group)
 summary(total)
 hist(total$Age)
@@ -256,36 +258,8 @@ total %>%
 
 # https://blog.csdn.net/weixin_40575651/article/details/107575012
 # 各类回归模型的回归线绘制方法
-dd <- datadist(total) # 为后续程序设定数据环境
+dd <- rms::datadist(total) # 为后续程序设定数据环境
 options(datadist = "dd")
-ggplot(total, aes(x = Age, y = TBSL1L4, shape = Sex)) +
-  geom_point() # 绘制散点图
-p <- ggplot() +
-  geom_point(data = total, mapping = aes(x = Age, y = TBSL1L4, shape = Sex)) +
-  theme_classic()
-p
-
-# 建立线性回归模型
-model.lm <- lm(TBSL1L4 ~ Age, data = total) # 构建线性回归模型
-summary(model.lm) # 查看回归模型结果
-p1 <- ggplot(total, aes(x = Age, y = TBSL1L4, shape = Sex)) +
-  geom_point() +
-  theme_classic() +
-  stat_smooth(method = lm, formula = y ~ x)
-p1
-
-ggplot(total, aes(x = Age, y = BMDL1L4, color = Sex, shape =Sex)) +
-  geom_point(aes(color = Sex, shape = Sex), size = 3.5, alpha = 0.2) + scale_x_continuous(breaks = seq(20,75,2)) +
-  # scale_fill_nejm() + scale_colour_nejm() + 
-  theme_classic()
-
-ggplot(total, aes(x = Age, y = TBSL1L4, color = Sex)) +
-  geom_point(aes(color = Sex), size = 0.2) + scale_x_continuous(breaks = seq(20,75,1)) +
-  # scale_fill_nejm() + scale_colour_nejm() + 
-  theme_classic() + 
-  # geom_vline(aes(xintercept=8.0),linetype=4,col="red") +
-  geom_smooth(method = lm, formula = y ~ x, se = T)
-
 # (1) Line plot + error bars
 library(dplyr)
 total.summary2 <- total %>%
@@ -301,16 +275,34 @@ total.summary1 <- total %>%
     len = mean(TBSL1L4)
   )
 total.summary1
+# 散点图叠加分组折线图
+total %>%
+  ggplot(aes(x=Age, y=TBSL1L4, fill=Sex, shape = Sex)) + 
+  geom_point() + 
+  theme_classic() + theme(plot.title = element_text(size=11)) + ylim(1.0,1.6) + 
+  xlab('') + ylab('TBS') + theme(plot.title = element_text(hjust = 0.5)) +
+  # rotate_x_text(30) + ylab(expression(BMD(g/cm^2)))
+  theme(axis.text = element_text(size = 10, face = "bold")) 
+
+ggplot(data = total, mapping = aes(x = Age, y = BMDL1L4, linetype = Sex, shape = Sex, fill = Sex)) +
+  geom_point()
+
+ggplot(total, aes(Age, BMDL1L4)) +
+  geom_point(aes(shape = Sex),colour = "black", size = 2.5, alpha = 0.2, position = position_dodge()) + 
+  geom_line(aes(x=Age_group, y=len, group = Sex, shape = Sex, linetype = Sex), size = 1.5, data = total.summary2, position=position_dodge(0.3)) + 
+  theme_classic() + theme(plot.title = element_text(size=11)) + ylim(0.4,1.6) + 
+  xlab('') + ylab(expression(BMD(g/cm^2)))
+
 
 total %>%
-  ggplot(aes(x=Age_group, y=BMDL1L4, fill=Sex, shape = Sex)) + 
+  ggplot(aes(x=Age_group, y=TBSL1L4, fill=Sex, shape = Sex)) + 
   stat_summary(fun=mean,geom="point",color="black",alpha=1.5,size=3.5,position=position_dodge(0.3)) +
-  geom_jitter(alpha = 0.2, size = 3.0) + 
-  geom_line(aes(x=Age_group, y=len, group = Sex, linetype = Sex), size = 1.0, data = total.summary2, position=position_dodge(0.3)) + 
-  theme_classic() + theme(plot.title = element_text(size=11)) + ylim(0.4,1.6) + 
-  xlab('') + ylab(expression(BMD(g/cm^2))) + theme(plot.title = element_text(hjust = 0.5)) +
-  rotate_x_text(30) +
-  theme(axis.text = element_text(size = 10, face = "bold")) -> p3
+  geom_jitter(alpha = 0.0, size = 3.0) + 
+  geom_line(aes(x=Age_group, y=len, group = Sex, linetype = Sex), size = 1.0, data = total.summary1, position=position_dodge(0.3)) + 
+  theme_classic() + theme(plot.title = element_text(size=11)) + ylim(1.0,1.6) + 
+  xlab('') + ylab('TBS') + theme(plot.title = element_text(hjust = 0.5)) +
+  # rotate_x_text(30) + ylab(expression(BMD(g/cm^2)))
+  theme(axis.text = element_text(size = 10, face = "bold")) 
 p3
 total %>%
   ggplot(aes(x=Age_group, y=TBSL1L4, fill=Sex, shape = Sex)) + 
@@ -336,7 +328,7 @@ library(hrbrthemes)
 total$Sex <- factor(total$Sex, levels = c("Women", "Men")) # 调整图例顺序
 
 # A basic scatterplot with color depending on Species
-P1 <- ggplot(total, aes(x=Age, y=BMDL1L4, group = Sex, shape = Sex)) + scale_x_continuous(breaks = seq(20,75,5)) +
+ggplot(total, aes(x=Age, y=BMDL1L4, group = Sex, shape = Sex)) + # scale_x_continuous(breaks = seq(20,75,5)) +
   geom_point(colour = "black", size = 2.5, alpha = 0.5) + theme_classic() + ylim(0.4,1.6) 
 P2 <- ggplot(total, aes(x=Age, y=TBSL1L4, group = Sex, shape = Sex)) + scale_x_continuous(breaks = seq(20,75,5)) +
   geom_point(colour = "black", size = 2.5, alpha = 0.5) + theme_classic() + ylim(1.0,1.6) 
