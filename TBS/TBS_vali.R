@@ -255,6 +255,8 @@ hist(total$Age)
 total %>%
   mutate(Sex = factor(Sex, levels = c("Women", "Men"))) -> total
 
+# https://blog.csdn.net/weixin_40575651/article/details/107575012
+# 各类回归模型的回归线绘制方法
 ggplot(total, aes(x = Age, y = BMDL1L4, color = Sex)) +
   geom_point(aes(color = Sex), size = 0.2) + scale_x_continuous(breaks = seq(20,75,5)) +
   # scale_fill_nejm() + scale_colour_nejm() + 
