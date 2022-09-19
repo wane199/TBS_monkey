@@ -277,7 +277,7 @@ total %>%
   scale_fill_nejm() + scale_colour_nejm() + 
   theme(plot.title = element_text(size=11)) + 
   xlab('Age(years)')+ylab('TBS') +
-  # ylab(expression(BMD(g/cm^2))) +
+  # y=lab(expression(BMD(g/cm^2))) +
   theme(plot.title = element_text(hjust = 0.5)) 
 
 library(dplyr)
