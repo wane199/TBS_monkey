@@ -336,20 +336,25 @@ library(hrbrthemes)
 total$Sex <- factor(total$Sex, levels = c("Women", "Men")) # 调整图例顺序
 
 # A basic scatterplot with color depending on Species
-ggplot(total, aes(x=Age, y=BMDL1L4, colour = Sex, shape = Sex)) + scale_x_continuous(breaks = seq(20,75,5)) +
-  geom_point(colour = "black", size = 2.5, alpha = 0.5) + theme_classic()
+P1 <- ggplot(total, aes(x=Age, y=BMDL1L4, group = Sex, shape = Sex)) + scale_x_continuous(breaks = seq(20,75,5)) +
+  geom_point(colour = "black", size = 2.5, alpha = 0.5) + theme_classic() + ylim(0.4,1.6) 
+P2 <- ggplot(total, aes(x=Age, y=TBSL1L4, group = Sex, shape = Sex)) + scale_x_continuous(breaks = seq(20,75,5)) +
+  geom_point(colour = "black", size = 2.5, alpha = 0.5) + theme_classic() + ylim(1.0,1.6) 
+
+library(patchwork)
+P1 / P2 + plot_layout(guides='collect') + plot_annotation(tag_levels = 'A')
 
 # Plot，https://blog.csdn.net/weixin_44607829/article/details/120447833
-ggline(total, x = "Age_group", y = "BMDL1L4", group = "Sex", position = position_dodge(width=0.5),
-       add = c("mean", "jitter"),size=1.5,add.params = list(size = 4.5, alpha = 0.1, color = "Sex", shape = "Sex"),
+ggline(total, x = "Age_group", y = "BMDL1L4", group = "Sex", position = position_dodge(width=0.3),
+       add = c("mean", "jitter"),size=1.5,add.params = list(size = 4.5, alpha = 0.0, color = "Sex", shape = "Sex"),
        color = "Sex", shape = "Sex", linetype = "Sex", xlab='Age(years)', ylab=(expression(BMD(g/cm^2))),
        font.label = list(size = 10, color = "black"), 
        legend = "right",ggtheme = theme_pubr(),palette = c("black","gray20")) + ylim(0.4,1.6) + 
        # ylab=(expression(BMD(g/cm^2))) 
        rotate_x_text(30) -> p1
 
-ggline(total, x = "Age_group", y = "TBSL1L4", group = "Sex", position = position_dodge(width=0.5),
-       add = c("mean", "jitter"),size=1.5,add.params = list(size = 4.5, alpha = 0.1, color = "Sex", shape = "Sex"),
+ggline(total, x = "Age_group", y = "TBSL1L4", group = "Sex", position = position_dodge(width=0.3),
+       add = c("mean", "jitter"),size=1.5,add.params = list(size = 4.5, alpha = 0.0, color = "Sex", shape = "Sex"),
        color = "Sex", shape = "Sex", linetype = "Sex", xlab='Age(years)', ylab='TBS',
        font.label = list(size = 10, color = "black"),
        legend = "right",ggtheme = theme_pubr(),palette = c("black","gray20")) + ylim(1.0,1.6) +
@@ -357,7 +362,7 @@ ggline(total, x = "Age_group", y = "TBSL1L4", group = "Sex", position = position
        rotate_x_text(30)  -> p2
 
 library(patchwork)
-p1 + p2 + plot_layout(guides='collect') + plot_annotation(tag_levels = 'A')
+p1 / p2 + plot_layout(guides='collect') + plot_annotation(tag_levels = 'A')
 
 # World map is available in the maps package
 library(maps)
