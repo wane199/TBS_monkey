@@ -7,8 +7,8 @@ list.files() # 查看当前工作目录下的文件
 library(dplyr)
 dt <- read.csv("/home/wane/Documents/RDocu/M-TBS.csv")
 dt1 <- read.csv("/home/wane/Documents/RDocu/F-TBS.csv")
-dt <- read.csv("D:/RDocu/M_1018.csv")
-dt1 <- read.csv("D:/RDocu/F_3061.csv")
+dt <- read.csv("/Users/mac/Desktop/Nomo-TBS/RDocu/M_1018.csv")
+dt1 <- read.csv("/Users/mac/Desktop/Nomo-TBS/RDocu/F_3061.csv")
 data <- rbind(dt,dt1)
 write.csv(data,"/Users/mac/Desktop/Nomo-TBS/RDocu/total_4079.csv",row.names = F)
 data1 <- data1[complete.cases(data1[, c(1, 2)]), ]
@@ -279,41 +279,41 @@ total.summary1
 total$Sex <- factor(total$Sex, levels = c("Women", "Men")) # 调整图例顺序
 total %>%
   ggplot(aes(x=Age, y=BMDL1L4, fill=Sex, shape = Sex)) + 
-  geom_point(alpha=0.1,size=3) + scale_x_continuous(breaks = seq(20,75,1)) +
+  geom_point(alpha=0.1,size=1.5) + scale_x_continuous(breaks = seq(20,74,1)) +
   theme_classic() + theme(plot.title = element_text(size=11)) + ylim(0.4,1.6) + 
   xlab('') + ylab(expression(BMD(g/cm^2))) + theme(plot.title = element_text(hjust = 0.5)) +
   # rotate_x_text(30) + ylab(expression(BMD(g/cm^2)))
-  theme(axis.text = element_text(size = 6, face = "bold")) -> P1
+  theme(axis.text = element_text(size = 10, face = "bold")) -> P1
 
 total %>%
   ggplot(aes(x=Age, y=TBSL1L4, fill=Sex, shape = Sex)) + 
-  geom_point(alpha=0.1,size=3) + scale_x_continuous(breaks = seq(20,75,1)) +
+  geom_point(alpha=0.1,size=1.5) + scale_x_continuous(breaks = seq(20,74,1)) +
   theme_classic() + theme(plot.title = element_text(size=11)) + ylim(1.0,1.6) + 
-  xlab('') + ylab('TBS') + theme(plot.title = element_text(hjust = 0.5)) +
+  xlab('Age(years)') + ylab('TBS') + theme(plot.title = element_text(hjust = 0.5)) +
   # rotate_x_text(30) + ylab(expression(BMD(g/cm^2)))
-  theme(axis.text = element_text(size = 6, face = "bold")) -> P2
+  theme(axis.text = element_text(size = 10, face = "bold")) -> P2
 
 library(patchwork)
 P1 / P2 + plot_layout(guides='collect') + plot_annotation(tag_levels = 'A')
 
-ggplot(data = total, mapping = aes(x = Age, y = BMDL1L4, linetype = Sex, shape = Sex, fill = Sex)) +
-  geom_point()
+# A basic scatterplot with color depending on Species
+ggplot(total, aes(x=Age, y=BMDL1L4, group = Sex, shape = Sex)) + # scale_x_continuous(breaks = seq(20,75,5)) +
+  geom_point(colour = "black", size = 2.5, alpha = 0.5) + theme_classic() + ylim(0.4,1.6) 
 ggplot(total, aes(Age, BMDL1L4)) +
   geom_point(aes(shape = Sex),colour = "black", size = 2.5, alpha = 0.2, position = position_dodge()) + 
-  geom_line(aes(x=Age_group, y=len, group = Sex, shape = Sex, linetype = Sex), size = 1.5, data = total.summary2, position=position_dodge(0.3)) + 
+  geom_line(aes(x=Age_group, y=len, group = Sex, linetype = Sex), size = 1.5, data = total.summary2, position=position_dodge(0.3)) + 
   theme_classic() + theme(plot.title = element_text(size=11)) + ylim(0.4,1.6) + 
-  xlab('') + ylab(expression(BMD(g/cm^2)))
-
+  xlab('Age(years)') + ylab(expression(BMD(g/cm^2)))
 
 total %>%
   ggplot(aes(x=Age_group, y=BMDL1L4, fill=Sex, group = Sex, shape = Sex)) + 
   stat_summary(fun=mean,geom="point",color="black",alpha=1.5,size=3.5,position=position_dodge(0.3)) +
   geom_jitter(alpha = 0.0, size = 3.0) + 
-  geom_line(aes(x=Age_group, y=len, group = Sex, shape = Sex, linetype = Sex), size = 1.0, data = total.summary2, position=position_dodge(0.3)) + 
+  geom_line(aes(x=Age_group, y=len, group = Sex, linetype = Sex), size = 1.0, data = total.summary2, position=position_dodge(0.3)) + 
   theme_classic() + theme(plot.title = element_text(size=11)) + ylim(0.4,1.6) + 
   xlab('') + ylab(expression(BMD(g/cm^2))) + theme(plot.title = element_text(hjust = 0.5)) +
   # rotate_x_text(30) + ylab(expression(BMD(g/cm^2)))
-  theme(axis.text = element_text(size = 10, face = "bold")) -> p3
+  theme(axis.text = element_text(size = 8, face = "bold")) -> p3
 p3
 total %>%
   ggplot(aes(x=Age_group, y=TBSL1L4, fill=Sex, shape = Sex)) + 
@@ -322,8 +322,8 @@ total %>%
   geom_line(aes(x=Age_group, y=len, group = Sex, linetype = Sex), size = 1.0, data = total.summary1, position=position_dodge(0.3)) + 
   theme_classic() + theme(plot.title = element_text(size=11)) + ylim(1.0,1.6) + 
   xlab('Age(years)')+ylab('TBS') + theme(plot.title = element_text(hjust = 0.5)) +
-  rotate_x_text(30) +
-  theme(axis.text = element_text(size = 10, face = "bold")) -> p4
+  # rotate_x_text(30) +
+  theme(axis.text = element_text(size = 8, face = "bold")) -> p4
   # ylab=(expression(BMD(g/cm^2))) + 
 p4
 library(patchwork)
@@ -338,16 +338,12 @@ library(hrbrthemes)
 # Create line plots of means
 total$Sex <- factor(total$Sex, levels = c("Women", "Men")) # 调整图例顺序
 
-# A basic scatterplot with color depending on Species
-ggplot(total, aes(x=Age, y=BMDL1L4, group = Sex, shape = Sex)) + # scale_x_continuous(breaks = seq(20,75,5)) +
-  geom_point(colour = "black", size = 2.5, alpha = 0.5) + theme_classic() + ylim(0.4,1.6) 
-
 # Plot，https://blog.csdn.net/weixin_44607829/article/details/120447833
 ggline(total, x = "Age_group", y = "BMDL1L4", group = "Sex", position = position_dodge(width=0.3),
        add = c("mean", "jitter"),size=1.5,add.params = list(size = 4.5, alpha = 0.0, color = "Sex", shape = "Sex"),
        color = "Sex", shape = "Sex", linetype = "Sex", xlab='Age(years)', ylab=(expression(BMD(g/cm^2))),
        font.label = list(size = 10, color = "black"), 
-       legend = "right",ggtheme = theme_pubr(),palette = c("black","gray20")) + ylim(0.4,1.6) + 
+       legend = "right",ggtheme = theme_pubr(),palette = c("black","gray25")) + ylim(0.4,1.6) + 
        # ylab=(expression(BMD(g/cm^2))) 
        rotate_x_text(30) -> p1
 
@@ -355,7 +351,7 @@ ggline(total, x = "Age_group", y = "TBSL1L4", group = "Sex", position = position
        add = c("mean", "jitter"),size=1.5,add.params = list(size = 4.5, alpha = 0.0, color = "Sex", shape = "Sex"),
        color = "Sex", shape = "Sex", linetype = "Sex", xlab='Age(years)', ylab='TBS',
        font.label = list(size = 10, color = "black"),
-       legend = "right",ggtheme = theme_pubr(),palette = c("black","gray20")) + ylim(1.0,1.6) +
+       legend = "right",ggtheme = theme_pubr(),palette = c("black","gray25")) + ylim(1.0,1.6) +
        # ylab=(expression(BMD(g/cm^2))) 
        rotate_x_text(30)  -> p2
 
