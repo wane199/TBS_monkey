@@ -113,3 +113,28 @@ ggplot(x.melt, aes(x = variable, y = sub, fill = value)) +
     axis.text.x = element_text(
       angle = 90, vjust = 0.5, hjust = 1)    # X 軸文字轉向
   )
+
+# pie charts
+plot(dt[5:22])# library
+library(ggplot2)
+library(viridis)
+library(hrbrthemes)
+library(reshape)
+dt_re <- melt(dt[c(6,8:9)])
+
+# Small multiple
+ggplot(dt_re, aes(x=variable, fill=value)) + 
+  geom_bar(position="stack", stat="count") +
+  scale_fill_viridis(discrete = T) +
+  ggtitle("") +
+  theme_ipsum() +
+  xlab("")
+
+
+
+
+
+
+
+
+
