@@ -3,6 +3,8 @@
 rm(list = ls())
 # 读入数据
 dt <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/Task2/TLE234group.csv")
+dt <- read.csv("C:/Users/wane199/Desktop/EP/Structured_Data/Task2/TLE234group.csv")
+
 train <- subset(dt, dt$Group == "Training")
 test <- subset(dt, dt$Group == "Test")
 
@@ -117,10 +119,44 @@ ggplot(x.melt, aes(x = variable, y = sub, fill = value)) +
 # pie charts
 plot(dt[5:22])# library
 library(ggplot2)
+library(dplyr)
+library(ggsci)
+theme_set(theme_classic())
+
+dt_re <- melt(dt[c(3,6)], id=c("Group"))
+
+p2 <- group_by(test, Rel._in_5yrs) %>%
+  summarise(percent = n() / nrow(test)) %>%
+  ggplot(aes(x = factor(1), y = percent, fill = Rel._in_5yrs)) +
+  geom_col(colour = "white") + 
+  coord_polar(theta = "y", start = 1.65) +
+  geom_text(aes(label = paste0(round(percent * 100, 2), "%")), 
+            position = position_fill(vjust = 0.5)) +
+  theme(
+    panel.background = element_blank(),
+    axis.title = element_blank(),
+    axis.text = element_blank(),
+    axis.ticks = element_blank()
+  ) + scale_color_lancet()
+
+library(patchwork)
+p1 + p2 
+
+df <- group_by(train, Rel._in_5yrs) %>%
+  summarise(percent = n() / nrow(train)) %>%
+  arrange(desc(percent))
+
+pie(df$percent)
+pie(df$percent, labels = df$Rel._in_5yrs)
+
+
+# [堆积条形图](https://mp.weixin.qq.com/s?__biz=MzI1NjUwMjQxMQ==&mid=2247512387&idx=1&sn=1633a49972f6d7cd39c162995b16067e&chksm=ea274ea7dd50c7b1a6d5af8e5ccd31ee27f8accaf0ae2619444a13d6142b6ce782c21c32b560&mpshare=1&scene=1&srcid=0922dn68ZyKRpn3sak6k8GUD&sharer_sharetime=1663855775145&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
+library(ggplot2)
+library(ggthemes)
 library(viridis)
 library(hrbrthemes)
 library(reshape)
-dt_re <- melt(dt[c(6,8:9)])
+dt_re <- melt(dt[c(3,6,8:9,13:16)], id=c("Group"))
 
 # Small multiple
 ggplot(dt_re, aes(x=variable, fill=value)) + 
@@ -130,9 +166,12 @@ ggplot(dt_re, aes(x=variable, fill=value)) +
   theme_ipsum() +
   xlab("")
 
+dt %>% 
+  ggplot(aes(x = Group, fill = 	Rel._in_5yrs)) +
+  geom_histogram(stat = "dodge") +
+  theme_bw()
 
-
-
+help(scale_fill_discrete)
 
 
 
