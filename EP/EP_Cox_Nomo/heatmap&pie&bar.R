@@ -123,29 +123,41 @@ library(dplyr)
 library(ggsci)
 theme_set(theme_classic())
 
-dt_re <- melt(dt[c(3,6)], id=c("Group"))
+group_by(train, Rel._in_5yrs) %>%
+  summarise(percent = n() / nrow(train)) %>%
+  ggplot(aes(x = '', y=percent, fill = factor(Rel._in_5yrs))) + 
+  geom_bar(width = 1, stat = "identity") +
+  theme(axis.line = element_blank(), 
+        plot.title = element_text(hjust=0.5)) + 
+  labs(fill="Rel._in_5yrs", 
+       x=NULL, 
+       y=NULL, 
+       title="Pie Chart of class", 
+       caption="Source: train") +  coord_polar(theta = "y", start=0)
 
+p1 <- group_by(train, Rel._in_5yrs) %>%
+  summarise(percent = n() / nrow(train)) %>%
+  ggplot(aes(x = factor(1), y = percent, fill = factor(Rel._in_5yrs))) +
+  geom_col(colour = "white") + 
+  coord_polar(theta = "y", start = 0.65) +
+  geom_text(aes(label = paste0(round(percent * 100, 2), "%")), 
+            position = position_fill(vjust = 0.5)) + scale_color_lancet() +
+  theme(axis.line = element_blank(), plot.title = element_text(hjust=0.5))
 p2 <- group_by(test, Rel._in_5yrs) %>%
   summarise(percent = n() / nrow(test)) %>%
-  ggplot(aes(x = factor(1), y = percent, fill = Rel._in_5yrs)) +
+  ggplot(aes(x = factor(1), y = percent, fill = factor(Rel._in_5yrs))) +
   geom_col(colour = "white") + 
-  coord_polar(theta = "y", start = 1.65) +
+  coord_polar(theta = "y", start = 0.65) +
   geom_text(aes(label = paste0(round(percent * 100, 2), "%")), 
-            position = position_fill(vjust = 0.5)) +
-  theme(
-    panel.background = element_blank(),
-    axis.title = element_blank(),
-    axis.text = element_blank(),
-    axis.ticks = element_blank()
-  ) + scale_color_lancet()
-
+            position = position_fill(vjust = 0.5)) + scale_color_lancet() +
+  theme(axis.line = element_blank(), plot.title = element_text(hjust=0.5))
 library(patchwork)
-p1 + p2 
+p1 + p2 + plot_layout(guides='collect') + plot_annotation(tag_levels = 'A')
+
 
 df <- group_by(train, Rel._in_5yrs) %>%
   summarise(percent = n() / nrow(train)) %>%
   arrange(desc(percent))
-
 pie(df$percent)
 pie(df$percent, labels = df$Rel._in_5yrs)
 
