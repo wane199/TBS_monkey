@@ -117,48 +117,45 @@ ggplot(x.melt, aes(x = variable, y = sub, fill = value)) +
   )
 
 # pie charts
-plot(dt[5:22])# library
+plot(dt[5:8])# library
 library(ggplot2)
 library(dplyr)
 library(ggsci)
+library(patchwork)
 theme_set(theme_classic())
 
 group_by(train, Rel._in_5yrs) %>%
   summarise(percent = n() / nrow(train)) %>%
   ggplot(aes(x = '', y=percent, fill = factor(Rel._in_5yrs))) + 
-  geom_bar(width = 1, stat = "identity") +
-  theme(axis.line = element_blank(), 
-        plot.title = element_text(hjust=0.5)) + 
-  labs(fill="Rel._in_5yrs", 
-       x=NULL, 
-       y=NULL, 
-       title="Pie Chart of class", 
-       caption="Source: train") +  coord_polar(theta = "y", start=0)
+  geom_bar(width = 1, stat = "identity") + coord_polar(theta = "y", start=-0.5)
 
+blank_theme <- theme_minimal()+
+  theme(
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    panel.border = element_blank(),
+    panel.grid=element_blank(),
+    axis.ticks = element_blank(),
+    plot.title=element_text(size=14, face="bold")
+  )
 p1 <- group_by(train, Rel._in_5yrs) %>%
   summarise(percent = n() / nrow(train)) %>%
-  ggplot(aes(x = factor(1), y = percent, fill = factor(Rel._in_5yrs))) +
-  geom_col(colour = "white") + 
-  coord_polar(theta = "y", start = 0.65) +
+  ggplot(aes(x = factor(1), y = percent, fill = factor(Rel._in_5yrs))) + coord_polar(theta = "y", start = -0.85) +
+  scale_fill_brewer("Blues") + blank_theme + theme(axis.text.x=element_blank()) + geom_col(colour = "white") + 
   geom_text(aes(label = paste0(round(percent * 100, 2), "%")), 
-            position = position_fill(vjust = 0.5)) + scale_color_lancet() +
-  theme(axis.line = element_blank(), plot.title = element_text(hjust=0.5))
+            position = position_fill(vjust = 0.5))
 p2 <- group_by(test, Rel._in_5yrs) %>%
   summarise(percent = n() / nrow(test)) %>%
-  ggplot(aes(x = factor(1), y = percent, fill = factor(Rel._in_5yrs))) +
-  geom_col(colour = "white") + 
-  coord_polar(theta = "y", start = 0.65) +
+  ggplot(aes(x = factor(1), y = percent, fill = factor(Rel._in_5yrs))) + coord_polar(theta = "y", start = -0.85) +
+  scale_fill_brewer("Blues") + blank_theme + theme(axis.text.x=element_blank()) + geom_col(colour = "white") + 
   geom_text(aes(label = paste0(round(percent * 100, 2), "%")), 
-            position = position_fill(vjust = 0.5)) + scale_color_lancet() +
-  theme(axis.line = element_blank(), plot.title = element_text(hjust=0.5))
-library(patchwork)
-p1 + p2 + plot_layout(guides='collect') + plot_annotation(tag_levels = 'A')
+            position = position_fill(vjust = 0.5))
 
+p1 + p2 + plot_layout(guides='collect') + plot_annotation(tag_levels = 'A')
 
 df <- group_by(train, Rel._in_5yrs) %>%
   summarise(percent = n() / nrow(train)) %>%
   arrange(desc(percent))
-pie(df$percent)
 pie(df$percent, labels = df$Rel._in_5yrs)
 
 
@@ -168,24 +165,24 @@ library(ggthemes)
 library(viridis)
 library(hrbrthemes)
 library(reshape)
+
+group_by(dt, Rel._in_5yrs) %>%
+  summarise(percent = n() / nrow(train)) %>%
+  ggplot(aes(x = '', y=percent, fill = factor(Rel._in_5yrs))) + 
+  geom_bar(width = 1, stat = "identity") 
+
 dt_re <- melt(dt[c(3,6,8:9,13:16)], id=c("Group"))
-
 # Small multiple
-ggplot(dt_re, aes(x=variable, fill=value)) + 
+ggplot(dt_re, aes(x=variable, fill=factor(value))) + 
   geom_bar(position="stack", stat="count") +
-  scale_fill_viridis(discrete = T) +
-  ggtitle("") +
-  theme_ipsum() +
-  xlab("")
+  scale_fill_viridis(discrete = T) + ggtitle("") +
+  theme_ipsum() + xlab("") + coord_flip()#转为横向
 
-dt %>% 
-  ggplot(aes(x = Group, fill = 	Rel._in_5yrs)) +
-  geom_histogram(stat = "dodge") +
-  theme_bw()
-
-help(scale_fill_discrete)
-
-
-
-
+# From on a categorical column variable
+g <- ggplot(dt_re, aes(variable))
+g + geom_bar(aes(fill=factor(value)), width = 0.5) + coord_flip() + #转为横向
+  theme(axis.text.x = element_text(angle=65, vjust=0.6)) +
+  labs(title="Categorywise Bar Chart", 
+       subtitle="Manufacturer of vehicles", 
+       caption="Source: Manufacturers from 'mpg' dataset")
 
