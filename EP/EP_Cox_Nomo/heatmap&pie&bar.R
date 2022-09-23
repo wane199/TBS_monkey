@@ -176,13 +176,17 @@ dt_re <- melt(dt[c(3,6,8:9,13:16)], id=c("Group"))
 ggplot(dt_re, aes(x=variable, fill=factor(value))) + 
   geom_bar(position="stack", stat="count") +
   scale_fill_viridis(discrete = T) + ggtitle("") +
-  theme_ipsum() + xlab("") + coord_flip()#转为横向
+  theme_classic() + xlab("") + coord_flip()#转为横向
 
 # From on a categorical column variable
-g <- ggplot(dt_re, aes(variable))
+g <- ggplot(dt_re, aes(variable)) 
 g + geom_bar(aes(fill=factor(value)), width = 0.5) + coord_flip() + #转为横向
-  theme(axis.text.x = element_text(angle=65, vjust=0.6)) +
+  theme(axis.text.x = element_text(angle=65, vjust=0.6)) + theme_classic() +
   labs(title="Categorywise Bar Chart", 
        subtitle="Manufacturer of vehicles", 
-       caption="Source: Manufacturers from 'mpg' dataset")
+       caption="Source: Manufacturers from 'TLE' dataset")
+
+
+
+
 

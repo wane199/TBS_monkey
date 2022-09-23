@@ -66,7 +66,7 @@ https://huhuaping.com/2021/02/01/css-base-xaringan/
 
 --
 ## First
-可解释性机器学习框架OmniXAI复现；
+可解释性机器学习框架OmniXAI复现(aka EML/XAI)；
 
 --
 ## Second
