@@ -18,7 +18,7 @@ TLM <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/Ziqing/66-PVM.csv")
 TLM <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/QIANG/PartⅡ猴脑代谢发育数据分析/PET_refWhole_SUVr.csv")
 # TLM <- read_excel("/home/wane/Desktop/TBS/TLMey/BMC.xlsx")
 # 数据探索
-TLM <- TLM[c(-1,-2,-5)]
+TLM <- TLM[c(-1, -2, -5)]
 summary(TLM)
 glimpse(TLM)
 sum(!is.na(TLM))
@@ -420,5 +420,3 @@ plot(dt$y.upp ~ dt$LM_L3,
 )
 rug(dt$LM_L3, col = "blue")
 abline(v = cut_off, col = "black", lty = 2)
-
-
