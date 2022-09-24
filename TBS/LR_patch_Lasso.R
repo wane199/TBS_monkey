@@ -20,11 +20,6 @@ polygon(density(dt$TBS), col = "grey") # polygon()用于曲线内填充颜色
 abline(v = 1.34, lwd = 2, col = "skyblue") # abline（a, b）表示在图上添加一条y=a+bx的直线
 
 library(caret)
-# 待筛选特征标准化
-dtx <- scale(dt[, c(3:20)])
-dtx <- as.data.frame(dtx)
-dt <- dplyr::mutate(dt[1], dtx)
-dt2 <- cbind(dt[1], dtx)
 set.seed(123)
 ind <- sample(2, nrow(dt), replace = TRUE, prob = c(0.7, 0.3))
 # 训练集
@@ -34,6 +29,11 @@ test <- dt[ind == 2, ] # the test data set
 # 看一下，不要让临床信息差的太多，输出table1
 prop.table(table(train$Y))
 prop.table(table(test$Y))
+# 待筛选特征标准化(防止数据泄漏，先分组后标化)
+dtx <- scale(dt[, c(3:20)])
+dtx <- as.data.frame(dtx)
+dt <- dplyr::mutate(dt[1], dtx)
+dt2 <- cbind(dt[1], dtx)
 
 dt <- read_excel("/home/wane/Desktop/EP/Structured_Data/Physician.xlsx")
 table(dt$Phy1)
