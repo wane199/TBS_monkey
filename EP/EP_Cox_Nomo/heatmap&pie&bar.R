@@ -4,36 +4,39 @@ rm(list = ls())
 # 读入数据
 dt <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/Task2/TLE234group.csv")
 dt <- read.csv("C:/Users/wane199/Desktop/EP/Structured_Data/Task2/TLE234group.csv")
-
 train <- subset(dt, dt$Group == "Training")
 test <- subset(dt, dt$Group == "Test")
 
-rownames(dt)=dt[,4]
+rownames(dt) <- dt[, 4]
 data <- as.matrix(dt[5:22])
 # t(data) # transpose the matrix with to swap X and Y axis.
 # Default Heatmap
-heatmap(data, Rowv = NA, margins = c(3,3),
-        Colv = NA, scale = "column")
+heatmap(data,
+  Rowv = NA, margins = c(3, 3),
+  Colv = NA, scale = "column"
+)
 # Use 'scale' to normalize
-heatmap(data, scale="column")
+heatmap(data, scale = "column")
 # No dendrogram nor reordering for neither column or row
-heatmap(data, Colv = NA, Rowv = NA, scale="column") 
+heatmap(data, Colv = NA, Rowv = NA, scale = "column")
 
 # 1: native palette from R
-heatmap(data, Colv = NA, Rowv = NA, scale="column", col = cm.colors(256))
-heatmap(data, Colv = NA, Rowv = NA, scale="column", col = terrain.colors(256))
+heatmap(data, Colv = NA, Rowv = NA, scale = "column", col = cm.colors(256))
+heatmap(data, Colv = NA, Rowv = NA, scale = "column", col = terrain.colors(256))
 # 2: Rcolorbrewer palette
 library(RColorBrewer)
 coul <- colorRampPalette(brewer.pal(8, "PiYG"))(25)
-heatmap(data, Colv = NA, Rowv = NA, scale="column", 
-        cex.axis=0.5,cex.lab=2,cex.main=3,
-        margins = c(5,5), col = coul)
+heatmap(data,
+  Colv = NA, Rowv = NA, scale = "column",
+  cex.axis = 0.5, cex.lab = 2, cex.main = 3,
+  margins = c(5, 5), col = coul
+)
 
 # Example: grouping from the first letter:
-my_group <- as.numeric(as.factor(substr(rownames(data), 1 , 1)))
+my_group <- as.numeric(as.factor(substr(rownames(data), 1, 1)))
 colSide <- brewer.pal(9, "Set1")[my_group]
 colMain <- colorRampPalette(brewer.pal(9, "Blues"))(50)
-heatmap(data, Colv = NA, Rowv = NA, scale="column" , RowSideColors=colSide, col=colMain)
+heatmap(data, Colv = NA, Rowv = NA, scale = "column", RowSideColors = colSide, col = colMain)
 
 
 library(pheatmap)
@@ -48,33 +51,39 @@ hclust_mat$order
 hclust_mat$labels
 
 # reorder row_clust
-index <- seq(1,234, by = 1)
+index <- seq(1, 234, by = 1)
 hclust_mat$order <- index
 pheatmap(data, cluster_rows = hclust_mat)
 
 require(gridExtra)
 
-# reorder 1 
+# reorder 1
 index <- order(rowSums(data), decreasing = TRUE)
-dend = reorder(as.dendrogram(hclust_mat), 
-               wts = index)
+dend <- reorder(as.dendrogram(hclust_mat),
+  wts = index
+)
 row_cluster <- as.hclust(dend)
-p1 <- pheatmap(data, cluster_rows = row_cluster, 
-               show_colnames = FALSE)
+p1 <- pheatmap(data,
+  cluster_rows = row_cluster,
+  show_colnames = FALSE
+)
 
 # reorder 2
 index <- order(rowSums(data), decreasing = FALSE)
-dend = reorder(as.dendrogram(hclust_mat), 
-               wts = index)
+dend <- reorder(as.dendrogram(hclust_mat),
+  wts = index
+)
 row_cluster <- as.hclust(dend)
-p2 <- pheatmap(data, cluster_rows = row_cluster, 
-               show_colnames = FALSE)
+p2 <- pheatmap(data,
+  cluster_rows = row_cluster,
+  show_colnames = FALSE
+)
 
 
 # extract plot list
 plot_list <- list(p1[[4]], p2[[4]])
 
-grid.arrange(arrangeGrob(grobs= plot_list,ncol=2))
+grid.arrange(arrangeGrob(grobs = plot_list, ncol = 2))
 
 # https://officeguide.cc/r-ggplot2-elegant-tiled-heat-maps-tutorial-examples/
 library(reshape2)
@@ -88,36 +97,38 @@ x.melt <- melt(x, id.vars = "sub")
 # 使用 ggplot 繪製熱圖
 ggplot(x.melt, aes(x = sub, y = variable, fill = value)) +
   geom_tile(colour = "white", size = 0.25) + # 繪製熱圖
-  scale_y_discrete(expand = c(0,0)) +        # 移除多餘空白
-  scale_x_discrete(expand = c(0,0)) +        # 移除多餘空白
-  coord_fixed() +                            # 設定 X 與 Y 軸等比例
+  scale_y_discrete(expand = c(0, 0)) + # 移除多餘空白
+  scale_x_discrete(expand = c(0, 0)) + # 移除多餘空白
+  coord_fixed() + # 設定 X 與 Y 軸等比例
   scale_fill_gradientn(colours = terrain.colors(10)) + # 設定色盤
   theme(
-    legend.text = element_text(face="bold"), # 說明文字用粗體
-    axis.ticks = element_line(size=0.5),     # 座標軸上的刻度寬度
-    plot.background = element_blank(),       # 移除背景
-    panel.border = element_blank(),          # 移除邊框
+    legend.text = element_text(face = "bold"), # 說明文字用粗體
+    axis.ticks = element_line(size = 0.5), # 座標軸上的刻度寬度
+    plot.background = element_blank(), # 移除背景
+    panel.border = element_blank(), # 移除邊框
     axis.text.x = element_text(
-      angle = 90, vjust = 0.5, hjust = 1)    # X 軸文字轉向
+      angle = 90, vjust = 0.5, hjust = 1
+    ) # X 軸文字轉向
   )
 
 ggplot(x.melt, aes(x = variable, y = sub, fill = value)) +
   geom_tile(colour = "white", size = 0.25) + # 繪製熱圖
-  scale_y_discrete(expand = c(0,0)) +        # 移除多餘空白
-  scale_x_discrete(expand = c(0,0)) +        # 移除多餘空白
-  coord_fixed() +                            # 設定 X 與 Y 軸等比例
+  scale_y_discrete(expand = c(0, 0)) + # 移除多餘空白
+  scale_x_discrete(expand = c(0, 0)) + # 移除多餘空白
+  coord_fixed() + # 設定 X 與 Y 軸等比例
   scale_fill_gradientn(colours = terrain.colors(10)) + # 設定色盤
   theme(
-    legend.text = element_text(face="bold"), # 說明文字用粗體
-    axis.ticks = element_line(size=0.5),     # 座標軸上的刻度寬度
-    plot.background = element_blank(),       # 移除背景
-    panel.border = element_blank(),          # 移除邊框
+    legend.text = element_text(face = "bold"), # 說明文字用粗體
+    axis.ticks = element_line(size = 0.5), # 座標軸上的刻度寬度
+    plot.background = element_blank(), # 移除背景
+    panel.border = element_blank(), # 移除邊框
     axis.text.x = element_text(
-      angle = 90, vjust = 0.5, hjust = 1)    # X 軸文字轉向
+      angle = 90, vjust = 0.5, hjust = 1
+    ) # X 軸文字轉向
   )
 
 # pie charts
-plot(dt[5:8])# library
+plot(dt[5:8]) # library
 library(ggplot2)
 library(dplyr)
 library(ggsci)
@@ -126,32 +137,43 @@ theme_set(theme_classic())
 
 group_by(train, Rel._in_5yrs) %>%
   summarise(percent = n() / nrow(train)) %>%
-  ggplot(aes(x = '', y=percent, fill = factor(Rel._in_5yrs))) + 
-  geom_bar(width = 1, stat = "identity") + coord_polar(theta = "y", start=-0.5)
+  ggplot(aes(x = "", y = percent, fill = factor(Rel._in_5yrs))) +
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar(theta = "y", start = -0.5)
 
-blank_theme <- theme_minimal()+
+blank_theme <- theme_minimal() +
   theme(
     axis.title.x = element_blank(),
     axis.title.y = element_blank(),
     panel.border = element_blank(),
-    panel.grid=element_blank(),
+    panel.grid = element_blank(),
     axis.ticks = element_blank(),
-    plot.title=element_text(size=14, face="bold")
+    plot.title = element_text(size = 14, face = "bold")
   )
 p1 <- group_by(train, Rel._in_5yrs) %>%
   summarise(percent = n() / nrow(train)) %>%
-  ggplot(aes(x = factor(1), y = percent, fill = factor(Rel._in_5yrs))) + coord_polar(theta = "y", start = -0.85) +
-  scale_fill_brewer("Blues") + blank_theme + theme(axis.text.x=element_blank()) + geom_col(colour = "white") + 
-  geom_text(aes(label = paste0(round(percent * 100, 2), "%")), 
-            position = position_fill(vjust = 0.5))
+  ggplot(aes(x = factor(1), y = percent, fill = factor(Rel._in_5yrs))) +
+  coord_polar(theta = "y", start = -0.85) +
+  scale_fill_brewer("Blues") +
+  blank_theme +
+  theme(axis.text.x = element_blank()) +
+  geom_col(colour = "white") +
+  geom_text(aes(label = paste0(round(percent * 100, 2), "%")),
+    position = position_fill(vjust = 0.5)
+  )
 p2 <- group_by(test, Rel._in_5yrs) %>%
   summarise(percent = n() / nrow(test)) %>%
-  ggplot(aes(x = factor(1), y = percent, fill = factor(Rel._in_5yrs))) + coord_polar(theta = "y", start = -0.85) +
-  scale_fill_brewer("Blues") + blank_theme + theme(axis.text.x=element_blank()) + geom_col(colour = "white") + 
-  geom_text(aes(label = paste0(round(percent * 100, 2), "%")), 
-            position = position_fill(vjust = 0.5))
+  ggplot(aes(x = factor(1), y = percent, fill = factor(Rel._in_5yrs))) +
+  coord_polar(theta = "y", start = -0.85) +
+  scale_fill_brewer("Blues") +
+  blank_theme +
+  theme(axis.text.x = element_blank()) +
+  geom_col(colour = "white") +
+  geom_text(aes(label = paste0(round(percent * 100, 2), "%")),
+    position = position_fill(vjust = 0.5)
+  )
 
-p1 + p2 + plot_layout(guides='collect') + plot_annotation(tag_levels = 'A')
+p1 + p2 + plot_layout(guides = "collect") + plot_annotation(tag_levels = "A")
 
 df <- group_by(train, Rel._in_5yrs) %>%
   summarise(percent = n() / nrow(train)) %>%
@@ -168,25 +190,23 @@ library(reshape)
 
 group_by(dt, Rel._in_5yrs) %>%
   summarise(percent = n() / nrow(train)) %>%
-  ggplot(aes(x = '', y=percent, fill = factor(Rel._in_5yrs))) + 
-  geom_bar(width = 1, stat = "identity") 
+  ggplot(aes(x = "", y = percent, fill = factor(Rel._in_5yrs))) +
+  geom_bar(width = 1, stat = "identity")
 dt$side <- as.numeric(as.character(dt$side))
-dt$side1 <- dt$side-1
-dt_re <- melt(dt[c(3,9,14:23)], id=c("Group"))
+dt$side1 <- dt$side - 1
+dt_re <- melt(dt[c(3, 9, 14:23)], id = c("Group"))
 # Small multiple
-ggplot(dt_re, aes(x=variable, fill=factor(value))) + 
-  geom_bar(position="stack", stat="count") +
-  scale_fill_viridis(discrete = T) + ggtitle("") +
+ggplot(dt_re, aes(x = variable, fill = factor(value))) +
+  geom_bar(position = "stack", stat = "count") +
+  scale_fill_viridis(discrete = T) +
+  ggtitle("") +
   geom_text(aes(label = count)) +
-  theme_classic() + xlab("") + coord_flip()#转为横向
+  theme_classic() +
+  xlab("") +
+  coord_flip() # 转为横向
 
 # From on a categorical column variable
-g <- ggplot(dt_re, aes(variable)) 
-g + geom_bar(aes(fill=factor(value)), width = 0.5) + coord_flip() + #转为横向
-  theme(axis.text.x = element_text(angle=65, vjust=0.6)) + theme_classic() +
-  labs(title="Categorywise Bar Chart", subtitle="", caption="Source: Manufacturers from 'TLE' dataset")
-
-
-
-
-
+g <- ggplot(dt_re, aes(variable))
+g + geom_bar(aes(fill = factor(value)), width = 0.5) + coord_flip() + # 转为横向
+  theme(axis.text.x = element_text(angle = 65, vjust = 0.6)) + theme_classic() +
+  labs(title = "Categorywise Bar Chart", subtitle = "", caption = "Source: Manufacturers from 'TLE' dataset")
