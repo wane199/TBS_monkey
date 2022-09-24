@@ -1,13 +1,9 @@
 # 预测模型 | 10. K折交叉验证可视化 (Cox回归)
 # https://mp.weixin.qq.com/s?__biz=Mzg2MjU2NDQwMg==&mid=2247497310&idx=1&sn=d0aade5c787e85e1689579679e8a6ba7&chksm=ce074f03f970c6157372da63431520b5009c590824f2b087f6ccc67c7d08b7e83ec08c296424&mpshare=1&scene=1&srcid=0904ZBKuwGpRm9OC14OkTKHm&sharer_sharetime=1662264266271&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd
-# cox回归用
-library(survival)
-# K折交叉验证用
-library(caret)
-# cox回归时间AUC用
-library(riskRegression)
-# cox回归时间c指数用
-library(pec)
+library(survival) # cox回归用
+library(caret) # K折交叉验证用
+library(riskRegression) # cox回归时间AUC用
+library(pec) # cox回归时间c指数用
 ###########################
 # 清理工作环境
 rm(list = ls())
