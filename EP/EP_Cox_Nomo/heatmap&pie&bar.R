@@ -170,21 +170,21 @@ group_by(dt, Rel._in_5yrs) %>%
   summarise(percent = n() / nrow(train)) %>%
   ggplot(aes(x = '', y=percent, fill = factor(Rel._in_5yrs))) + 
   geom_bar(width = 1, stat = "identity") 
-
-dt_re <- melt(dt[c(3,6,8:9,13:16)], id=c("Group"))
+dt$side <- as.numeric(as.character(dt$side))
+dt$side1 <- dt$side-1
+dt_re <- melt(dt[c(3,9,14:23)], id=c("Group"))
 # Small multiple
 ggplot(dt_re, aes(x=variable, fill=factor(value))) + 
   geom_bar(position="stack", stat="count") +
   scale_fill_viridis(discrete = T) + ggtitle("") +
+  geom_text(aes(label = count)) +
   theme_classic() + xlab("") + coord_flip()#转为横向
 
 # From on a categorical column variable
 g <- ggplot(dt_re, aes(variable)) 
 g + geom_bar(aes(fill=factor(value)), width = 0.5) + coord_flip() + #转为横向
   theme(axis.text.x = element_text(angle=65, vjust=0.6)) + theme_classic() +
-  labs(title="Categorywise Bar Chart", 
-       subtitle="Manufacturer of vehicles", 
-       caption="Source: Manufacturers from 'TLE' dataset")
+  labs(title="Categorywise Bar Chart", subtitle="", caption="Source: Manufacturers from 'TLE' dataset")
 
 
 
