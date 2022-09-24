@@ -1,5 +1,4 @@
 # https://zhuanlan.zhihu.com/p/101906049
-# 导入包
 rm(list = ls())
 library(ggplot2)
 library(segmented)
