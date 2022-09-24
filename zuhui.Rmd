@@ -62,13 +62,23 @@ PET/CT-MRI, JNU
 ???
 https://huhuaping.com/2021/02/01/css-base-xaringan/
 ---
-# 吴环华工作汇报0919-0912
+# 吴环华工作汇报0926
 
 --
 ## First
-可解释性机器学习框架OmniXAI复现(aka EML/XAI)；
+;
 
 --
+## Second
+.
+
+---
+---
+# 吴环华工作汇报0919-0912
+
+## First
+可解释性机器学习框架OmniXAI复现(aka EML/XAI)；
+
 ## Second
 [The Lancet Digital Health](https://www.editorialmanager.com/tldigitalhealth/default1.aspx).
 ???
