@@ -1,4 +1,4 @@
-# 
+#
 library(waffle)
 library(magrittr)
 library(hrbrthemes)
@@ -115,77 +115,85 @@ library(cowplot) # 图形组合，可以自动对其坐标轴
 dt <- read.csv("/home/wane/Desktop/TBS&Mon/BIAO/PTH1/CKD2.csv", header = T)
 dt <- dt[-1]
 
-p1 <- ggplot(data = dt, mapping = aes(x = age,
-                                      y = TBS)) + 
-  geom_pointdensity() + #密度散点图（geom_pointdensity）
-  scale_color_viridis() + 
-  #geom_smooth(method = lm) +  ##省略拟合曲线
-  stat_cor(method = "spearman") + 
-  xlab("x") + 
-  theme(axis.title.x = element_text(size = 16,
-                                    face = "bold", 
-                                    vjust = 0.5, 
-                                    hjust = 0.5))+
-  ylab("y") + 
-  theme(axis.title.y = element_text(size = 16,
-                                    face = "bold", 
-                                    vjust = 0.5, 
-                                    hjust = 0.5))+
-  theme_bw()+
-  theme(panel.grid.major=element_line(colour=NA),
-        panel.background = element_rect(fill = "transparent",colour = NA),
-        plot.background = element_rect(fill = "transparent",colour = NA),
-        panel.grid.minor = element_blank(),
-        text=element_text(size=12,  family="serif")) +
-  theme(legend.position='none')  ##去除legend
+p1 <- ggplot(data = dt, mapping = aes(
+  x = age,
+  y = TBS
+)) +
+  geom_pointdensity() + # 密度散点图（geom_pointdensity）
+  scale_color_viridis() +
+  # geom_smooth(method = lm) +  ##省略拟合曲线
+  stat_cor(method = "spearman") +
+  xlab("x") +
+  theme(axis.title.x = element_text(
+    size = 16,
+    face = "bold",
+    vjust = 0.5,
+    hjust = 0.5
+  )) +
+  ylab("y") +
+  theme(axis.title.y = element_text(
+    size = 16,
+    face = "bold",
+    vjust = 0.5,
+    hjust = 0.5
+  )) +
+  theme_bw() +
+  theme(
+    panel.grid.major = element_line(colour = NA),
+    panel.background = element_rect(fill = "transparent", colour = NA),
+    plot.background = element_rect(fill = "transparent", colour = NA),
+    panel.grid.minor = element_blank(),
+    text = element_text(size = 12, family = "serif")
+  ) +
+  theme(legend.position = "none") ## 去除legend
 p1
 
 # Show the area only
-ggplot(dt, aes(x=age, y=TBS) ) +
+ggplot(dt, aes(x = age, y = TBS)) +
   stat_density_2d(aes(fill = ..level..), geom = "polygon")
 
 # Area + contour
-ggplot(dt, aes(x=age, y=TBS)) +
-  stat_density_2d(aes(fill = ..level..), geom = "polygon", colour="white")
+ggplot(dt, aes(x = age, y = TBS)) +
+  stat_density_2d(aes(fill = ..level..), geom = "polygon", colour = "white")
 
 # Using raster
-ggplot(dt, aes(x=age, y=TBS) ) +
+ggplot(dt, aes(x = age, y = TBS)) +
   stat_density_2d(aes(fill = ..density..), geom = "raster", contour = FALSE) +
   scale_x_continuous(expand = c(0, 0)) +
-  scale_y_continuous(expand = c(0, 0)) 
+  scale_y_continuous(expand = c(0, 0))
 
 # Call the palette with a number
-ggplot(dt, aes(x=age, y=TBS) ) +
+ggplot(dt, aes(x = age, y = TBS)) +
   stat_density_2d(aes(fill = ..density..), geom = "raster", contour = FALSE) +
-  scale_fill_distiller(palette=4, direction=-1) +
+  scale_fill_distiller(palette = 4, direction = -1) +
   scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous(expand = c(0, 0)) +
   theme(
-    legend.position='none'
+    legend.position = "none"
   )
 
 # The direction argument allows to reverse the palette
-ggplot(dt, aes(x=age, y=TBS) ) +
+ggplot(dt, aes(x = age, y = TBS)) +
   stat_density_2d(aes(fill = ..density..), geom = "raster", contour = FALSE) +
-  scale_fill_distiller(palette=4, direction=1) +
+  scale_fill_distiller(palette = 4, direction = 1) +
   scale_x_continuous(expand = c(0, 0)) +
-  scale_y_continuous(expand = c(0, 0)) 
-  # theme(
-  #   legend.position='none'
-  # )
+  scale_y_continuous(expand = c(0, 0))
+# theme(
+#   legend.position='none'
+# )
 
 # You can also call the palette using a name.
-ggplot(dt, aes(x=age, y=TBS) ) +
+ggplot(dt, aes(x = age, y = TBS)) +
   stat_density_2d(aes(fill = ..density..), geom = "raster", contour = FALSE) +
-  scale_fill_distiller(palette= "Spectral", direction=1) +
+  scale_fill_distiller(palette = "Spectral", direction = 1) +
   scale_x_continuous(expand = c(0, 0)) +
-  scale_y_continuous(expand = c(0, 0)) 
+  scale_y_continuous(expand = c(0, 0))
 
-p4 <- ggplot(data=dt,aes(age,TBS)) + 
-  stat_density2d(aes(fill=..level..,alpha=..level..),geom='polygon',colour='black') + 
-  scale_fill_continuous(low="green",high="red") +
-  geom_smooth(method=lm,linetype=2,colour="red",se=F) + 
-  guides(alpha="none") +
+p4 <- ggplot(data = dt, aes(age, TBS)) +
+  stat_density2d(aes(fill = ..level.., alpha = ..level..), geom = "polygon", colour = "black") +
+  scale_fill_continuous(low = "green", high = "red") +
+  geom_smooth(method = lm, linetype = 2, colour = "red", se = F) +
+  guides(alpha = "none") +
   geom_point()
 
 p5 <- ggplot(data = dt, mapping = aes(x = age, y = TBS)) +
@@ -198,5 +206,4 @@ plot_grid(p5, p4, nrow = 1)
 
 
 library(LSD)
-heatscatter(dt$age,dt$TBS)
-
+heatscatter(dt$age, dt$TBS)
