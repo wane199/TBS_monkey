@@ -66,11 +66,11 @@ https://huhuaping.com/2021/02/01/css-base-xaringan/
 
 --
 ## First
-;
+Academic articles/SCI writing skills;
 
 --
 ## Second
-.
+Task 1.0, & Task 2.0 writing.
 
 ---
 ---
