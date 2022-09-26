@@ -21,8 +21,10 @@ library(My.stepwise)
 # 读取数据集
 # write.csv(dt,"/home/wane/Desktop/EP/结构化数据/TableS1-2.csv", row.names = FALSE)
 # dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/PT_radiomic_features_temporal_ind2.csv")
-dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/TLE234group.csv")
-dt <- dt[-3]
+dt <- read.csv("C:/Users/wane199/Desktop/EP/Structured_Data/Task2/TLE234group.csv")
+dt0 <- read.csv("./EP/EP_Cox_Nomo/TLE234-rad.csv")
+
+dt <- dt[c(-1:-2,-4)]
 dt <- as.data.frame(dt)
 as.matrix(head(dt))
 
@@ -343,7 +345,7 @@ for (i in names(dt1)[c(6, 8, 9, 13:22)]) {
 }
 train <- subset(dt1, dt1$Group == "Training")
 test <- subset(dt1, dt1$Group == "Test")
-# Train vs. Test set
+# Training vs. Test set
 library(ggstatsplot)
 library(palmerpenguins)
 library(tidyverse)
@@ -414,7 +416,21 @@ ggarrange(p1, p2,
   ncol = 2, labels = c("a", "b"),
   common.legend = TRUE, legend = "right"
 )
-# tableone
+# tableone 基线特征描述统计
+library(autoReg)
+for (i in names(dt)[c(1, 3, 5:6, 10:19)]) {
+  dt[, i] <- as.factor(dt[, i])
+}
+
+for (i in names(train)[c(3, 5:6, 10:19)]) {
+  train[, i] <- as.factor(train[, i])
+}
+ft <- gaze(Rel._in_5yrs ~ ., data = test[,]) %>% myft()
+ft
+library(rrtable)
+table2pptx(ft) # Exported table as Report.pptx
+table2docx(ft) # Exported table as Report.docx
+table2docx(ft, title = "Test", append = TRUE, vanilla = TRUE)
 library(CBCgrps)
 tab1 <- twogrps(dt[c(-1, -2, -4)], gvar = "Group", skewvar = c("radscore"))
 print(tab1, quote = T)
