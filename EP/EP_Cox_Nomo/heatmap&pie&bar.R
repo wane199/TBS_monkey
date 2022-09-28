@@ -38,12 +38,29 @@ colSide <- brewer.pal(9, "Set1")[my_group]
 colMain <- colorRampPalette(brewer.pal(9, "Blues"))(50)
 heatmap(data, Colv = NA, Rowv = NA, scale = "column", RowSideColors = colSide, col = colMain)
 
-
+# https://www.jianshu.com/p/d9e46f4909b9
 library(pheatmap)
 set.seed(123)
-# heatmap
-pheatmap(data)
+Group=unlist(dt$Rel._in_5yrs)
+group_sample=data.frame(Group)
+rownames(group_sample)=rownames(data)
+group_sample$Group=factor(group_sample$Group)
+# 病例分组文件
+group_sample
 
+pheatmap(data, cluster_cols = F, fontsize = 2)
+pheatmap(data,angle_col = 45,
+         annotation_row=group_sample, 
+         cutree_rows=2, # 分割行
+         # cutree_cols=2, # 分割列
+         scale="column", # 列标准化
+         # scale="row", # 行标准化
+         annotation_legend = T, border_color = 'black',#设定每个格子边框的颜色，border=F则无边框
+         cluster_rows = F, #对行聚类
+         cluster_cols = F, #队列聚类
+         show_colnames = T, #是否显示列名
+         show_rownames = F #是否显示行名
+)
 # dist mat
 mat <- dist(data)
 hclust_mat <- hclust(mat)
