@@ -227,3 +227,21 @@ g <- ggplot(dt_re, aes(variable))
 g + geom_bar(aes(fill = factor(value)), width = 0.5) + coord_flip() + # 转为横向
   theme(axis.text.x = element_text(angle = 65, vjust = 0.6)) + theme_classic() +
   labs(title = "Categorywise Bar Chart", subtitle = "", caption = "Source: Manufacturers from 'TLE' dataset")
+
+# Sankey
+library(ggalluvial)
+dt_re1 <- melt(dt[c(4, 6, 9, 14:23)], id = c("ID"))
+dt_re1$value <- as.factor(dt_re1$value)
+ggplot(dt_re1,
+       aes(x = variable, stratum = value, alluvium = ID,
+           fill = value, label = value)) +
+  scale_fill_brewer(type = "qual", palette = "Set2") +
+  geom_flow(stat = "alluvium", lode.guidance = "frontback",
+            color = "darkgray") +
+  geom_stratum() + theme_classic() +
+  theme(legend.position = "bottom") +
+  ggtitle("")
+
+
+
+
