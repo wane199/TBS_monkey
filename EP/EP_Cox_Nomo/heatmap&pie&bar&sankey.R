@@ -228,7 +228,7 @@ g + geom_bar(aes(fill = factor(value)), width = 0.5) + coord_flip() + # 转为�
   theme(axis.text.x = element_text(angle = 65, vjust = 0.6)) + theme_classic() +
   labs(title = "Categorywise Bar Chart", subtitle = "", caption = "Source: Manufacturers from 'TLE' dataset")
 
-# Sankey
+# ggalluvial|炫酷桑基图(Sankey) https://cloud.tencent.com/developer/article/1675189
 library(ggalluvial)
 dt_re1 <- melt(dt[c(4, 6, 9, 14:23)], id = c("ID"))
 dt_re1$value <- as.factor(dt_re1$value)
@@ -242,6 +242,7 @@ ggplot(dt_re1,
   theme(legend.position = "bottom") +
   ggtitle("")
 
+vignette(topic = "ggalluvial", package = "ggalluvial")
 
 
 
