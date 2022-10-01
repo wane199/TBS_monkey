@@ -5,8 +5,8 @@ setwd("C:\\Users\\wane\\Desktop\\R&Py\\RDocu")
 getwd()
 list.files() # 查看当前工作目录下的文件
 library(dplyr)
-dt <- read.csv("/home/wane/Documents/RDocu/M-TBS.csv")
-dt1 <- read.csv("/home/wane/Documents/RDocu/F-TBS.csv")
+dt <- read.csv("/home/wane/Documents/RDocu/M_1018.csv")
+dt1 <- read.csv("/home/wane/Documents/RDocu/F_3061.csv")
 dt <- read.csv("/Users/mac/Desktop/Nomo-TBS/RDocu/M_1018.csv")
 dt1 <- read.csv("/Users/mac/Desktop/Nomo-TBS/RDocu/F_3061.csv")
 data <- rbind(dt,dt1)
@@ -283,7 +283,9 @@ total %>%
   theme_classic() + theme(plot.title = element_text(size=11)) + ylim(0.4,1.6) + 
   xlab('') + ylab(expression(BMD(g/cm^2))) + theme(plot.title = element_text(hjust = 0.5)) +
   # rotate_x_text(30) + ylab(expression(BMD(g/cm^2)))
-  theme(axis.text = element_text(size = 10, face = "bold")) -> P1
+  theme(axis.text = element_text(size = 10, face = "bold"), axis.ticks.length=unit(-0.25, "cm"), 
+        axis.text.x = element_text(margin=unit(c(0.5,0.5,0.5,0.5), "cm")), 
+        axis.text.y = element_text(margin=unit(c(0.5,0.5,0.5,0.5), "cm"))) -> P1
 
 total %>%
   ggplot(aes(x=Age, y=TBSL1L4, fill=Sex, shape = Sex)) + 
@@ -291,7 +293,9 @@ total %>%
   theme_classic() + theme(plot.title = element_text(size=11)) + ylim(1.0,1.6) + 
   xlab('Age(years)') + ylab('TBS') + theme(plot.title = element_text(hjust = 0.5)) +
   # rotate_x_text(30) + ylab(expression(BMD(g/cm^2)))
-  theme(axis.text = element_text(size = 10, face = "bold")) -> P2
+  theme(axis.text = element_text(size = 10, face = "bold"), axis.ticks.length=unit(-0.25, "cm"), 
+        axis.text.x = element_text(margin=unit(c(0.5,0.5,0.5,0.5), "cm")), 
+        axis.text.y = element_text(margin=unit(c(0.5,0.5,0.5,0.5), "cm"))) -> P2
 
 library(patchwork)
 P1 / P2 + plot_layout(guides='collect') + plot_annotation(tag_levels = 'A')
@@ -358,6 +362,7 @@ ggline(total, x = "Age_group", y = "TBSL1L4", group = "Sex", position = position
 
 library(patchwork)
 p1 / p2 + plot_layout(guides='collect') + plot_annotation(tag_levels = 'A')
+
 
 # World map is available in the maps package
 library(maps)
