@@ -304,6 +304,130 @@ m
 
 
 
+# 
+library(airway)
+library(magrittr)
+
+data('airway')
+airway$dex %<>% relevel('untrt')
+
+ens <- rownames(airway)
+
+library(org.Hs.eg.db)
+symbols <- mapIds(org.Hs.eg.db, keys = ens,
+                  column = c('SYMBOL'), keytype = 'ENSEMBL')
+symbols <- symbols[!is.na(symbols)]
+symbols <- symbols[match(rownames(airway), names(symbols))]
+rownames(airway) <- symbols
+keep <- !is.na(rownames(airway))
+airway <- airway[keep,]
+
+library('DESeq2')
+
+dds <- DESeqDataSet(airway, design = ~ cell + dex)
+dds <- DESeq(dds)
+vst <- assay(vst(dds))
+
+p <- pca(vst, metadata = colData(airway), removeVar = 0.1)
+
+screeplot(p, axisLabSize = 18, titleLabSize = 22)
+
+biplot(p)
+biplot(p, showLoadings = TRUE,
+       labSize = 5, pointSize = 5, sizeLoadingsNames = 5)
+
+
+# https://github.com/kevinblighe/PCAtools
+# Here, we will instead start with data from Gene Expression Omnibus. We will load breast cancer gene expression data with recurrence free survival (RFS) from Gene Expression Profiling in Breast Cancer: Understanding the Molecular Basis of Histologic Grade To Improve Prognosis.
+# First, let’s read in and prepare the data:
+library(Biobase)
+library(GEOquery)
+
+# load series and platform data from GEO
+gset <- getGEO('GSE2990', GSEMatrix = TRUE, getGPL = FALSE)
+mat <- exprs(gset[[1]])
+
+# remove Affymetrix control probes
+mat <- mat[-grep('^AFFX', rownames(mat)),]
+
+# extract information of interest from the phenotype data (pdata)
+idx <- which(colnames(pData(gset[[1]])) %in%
+               c('relation', 'age:ch1', 'distant rfs:ch1', 'er:ch1',
+                 'ggi:ch1', 'grade:ch1', 'size:ch1',
+                 'time rfs:ch1'))
+metadata <- data.frame(pData(gset[[1]])[,idx],
+                       row.names = rownames(pData(gset[[1]])))
+
+# tidy column names
+colnames(metadata) <- c('Study', 'Age', 'Distant.RFS', 'ER', 'GGI', 'Grade',
+                        'Size', 'Time.RFS')
+
+# prepare certain phenotypes of interest
+metadata$Study <- gsub('Reanalyzed by: ', '', as.character(metadata$Study))
+metadata$Age <- as.numeric(gsub('^KJ', NA, as.character(metadata$Age)))
+metadata$Distant.RFS <- factor(metadata$Distant.RFS,
+                               levels = c(0,1))
+metadata$ER <- factor(gsub('\\?', NA, as.character(metadata$ER)),
+                      levels = c(0,1))
+metadata$ER <- factor(ifelse(metadata$ER == 1, 'ER+', 'ER-'),
+                      levels = c('ER-', 'ER+'))
+metadata$GGI <- as.numeric(as.character(metadata$GGI))
+metadata$Grade <- factor(gsub('\\?', NA, as.character(metadata$Grade)),
+                         levels = c(1,2,3))
+metadata$Grade <- gsub(1, 'Grade 1', gsub(2, 'Grade 2', gsub(3, 'Grade 3', metadata$Grade)))
+metadata$Grade <- factor(metadata$Grade, levels = c('Grade 1', 'Grade 2', 'Grade 3'))
+metadata$Size <- as.numeric(as.character(metadata$Size))
+metadata$Time.RFS <- as.numeric(gsub('^KJX|^KJ', NA, metadata$Time.RFS))
+
+# remove samples from the pdata that have any NA value
+discard <- apply(metadata, 1, function(x) any(is.na(x)))
+metadata <- metadata[!discard,]
+
+# filter the expression data to match the samples in our pdata
+mat <- mat[,which(colnames(mat) %in% rownames(metadata))]
+
+# check that sample names match exactly between pdata and expression data 
+all(colnames(mat) == rownames(metadata))
+
+p <- pca(mat, metadata = metadata, removeVar = 0.1)
+# A bi-plot
+biplot(p, showLoadings = TRUE, lab = NULL)
+# A pairs plot
+pairsplot(p)
+# A loadings plot
+plotloadings(p, labSize = 3)
+# An eigencor plot
+eigencorplot(p,
+             metavars = c('Study','Age','Distant.RFS','ER',
+                          'GGI','Grade','Size','Time.RFS'))
+# Access the internal data
+# The rotated data that represents the observations / samples is stored in rotated, while the variable loadings are stored in loadings
+p$rotated[1:5,1:5]
+p$loadings[1:5,1:5]
+
+# Advanced features
+if (!require("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+BiocManager::install("hgu133a.db")
+suppressMessages(require(hgu133a.db))
+newnames <- mapIds(hgu133a.db,
+                   keys = rownames(p$loadings),
+                   column = c('SYMBOL'),
+                   keytype = 'PROBEID')
+#   # tidy up for NULL mappings and duplicated gene symbols
+newnames <- ifelse(is.na(newnames) | duplicated(newnames),
+                   names(newnames), newnames)
+rownames(p$loadings) <- newnames
+
+
+
+
+
+
+
+
+
+
 
 
 
