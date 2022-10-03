@@ -3,6 +3,13 @@ rm(list = ls())
 options(warn = -1)
 suppressPackageStartupMessages(library(CLL))
 suppressPackageStartupMessages(library(GEOquery))
+library(Seurat)
+library(dplyr)
+library(patchwork)
+library(mindr)
+library(Matrix)
+library(scCATCH)
+
 
 eSet <- getGEO('GSE205661', destdir = ".",
                     getGPL = F) # AnnotGPL = T, 
