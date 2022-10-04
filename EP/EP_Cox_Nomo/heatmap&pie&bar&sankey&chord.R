@@ -246,4 +246,100 @@ ggplot(dt_re1,
 vignette(topic = "ggalluvial", package = "ggalluvial")
 
 
+# Chord chart [https://mp.weixin.qq.com/s?__biz=Mzg3MjA3MDUxNQ==&mid=2247489119&idx=1&sn=c87d0734cfb6f0773cbb05856b9ab28b&chksm=cef5ba43f98233553d7a1183dcfdf025745d27c126210be5ab14b458787708d217997cab3984&mpshare=1&scene=1&srcid=1004qGevG5LERqRiGiQcs2Ak&sharer_sharetime=1664861257374&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd]
+# 使用和弦图展示变量间的相关性
+library(corrplot)
+library(circlize)
+library(Hmisc)
+#读取数据
+rt <- read.csv(file.choose(),header = T)
+rt <- data
+# rownames(dt) <- dt[, 4]
+rt <- as.matrix(dt[5:22])
+#计算指标间相关性
+cor1 <- cor(rt)
+#显示P值
+rt <- as.matrix(rt)
+p <- rcorr(rt)
+p
+#设置图形颜色
+col = c(rgb(1,0,0,seq(1,0,length=32)),rgb(0,1,0,seq(0,1,length=32)))
+#删掉相关性=1的数据
+cor1[cor1==1]=0  
+c1 = ifelse(c(cor1)>=0,rgb(1,0,0,abs(cor1)),rgb(0,1,0,abs(cor1)))
+col1 = matrix(c1,nc=ncol(rt))
+#绘制和弦图
+par(mar=c(2,2,2,4))
+circos.par(gap.degree=c(3,rep(2, nrow(cor1)-1)), start.degree = 180)
+chordDiagram(cor1, grid.col=rainbow(ncol(rt)), col=col1, transparency = 0.5, symmetric = T)
+par(xpd=T)
+# colorlegend(col,labels=c(1,0,-1))
+colorlegend(col, vertical = T,labels=c(1,0,-1),xlim=c(1.1,1.3),ylim=c(-0.4,0.4))     
 
+# R语言绘制和弦图
+library(circlize)
+library(viridis)
+library(reshape2)
+
+df <- read.csv("示例数据1.csv", header=TRUE,stringsAsFactors = FALSE,check.names = FALSE)
+df_melt <- melt(dt[c(4, 6, 9, 14:22)], id = c("ID"))
+df_melt<-melt(df,id.vars = 'Region')
+colnames(df_melt)<-c('from','to','value')
+df_melt$to<-as.character(df_melt$to)
+
+#排序
+df_sum<-apply(df[,2:ncol(df)],2,sum)+apply(df[,2:ncol(df)],1,sum)
+order<-sort(df_sum,index.return=TRUE,decreasing =TRUE)
+
+df_melt$from<-factor(df_melt$from,levels=df$Region[order$ix],order=TRUE)
+
+df_melt<-dplyr:: arrange (df_melt, from)
+
+# 颜色主题方案
+mycolor <- viridis(10, alpha = 1, begin = 0, end = 1, option = "D")
+names(mycolor) <-df$Region
+
+circos.clear()
+circos.par(start.degree = 90, gap.degree = 4, track.margin = c(-0.1, 0.1), points.overflow.warning = FALSE)
+par(mar = rep(0, 4))
+
+chordDiagram(
+  x = df_melt,
+  grid.col = mycolor,
+  transparency = 0.25,
+  directional = 1,
+  direction.type = c("arrows", "diffHeight"),
+  diffHeight = -0.04,
+  annotationTrack = "grid",
+  annotationTrackHeight = c(0.05, 0.1),
+  link.arr.type = "big.arrow",
+  link.sort = TRUE,
+  link.largest.ontop = TRUE)
+
+# 添加数据标签和坐标轴
+circos.trackPlotRegion(
+  track.index = 1,
+  bg.border = NA,
+  panel.fun = function(x, y) {
+    xlim = get.cell.meta.data("xlim")
+    sector.index = get.cell.meta.data("sector.index")
+    # 添加数据标签
+    circos.text(
+      x = mean(xlim),
+      y = 3.2,
+      labels = sector.index,
+      facing = "bending",
+      cex = 1
+    )
+    # 添加坐标轴
+    circos.axis(
+      h = "top",
+      major.at = seq(from = 0, to = xlim[2], by = ifelse(test = xlim[2]>10, yes = 2, no = 1)),
+      minor.ticks = 1,
+      major.tick.percentage = 0.5,
+      labels.niceFacing = FALSE)
+  }
+)
+
+library(eoffice)
+topptx(filename="和弦图.pptx")
