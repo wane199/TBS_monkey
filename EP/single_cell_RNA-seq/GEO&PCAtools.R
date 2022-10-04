@@ -372,6 +372,7 @@ biplot(p,
 # First, let’s read in and prepare the data:
 library(Biobase)
 library(GEOquery)
+library(PCAtools)
 
 # load series and platform data from GEO
 gset <- getGEO("GSE2990", GSEMatrix = TRUE, getGPL = FALSE)
@@ -448,10 +449,6 @@ p$rotated[1:5, 1:5]
 p$loadings[1:5, 1:5]
 
 # Advanced features
-if (!require("BiocManager", quietly = TRUE)) {
-  install.packages("BiocManager")
-}
-BiocManager::install("hgu133a.db")
 suppressMessages(require(hgu133a.db))
 newnames <- mapIds(hgu133a.db,
   keys = rownames(p$loadings),
@@ -463,3 +460,354 @@ newnames <- ifelse(is.na(newnames) | duplicated(newnames),
   names(newnames), newnames
 )
 rownames(p$loadings) <- newnames
+
+
+# Determine optimum number of PCs to retain
+# Let’s perform Horn’s parallel analysis first:
+horn <- parallelPCA(mat)
+horn$n
+
+# Now the elbow method:
+elbow <- findElbowPoint(p$variance)
+elbow
+
+library(ggplot2)
+
+screeplot(p,
+          components = getComponents(p, 1:20),
+          vline = c(horn$n, elbow)) +
+  
+  geom_label(aes(x = horn$n + 1, y = 50,
+                 label = 'Horn\'s', vjust = -1, size = 8)) +
+  geom_label(aes(x = elbow + 1, y = 50,
+                 label = 'Elbow method', vjust = -1, size = 8))
+
+which(cumsum(p$variance) > 80)[1]
+
+# Modify bi-plots
+biplot(p,
+       lab = paste0(p$metadata$Age, ' años'),
+       colby = 'ER',
+       hline = 0, vline = 0,
+       legendPosition = 'right')
+
+# Supply custom colours and encircle variables by group
+biplot(p,
+       colby = 'ER', colkey = c('ER+' = 'forestgreen', 'ER-' = 'purple'),
+       colLegendTitle = 'ER-\nstatus',
+       # encircle config
+       encircle = TRUE,
+       encircleFill = TRUE,
+       hline = 0, vline = c(-25, 0, 25),
+       legendPosition = 'top', legendLabSize = 16, legendIconSize = 8.0)
+
+biplot(p,
+       colby = 'ER', colkey = c('ER+' = 'forestgreen', 'ER-' = 'purple'),
+       colLegendTitle = 'ER-\nstatus',
+       # encircle config
+       encircle = TRUE, encircleFill = FALSE,
+       encircleAlpha = 1, encircleLineSize = 5,
+       hline = 0, vline = c(-25, 0, 25),
+       legendPosition = 'top', legendLabSize = 16, legendIconSize = 8.0)
+
+# Stat ellipses
+biplot(p,
+       colby = 'ER', colkey = c('ER+' = 'forestgreen', 'ER-' = 'purple'),
+       # ellipse config
+       ellipse = TRUE,
+       ellipseType = 't',
+       ellipseLevel = 0.95,
+       ellipseFill = TRUE,
+       ellipseAlpha = 1/4,
+       ellipseLineSize = 1.0,
+       xlim = c(-125,125), ylim = c(-50, 80),
+       hline = 0, vline = c(-25, 0, 25),
+       legendPosition = 'top', legendLabSize = 16, legendIconSize = 8.0)
+
+biplot(p,
+       colby = 'ER', colkey = c('ER+' = 'forestgreen', 'ER-' = 'purple'),
+       # ellipse config
+       ellipse = TRUE,
+       ellipseType = 't',
+       ellipseLevel = 0.95,
+       ellipseFill = TRUE,
+       ellipseAlpha = 1/4,
+       ellipseLineSize = 0,
+       ellipseFillKey = c('ER+' = 'yellow', 'ER-' = 'pink'),
+       xlim = c(-125,125), ylim = c(-50, 80),
+       hline = 0, vline = c(-25, 0, 25),
+       legendPosition = 'top', legendLabSize = 16, legendIconSize = 8.0)
+
+# Change shape based on tumour grade, remove connectors, and add titles
+biplot(p,
+       colby = 'ER', colkey = c('ER+' = 'forestgreen', 'ER-' = 'purple'),
+       hline = c(-25, 0, 25), vline = c(-25, 0, 25),
+       legendPosition = 'top', legendLabSize = 13, legendIconSize = 8.0,
+       shape = 'Grade', shapekey = c('Grade 1' = 15, 'Grade 2' = 17, 'Grade 3' = 8),
+       drawConnectors = FALSE,
+       title = 'PCA bi-plot',
+       subtitle = 'PC1 versus PC2',
+       caption = '27 PCs ≈ 80%')
+
+# Modify line types, remove gridlines, and increase point size
+biplot(p,
+       lab = NULL,
+       colby = 'ER', colkey = c('ER+'='royalblue', 'ER-'='red3'),
+       hline = c(-25, 0, 25), vline = c(-25, 0, 25),
+       vlineType = c('dotdash', 'solid', 'dashed'),
+       gridlines.major = FALSE, gridlines.minor = FALSE,
+       pointSize = 5,
+       legendPosition = 'left', legendLabSize = 14, legendIconSize = 8.0,
+       shape = 'Grade', shapekey = c('Grade 1'=15, 'Grade 2'=17, 'Grade 3'=8),
+       drawConnectors = FALSE,
+       title = 'PCA bi-plot',
+       subtitle = 'PC1 versus PC2',
+       caption = '27 PCs ≈ 80%')
+
+biplot(p,
+       # loadings parameters
+       showLoadings = TRUE,
+       lengthLoadingsArrowsFactor = 1.5,
+       sizeLoadingsNames = 4,
+       colLoadingsNames = 'red4',
+       # other parameters
+       lab = NULL,
+       colby = 'ER', colkey = c('ER+'='royalblue', 'ER-'='red3'),
+       hline = 0, vline = c(-25, 0, 25),
+       vlineType = c('dotdash', 'solid', 'dashed'),
+       gridlines.major = FALSE, gridlines.minor = FALSE,
+       pointSize = 5,
+       legendPosition = 'left', legendLabSize = 14, legendIconSize = 8.0,
+       shape = 'Grade', shapekey = c('Grade 1'=15, 'Grade 2'=17, 'Grade 3'=8),
+       drawConnectors = FALSE,
+       title = 'PCA bi-plot',
+       subtitle = 'PC1 versus PC2',
+       caption = '27 PCs ≈ 80%')
+
+# add ESR1 gene expression to the metadata
+p$metadata$ESR1 <- mat['205225_at',]
+
+biplot(p,
+       x = 'PC2', y = 'PC3',
+       lab = NULL,
+       colby = 'ESR1',
+       shape = 'ER',
+       hline = 0, vline = 0,
+       legendPosition = 'right') +
+  
+  scale_colour_gradient(low = 'gold', high = 'red2')
+
+biplot(p, x = 'PC10', y = 'PC50',
+       lab = NULL,
+       colby = 'Age',
+       hline = 0, vline = 0,
+       hlineWidth = 1.0, vlineWidth = 1.0,
+       gridlines.major = FALSE, gridlines.minor = TRUE,
+       pointSize = 5,
+       legendPosition = 'left', legendLabSize = 16, legendIconSize = 8.0,
+       shape = 'Grade', shapekey = c('Grade 1'=15, 'Grade 2'=17, 'Grade 3'=8),
+       drawConnectors = FALSE,
+       title = 'PCA bi-plot',
+       subtitle = 'PC10 versus PC50',
+       caption = '27 PCs ≈ 80%')
+
+
+# Quickly explore potentially informative PCs via a pairs plot
+pairsplot(p,
+          components = getComponents(p, c(1:10)),
+          triangle = TRUE, trianglelabSize = 12,
+          hline = 0, vline = 0,
+          pointSize = 0.4,
+          gridlines.major = FALSE, gridlines.minor = FALSE,
+          colby = 'Grade',
+          title = 'Pairs plot', plotaxes = FALSE,
+          margingaps = unit(c(-0.01, -0.01, -0.01, -0.01), 'cm'))
+
+pairsplot(p,
+          components = getComponents(p, c(4,33,11,1)),
+          triangle = FALSE,
+          hline = 0, vline = 0,
+          pointSize = 0.8,
+          gridlines.major = FALSE, gridlines.minor = FALSE,
+          colby = 'ER',
+          title = 'Pairs plot', titleLabSize = 22,
+          axisLabSize = 14, plotaxes = TRUE,
+          margingaps = unit(c(0.1, 0.1, 0.1, 0.1), 'cm'))
+
+
+# Determine the variables that drive variation among each PC
+plotloadings(p,
+             rangeRetain = 0.01,
+             labSize = 4.0,
+             title = 'Loadings plot',
+             subtitle = 'PC1, PC2, PC3, PC4, PC5',
+             caption = 'Top 1% variables',
+             shape = 24,
+             col = c('limegreen', 'black', 'red3'),
+             drawConnectors = TRUE)
+
+plotloadings(p,
+             components = getComponents(p, c(4,33,11,1)),
+             rangeRetain = 0.1,
+             labSize = 4.0,
+             absolute = FALSE,
+             title = 'Loadings plot',
+             subtitle = 'Misc PCs',
+             caption = 'Top 10% variables',
+             shape = 23, shapeSizeRange = c(1, 16),
+             col = c('white', 'pink'),
+             drawConnectors = FALSE)
+
+plotloadings(p,
+             components = getComponents(p, c(2)),
+             rangeRetain = 0.12, absolute = TRUE,
+             col = c('black', 'pink', 'red4'),
+             drawConnectors = TRUE, labSize = 4) + coord_flip()
+
+
+# Correlate the principal components back to the clinical data
+eigencorplot(p,
+             components = getComponents(p, 1:27),
+             metavars = c('Study','Age','Distant.RFS','ER',
+                          'GGI','Grade','Size','Time.RFS'),
+             col = c('darkblue', 'blue2', 'black', 'red2', 'darkred'),
+             cexCorval = 0.7,
+             colCorval = 'white',
+             fontCorval = 2,
+             posLab = 'bottomleft',
+             rotLabX = 45,
+             posColKey = 'top',
+             cexLabColKey = 1.5,
+             scale = TRUE,
+             main = 'PC1-27 clinical correlations',
+             colFrame = 'white',
+             plotRsquared = FALSE)
+
+eigencorplot(p,
+             components = getComponents(p, 1:horn$n),
+             metavars = c('Study','Age','Distant.RFS','ER','GGI',
+                          'Grade','Size','Time.RFS'),
+             col = c('white', 'cornsilk1', 'gold', 'forestgreen', 'darkgreen'),
+             cexCorval = 1.2,
+             fontCorval = 2,
+             posLab = 'all',
+             rotLabX = 45,
+             scale = TRUE,
+             main = bquote(Principal ~ component ~ Pearson ~ r^2 ~ clinical ~ correlates),
+             plotRsquared = TRUE,
+             corFUN = 'pearson',
+             corUSE = 'pairwise.complete.obs',
+             corMultipleTestCorrection = 'BH',
+             signifSymbols = c('****', '***', '**', '*', ''),
+             signifCutpoints = c(0, 0.0001, 0.001, 0.01, 0.05, 1))
+
+
+# Plot the entire project on a single panel
+pscree <- screeplot(p, components = getComponents(p, 1:30),
+                    hline = 80, vline = 27, axisLabSize = 14, titleLabSize = 20,
+                    returnPlot = FALSE) +
+  geom_label(aes(20, 80, label = '80% explained variation', vjust = -1, size = 8))
+
+ppairs <- pairsplot(p, components = getComponents(p, c(1:3)),
+                    triangle = TRUE, trianglelabSize = 12,
+                    hline = 0, vline = 0,
+                    pointSize = 0.8, gridlines.major = FALSE, gridlines.minor = FALSE,
+                    colby = 'Grade',
+                    title = '', plotaxes = FALSE,
+                    margingaps = unit(c(0.01, 0.01, 0.01, 0.01), 'cm'),
+                    returnPlot = FALSE)
+
+pbiplot <- biplot(p,
+                  # loadings parameters
+                  showLoadings = TRUE,
+                  lengthLoadingsArrowsFactor = 1.5,
+                  sizeLoadingsNames = 4,
+                  colLoadingsNames = 'red4',
+                  # other parameters
+                  lab = NULL,
+                  colby = 'ER', colkey = c('ER+'='royalblue', 'ER-'='red3'),
+                  hline = 0, vline = c(-25, 0, 25),
+                  vlineType = c('dotdash', 'solid', 'dashed'),
+                  gridlines.major = FALSE, gridlines.minor = FALSE,
+                  pointSize = 5,
+                  legendPosition = 'none', legendLabSize = 16, legendIconSize = 8.0,
+                  shape = 'Grade', shapekey = c('Grade 1'=15, 'Grade 2'=17, 'Grade 3'=8),
+                  drawConnectors = FALSE,
+                  title = 'PCA bi-plot',
+                  subtitle = 'PC1 versus PC2',
+                  caption = '27 PCs ≈ 80%',
+                  returnPlot = FALSE)
+
+ploadings <- plotloadings(p, rangeRetain = 0.01, labSize = 4,
+                          title = 'Loadings plot', axisLabSize = 12,
+                          subtitle = 'PC1, PC2, PC3, PC4, PC5',
+                          caption = 'Top 1% variables',
+                          shape = 24, shapeSizeRange = c(4, 8),
+                          col = c('limegreen', 'black', 'red3'),
+                          legendPosition = 'none',
+                          drawConnectors = FALSE,
+                          returnPlot = FALSE)
+
+peigencor <- eigencorplot(p,
+                          components = getComponents(p, 1:10),
+                          metavars = c('Study','Age','Distant.RFS','ER',
+                                       'GGI','Grade','Size','Time.RFS'),
+                          cexCorval = 1.0,
+                          fontCorval = 2,
+                          posLab = 'all', 
+                          rotLabX = 45,
+                          scale = TRUE,
+                          main = "PC clinical correlates",
+                          cexMain = 1.5,
+                          plotRsquared = FALSE,
+                          corFUN = 'pearson',
+                          corUSE = 'pairwise.complete.obs',
+                          signifSymbols = c('****', '***', '**', '*', ''),
+                          signifCutpoints = c(0, 0.0001, 0.001, 0.01, 0.05, 1),
+                          returnPlot = FALSE)
+
+library(cowplot)
+library(ggplotify)
+
+top_row <- plot_grid(pscree, ppairs, pbiplot,
+                     ncol = 3,
+                     labels = c('A', 'B  Pairs plot', 'C'),
+                     label_fontfamily = 'serif',
+                     label_fontface = 'bold',
+                     label_size = 22,
+                     align = 'h',
+                     rel_widths = c(1.10, 0.80, 1.10))
+
+bottom_row <- plot_grid(ploadings,
+                        as.grob(peigencor),
+                        ncol = 2,
+                        labels = c('D', 'E'),
+                        label_fontfamily = 'serif',
+                        label_fontface = 'bold',
+                        label_size = 22,
+                        align = 'h',
+                        rel_widths = c(0.8, 1.2))
+
+plot_grid(top_row, bottom_row, ncol = 1,
+          rel_heights = c(1.1, 0.9))
+
+
+
+# Make predictions on new data
+p <- pca(mat, metadata = metadata, removeVar = 0.1)
+
+p.prcomp <- list(sdev = p$sdev,
+                 rotation = data.matrix(p$loadings),
+                 x = data.matrix(p$rotated),
+                 center = TRUE, scale = TRUE)
+
+class(p.prcomp) <- 'prcomp'
+
+# for this simple example, just use a chunk of
+# the original data for the prediction
+newdata <- t(mat[,seq(1,20)])
+predict(p.prcomp, newdata = newdata)[,1:5]
+
+
+
+
