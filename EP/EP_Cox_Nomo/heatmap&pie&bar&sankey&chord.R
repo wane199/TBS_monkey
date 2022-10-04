@@ -256,7 +256,7 @@ library(Hmisc)
 #读取数据
 rt <- read.csv(file.choose(),header = T)
 rt <- data
-# rownames(dt) <- dt[, 4]
+rownames(dt) <- dt[, 4]
 rt <- as.matrix(dt[5:22])
 #计算指标间相关性
 cor1 <- cor(rt)
@@ -295,7 +295,7 @@ order<-sort(df_sum,index.return=TRUE,decreasing =TRUE)
 
 df_melt$from<-factor(df_melt$from,levels=df$Region[order$ix],order=TRUE)
 
-df_melt<-dplyr:: arrange (df_melt, from)
+df_melt<-dplyr::arrange(df_melt, from)
 
 # 颜色主题方案
 mycolor <- viridis(10, alpha = 1, begin = 0, end = 1, option = "D")
@@ -306,8 +306,8 @@ circos.par(start.degree = 90, gap.degree = 4, track.margin = c(-0.1, 0.1), point
 par(mar = rep(0, 4))
 
 chordDiagram(
-  x = df_melt,
-  grid.col = mycolor,
+  x = cor1,
+  # grid.col = mycolor,
   transparency = 0.25,
   directional = 1,
   direction.type = c("arrows", "diffHeight"),
@@ -345,5 +345,7 @@ circos.trackPlotRegion(
 
 library(eoffice)
 topptx(filename="和弦图.pptx")
+
+
 
 
