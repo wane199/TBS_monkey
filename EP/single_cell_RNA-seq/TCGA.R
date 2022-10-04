@@ -1,5 +1,6 @@
 # https://mp.weixin.qq.com/s/5LAcZR7mjFLLw_YwM5iG6g
 # 绘制基因生存曲线
+rm(list = ls())
 library(SummarizedExperiment)
 library(TCGAbiolinks)
 library(tidyverse)

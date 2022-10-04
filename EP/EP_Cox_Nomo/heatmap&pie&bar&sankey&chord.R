@@ -4,6 +4,7 @@ rm(list = ls())
 # 读入数据
 dt <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/Task2/TLE234group.csv")
 dt <- read.csv("C:/Users/wane199/Desktop/EP/Structured_Data/Task2/TLE234group.csv")
+table(dt$Freq)
 train <- subset(dt, dt$Group == "Training")
 test <- subset(dt, dt$Group == "Test")
 
@@ -211,21 +212,22 @@ group_by(dt, Rel._in_5yrs) %>%
   geom_bar(width = 1, stat = "identity")
 dt$side <- as.numeric(as.character(dt$side))
 dt$side1 <- dt$side - 1
-dt_re <- melt(dt[c(3, 9, 14:23)], id = c("Group"))
+dt_re <- melt(dt[c(3, 9, 14:22)], id = c("Group"))
 # Small multiple
 ggplot(dt_re, aes(x = variable, fill = factor(value))) +
   geom_bar(position = "stack", stat = "count") +
-  scale_fill_viridis(discrete = T) +
-  ggtitle("") +
-  geom_text(aes(label = count)) +
-  theme_classic() +
-  xlab("") +
-  coord_flip() # 转为横向
+  scale_fill_viridis(discrete = T) + ggtitle("") + geom_text(aes(label = count)) + theme_classic() +
+  xlab("") + theme(axis.text = element_text(size = 10, face = "bold"), axis.ticks.length=unit(-0.25, "cm"), 
+                     axis.text.x = element_text(margin=unit(c(0.5,0.5,0.5,0.5), "cm")), 
+                     axis.text.y = element_text(margin=unit(c(0.5,0.5,0.5,0.5), "cm"))) + coord_flip() # 转为横向
 
 # From on a categorical column variable
 g <- ggplot(dt_re, aes(variable))
 g + geom_bar(aes(fill = factor(value)), width = 0.5) + coord_flip() + # 转为横向
-  theme(axis.text.x = element_text(angle = 65, vjust = 0.6)) + theme_classic() +
+  theme(axis.text.x = element_text(angle = 65, vjust = 0.6)) + theme_classic() + 
+  theme(axis.text = element_text(size = 10, face = "bold"), axis.ticks.length=unit(-0.15, "cm"), 
+        axis.text.x = element_text(margin=unit(c(0.5,0.5,0.5,0.5), "cm")), 
+        axis.text.y = element_text(margin=unit(c(0.5,0.5,0.5,0.5), "cm"))) + 
   labs(title = "Categorywise Bar Chart", subtitle = "", caption = "Source: Manufacturers from 'TLE' dataset")
 
 # ggalluvial|炫酷桑基图(Sankey) 
@@ -343,3 +345,5 @@ circos.trackPlotRegion(
 
 library(eoffice)
 topptx(filename="和弦图.pptx")
+
+
