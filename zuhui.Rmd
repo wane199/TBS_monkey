@@ -62,17 +62,24 @@ PET/CT-MRI, JNU
 ???
 https://huhuaping.com/2021/02/01/css-base-xaringan/
 ---
+# 吴环华工作汇报1009
+
+## First
+Task 1.0, & Task 2.0 writing;
+
+## Second
+Task iteration: Task 1.1, & Task 2.1 modeling.
+
+---
+---
 # 吴环华工作汇报0926
 
---
 ## First
 Academic articles/SCI writing skills;
 
---
 ## Second
 Task 1.0, & Task 2.0 writing.
 
----
 ---
 # 吴环华工作汇报0919-0912
 
