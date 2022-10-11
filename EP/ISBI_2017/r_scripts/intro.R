@@ -35,9 +35,13 @@ library(ms.lesion)
 library(neurobase)
 files = get_image_filenames_list_by_subject(type = "coregistered")
 files = files$training02
-img_fnames = files[c("MPRAGE", "T2", "FLAIR", "PD")]
+# img_fnames = files[c("MPRAGE", "T2", "FLAIR", "PD")]
+img_fnames = files[c("T1", "T2", "FLAIR")]
 mask_fname = files["mask"]
 brain_mask = readnii(files["Brain_Mask"])
+
+t1 = neurobase::readnii('/media/wane/wade/TLE_nor/sub_001_L/T1/reg_Ax_3D_BRAVO_T1_A01_8HR_Brain_MR-PET_20160714082931_6_brain_N4.nii')
+
 imgs = check_nifti(img_fnames)
 mask = readnii(mask_fname)
 zimgs = lapply(imgs, zscore_img, mask = brain_mask)
