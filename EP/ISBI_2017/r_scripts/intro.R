@@ -13,6 +13,7 @@ pkgs = c("neurobase", "fslr", "dcm2niir","divest",
          "papayaWidget", "oasis", "kirby21.t1")
 neuro_install(pkgs)
 
+rm(list = ls())
 # data for whitestripe
 library(dcm2niir); install_dcm2nii()
 library(WhiteStripe); download_img_data()
@@ -35,7 +36,7 @@ library(neurobase)
 files = get_image_filenames_list_by_subject(type = "coregistered")
 files = files$training02
 img_fnames = files[c("MPRAGE", "T2", "FLAIR", "PD")]
-mask_fname = files["mask1"]
+mask_fname = files["mask"]
 brain_mask = readnii(files["Brain_Mask"])
 imgs = check_nifti(img_fnames)
 mask = readnii(mask_fname)
@@ -47,4 +48,3 @@ zimgs = c(zimgs, Lesion_Mask = list(mask * 10))
 xyz = xyz(mask)
 multi_overlay(zimgs, z = xyz[3], text = names(zimgs), 
               text.x = 0.5, text.y = 1.25, text.cex = 2)
-
