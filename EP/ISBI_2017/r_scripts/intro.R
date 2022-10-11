@@ -41,6 +41,7 @@ mask_fname = files["mask"]
 brain_mask = readnii(files["Brain_Mask"])
 
 t1 = neurobase::readnii('/media/wane/wade/TLE_nor/sub_001_L/T1/reg_Ax_3D_BRAVO_T1_A01_8HR_Brain_MR-PET_20160714082931_6_brain_N4.nii')
+t1 = neurobase::readnii('/Volumes/UNTITLED/reg_Static_Brain_3D_MAC_1.1_PTCT_Brain_20160714100121_6.nii')
 
 imgs = check_nifti(img_fnames)
 mask = readnii(mask_fname)

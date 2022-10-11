@@ -12,6 +12,7 @@ t1 = neurobase::readnii("training01_01_mprage.nii.gz")
 
 ## ----dens----------------------------------------------------------------
 plot(density(t1)) # large spike at 0
+# ggplot(density(t1)) + theme_bw()
 
 ## ----dens_with_mask------------------------------------------------------
 plot(density(t1, mask = t1 > 0))
