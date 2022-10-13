@@ -4,6 +4,7 @@ rm(list = ls())
 # 读入数据
 dt <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/Task2/TLE234group.csv")
 dt <- read.csv("C:/Users/wane199/Desktop/EP/Structured_Data/Task2/TLE234group.csv")
+dt <- read.csv('/media/wane/UNTITLED/BLS-ep-pre/EP/Structured_Data/Task2/COX12mon/TLE234group.csv')
 table(dt$Freq)
 train <- subset(dt, dt$Group == "Training")
 test <- subset(dt, dt$Group == "Test")
@@ -233,7 +234,7 @@ g + geom_bar(aes(fill = factor(value)), width = 0.5) + coord_flip() + # 转为�
 # ggalluvial|炫酷桑基图(Sankey) 
 # https://cloud.tencent.com/developer/article/1675189
 library(ggalluvial)
-dt_re1 <- melt(dt[c(4, 6, 9, 14:23)], id = c("ID"))
+dt_re1 <- melt(dt[c(1, 4, 5, 6, 7, 12, 14:15, 17)], id = c("ID"))
 dt_re1$value <- as.factor(dt_re1$value)
 ggplot(dt_re1,
        aes(x = variable, stratum = value, alluvium = ID,
