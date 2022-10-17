@@ -70,7 +70,20 @@ Task 1.0, & Task 2.0 writing;
 ## Second
 Task iteration: Task 1.1, & Task 2.1 modeling.
 
-
+---
+class: center, middle
+.pull-left[
+Task 2.0 flow chart
+```{r echo=FALSE,out.width="120%"}
+knitr::include_graphics("./images/Train-Test_Flow.png")
+```
+]
+.pull-right[
+Task 2.1 flow chart
+```{r echo=FALSE,out.width="200%"}
+knitr::include_graphics("./images/TLE_EML_Flow.png")
+```
+]
 
 ---
 ---
@@ -80,7 +93,7 @@ Task iteration: Task 1.1, & Task 2.1 modeling.
 Task 1.0, & Task 2.0 writing;
 
 ## Second
-Task iteration: Task 1.1, & Task 2.1 modeling.
+Task iteration: Task 1.1, & .bold[Task 2.1] modeling.
 ---
 # 吴环华工作汇报0926
 
@@ -100,7 +113,6 @@ Task 1.0, & Task 2.0 writing.
 [The Lancet Digital Health](https://www.editorialmanager.com/tldigitalhealth/default1.aspx).
 ???
 Data Manipulation with Nibabel and Nilearn
----
 ---
 # 吴环华工作汇报0905
 
