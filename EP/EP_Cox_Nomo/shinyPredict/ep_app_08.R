@@ -65,6 +65,8 @@ SE=factor(input$SE,levels=c("No","Yes"))
    # Sidebar with a slider input 
    sidebarLayout( 
      sidebarPanel(
+       img(src = "https://github.com/wane199/Presentation/blob/master/EP/EP_Cox_Nomo/shinyPredict/PT_Brain_20160714100121_3d.gif?raw=true",
+           height = 150, width = 180),
        # img(src = "https://ts1.cn.mm.bing.net/th/id/R-C.c80600d38debc68a12b4b566886c8216?rik=bTkNEfTXK0fisg&riu=http%3a%2f%2fpicture.swwy.com%2fY2UzZDljYTQxNjhmNDI.jpg&ehk=WYS7zLiw1qw9kNUCW14LEMFnE2n0sOPMwjkmxBh71%2fs%3d&risl=&pid=ImgRaw&r=0&sres=1&sresct=1",
        #     height = 210, width = 360),
        # textAreaInput("AddPlot",label="Add plot script",value="",rows=3), 
