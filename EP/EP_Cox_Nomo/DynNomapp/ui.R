@@ -1,5 +1,5 @@
 ui = bootstrapPage(fluidPage(theme = shinytheme("yeti"),
-                             titlePanel('TLE Relapse Dynamic Nomogram form JNU'),
+                             titlePanel('TLE Relapse Dynamic Nomogram from JNU'),
                              sidebarLayout(sidebarPanel(uiOutput('manySliders'),
                                                         checkboxInput('trans', 'Alpha blending (transparency)', value = TRUE),
                                                         actionButton('add', 'Predict'),

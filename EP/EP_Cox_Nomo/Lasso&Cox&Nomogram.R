@@ -65,9 +65,12 @@ nor1 <- nor[, n_cols]
 write.csv(nor1, "/home/wane/Desktop/EP/Structured_Data/Task2/process_PT_radiomic_features_temporal_ind2.csv", row.names = F)
 
 train <- subset(dt, dt$Group == "Training")
-train <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/train-points.csv")
 
 test <- subset(dt, dt$Group == "Test")
+
+train <- read.csv("E:/BLS-ep-pre/EP/Structured_Data/Task2/COX12mon/220trainnor.csv")
+test <- read.csv("E:/BLS-ep-pre/EP/Structured_Data/Task2/COX12mon/78testnor.csv")
+
 # 看一下，不要让临床信息差的太多，输出table1
 prop.table(table(train$Follow_up_timemon))
 prop.table(table(test$Follow_up_timemon))
@@ -818,8 +821,12 @@ c_index
 
 # C-index计算及ROC曲线绘制(校准后的时间C-index)
 require(pec) # 计算时间C-index验证模型
-t <- c(1 * 12, 3 * 12, 5 * 12) # 设置预测生存概率的时间点，根据模型预测患者1年，3年和5年的生存概率。
-survprob <- predictSurvProb(f01, newd = test, times = t)
+var <- colnames(test)
+var
+f00 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ ,
+             x = T, data = test)
+t <- c(1 * 12, 2 * 12, 3 * 12) # 设置预测生存概率的时间点，根据模型预测患者1年，3年和5年的生存概率。
+survprob <- predictSurvProb(f00, newd = test, times = t)
 head(survprob)
 as.matrix(head(train))
 
