@@ -18,12 +18,12 @@ output$manySliders <- renderUI({
                }}}
                if (covariate == "slider") {
                slide.bars[[length(preds) + 1]] <-
-               list(br(), checkboxInput("times", "Predicted Survival at this Follow Up:"),
+               list(br(), checkboxInput("times", "Predicted Relapse-free at this Follow Up:"),
                conditionalPanel(condition = "input.times == true",
                sliderInput("tim", tim[1], min = ttim$v.min, max = ttim$v.max, value = ttim$v.mean)))
                } else {
                slide.bars[[length(preds) + 1]] <-
-               list(br(), checkboxInput("times", "Predicted Survival at this Follow Up:"),
+               list(br(), checkboxInput("times", "Predicted Relapse-free at this Follow Up:"),
                conditionalPanel(condition = "input.times == true",
                numericInput("tim", tim[1], value = zapsmall(ttim$v.mean, digits = 4))))
                }
@@ -191,7 +191,7 @@ output$plot <- renderPlot({
                geom_step(aes(x = time, y = event, group = part), color = coll[dat.p()$part])
                }}
                pl <- pl + ylim(0, 1) + xlim(0, max(dat.p()$time) * 1.05) +
-               labs(title = "Estimated Survival Probability", x = "Follow Up Time", y = "S(t)") + theme_bw() +
+               labs(title = "Estimated Relapse-free Probability", x = "Follow-up Time(months)", y = "S(t)") + theme_bw() +
                theme(text = element_text(face = "bold", size = 12), legend.position = "none", plot.title = element_text(hjust = .5))
                }
                print(pl)
@@ -217,8 +217,8 @@ output$plot2 <- renderPlotly({
                label = Prediction, label2 = Lower.bound, label3=Upper.bound)) +
                geom_point(size = 2, colour = coll[dat2$count], shape = 15) +
                ylim(yli[1], yli[2]) + coord_cartesian(xlim = lim) +
-               labs(title = "95% Confidence Interval for Response",
-               x = "Survival probability", y = "") + theme_bw() +
+               labs(title = "95% Confidence Interval for Relapse-free",
+               x = "Relapse-free probability", y = "") + theme_bw() +
                theme(axis.text.y = element_blank(), text = element_text(face = "bold", size = 10))
                if (is.numeric(dat2$Upper.bound)){
                p <- p + geom_errorbarh(xmax = dat2$Upper.bound, xmin = dat2$Lower.bound,
@@ -227,7 +227,7 @@ output$plot2 <- renderPlotly({
                message("Confidence interval is not available as there is no standard errors available by 'coxph' ")
                }
                if (ptype == "st") {
-               p <- p + labs(title = paste(clevel * 100, "% ", "Confidence Interval for Survival Probability", sep = ""),
+               p <- p + labs(title = paste(clevel * 100, "% ", "Confidence Interval for Relapse-free Probability", sep = ""),
                x = DNxlab, y = DNylab)
                }
                if (ptype == "1-st") {

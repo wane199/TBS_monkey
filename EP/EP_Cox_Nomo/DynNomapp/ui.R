@@ -13,8 +13,8 @@ ui = bootstrapPage(fluidPage(theme = shinytheme("yeti"),
                                                             height = 100, width = 180),
                              ),
                              mainPanel(tabsetPanel(id = 'tabs',
-                                                   tabPanel('Survival plot', plotOutput('plot')),
-                                                   tabPanel('Predicted Survival', plotlyOutput('plot2')),
+                                                   tabPanel('Relapse-free plot', plotOutput('plot')),
+                                                   tabPanel('Predicted Relapse-free', plotlyOutput('plot2')),
                                                    tabPanel('Numerical Summary', verbatimTextOutput('data.pred')),
                                                    tabPanel('Model Summary', verbatimTextOutput('summary'))
                              )
