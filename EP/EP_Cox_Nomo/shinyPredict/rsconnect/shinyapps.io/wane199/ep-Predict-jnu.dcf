@@ -5,10 +5,10 @@ account: wane199
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 6819226
-bundleId: 6222979
+bundleId: 6413333
 url: https://wane199.shinyapps.io/ep-Predict-jnu/
-when: 1661097193.99799
-lastSyncTime: 1661097193.99799
+when: 1666060616.8051
+lastSyncTime: 1666060616.80511
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: ep_app.R
+ignoredFiles: 999logo.png|ep_app_08.R
