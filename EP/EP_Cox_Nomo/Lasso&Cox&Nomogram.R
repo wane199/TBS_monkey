@@ -65,7 +65,6 @@ nor1 <- nor[, n_cols]
 write.csv(nor, "/home/wane/Desktop/EP/Structured_Data/Task2/COX12mon/TLE234group.csv", row.names = F)
 
 train <- subset(dt, dt$Group == "Training")
-
 test <- subset(dt, dt$Group == "Test")
 
 train <- read.csv("E:/BLS-ep-pre/EP/Structured_Data/Task2/COX12mon/220trainnor.csv")
@@ -787,7 +786,7 @@ DynNom(fit, train)
 # covariate = c("slider", "numeric")
 # 设置参数covariate = "numeric"，可以将动态列线图中变量的调整方式从滑块改为输入
 # 生成本地DynNomapp脚本文件
-setwd('./EP/EP_Cox_Nomo')
+setwd('/home/wane/Documents/EP_code/git/Presentation/EP/EP_Cox_Nomo/')
 DNbuilder(fit) ## 生成下图文件于工作目录处
 
 library(shinyPredict)
