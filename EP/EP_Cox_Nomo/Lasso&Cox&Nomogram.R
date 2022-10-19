@@ -822,12 +822,14 @@ c_index
 require(pec) # 计算时间C-index验证模型
 var <- colnames(test)
 var
-f00 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ ,
+f00 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ .,
              x = T, data = test)
 t <- c(1 * 12, 2 * 12, 3 * 12) # 设置预测生存概率的时间点，根据模型预测患者1年，3年和5年的生存概率。
-survprob <- predictSurvProb(f00, newd = test, times = t)
+survprob <- predictSurvProb(f01, newd = test, times = t)
 head(survprob)
 as.matrix(head(train))
+ddist <- datadist(train)
+options(datadist = "ddist")
 
 cli <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy + Durmon + SE,
   x = T, y = T, surv = T, data = train, time.inc = 60
@@ -835,11 +837,14 @@ cli <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy 
 full <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
   x = T, y = T, surv = T, data = train, time.inc = 60
 )
+test$SE <- as.factor(test$SE)
+summary(test)
 c_index <- cindex(list("Clinic" = cli, "Rad-clinic" = full),
   formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ .,
-  data = train,
+  data = test,
   eval.times = seq(12, 5 * 12, 6)
 )
+c_index
 ## 设置画图参数: mar以数值向量表示的边界大小，顺序为“下、左、上、右”，单位为英分*。默认值为c(5, 4, 4, 2) + 0.1 ,mgp 设定标题、坐标轴名称、坐标轴距图形边框的距离。默认值为c(3,1,0)，其中第一个值影响的是标题
 ## cex.axis 坐标轴刻度放大倍数,cex.main 标题的放大倍数,legend.x，legend.y 图例位置的横坐标和纵坐标,legend.cex 图例文字大小
 par(mgp = c(3.1, 0.8, 0), mar = c(5, 5, 3, 1), cex.axis = 0.8, cex.main = 0.8, las = 1)
@@ -847,16 +852,16 @@ plot(c_index, xlim = c(0, 60), legend.x = 1, legend.y = 1, legend.cex = 0.8)
 ## splitMethod 拆分方法 ="bootcv"表示采用重抽样方法, B表示重抽样次数
 c_index1 <- cindex(list("Clinic" = cli, "Rad-clinic" = full),
   formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ .,
-  data = train,
+  data = test,
   eval.times = seq(0, 5 * 12, 6),
   splitMethod = "bootcv",
-  B = 1000
+  B = 100
 )
 plot(c_index1, xlim = c(0, 60), legend.x = 1, legend.y = 1, legend.cex = 0.8)
 set.seed(123)
 c_index1 <- cindex(list("Clinic" = cli, "Rad-clinic" = full),
   # formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ .,
-  data = train,
+  data = test,
   eval.times = seq(0, 60, 12), # 各时间点的c-index
   cens.model = "cox", # 指定截尾数据的逆概率加权方法
   keep.pvalues = T,
@@ -874,7 +879,10 @@ plot(c_index1,
 # 绘制Time-dependent ROC curve, Assessment of Discrimination in Survival Analysis (C-statistics, etc), https://rpubs.com/kaz_yos/survival-auc
 library(survivalROC)
 ## Put linear predictors ("lp") into pbc dataset
-train$lp.Radscore_clinic <- predict(full, type = "lp")
+full <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
+            x = T, y = T, surv = T, data = test, time.inc = 60
+)
+test$lp.Radscore_clinic <- predict(full, type = "lp")
 ## Define a function
 fun.survivalROC <- function(lp, t) {
   res <- with(
@@ -1234,10 +1242,22 @@ fit1 <- rms::cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + f
 )
 ggrisk(fit1,
   heatmap.genes = c("radscore", "SE", "Durmon", "SGS", "familial_epilepsy"),
-  cutoff.value = "roc", # 可选‘median’, ’roc’ or ’cutoff’
-  cutoff.x = 50, # “cutoff”文本的水平位置
-  cutoff.y = -1
-) # “cutoff”文本的垂直位置
+  cutoff.value = 0.2, # 可选‘median’, ’roc’ or ’cutoff’
+  cutoff.x = 50, cutoff.y = -1,) # “cutoff”文本的水平/垂直位置
+
+ggrisk(fit, heatmap.genes = c("radscore", "SE", "Durmon", "SGS", "familial_epilepsy"),
+       code.highrisk = 'High risk', code.lowrisk = 'Low risk', #低风险标签，默认为 ’Low’
+       code.0 = 'Relapse-free', code.1 = 'Relapse', title.A.ylab='Risk score', #A图 y轴名称
+       title.B.ylab='Relapse-free time(months)', #B图 y轴名称，注意区分year month day
+       title.A.legend='Risk group', title.B.legend='Status',title.C.legend='Expression', #C图图例名称
+       relative_heights=c(0.1,0.1,0.01,0.15), #A、B、热图注释和热图C的相对高度    
+       color.A=c(low='green',high='red'),color.B=c(code.0='green',code.1='red'), #B图中点的颜色
+       color.C=c(low='green',median='white',high='red'), #C图中热图颜色
+       cutoff.value = 0.2, # 可选‘median’, ’roc’ or ’cutoff’
+       vjust.A.ylab=1, #A图中y轴标签到y坐标轴的距离,默认是1
+       vjust.B.ylab=2  #B图中y轴标签到y坐标轴的距离,默认是2
+)            
+
 two_scatter(fit1,
   cutoff.value = "roc",
   # cutoff.x = -3,#cutoff标签位置
