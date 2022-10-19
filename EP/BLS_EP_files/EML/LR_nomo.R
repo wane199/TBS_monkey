@@ -1,9 +1,10 @@
-# 
+# binomial classification nomogram-LR
 rm(list = ls())
 
 dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/process_PT-22.csv")
 str(dt) ## 查看每个变量结构
 summary(dt)
+colnames(dt)
 
 set.seed(123)
 ind <- sample(2, nrow(dt), replace = TRUE, prob = c(0.7, 0.3))
