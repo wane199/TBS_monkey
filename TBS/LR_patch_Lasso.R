@@ -788,7 +788,7 @@ nom1 <- nomogram(fit,
 nomogramEx(nom1)
 
 # 二次验证，最终LR模型，cutoff风险分层，T-test箱线图
-
+# ggrisk
 
 
 # Heatmap of ML-radiomics
