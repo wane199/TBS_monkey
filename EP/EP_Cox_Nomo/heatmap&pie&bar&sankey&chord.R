@@ -305,21 +305,21 @@ rownames(test) <- test[, 4]
 rt1 <- as.matrix(test[c(6, 7, 12, 14:15, 17)])
 
 # 计算指标间相关性
-cor1 <- cor(rt1)
+cor1 <- cor(rt)
 # 显示P值
-rt <- as.matrix(rt1)
-p <- rcorr(rt1)
+rt <- as.matrix(rt)
+p <- rcorr(rt)
 p
 # 设置图形颜色
 col <- c(rgb(1, 0, 0, seq(1, 0, length = 32)), rgb(0, 1, 0, seq(0, 1, length = 32)))
 # 删掉相关性=1的数据
 cor1[cor1 == 1] <- 0
 c1 <- ifelse(c(cor1) >= 0, rgb(1, 0, 0, abs(cor1)), rgb(0, 1, 0, abs(cor1)))
-col1 <- matrix(c1, nc = ncol(rt1))
+col1 <- matrix(c1, nc = ncol(rt))
 # 绘制和弦图
 par(mar = c(2, 2, 2, 4))
 circos.par(gap.degree = c(3, rep(2, nrow(cor1) - 1)), start.degree = 180)
-chordDiagram(cor1, grid.col = rainbow(ncol(rt1)), col = col1, transparency = 0.5, symmetric = T)
+chordDiagram(cor1, grid.col = rainbow(ncol(rt)), col = col1, transparency = 0.5, symmetric = T)
 par(xpd = T)
 # colorlegend(col,labels=c(1,0,-1))
 colorlegend(col, vertical = T, labels = c(1, 0, -1), xlim = c(1.1, 1.3), ylim = c(-0.4, 0.4))
