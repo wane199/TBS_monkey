@@ -21,7 +21,7 @@ library(My.stepwise)
 # 读取数据集
 # write.csv(dt,"/home/wane/Desktop/EP/结构化数据/TableS1-2.csv", row.names = FALSE)
 # dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/PT_radiomic_features_temporal_ind2.csv")
-dt <- read.csv("C:/Users/wane199/Desktop/EP/Structured_Data/Task2/TLE234group.csv")
+dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/COX12mon/TLE234group.csv")
 dt <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/Task2/TLE234group.csv")
 
 dt0 <- read.csv("./EP/EP_Cox_Nomo/TLE234-rad.csv")
@@ -62,7 +62,7 @@ n_cols <- c(cols[1], cols[length(cols)], cols[2:(length(cols) - 1)])
 n_cols <- c(cols[length(cols)], cols[1:(length(cols) - 1)])
 # dataframe排序
 nor1 <- nor[, n_cols]
-write.csv(nor1, "/home/wane/Desktop/EP/Structured_Data/Task2/process_PT_radiomic_features_temporal_ind2.csv", row.names = F)
+write.csv(nor, "/home/wane/Desktop/EP/Structured_Data/Task2/COX12mon/TLE234group.csv", row.names = F)
 
 train <- subset(dt, dt$Group == "Training")
 
@@ -74,8 +74,8 @@ test <- read.csv("E:/BLS-ep-pre/EP/Structured_Data/Task2/COX12mon/78testnor.csv"
 # 看一下，不要让临床信息差的太多，输出table1
 prop.table(table(train$Follow_up_timemon))
 prop.table(table(test$Follow_up_timemon))
-prop.table(table(test$Rel._in_5yrs))
 prop.table(table(train$Rel._in_5yrs))
+prop.table(table(test$Rel._in_5yrs))
 
 ## 影像组学导论R语言实现冗余性分析（含代码）
 ## 影像组学导论 冗余性分析 你懂她嘛?(pearson OR spearman)
