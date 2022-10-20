@@ -9,7 +9,7 @@ table(dt$Freq)
 train <- subset(dt, dt$Group == "Training")
 test <- subset(dt, dt$Group == "Test")
 
-rownames(dt) <- dt[, 4]
+rownames(dt) <- dt[, 1]
 data <- as.matrix(dt[5:22])
 # t(data) # transpose the matrix with to swap X and Y axis.
 # Default Heatmap
