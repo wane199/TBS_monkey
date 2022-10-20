@@ -42,6 +42,9 @@ ui <- fluidPage(
         value = 30
       ),
       br(),
+      img(src = "https://media.springernature.com/full/springer-static/image/art%3A10.1007%2Fs12020-021-02806-x/MediaObjects/12020_2021_2806_Fig2_HTML.png?as=webp",
+          height = 180, width = 280),
+      br(),
       img(src = "https://media.springernature.com/original/springer-static/image/art%3A10.1007%2Fs00198-011-1824-6/MediaObjects/198_2011_1824_Fig3_HTML.gif"),
     ),
     # actionButton("Action","Submit"),
