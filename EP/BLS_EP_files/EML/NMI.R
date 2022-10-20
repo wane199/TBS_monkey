@@ -1,4 +1,4 @@
-# An interpretable mortality prediction model for COVID-19 patients
+# An interpretable mortality prediction model for COVID-19 patients(nature machine intelligence)
 # install.packages("treeheatr")
 rm(list = ls())
 library(treeheatr)
@@ -59,8 +59,8 @@ heatmap(as.matrix(dt),symm = F, add.expr,
 # write.csv(dt,"./TBS/app/data/heat-ML.csv")
 # https://www.jianshu.com/p/86ae39a227f4
 library(pheatmap)
-# 在单元格中显示对于的数值，可以设置 display_numbers = TRUE
-pheatmap(dt, angle_col = 0, color = cm.colors(25),
+# 在单元格中显示对于的数值，可以设置 display_numbers = TRUE, colorRampPalette(brewer.pal(8, "PiYG"))(25)
+pheatmap(dt, angle_col = 0, color = cm.colors(25), 
          cluster_row = F, cluster_col = FALSE, fontsize = 8, display_numbers = TRUE)
 
 # 对显示的数值进行格式化

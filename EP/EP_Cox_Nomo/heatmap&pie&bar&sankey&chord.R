@@ -1,26 +1,21 @@
 # https://r-graph-gallery.com/215-the-heatmap-function.html
-# 清理工作环境
 rm(list = ls())
 # 读入数据
 dt <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/Task2/TLE234group.csv")
 dt <- read.csv("C:/Users/wane199/Desktop/EP/Structured_Data/Task2/TLE234group.csv")
 dt <- read.csv("/media/wane/UNTITLED/BLS-ep-pre/EP/Structured_Data/Task2/COX12mon/TLE234group.csv")
-table(dt$Freq)
+summary(dt)
+dt <- dt[order(dt$Rel._in_5yrs), ] # 重排序
+table(dt$Rel._in_5yrs)
 train <- subset(dt, dt$Group == "Training")
 test <- subset(dt, dt$Group == "Test")
 
 rownames(dt) <- dt[, 1]
-data <- as.matrix(dt[5:22])
+data <- as.matrix(dt[7:22])
 # t(data) # transpose the matrix with to swap X and Y axis.
-# Default Heatmap
-heatmap(data,
-  Rowv = NA, margins = c(3, 3),
-  Colv = NA, scale = "column"
-)
 # Use 'scale' to normalize
-heatmap(data, scale = "column")
 # No dendrogram nor reordering for neither column or row
-heatmap(data, Colv = NA, Rowv = NA, scale = "column")
+heatmap(data, Rowv = NA, margins = c(3, 3), Colv = NA, scale = "column")
 
 # 1: native palette from R
 heatmap(data, Colv = NA, Rowv = NA, scale = "column", col = cm.colors(256))
@@ -38,34 +33,31 @@ colSide <- brewer.pal(8, "Set3")[my_group]
 colMain <- colorRampPalette(brewer.pal(9, "Blues"))(50)
 heatmap(data, Colv = NA, Rowv = NA, scale = "column", RowSideColors = colSide, col = colMain)
 heatmap(data, Colv = NA, Rowv = NA, scale = "column", RowSideColors = colSide,
-        cex.axis = 0.5, cex.lab = 2, cex.main = 3, margins = c(5, 5), col = coul)
+  cex.axis = 0.5, cex.lab = 2, cex.main = 3, margins = c(5, 5), col = coul)
 
-# https://www.jianshu.com/p/d9e46f4909b9
-# https://www.jianshu.com/p/c7beb48e8398
+# [多分组热图不用愁，Pheatmap](https://www.sohu.com/a/283377402_785442)
+# [R 数据可视化 —— 聚类热图 pheatmap](https://www.jianshu.com/p/c7beb48e8398)
 library(pheatmap)
 set.seed(123)
 pheatmap(data, scale = "column", cluster_row = F, cluster_col = FALSE, fontsize = 6)
 pheatmap(data, scale = "column", cluster_row = F, cluster_col = FALSE, fontsize = 6, display_numbers = TRUE)
 
-Group <- unlist(dt$Rel._in_5yrs)
+# 9. 注释
+Group <- unlist(dt$Rel._in_5yrs) # 定义列名
 group_sample <- data.frame(Group)
 rownames(group_sample) <- rownames(data)
 group_sample$Group <- factor(group_sample$Group)
 # 病例分组文件
-group_sample
+head(group_sample)
 pheatmap(data,
-  angle_col = 45,
-  annotation_row = group_sample,
-  cutree_rows = 2, # 分割行
-  # cutree_cols=2, # 分割列
-  scale = "column", # 列标准化
-  # scale="row", # 行标准化
+  angle_col = 45, annotation_row = group_sample, # 聚类结果分成两类
+  # gaps_row = c(0), # 在5和10行添加分隔  cutree_rows = 2, # 分割行 cutree_cols=2, # 分割列
+  scale = "column", # 列标准化 scale="row", # 行标准化
   annotation_legend = T, border_color = "black", # 设定每个格子边框的颜色，border=F则无边框
-  cluster_rows = F, # 对行聚类
-  cluster_cols = F, # 队列聚类
-  show_colnames = T, # 是否显示列名
-  show_rownames = F # 是否显示行名
+  cluster_rows = F, cluster_cols = F, # 对列聚类
+  show_colnames = T, show_rownames = F # 是否显示行名
 )
+
 # dist mat
 mat <- dist(data)
 hclust_mat <- hclust(mat)
@@ -75,7 +67,7 @@ hclust_mat$labels
 # reorder row_clust
 index <- seq(1, 234, by = 1)
 hclust_mat$order <- index
-pheatmap(data, cluster_rows = hclust_mat)
+pheatmap(data, cluster_rows = hclust_mat, scale = "column", cluster_row = F, cluster_col = FALSE, fontsize = 6, display_numbers = TRUE)
 
 require(gridExtra)
 
@@ -250,11 +242,11 @@ library(patchwork)
 
 summary(train)
 
-#对参数设置尝试的代码
-train$Rad <- cut(train$radscore, breaks = c(-Inf, 0.1834, Inf), labels = c("0","1"), right=TRUE, include.lowest=TRUE)
-train$DurMonth <- cut(train$Durmon, breaks = c(-Inf, 108.00, Inf), labels = c("0","1"), right=TRUE, include.lowest=TRUE)
-test$Rad <- cut(test$radscore, breaks = c(-Inf, 0.1834, Inf), labels = c("0","1"), right=TRUE, include.lowest=TRUE)
-test$DurMonth <- cut(test$Durmon, breaks = c(-Inf, 108.00, Inf), labels = c("0","1"), right=TRUE, include.lowest=TRUE)
+# 对参数设置尝试的代码
+train$Rad <- cut(train$radscore, breaks = c(-Inf, 0.1834, Inf), labels = c("0", "1"), right = TRUE, include.lowest = TRUE)
+train$DurMonth <- cut(train$Durmon, breaks = c(-Inf, 108.00, Inf), labels = c("0", "1"), right = TRUE, include.lowest = TRUE)
+test$Rad <- cut(test$radscore, breaks = c(-Inf, 0.1834, Inf), labels = c("0", "1"), right = TRUE, include.lowest = TRUE)
+test$DurMonth <- cut(test$Durmon, breaks = c(-Inf, 108.00, Inf), labels = c("0", "1"), right = TRUE, include.lowest = TRUE)
 
 dt_re1 <- melt(dt[c(1, 4, 5, 6, 7, 12, 14:15, 17)], id = c("ID"))
 dt_re1$value <- as.factor(dt_re1$value)
@@ -277,19 +269,37 @@ ggplot(
 
 train_re1 <- melt(train[c(4, 6, 14:15, 17, 23, 24)], id = c("ID"))
 train_re1$value <- as.factor(train_re1$value)
-a <- ggplot(train_re1,  aes( x = variable, stratum = value, alluvium = ID,
-    fill = value, label = value)) + scale_fill_brewer(type = "qual", palette = "Set2") +
-    geom_flow(stat = "alluvium", lode.guidance = "frontback",
-    color = "darkgray") + geom_stratum() + theme_classic() + theme(legend.position = "right") + ggtitle("")
+a <- ggplot(train_re1, aes(
+  x = variable, stratum = value, alluvium = ID,
+  fill = value, label = value
+)) +
+  scale_fill_brewer(type = "qual", palette = "Set2") +
+  geom_flow(
+    stat = "alluvium", lode.guidance = "frontback",
+    color = "darkgray"
+  ) +
+  geom_stratum() +
+  theme_classic() +
+  theme(legend.position = "right") +
+  ggtitle("")
 
-test_re1 <- melt(test[c(4,  6, 14:15, 17, 23:24)], id = c("ID"))
+test_re1 <- melt(test[c(4, 6, 14:15, 17, 23:24)], id = c("ID"))
 test_re1$value <- as.factor(test_re1$value)
-b <- ggplot(test_re1,  aes( x = variable, stratum = value, alluvium = ID,
-                             fill = value, label = value)) + scale_fill_brewer(type = "qual", palette = "Set2") +
-  geom_flow(stat = "alluvium", lode.guidance = "frontback",
-            color = "darkgray") + geom_stratum() + theme_classic() + theme(legend.position = "right") + ggtitle("")
+b <- ggplot(test_re1, aes(
+  x = variable, stratum = value, alluvium = ID,
+  fill = value, label = value
+)) +
+  scale_fill_brewer(type = "qual", palette = "Set2") +
+  geom_flow(
+    stat = "alluvium", lode.guidance = "frontback",
+    color = "darkgray"
+  ) +
+  geom_stratum() +
+  theme_classic() +
+  theme(legend.position = "right") +
+  ggtitle("")
 
-a / b + plot_layout(guides='collect') + plot_annotation(tag_levels = 'A')
+a / b + plot_layout(guides = "collect") + plot_annotation(tag_levels = "A")
 
 
 # Chord chart [https://mp.weixin.qq.com/s?__biz=Mzg3MjA3MDUxNQ==&mid=2247489119&idx=1&sn=c87d0734cfb6f0773cbb05856b9ab28b&chksm=cef5ba43f98233553d7a1183dcfdf025745d27c126210be5ab14b458787708d217997cab3984&mpshare=1&scene=1&srcid=1004qGevG5LERqRiGiQcs2Ak&sharer_sharetime=1664861257374&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd]
@@ -394,4 +404,3 @@ circos.trackPlotRegion(
 
 library(eoffice)
 topptx(filename = "和弦图.pptx")
-
