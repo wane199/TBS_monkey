@@ -24,19 +24,39 @@ heat_tree(dt, target_lab = "Y",
 heat_tree(dt, target_lab = "Y",show_all_feats = TRUE,
           show = "heat-only")  # 只显示决策树/热图show = "heat-tree",
 
+
 # [多分组热图不用愁，Pheatmap](https://www.sohu.com/a/283377402_785442)
 # [R 数据可视化 —— 聚类热图 pheatmap](https://www.jianshu.com/p/c7beb48e8398)
+library(pheatmap)
+library(RColorBrewer)
+set.seed(123)
+dt <- as.matrix(dt)
+heatmap(dt, Colv = NA, Rowv = NA, scale = "column", col = cm.colors(256))
+heatmap(dt, Colv = NA, Rowv = NA, scale = "column", col = terrain.colors(256))
+coul <- colorRampPalette(brewer.pal(8, "PiYG"))(25)
+heatmap(dt, Colv = NA, Rowv = NA, scale = "column",
+        cex.axis = 0.5, cex.lab = 2, cex.main = 3, margins = c(5, 5), col = coul)
 
+pheatmap(dt, cluster_row = F, cluster_col = FALSE, scale = "none", angle = 45,color = c(colorRampPalette(colors = c("blue","white"))(length(bk)/2),colorRampPalette(colors = c("white","red"))(length(bk)/2)))
+pheatmap(dt, scale = "none", cluster_row = F, cluster_col = FALSE, fontsize = 6, angle = 45,
+         color = colorRampPalette(colors = c("blue","white","red"))(100))
+pheatmap(dt, scale = "row", cluster_row = F, cluster_col = FALSE, fontsize = 6, colour = colorRampPalette(brewer.pal(8, "PiYG"))(25), display_numbers = F)
 
-
-
-
-
-
-
-
-
-
+# 9. 注释
+Group <- unlist(dt$Y) # 定义列名
+group_sample <- data.frame(Group)
+rownames(group_sample) <- rownames(dt)
+group_sample$Group <- factor(group_sample$Group)
+# 病例分组文件
+head(group_sample)
+pheatmap(dt,
+         angle_col = 45, annotation_row = group_sample, # 聚类结果分成两类
+         # gaps_row = c(0), # 在5和10行添加分隔  cutree_rows = 2, # 分割行 cutree_cols=2, # 分割列
+         scale = "column", # 列标准化 scale="row", # 行标准化
+         annotation_legend = T, border_color = "black", # 设定每个格子边框的颜色，border=F则无边框
+         cluster_rows = F, cluster_cols = F, # 对列聚类
+         show_colnames = T, show_rownames = F # 是否显示行名
+)
 
 
 
@@ -47,15 +67,10 @@ data <- mydata[-1]
 dt <- transpose(data)
 colnames(dt) <- c("RF","ETC","GBC","EGB","KNN","DTC")
 rownames(dt) <- c("Acc","AUC","Recall","Prec.","F1","Kappa")
-heatmap(as.matrix(mydata[-1]),Colv = NA, symm = F,
-        Rowv = NA)
-heatmap(as.matrix(dt),symm = F, add.expr,
-        Colv = NA,
-        Rowv = NA, scale = "column",
-        xlab = "Performance",
-        ylab = "Classifier",
-        main = "Heatmap",
-        col = cm.colors(256)) # 颜色  
+heatmap(as.matrix(mydata[-1]),Colv = NA, symm = F, Rowv = NA)
+heatmap(as.matrix(dt),symm = F, add.expr, Colv = NA,
+        Rowv = NA, scale = "column",  xlab = "Performance", ylab = "Classifier",
+        main = "Heatmap", col = cm.colors(256)) # 颜色  
 # write.csv(dt,"./TBS/app/data/heat-ML.csv")
 # https://www.jianshu.com/p/86ae39a227f4
 library(pheatmap)
@@ -64,7 +79,7 @@ pheatmap(dt, angle_col = 0, color = cm.colors(25),
          cluster_row = F, cluster_col = FALSE, fontsize = 8, display_numbers = TRUE)
 
 # 对显示的数值进行格式化
-pheatmap(dt,scale = "row",display_numbers = TRUE,
+pheatmap(dt,scale = "row",display_numbers = TRUE,cluster_row = F, cluster_col = FALSE, 
   # 显示为科学计数法
   number_format = "%.1e",
   # 设置颜色

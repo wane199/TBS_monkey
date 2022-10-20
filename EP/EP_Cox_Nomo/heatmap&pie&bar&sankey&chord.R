@@ -49,8 +49,7 @@ rownames(group_sample) <- rownames(data)
 group_sample$Group <- factor(group_sample$Group)
 # 病例分组文件
 head(group_sample)
-pheatmap(data,
-  angle_col = 45, annotation_row = group_sample, # 聚类结果分成两类
+pheatmap(data, angle_col = 45, annotation_row = group_sample, # 聚类结果分成两类
   # gaps_row = c(0), # 在5和10行添加分隔  cutree_rows = 2, # 分割行 cutree_cols=2, # 分割列
   scale = "column", # 列标准化 scale="row", # 行标准化
   annotation_legend = T, border_color = "black", # 设定每个格子边框的颜色，border=F则无边框
