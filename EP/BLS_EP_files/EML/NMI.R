@@ -58,7 +58,9 @@ pheatmap(dt,
          show_colnames = T, show_rownames = F # 是否显示行名
 )
 
-
+# [组内聚类](https://zhuanlan.zhihu.com/p/363769759)
+library(ComplexHeatmap)
+Heatmap()
 
 # Heat map & Radiomics 
 library(data.table)
@@ -72,24 +74,12 @@ heatmap(as.matrix(dt),symm = F, add.expr, Colv = NA,
         Rowv = NA, scale = "column",  xlab = "Performance", ylab = "Classifier",
         main = "Heatmap", col = cm.colors(256)) # 颜色  
 # write.csv(dt,"./TBS/app/data/heat-ML.csv")
-# https://www.jianshu.com/p/86ae39a227f4
+# [pheatmap热图技巧合集](https://www.jianshu.com/p/86ae39a227f4)
 library(pheatmap)
+set.seed(123)
 # 在单元格中显示对于的数值，可以设置 display_numbers = TRUE, colorRampPalette(brewer.pal(8, "PiYG"))(25)
-pheatmap(dt, angle_col = 0, color = cm.colors(25), 
-         cluster_row = F, cluster_col = FALSE, fontsize = 8, display_numbers = TRUE)
-
-# 对显示的数值进行格式化
-pheatmap(dt,scale = "row",display_numbers = TRUE,cluster_row = F, cluster_col = FALSE, 
-  # 显示为科学计数法
-  number_format = "%.1e",
-  # 设置颜色
-  number_color = "#4daf4a",
-  # 设置数值字体大小
-  fontsize_number = 10
-)
-
-
-
-
-
+pheatmap(as.matrix(dt), angle_col = "0", col = cm.colors(256), legend = FALSE, cluster_row = F, cluster_col = FALSE, display_numbers = TRUE)
+# 对显示的数值进行格式化, 显示为科学计数法
+pheatmap(dt, scale = "row", angle_col = "0", display_numbers = TRUE,cluster_row = F, cluster_col = FALSE, 
+         number_format = "%.1e", number_color = "#4daf4a", fontsize_number = 10)
 

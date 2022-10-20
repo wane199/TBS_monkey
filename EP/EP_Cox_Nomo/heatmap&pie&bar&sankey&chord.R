@@ -10,7 +10,7 @@ table(dt$Rel._in_5yrs)
 train <- subset(dt, dt$Group == "Training")
 test <- subset(dt, dt$Group == "Test")
 
-rownames(dt) <- dt[, 1]
+rownames(dt) <- dt[, 4]
 data <- as.matrix(dt[7:22])
 # t(data) # transpose the matrix with to swap X and Y axis.
 # Use 'scale' to normalize
@@ -37,9 +37,10 @@ heatmap(data, Colv = NA, Rowv = NA, scale = "column", RowSideColors = colSide,
 
 # [多分组热图不用愁，Pheatmap](https://www.sohu.com/a/283377402_785442)
 # [R 数据可视化 —— 聚类热图 pheatmap](https://www.jianshu.com/p/c7beb48e8398)
+# [pheatmap热图技巧合集](https://www.jianshu.com/p/86ae39a227f4)
 library(pheatmap)
 set.seed(123)
-pheatmap(data, scale = "column", cluster_row = F, cluster_col = FALSE, fontsize = 6)
+pheatmap(data, scale = "column", cluster_row = F, cluster_col = FALSE, fontsize = 6, col = colMain)
 pheatmap(data, scale = "column", cluster_row = F, cluster_col = FALSE, fontsize = 6, display_numbers = TRUE)
 
 # 9. 注释
@@ -49,13 +50,25 @@ rownames(group_sample) <- rownames(data)
 group_sample$Group <- factor(group_sample$Group)
 # 病例分组文件
 head(group_sample)
-pheatmap(data, angle_col = 45, annotation_row = group_sample, # 聚类结果分成两类
-  # gaps_row = c(0), # 在5和10行添加分隔  cutree_rows = 2, # 分割行 cutree_cols=2, # 分割列
+pheatmap(data, angle_col = "45", annotation_row = group_sample, # 聚类结果分成两类
+  gaps_row = 180, col = colMain,# 在5和10行添加分隔  cutree_rows = 2, # 分割行 cutree_cols=2, # 分割列
   scale = "column", # 列标准化 scale="row", # 行标准化
-  annotation_legend = T, border_color = "black", # 设定每个格子边框的颜色，border=F则无边框
+  annotation_legend = F, border = F, # 设定每个格子边框的颜色，border=F则无边框
   cluster_rows = F, cluster_cols = F, # 对列聚类
   show_colnames = T, show_rownames = F # 是否显示行名
 )
+
+# [分组聚类的热图](https://www.jianshu.com/p/b94449be175a)
+# [组内聚类](https://zhuanlan.zhihu.com/p/363769759)https://zhuanlan.zhihu.com/p/371525576
+library(ComplexHeatmap)
+# ComplexHeatmap 包并不会对数据进行标准化，为了让图形更好看，我们先手动对数据进行标准化
+head(exp)
+exp <- apply(data, 1, scale)
+rownames(exp) <- colnames(data)
+exp <- t(exp)
+Heatmap(exp, name = "TLE", row_names_side = "left", column_names_side = "bottom", cluster_rows = F, cluster_columns = F,
+        row_split = group_sample)
+# heatmap_legend_param = list(title = ""),
 
 # dist mat
 mat <- dist(data)
@@ -106,7 +119,8 @@ x$sub <- rownames(dt)
 # 將資料表轉為長型表格
 x.melt <- melt(x, id.vars = "sub")
 
-# 使用 ggplot 繪製熱圖
+# 使用 ggplot 繪製熱圖, ggplot做热图|数据处理|图表设置, waffle热图
+# https://www.jianshu.com/p/a77503548a79
 ggplot(x.melt, aes(x = sub, y = variable, fill = value)) +
   geom_tile(colour = "white", size = 0.25) + # 繪製熱圖
   scale_y_discrete(expand = c(0, 0)) + # 移除多餘空白
@@ -240,7 +254,6 @@ library(reshape)
 library(patchwork)
 
 summary(train)
-
 # 对参数设置尝试的代码
 train$Rad <- cut(train$radscore, breaks = c(-Inf, 0.1834, Inf), labels = c("0", "1"), right = TRUE, include.lowest = TRUE)
 train$DurMonth <- cut(train$Durmon, breaks = c(-Inf, 108.00, Inf), labels = c("0", "1"), right = TRUE, include.lowest = TRUE)
@@ -334,6 +347,11 @@ par(xpd = T)
 # colorlegend(col,labels=c(1,0,-1))
 colorlegend(col, vertical = T, labels = c(1, 0, -1), xlim = c(1.1, 1.3), ylim = c(-0.4, 0.4))
 
+# https://www.jianshu.com/p/9477a3405545
+chordDiagram(x = cor1, directional = 1, direction.type = c("arrows", "diffHeight"),   
+  diffHeight = -0.01, annotationTrack = c("name", "grid", "axis"),  
+  annotationTrackHeight = c(0.05, 0.08), link.arr.type = "big.arrow",link.sort = TRUE, link.largest.ontop = TRUE,transparency = 0.25)
+
 # R语言绘制和弦图
 library(circlize)
 library(viridis)
@@ -350,7 +368,6 @@ df_sum <- apply(df[, 2:ncol(df)], 2, sum) + apply(df[, 2:ncol(df)], 1, sum)
 order <- sort(df_sum, index.return = TRUE, decreasing = TRUE)
 
 df_melt$from <- factor(df_melt$from, levels = df$Region[order$ix], order = TRUE)
-
 df_melt <- dplyr::arrange(df_melt, from)
 
 # 颜色主题方案
