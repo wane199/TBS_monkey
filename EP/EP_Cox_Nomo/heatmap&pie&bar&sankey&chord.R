@@ -28,29 +28,31 @@ heatmap(data, Colv = NA, Rowv = NA, scale = "column", col = terrain.colors(256))
 # 2: Rcolorbrewer palette
 library(RColorBrewer)
 coul <- colorRampPalette(brewer.pal(8, "PiYG"))(25)
-heatmap(data,
-  Colv = NA, Rowv = NA, scale = "column",
-  cex.axis = 0.5, cex.lab = 2, cex.main = 3,
-  margins = c(5, 5), col = coul
-)
+heatmap(data, Colv = NA, Rowv = NA, scale = "column",
+  cex.axis = 0.5, cex.lab = 2, cex.main = 3, margins = c(5, 5), col = coul)
 
 # Example: grouping from the first letter:
-my_group <- as.numeric(as.factor(substr(rownames(data), 1, 1)))
-colSide <- brewer.pal(9, "Set1")[my_group]
+my_group <- as.numeric(as.factor(substr(dt$Rel._in_5yrs, 0, 1)))
+my_group
+colSide <- brewer.pal(8, "Set3")[my_group]
 colMain <- colorRampPalette(brewer.pal(9, "Blues"))(50)
 heatmap(data, Colv = NA, Rowv = NA, scale = "column", RowSideColors = colSide, col = colMain)
+heatmap(data, Colv = NA, Rowv = NA, scale = "column", RowSideColors = colSide,
+        cex.axis = 0.5, cex.lab = 2, cex.main = 3, margins = c(5, 5), col = coul)
 
 # https://www.jianshu.com/p/d9e46f4909b9
+# https://www.jianshu.com/p/c7beb48e8398
 library(pheatmap)
 set.seed(123)
+pheatmap(data, scale = "column", cluster_row = F, cluster_col = FALSE, fontsize = 6)
+pheatmap(data, scale = "column", cluster_row = F, cluster_col = FALSE, fontsize = 6, display_numbers = TRUE)
+
 Group <- unlist(dt$Rel._in_5yrs)
 group_sample <- data.frame(Group)
 rownames(group_sample) <- rownames(data)
 group_sample$Group <- factor(group_sample$Group)
 # 病例分组文件
 group_sample
-
-pheatmap(data, cluster_cols = F, fontsize = 2)
 pheatmap(data,
   angle_col = 45,
   annotation_row = group_sample,
@@ -98,7 +100,6 @@ p2 <- pheatmap(data,
   cluster_rows = row_cluster,
   show_colnames = FALSE
 )
-
 
 # extract plot list
 plot_list <- list(p1[[4]], p2[[4]])
