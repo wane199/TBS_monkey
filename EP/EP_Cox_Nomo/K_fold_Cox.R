@@ -248,12 +248,35 @@ lroc(logit.clinic, graph = F)$auc
 library(Rmisc)
 CI(lroc(logit.clinic, graph = F)$auc,ci=0.95)
 
+# ROC曲线及PR曲线
+pre <- predict(logit.clinic, type = "response") # 预测概率，预测分类(class)
+pre
+library(pROC)
+plot.roc(dt$outcome1yr, pre,
+         main = "ROC curve in Training set", percent = TRUE,
+         print.auc = TRUE,
+         ci = TRUE, of = "thresholds",
+         thresholds = "best",
+         print.thres = "best"
+)
+rocplot1 <- roc(dt$outcome1yr, pre)
+auc(rocplot1)
+ci.auc(rocplot1)
+# ROC详细结果
+roc.result <- coords(rocplot1, "best", ret = "all", transpose = F)
+as.matrix(roc.result)
+# PR curve
+library(modEvA)
+aupr <- AUC(
+  obs = dt$outcome1yr, pred = pre, interval = 0.001,
+  curve = "PR", method = "trapezoid", simplif = F, main = "PR curve"
+)
 # 绘制ROC需要实际值和预测值，DCA需要实际值和预测概率(阳性结局)
 library(reportROC) # Confusion Matrix
-reportROC(
-  gold = dt$outcome1yr, predictor = c(dt$SGS, dt$radscore, dt$familial_epilepsy, dt$Durmon, dt$SE),
-  plot = T, important = "se", exact = FALSE
-)
+reportROC(gold = dt$outcome1yr, predictor = pre, 
+          plot = T, important = "se", exact = FALSE)
+reportROC(gold = dt$outcome1yr, predictor = c(dt$SGS, dt$radscore, dt$familial_epilepsy, dt$Durmon, dt$SE),
+          plot = T, important = "se", exact = FALSE)
 
 # [利用timeROC包绘制多分类多条ROC曲线](https://mp.weixin.qq.com/s?__biz=MzkyODIyOTY5Ng==&mid=2247485325&idx=2&sn=9e87a03c95f6d6d7733221f943e59441&chksm=c21ab7a2f56d3eb439d5c6e3821ca7101255021f7b49166f8bf32d186485bb146c5a8d89b1ba&mpshare=1&scene=1&srcid=1019d64aFsP83P9MWOGnNUpN&sharer_sharetime=1666136506398&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
 # 引用包
