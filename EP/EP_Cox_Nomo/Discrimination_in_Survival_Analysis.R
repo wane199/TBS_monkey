@@ -7,9 +7,11 @@ library(rms)
 getwd()
 # dt <- read.csv("./EP/EP_Cox_Nomo/TLE234-rad.csv")
 dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/TLE234group.csv")
+dt <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/Task2/TLE234group.csv")
+
 train <- subset(dt, dt$Group == "Training")
 test <- subset(dt, dt$Group == "Test")
-
+table(dt$Rel._in_5yrs)
 # 对数据初步预处理(批量单因素分析变量保留数值型变量)
 # 用for循环语句将数值型变量转为因子变量
 for (i in names(dt)[c(2:4, 8:16)]) {

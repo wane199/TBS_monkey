@@ -9,6 +9,7 @@ summary(dt)
 
 dt <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/PET-TLE234-radscore-RCS2.csv")
 dt <- dt[c(5:19)]
+table(dt$oneyr)
 heat_tree(dt, target_lab = "Y", task = 'classification')
 
 # 任意修改图片颜色
@@ -64,12 +65,12 @@ Heatmap()
 
 # Heat map & Radiomics 
 library(data.table)
-mydata <- read.csv("./TBS/app/data/heat.csv")
-data <- mydata[-1]
-dt <- transpose(data)
+mydata <- read.csv("./TBS/app/data/heat.csv",row.names=1)
+# data <- mydata[-1]
+dt <- transpose(mydata)
 colnames(dt) <- c("RF","ETC","GBC","EGB","KNN","DTC")
 rownames(dt) <- c("Acc","AUC","Recall","Prec.","F1","Kappa")
-heatmap(as.matrix(mydata[-1]),Colv = NA, symm = F, Rowv = NA)
+heatmap(as.matrix(mydata),Colv = NA, symm = F, Rowv = NA)
 heatmap(as.matrix(dt),symm = F, add.expr, Colv = NA,
         Rowv = NA, scale = "column",  xlab = "Performance", ylab = "Classifier",
         main = "Heatmap", col = cm.colors(256)) # 颜色  
@@ -82,4 +83,16 @@ pheatmap(as.matrix(dt), angle_col = "0", col = cm.colors(256), legend = FALSE, c
 # 对显示的数值进行格式化, 显示为科学计数法
 pheatmap(dt, scale = "row", angle_col = "0", display_numbers = TRUE,cluster_row = F, cluster_col = FALSE, 
          number_format = "%.1e", number_color = "#4daf4a", fontsize_number = 10)
+
+# [利用ggplot()绘制环状热图](https://mp.weixin.qq.com/s?__biz=MzkyODIyOTY5Ng==&mid=2247485815&idx=1&sn=1769b481c233d258b545d4b54bd08ae7&chksm=c21ab958f56d304ecc9724ffd440850e7616aa05fd50ea33fe8ae25f29ce568927d6fa3f8434&scene=178&cur_album_id=1871868632998215682#rd)
+# 加载数据处理R包
+library(tidyverse)
+library(reshape2)
+
+
+
+
+
+
+
 

@@ -215,3 +215,73 @@ ggplot(res1, aes(x = Sample, y = value, fill = Sample)) +
   coord_flip() +
   theme_prism(border = T) +
   theme(legend.position = "none")
+
+
+############################
+# 生存分析任务转化为分类任务
+rm(list = ls())
+library(survival)
+library(rms)
+library(epiDisplay)
+getwd()
+# dt <- read.csv("./EP/EP_Cox_Nomo/TLE234-rad.csv")
+dt <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/Task2/TLE234group.csv")
+dt1 <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/PET-TLE234-radscore-RCS2.csv")
+
+train <- subset(dt, dt$Group == "Training")
+test <- subset(dt, dt$Group == "Test")
+table(dt$Rel._in_5yrs)
+## Create a variable indicating 1/2-year event**
+dt <- within(dt, {
+  outcome1yr <- NA
+  outcome1yr[(Rel._in_5yrs == 1) & (Follow_up_timemon <= 1 * 12)] <- 1 # event+ within two years
+  outcome1yr[(Rel._in_5yrs == 0) | (Follow_up_timemon > 1 * 12)] <- 0 # otherwise
+})
+
+table(dt$outcome1yr)
+table(dt1$oneyr)
+
+## 1-year outcome model with age and sex
+logit.clinic <- glm(outcome1yr ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = dt, family = binomial)
+lroc(logit.clinic, graph = F)$auc
+
+# 绘制ROC需要实际值和预测值，DCA需要实际值和预测概率(阳性结局)
+library(reportROC) # Confusion Matrix
+reportROC(
+  gold = dt$outcome1yr, predictor = c(dt$SGS, dt$radscore, dt$familial_epilepsy, dt$Durmon, dt$SE),
+  plot = T, important = "se", exact = FALSE
+)
+
+# [利用timeROC包绘制多分类多条ROC曲线](https://mp.weixin.qq.com/s?__biz=MzkyODIyOTY5Ng==&mid=2247485325&idx=2&sn=9e87a03c95f6d6d7733221f943e59441&chksm=c21ab7a2f56d3eb439d5c6e3821ca7101255021f7b49166f8bf32d186485bb146c5a8d89b1ba&mpshare=1&scene=1&srcid=1019d64aFsP83P9MWOGnNUpN&sharer_sharetime=1666136506398&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
+# 引用包
+train <- subset(dt, dt$Group == "Training")
+test <- subset(dt, dt$Group == "Test")
+table(dt$Rel._in_5yrs)
+train <- train[5:22]
+library(survminer)
+library(timeROC)
+
+# 绘制ROC图：
+#颜色
+bioCol=rainbow(ncol(train)-2,0.4)
+
+#绘制
+aucText=c()
+# outFile="ROC.pdf"   
+# pdf(file=outFile,width=6,height=6)
+i=3
+ROC_train=timeROC(T=train$Follow_up_timemon,delta=train$Rel._in_5yrs,marker=train[,i],cause=1,weighting='aalen',times=c(12),ROC=TRUE)
+plot(ROC_train,time=12,col=bioCol[i-2],title=FALSE,lwd=2)
+aucText=c(paste0(colnames(train)[i],", AUC=",sprintf("%.3f",ROC_train$AUC[2])))
+abline(0,1)
+
+for(i in 4:ncol(train)){
+  ROC_train=timeROC(T=train$Follow_up_timemon,delta=train$Rel._in_5yrs,marker=train[,i],cause=1,weighting='aalen',times=c(12),ROC=TRUE)
+  plot(ROC_train,time=12,col=bioCol[i-2],title=FALSE,lwd=2,add=TRUE)
+  aucText=c(aucText,paste0(colnames(train)[i],", AUC=",sprintf("%.3f",ROC_train$AUC[2])))
+}
+legend("bottomright", cex=0.6, aucText, lwd=1, bty="n", col=bioCol[1:(ncol(train)-2)])
+# dev.off()
+
+
+
