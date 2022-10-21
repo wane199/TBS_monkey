@@ -4,7 +4,6 @@ library(survival) # cox回归用
 library(caret) # K折交叉验证用
 library(riskRegression) # cox回归时间AUC用
 library(pec) # cox回归时间c指数用
-###########################
 # 清理工作环境
 rm(list = ls())
 # 读入数据
@@ -226,8 +225,10 @@ library(epiDisplay)
 getwd()
 # dt <- read.csv("./EP/EP_Cox_Nomo/TLE234-rad.csv")
 dt <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/Task2/TLE234group.csv")
-dt1 <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/PET-TLE234-radscore-RCS2.csv")
+dt <- read.csv("C:/Users/wane199/Desktop/EP/Structured_Data/Task2/TLE234group.csv")
 
+dt1 <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/PET-TLE234-radscore-RCS2.csv")
+DT::datatable(dt)
 train <- subset(dt, dt$Group == "Training")
 test <- subset(dt, dt$Group == "Test")
 table(dt$Rel._in_5yrs)
@@ -244,6 +245,8 @@ table(dt1$oneyr)
 ## 1-year outcome model with age and sex
 logit.clinic <- glm(outcome1yr ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = dt, family = binomial)
 lroc(logit.clinic, graph = F)$auc
+library(Rmisc)
+CI(lroc(logit.clinic, graph = F)$auc,ci=0.95)
 
 # 绘制ROC需要实际值和预测值，DCA需要实际值和预测概率(阳性结局)
 library(reportROC) # Confusion Matrix
@@ -260,17 +263,16 @@ table(dt$Rel._in_5yrs)
 train <- train[5:22]
 library(survminer)
 library(timeROC)
-
 # 绘制ROC图：
 #颜色
 bioCol=rainbow(ncol(train)-2,0.4)
-
 #绘制
 aucText=c()
 # outFile="ROC.pdf"   
 # pdf(file=outFile,width=6,height=6)
 i=3
 ROC_train=timeROC(T=train$Follow_up_timemon,delta=train$Rel._in_5yrs,marker=train[,i],cause=1,weighting='aalen',times=c(12),ROC=TRUE)
+print(ROC_train)
 plot(ROC_train,time=12,col=bioCol[i-2],title=FALSE,lwd=2)
 aucText=c(paste0(colnames(train)[i],", AUC=",sprintf("%.3f",ROC_train$AUC[2])))
 abline(0,1)
@@ -283,5 +285,58 @@ for(i in 4:ncol(train)){
 legend("bottomright", cex=0.6, aucText, lwd=1, bty="n", col=bioCol[1:(ncol(train)-2)])
 # dev.off()
 
+# This is equivalent to using roc.formula:
+library(pROC)
+roc.list <- roc(Rel._in_5yrs ~  radscore + SGS + familial_epilepsy + Durmon + SE, data = train)
+g3 <- ggroc(roc.list, size = 1.2,alpha=.6)
+g3+ggsci::scale_color_lancet()
 
+# Also without ROC objects.
+# For instance what AUC would be significantly different from 0.5?
+power.roc.test(ncases=41, ncontrols=72, sig.level=0.05, power=0.95)
+
+
+# R语言pec包深度验证Cox模型
+# https://mp.weixin.qq.com/s?__biz=MzI1NjM3NTE1NQ==&mid=2247486232&idx=1&sn=190efb3a76991a6463807add2d9ef899&chksm=ea26eb04dd516212eb40e2bdfc4fa600bfd568c50f27def90647cdef10b04a2a3257d2328f72&mpshare=1&scene=1&srcid=0701wLVI3cuGSyw1YZCW9UsQ&sharer_sharetime=1666330600019&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd
+
+
+
+
+
+# 绘制预测模型的校准曲线
+# https://mp.weixin.qq.com/s?__biz=MzU4OTc0OTg2MA==&mid=2247494081&idx=1&sn=18a2cf98d09ae4d73d1bbd9719f4d239&chksm=fdca62cacabdebdc593c44459933f17480ac5e11a3bf71a5c1b6b4e529b569d0dadc6673aef1&mpshare=1&scene=1&srcid=10214qI37ajpAIJcmDyKbaxA&sharer_sharetime=1666330370105&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd
+# multiple regression
+library(riskRegression) # 可同时绘制ROC曲线和校正曲线
+library(prodlim)
+# absolute risk model
+multi.arr <- ARR(Hist(time,status)~logthick+sex+age+ulcer,data=Melanoma,cause=1)
+
+# stratified model allowing different baseline risk for the two gender
+multi.arr <- ARR(Hist(time,status)~thick+strata(sex)+age+ulcer,data=Melanoma,cause=1)
+
+# stratify by a continuous variable: strata(age)
+multi.arr <- ARR(Hist(time,status)~tp(thick,power=0)+strata(age)+sex+ulcer,
+                 data=Melanoma,
+                 cause=1)
+
+fit.arr2a <- ARR(Hist(time,status)~tp(thick,power=1),data=Melanoma,cause=1)
+summary(fit.arr2a)
+fit.arr2b <- ARR(Hist(time,status)~timevar(thick),data=Melanoma,cause=1)
+summary(fit.arr2b)
+
+## logistic risk model
+fit.lrr <- LRR(Hist(time,status)~thick,data=Melanoma,cause=1)
+summary(fit.lrr)
+
+## nearest neighbor non-parametric Aalen-Johansen estimate
+library(prodlim)
+fit.aj <- prodlim(Hist(time,status)~thick,data=Melanoma)
+plot(fit.aj,conf.int=FALSE)
+
+# prediction performance
+x <- Score(list(fit.arr2a,fit.arr2b,fit.lrr),
+           data=Melanoma,
+           formula=Hist(time,status)~1,
+           cause=1,
+           split.method="none")
 

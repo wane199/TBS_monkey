@@ -27,7 +27,7 @@ dt <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/Task2/TLE234gro
 dt0 <- read.csv("./EP/EP_Cox_Nomo/TLE234-rad.csv")
 table(dt$Freq)
 
-dt <- dt[c(-1:-2,-4)]
+dt <- dt[c(-1:-2, -4)]
 dt <- as.data.frame(dt)
 as.matrix(head(dt))
 
@@ -430,7 +430,7 @@ for (i in names(dt)[c(1, 3, 5:6, 10:19)]) {
 for (i in names(train)[c(3, 5:6, 10:19)]) {
   train[, i] <- as.factor(train[, i])
 }
-ft <- gaze(Rel._in_5yrs ~ ., data = test[,]) %>% myft()
+ft <- gaze(Rel._in_5yrs ~ ., data = test[, ]) %>% myft()
 ft
 library(rrtable)
 table2pptx(ft) # Exported table as Report.pptx
@@ -786,7 +786,7 @@ DynNom(fit, train)
 # covariate = c("slider", "numeric")
 # 设置参数covariate = "numeric"，可以将动态列线图中变量的调整方式从滑块改为输入
 # 生成本地DynNomapp脚本文件
-setwd('/home/wane/Documents/EP_code/git/Presentation/EP/EP_Cox_Nomo/')
+setwd("/home/wane/Documents/EP_code/git/Presentation/EP/EP_Cox_Nomo/")
 DNbuilder(fit) ## 生成下图文件于工作目录处
 
 library(shinyPredict)
@@ -823,7 +823,8 @@ require(pec) # 计算时间C-index验证模型
 var <- colnames(test)
 var
 f00 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ .,
-             x = T, data = test)
+  x = T, data = test
+)
 t <- c(1 * 12, 2 * 12, 3 * 12) # 设置预测生存概率的时间点，根据模型预测患者1年，3年和5年的生存概率。
 survprob <- predictSurvProb(f01, newd = test, times = t)
 head(survprob)
@@ -880,7 +881,7 @@ plot(c_index1,
 library(survivalROC)
 ## Put linear predictors ("lp") into pbc dataset
 full <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
-            x = T, y = T, surv = T, data = test, time.inc = 60
+  x = T, y = T, surv = T, data = test, time.inc = 60
 )
 test$lp.Radscore_clinic <- predict(full, type = "lp")
 ## Define a function
@@ -925,7 +926,7 @@ res.survivalROC.clinic <- lapply(1:6 * 12, function(t) {
 })
 
 # 多个多因素模型ROC曲线的比较及多个时间AUC曲线
-library(riskRegression)
+library(riskRegression) # 可同时绘制ROC曲线和校正曲线
 str(train)
 train$Follow_up_timemon <- as.numeric(as.character(train$Follow_up_timemon))
 # 拟合cox回归
@@ -933,7 +934,7 @@ f1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy
 f2 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore, data = train, x = T)
 f3 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = train, x = T)
 ### 例如评估两年的ROC及AUC值
-model <- Score(list("Cox(radscore + SGS + familial_epilepsy + Durmon + SE)" = f3),
+model <- riskRegression::Score(list("full" = f3),
   formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ 1,
   data = train,
   times = 12,
@@ -951,6 +952,12 @@ plotROC(model,
   col = "red",
   legend = "Radscore_clinc model"
 )
+# 也可绘制校正曲线
+model <- riskRegression::Score(list("Clinc-Rad" = f3),formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ 1,
+                               data = train, plots = "cal", metrics = "auc")
+plotCalibration(model,bars = T)
+plotCalibration(model,cens.method="local",pseudo=1)
+plotCalibration(model,method="quantile")
 
 # 2.3个模型同时进行ROC评估，
 pk1 <- Score(list(
@@ -1032,7 +1039,7 @@ plotROC(pk2,
 )
 
 # Calibration Curve绘制，校准曲线/图，评估模型的拟合优度(Hosmer-Lemeshow),一致性
-## pec包函数和rms包中的calibrate()函数原理一致。
+## R语言pec包深度验证Cox模型：pec包函数和rms包中的calibrate()函数原理一致
 calPolt1 <- pec::calPlot(list("Clinic" = cli, "Rad-clinic" = full),
   time = 3 * 12, # 设置想要观察的时间点，同理可以绘制其他时间点的曲线
   data = test, legend.x = 0.5,
@@ -1096,7 +1103,7 @@ plot(cal2,
   col = "red",
   subtitles = F
 )
-lines(cal2[,c("mean.predicted","KM")],type="b",lwd=2,col="red",pch=16)
+lines(cal2[, c("mean.predicted", "KM")], type = "b", lwd = 2, col = "red", pch = 16)
 abline(0, 1, lty = 3, lwd = 2, col = "black")
 
 full5 <- rms::cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
@@ -1230,9 +1237,9 @@ ggplot(fig1, linetype = F, lwd = 1.2) +
 library(ggrisk)
 as.matrix(head(train))
 str(train)
-train$SGS <- ifelse(train$SGS=="No",0,1)
-train$SE <- ifelse(train$SE=="No",0,1)
-train$familial_epilepsy <- ifelse(train$familial_epilepsy =="No",0,1)
+train$SGS <- ifelse(train$SGS == "No", 0, 1)
+train$SE <- ifelse(train$SE == "No", 0, 1)
+train$familial_epilepsy <- ifelse(train$familial_epilepsy == "No", 0, 1)
 
 fit <- rms::cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
   data = train
@@ -1243,20 +1250,22 @@ fit1 <- rms::cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + f
 ggrisk(fit1,
   heatmap.genes = c("radscore", "SE", "Durmon", "SGS", "familial_epilepsy"),
   cutoff.value = 0.2, # 可选‘median’, ’roc’ or ’cutoff’
-  cutoff.x = 50, cutoff.y = -1,) # “cutoff”文本的水平/垂直位置
+  cutoff.x = 50, cutoff.y = -1,
+) # “cutoff”文本的水平/垂直位置
 
-ggrisk(fit, heatmap.genes = c("radscore", "SE", "Durmon", "SGS", "familial_epilepsy"),
-       code.highrisk = 'High risk', code.lowrisk = 'Low risk', #低风险标签，默认为 ’Low’
-       code.0 = 'Relapse-free', code.1 = 'Relapse', title.A.ylab='Risk score', #A图 y轴名称
-       title.B.ylab='Relapse-free time(months)', #B图 y轴名称，注意区分year month day
-       title.A.legend='Risk group', title.B.legend='Status',title.C.legend='Expression', #C图图例名称
-       relative_heights=c(0.1,0.1,0.01,0.15), #A、B、热图注释和热图C的相对高度    
-       color.A=c(low='green',high='red'),color.B=c(code.0='green',code.1='red'), #B图中点的颜色
-       color.C=c(low='green',median='white',high='red'), #C图中热图颜色
-       cutoff.value = 0.2, # 可选‘median’, ’roc’ or ’cutoff’
-       vjust.A.ylab=1, #A图中y轴标签到y坐标轴的距离,默认是1
-       vjust.B.ylab=2  #B图中y轴标签到y坐标轴的距离,默认是2
-)            
+ggrisk(fit,
+  heatmap.genes = c("radscore", "SE", "Durmon", "SGS", "familial_epilepsy"),
+  code.highrisk = "High risk", code.lowrisk = "Low risk", # 低风险标签，默认为 ’Low’
+  code.0 = "Relapse-free", code.1 = "Relapse", title.A.ylab = "Risk score", # A图 y轴名称
+  title.B.ylab = "Relapse-free time(months)", # B图 y轴名称，注意区分year month day
+  title.A.legend = "Risk group", title.B.legend = "Status", title.C.legend = "Expression", # C图图例名称
+  relative_heights = c(0.1, 0.1, 0.01, 0.15), # A、B、热图注释和热图C的相对高度
+  color.A = c(low = "green", high = "red"), color.B = c(code.0 = "green", code.1 = "red"), # B图中点的颜色
+  color.C = c(low = "green", median = "white", high = "red"), # C图中热图颜色
+  cutoff.value = 0.2, # 可选‘median’, ’roc’ or ’cutoff’
+  vjust.A.ylab = 1, # A图中y轴标签到y坐标轴的距离,默认是1
+  vjust.B.ylab = 2 # B图中y轴标签到y坐标轴的距离,默认是2
+)
 
 two_scatter(fit1,
   cutoff.value = "roc",
@@ -1410,17 +1419,17 @@ nomo <- nomogram(fita,
 )
 nomogramEx(nomo = nomo, np = 3, digit = 5)
 
-# 二次验证，最终Cox模型，cutoff风险分层(12,36,60 months)，K-M曲线绘制***
+# test dataset二次验证，最终Cox模型，cutoff风险分层(12,36,60 months)，最优决策阈值进行高低分组间的K-M曲线绘制***
 # Score card, get the formula of total points by the best power using formula_lp
 results <- formula_lp(nomogram = nomo)
 points <- points_cal(formula = results$formula, lp = fita$linear.predictors)
 head(points)
 # Then calculate the survival probabilities
-prob <- prob_cal(reg = fita, times = c(12,36,60))
+prob <- prob_cal(reg = fita, times = c(12, 36, 60))
 head(prob)
 # Finally integrate the calculation results into the original dataframe
 train$points <- points
-train <- cbind(train,prob)
+train <- cbind(train, prob)
 head(train)
 
 dt <- dt %>%
@@ -1476,9 +1485,10 @@ ggsurvplot(fit,
 
 str(train)
 fi3 <- survfit(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ factor(Freq), data = train)
-ggsurvplot(fi3, data = train, risk.table = TRUE, conf.int = TRUE,
-           surv.median.line = "hv", # 同时显示垂直和水平参考线
-           pval = T, xlab = "months", ylab = "Free of Relapse(%)"
+ggsurvplot(fi3,
+  data = train, risk.table = TRUE, conf.int = TRUE,
+  surv.median.line = "hv", # 同时显示垂直和水平参考线
+  pval = T, xlab = "months", ylab = "Free of Relapse(%)"
 )
 
 # 交叉验证与重抽样, 重复论证

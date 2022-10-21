@@ -53,7 +53,7 @@ logit.clinic <- glm(Rel._in_5yrs ~ SGS + familial_epilepsy + Durmon + SE, data =
 lroc(logit.clinic, graph = F)$auc
 
 ## Model with age, sex, and albumin
-logit.rad.clinic <- glm(Rel._in_5yrs ~ radscore + SGS + SE +  familial_epilepsy + Onsetmon + Durmon, data = train, family = binomial)
+logit.rad.clinic <- glm(Rel._in_5yrs ~ radscore + SGS + SE + familial_epilepsy + Onsetmon + Durmon, data = train, family = binomial)
 lroc(logit.rad.clinic, graph = F)$auc
 
 ## Create a variable indicating 2-year event**
@@ -87,7 +87,7 @@ coxph.rad.clinic
 ## These models are significantly different by likelihood ratio test
 anova(coxph.clinic, coxph.rad.clinic, test = "LRT")
 
-## Put linear predictors ("lp") into pbc dataset
+## Put linear predictors ("lp") into dataset
 train$lp.null <- predict(coxph.null, type = "lp")
 train$lp.clinic <- predict(coxph.clinic, type = "lp")
 train$lp.rad.clinic <- predict(coxph.rad.clinic, type = "lp")
@@ -360,22 +360,24 @@ write.xlsx(glmgla, "/home/wane/Desktop/EP/Structured_Data/Task2/glmgla.xlsx")
 library(texreg) # 加载R包，texreg包，一个比broom包功能更强的模型统计结果输出包
 library(dplyr)
 # 调整模型输出的样式
-screenreg(coxm2, 
-          custom.model.names = "coxphmodel", # 修改模型的名字
-          digits = 3, # 设置有效数字位数 
-          single.row = TRUE, # 将 standard errors和系数放在同一行
-          ci.force = TRUE)  # 将standard errors 替换为置信区间
+screenreg(coxm2,
+  custom.model.names = "coxphmodel", # 修改模型的名字
+  digits = 3, # 设置有效数字位数
+  single.row = TRUE, # 将 standard errors和系数放在同一行
+  ci.force = TRUE
+) # 将standard errors 替换为置信区间
 htmlreg(list(coxm1, coxm2),
-        file = "/home/wane/Desktop/EP/Structured_Data/Task2/模型输出.doc",
-        custom.model.names = c("glmmodel", "glmmodel1"), # 修改模型的名字
-        digits = 3, # 设置有效数字位数 
-        single.row = TRUE, # 将 standard errors和系数放在同一行
-        ci.force = TRUE,
-        inline.css = FALSE,
-        doctype = TRUE,
-        html.tag = TRUE,
-        head.tag = TRUE,
-        body.tag = TRUE)
+  file = "/home/wane/Desktop/EP/Structured_Data/Task2/模型输出.doc",
+  custom.model.names = c("glmmodel", "glmmodel1"), # 修改模型的名字
+  digits = 3, # 设置有效数字位数
+  single.row = TRUE, # 将 standard errors和系数放在同一行
+  ci.force = TRUE,
+  inline.css = FALSE,
+  doctype = TRUE,
+  html.tag = TRUE,
+  head.tag = TRUE,
+  body.tag = TRUE
+)
 
 
 anova(coxm1)
@@ -392,24 +394,32 @@ dfc <- train[, names(train) %in% c("radscore", "SGS", "familial_epilepsy", "Durm
 corrplor <- cor(as.matrix(dfc))
 corrplot.mixed(corrplor, insig = "p-value")
 res1 <- cor.mtest(dfc, conf.level = .95)
-corrplot(corrplor, p.mat = res1$p, sig.level = .2,type = "lower",
-         insig = "p-value")
+corrplot(corrplor,
+  p.mat = res1$p, sig.level = .2, type = "lower",
+  insig = "p-value"
+)
 data.frame(corrplor)
 library(GGally)
 ggpairs(dfc)
 library(bruceR)
-par(margin(2,2,1,1))
-Corr(dfc,  plot.color.levels = 50,  p.adjust = "none",
-     all.as.numeric = TRUE, 
-     digits = 2,
-     plot.file = NULL,
-     plot.width = 18,
-     plot.height = 16,
-     plot.dpi = 600)  + theme( cl.ratio = 0.5,title=element_text(family="myFont",size=12,color="red",
-                                                   face="italic",hjust=0.2,lineheight=0.2),
-                                axis.title.x=element_text(size=10,face="bold",color="blue",hjust=0.5),
-                                axis.title.y=element_text(size=14,color="green",hjust=0.5,angle=45),
-                                axis.text.x=element_text(family="myFont",size=8,color="red") )
+par(margin(2, 2, 1, 1))
+Corr(dfc,
+  plot.color.levels = 50, p.adjust = "none",
+  all.as.numeric = TRUE,
+  digits = 2,
+  plot.file = NULL,
+  plot.width = 18,
+  plot.height = 16,
+  plot.dpi = 600
+) + theme(
+  cl.ratio = 0.5, title = element_text(
+    family = "myFont", size = 12, color = "red",
+    face = "italic", hjust = 0.2, lineheight = 0.2
+  ),
+  axis.title.x = element_text(size = 10, face = "bold", color = "blue", hjust = 0.5),
+  axis.title.y = element_text(size = 14, color = "green", hjust = 0.5, angle = 45),
+  axis.text.x = element_text(family = "myFont", size = 8, color = "red")
+)
 
 vif <- rms::vif(coxm2) # 检测共线性
 sqrt(vif) < 2
@@ -511,5 +521,3 @@ n_cols <- c(cols[length(cols)], cols[1:(length(cols) - 1)])
 # dataframe排序
 d2 <- d1[, n_cols]
 write.csv(d2, "./data/M_1018.csv", row.names = F)
-
-
