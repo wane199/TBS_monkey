@@ -12,10 +12,11 @@ library(caret)
 library(readxl)
 library(dlookr)
 library(DataExplorer)
+library(dplyr)
 
 # 读取数据
 TLM <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/Ziqing/66-PVM.csv")
-TLM <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/QIANG/PartⅡ猴脑代谢发育数据分析/PET_refWhole_SUVr.csv")
+TLM <- read.csv("C:/Users/wane199/Desktop/TBS&Mon/Monkey/QIANG/PartⅡ猴脑代谢发育数据分析/PET_refWhole_SUVr.csv")
 # TLM <- read_excel("/home/wane/Desktop/TBS/TLMey/BMC.xlsx")
 # 数据探索
 TLM <- TLM[c(-1, -2, -5)]
@@ -71,9 +72,9 @@ p <- ggplot() +
 p
 
 # 建立线性回归模型
-model.lm <- lm(TLM ~ LM_L3, data = TLM) # 构建线性回归模型
+model.lm <- lm(Frontal_Cortex ~ log(Age), data = TLM) # 构建线性回归模型
 summary(model.lm) # 查看回归模型结果
-p1 <- ggplot(TLM, aes(LM_L3, TLM)) +
+p1 <- ggplot(TLM, aes(log(Age), Frontal_Cortex)) +
   geom_point() +
   theme_classic() +
   stat_smooth(method = lm, formula = y ~ x)
