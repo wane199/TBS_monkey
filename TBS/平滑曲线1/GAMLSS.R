@@ -93,15 +93,75 @@ library(mgcViz)
 library(gamlss.data)
 data(grip)
 
-plot(grip ~ age, data = grip)
+plot(grip ~ log(age), data = grip)
+log(exp(3))
+log10(1e7) # = 7
 
+x <- 10^-(1+2*1:9)
+cbind(x, log(1+x), log1p(x), exp(x)-1, expm1(x))
 
+# fit a standard Gaussian GAM
 fit1 <- gamV(grip ~ s(age),
              data = grip,
              aViz = list(nsim = 50))
 
+check1D(fit1, "age") + l_gridCheck1D(sd)  # stan dev
+check1D(fit1, "age") + l_densCheck( )  
 
 
+# using a gaulss model
+fit2 <- gamV(list(grip ~ s(age), ~ (age)),
+             data = grip, family = gaulss,
+             aViz = list(nsim = 50))
+
+check1D(fit2, "age") + l_gridCheck1D(sd)  # stan dev
+
+# residual skewness(asymmetry)
+library(e1071)
+check1D(fit2, "age") + l_gridCheck1D(skewness)  # stan dev
+
+# shash model
+library(mgcFam)
+fit3 <- gamV(list(grip ~ s(age), ~ (age), ~ (age), ~ 1),
+             data = grip, family = shash,
+             aViz = list(nsim = 50))
+
+check1D(fit3, "age") + l_gridCheck1D(skewness)  # stan dev
+
+AIC(fit1, fit2, fit3)
+
+
+# Quantile modeling: 
+library(mgcViz)
+library(SemiPar)
+data(age.income)
+age.income$income <- exp(age.income$log.income)
+
+fitQ <- qgamV(income ~ s(age), data = age.income, qu = 0.5)
+
+# predict and plot
+ft <- predict(fitQ, se = T)
+
+ord <- order(age.income$age)
+plot(age.income$age, age.income$income, xlab = 'Age', las = 1.0,
+     ylab = "Income (CAD)", col = "grey")
+lines(age.income$age[ord], ft$fit[ord], col = 2)
+lines(age.income$age[ord], (ft$fit + 2 * ft$se.fit)[ord], col = 2, lty = 2)
+lines(age.income$age[ord], (ft$fit - 2 * ft$se.fit)[ord], col = 2, lty = 2)
+
+
+fitQ <- mqgamV(income ~ s(age), data = age.income, qu = c(0.1, 0.25, 0.5, 0.75, 0.9))
+plot(fitQ)
+plotRGL(fitQ)
+plot(age.income$age, age.income$income, xlab = 'Age', las = 1.0,
+     ylab = "Income (CAD)", col = "grey")
+
+for (ii in 1:5){
+  ft <- predict(fitQ[[ii]], se = TRUE)
+  lines(age.income$age[ord], ft$fit[ord], col = 1)
+}
+
+summary(fitQ[[1]])
 
 
 
