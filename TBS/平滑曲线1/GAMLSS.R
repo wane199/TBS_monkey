@@ -84,3 +84,41 @@ plot <- plotSimpleGamlss(Frontal_Cortex, Age, mod,
 ) # 纵轴的起止点为0，500
 
 z.scores(mod, x = c(2, 15, 30, 40), y = c(45, 50, 56, 63))
+
+
+
+# Quantile Generalized Additive Models: moving beyond Gaussianity - Part 2
+# https://www.youtube.com/watch?v=44UUBuF9RFM
+library(mgcViz)
+library(gamlss.data)
+data(grip)
+
+plot(grip ~ age, data = grip)
+
+
+fit1 <- gamV(grip ~ s(age),
+             data = grip,
+             aViz = list(nsim = 50))
+
+
+
+
+
+
+
+
+
+
+library(gamlss)
+data(abdom)
+h1<-gamlss(y~cs(x), family=LOGNO, data=abdom)#fits the log-Normal distribution
+h2<-gamlss(y~cs(x), family=LNO, data=abdom)  #should be identical to the one above
+# to change to square root transformation, i.e. fix nu=0.5
+h3<-gamlss(y~cs(x), family=LNO, data=abdom, nu.fix=TRUE, nu.start=0.5)
+
+
+
+
+
+
+
