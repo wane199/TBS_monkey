@@ -2,13 +2,14 @@
 rm(list = ls())
 # 读入数据
 dt <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/Task2/TLE234group.csv")
-dt <- read.csv("C:/Users/wane199/Desktop/EP/Structured_Data/Task2/TLE234group.csv")
+dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/TLE234group.csv")
 dt <- read.csv("/media/wane/UNTITLED/BLS-ep-pre/EP/Structured_Data/Task2/COX12mon/TLE234group.csv")
 summary(dt)
 dt <- dt[order(dt$Rel._in_5yrs), ] # 重排序
 table(dt$Rel._in_5yrs)
 train <- subset(dt, dt$Group == "Training")
 test <- subset(dt, dt$Group == "Test")
+dtx <- scale(dt[, c(7)])
 
 rownames(dt) <- dt[, 4]
 data <- as.matrix(dt[7:22])
