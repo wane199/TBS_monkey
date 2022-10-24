@@ -199,18 +199,18 @@ library(ggdendro)
 ggplot(x.melt,aes(x = sub, y = variable)) +
   geom_tile(aes(fill = value),color = 'white') +
   # 关键函数，聚类作用
-  scale_x_dendrogram(hclust = xclust) +
-  scale_fill_gradient2(midpoint = 7,# 需要修改的参数
-                       low = '#3C8DAD',
-                       mid="white",
-                       high = '#FF6767') +
+  scale_x_dendrogram(hclust = xclust) + scale_fill_gradientn(colours = cm.colors(10)) +
+  # scale_fill_gradient2(midpoint = 7,# 需要修改的参数
+  #                      low = '#3C8DAD',
+  #                      mid="white",
+  #                      high = '#FF6767') +
   scale_y_discrete(expand = expansion(mult = c(2,0))) +
   theme(axis.text.x = element_blank()) +
   coord_polar(theta = 'x') +
   theme_void() +
   geom_text(data = res,
             aes(x = as.numeric(rownames(res)),
-                y = 13,# 需要修改的参数
+                y = 17,# 需要修改的参数
                 label = sub, angle = ang, hjust = hjust),
             size = 2.0)
 
@@ -219,11 +219,11 @@ ggplot(x.melt,aes(x = sub, y = variable)) +
   geom_tile(aes(fill = value),color = 'white') +
   # 关键函数，聚类作用
   scale_x_dendrogram(hclust = xclust,
-                     expand = expansion(mult = c(0,0.05))) +
-  scale_fill_gradient2(midpoint = 10,# 需要修改的参数
-                       low = '#3C8DAD',
-                       mid="white",
-                       high = '#FF6767') +
+                     expand = expansion(mult = c(0,0.05))) + scale_fill_gradientn(colours = cm.colors(10)) +
+  # scale_fill_gradient2(midpoint = 10,# 需要修改的参数
+  #                      low = '#3C8DAD',
+  #                      mid="white",
+  #                      high = '#FF6767') +
   scale_y_discrete(expand = expansion(mult = c(2,0))) +
   theme(axis.text.x = element_blank()) +
   coord_polar(theta = 'x') +
