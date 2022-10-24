@@ -65,13 +65,11 @@ https://huhuaping.com/2021/02/01/css-base-xaringan/
 # 吴环华工作汇报1024
 
 ## First
+Gam & Gamlss package;
 
+## Second
+CPH & EML in TLE dataset(234); 
 
-
-
-
-
----
 ---
 # 吴环华工作汇报1017
 
