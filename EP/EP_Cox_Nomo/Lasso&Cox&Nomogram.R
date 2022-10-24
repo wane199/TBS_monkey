@@ -430,14 +430,15 @@ ggarrange(p1, p2,
 )
 # tableone 基线特征描述统计
 library(autoReg)
-for (i in names(dt)[c(1, 3, 5:6, 10:19)]) {
-  dt[, i] <- as.factor(dt[, i])
-}
-
-for (i in names(train)[c(3, 5:6, 10:19)]) {
+for (i in names(train)[c(6:7, 9:10, 14:23)]) {
   train[, i] <- as.factor(train[, i])
 }
-ft <- gaze(Rel._in_5yrs ~ ., data = test[, ]) %>% myft()
+
+for (i in names(test)[c(6:7, 9:10, 14:23)]) {
+  test[, i] <- as.factor(test[, i])
+}
+
+ft <- gaze(Rel._in_5yrs ~ ., data = train[, ]) %>% myft()
 ft
 library(rrtable)
 table2pptx(ft) # Exported table as Report.pptx

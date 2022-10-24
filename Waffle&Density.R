@@ -103,7 +103,7 @@ xdf %>%
   theme(legend.key.height = unit(2.25, "line")) +
   theme(legend.text = element_text(size = 10, hjust = 0, vjust = 0.5))
 
-# 2d density plot/密度散点热图
+# 2d density plot/密度散点热图(https://r-graph-gallery.com/2d-density-plot-with-ggplot2.html)
 library(dplyr)
 library(viridis) # 使用viridis提供的翠绿色标度：scale_fill_viridis()
 library(ggpointdensity) # 绘制密度散点图

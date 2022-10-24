@@ -1,18 +1,33 @@
 # https://r-graph-gallery.com/215-the-heatmap-function.html
 rm(list = ls())
 # 读入数据
-dt <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/Task2/TLE234group.csv")
-dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/TLE234group.csv")
-dt <- read.csv("/media/wane/UNTITLED/BLS-ep-pre/EP/Structured_Data/Task2/COX12mon/TLE234group.csv")
+
+dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/PET-TLE234-radscore-RCS2.csv", row = 2)
+# dt <- read.csv("/media/wane/UNTITLED/BLS-ep-pre/EP/Structured_Data/Task2/COX12mon/TLE234group.csv")
+dt <- dt[-1]
+
+## Create a variable indicating 1-year event**
+dt <- within(dt, {
+  outcome1yr <- NA
+  outcome1yr[(Rel._in_5yrs == 1) & (Follow_up_timemon <= 1 * 12)] <- 1 # event+ within two years
+  outcome1yr[(Rel._in_5yrs == 0) | (Follow_up_timemon > 1 * 12)] <- 0 # otherwise
+})
 summary(dt)
-dt <- dt[order(dt$Rel._in_5yrs), ] # 重排序
-table(dt$Rel._in_5yrs)
+
+# 列名数组
+cols <- colnames(dt)
+# 最后一列移到第七列
+n_cols <- c(cols[1:6], cols[length(cols)], cols[7:(length(cols) - 1)])
+dt <- dt[, n_cols]
+
+table(dt$oneyr)
 train <- subset(dt, dt$Group == "Training")
 test <- subset(dt, dt$Group == "Test")
-dtx <- scale(dt[, c(7)])
+# dtx <- scale(dt[, c(7)])
 
-rownames(dt) <- dt[, 4]
-data <- as.matrix(dt[7:22])
+# rownames(dt) <- dt[, 1]
+dt <- dt[order(dt$oneyr), ] # 重排序
+data <- as.matrix(dt[2:16])
 # t(data) # transpose the matrix with to swap X and Y axis.
 # Use 'scale' to normalize
 # No dendrogram nor reordering for neither column or row
@@ -24,17 +39,21 @@ heatmap(data, Colv = NA, Rowv = NA, scale = "column", col = terrain.colors(256))
 # 2: Rcolorbrewer palette
 library(RColorBrewer)
 coul <- colorRampPalette(brewer.pal(8, "PiYG"))(25)
-heatmap(data, Colv = NA, Rowv = NA, scale = "column",
-  cex.axis = 0.5, cex.lab = 2, cex.main = 3, margins = c(5, 5), col = coul)
+heatmap(data,
+  Colv = NA, Rowv = NA, scale = "column",
+  cex.axis = 0.5, cex.lab = 2, cex.main = 3, margins = c(10, 10), col = coul
+)
 
 # Example: grouping from the first letter:
-my_group <- as.numeric(as.factor(substr(dt$Rel._in_5yrs, 0, 1)))
+my_group <- as.numeric(as.factor(substr(dt$oneyr, 0, 1)))
 my_group
 colSide <- brewer.pal(8, "Set3")[my_group]
 colMain <- colorRampPalette(brewer.pal(9, "Blues"))(50)
 heatmap(data, Colv = NA, Rowv = NA, scale = "column", RowSideColors = colSide, col = colMain)
-heatmap(data, Colv = NA, Rowv = NA, scale = "column", RowSideColors = colSide,
-  cex.axis = 0.5, cex.lab = 2, cex.main = 3, margins = c(5, 5), col = coul)
+heatmap(data,
+  Colv = NA, Rowv = NA, scale = "column", RowSideColors = colSide,
+  cex.axis = 0.5, cex.lab = 2, cex.main = 3, margins = c(5, 5), col = coul
+)
 
 # [多分组热图不用愁，Pheatmap](https://www.sohu.com/a/283377402_785442)
 # [R 数据可视化 —— 聚类热图 pheatmap](https://www.jianshu.com/p/c7beb48e8398)
@@ -42,17 +61,18 @@ heatmap(data, Colv = NA, Rowv = NA, scale = "column", RowSideColors = colSide,
 library(pheatmap)
 set.seed(123)
 pheatmap(data, scale = "column", cluster_row = F, cluster_col = FALSE, fontsize = 6, col = colMain)
-pheatmap(data, scale = "column", cluster_row = F, cluster_col = FALSE, fontsize = 6, display_numbers = TRUE)
+pheatmap(data, scale = "column", cluster_row = F, cluster_col = FALSE, fontsize = 6, col = coul, display_numbers = TRUE)
 
 # 9. 注释
-Group <- unlist(dt$Rel._in_5yrs) # 定义列名
+Group <- unlist(dt$oneyr) # 定义列名
 group_sample <- data.frame(Group)
 rownames(group_sample) <- rownames(data)
 group_sample$Group <- factor(group_sample$Group)
 # 病例分组文件
 head(group_sample)
-pheatmap(data, angle_col = "45", annotation_row = group_sample, # 聚类结果分成两类
-  gaps_row = 180, col = colMain,# 在5和10行添加分隔  cutree_rows = 2, # 分割行 cutree_cols=2, # 分割列
+pheatmap(data,
+  angle_col = "45", annotation_row = group_sample, # 聚类结果分成两类
+  gaps_row = 206, col = coul, # 在5和10行添加分隔  cutree_rows = 2, # 分割行 cutree_cols=2, # 分割列
   scale = "column", # 列标准化 scale="row", # 行标准化
   annotation_legend = F, border = F, # 设定每个格子边框的颜色，border=F则无边框
   cluster_rows = F, cluster_cols = F, # 对列聚类
@@ -67,8 +87,10 @@ head(exp)
 exp <- apply(data, 1, scale)
 rownames(exp) <- colnames(data)
 exp <- t(exp)
-Heatmap(exp, name = "TLE", row_names_side = "left", column_names_side = "bottom", cluster_rows = F, cluster_columns = F,
-        row_split = group_sample)
+Heatmap(exp,
+  name = "TLE", row_names_side = "left", column_names_side = "bottom", cluster_rows = F, cluster_columns = F,
+  row_split = group_sample
+)
 # heatmap_legend_param = list(title = ""),
 
 # dist mat
@@ -120,8 +142,8 @@ x$sub <- rownames(dt)
 # 將資料表轉為長型表格
 x.melt <- melt(x, id.vars = "sub")
 
-# 使用 ggplot 繪製熱圖, ggplot做热图|数据处理|图表设置, waffle热图
-# https://www.jianshu.com/p/a77503548a79
+# [使用 ggplot 繪製熱圖, ggplot做热图|数据处理|图表设置, waffle热图](https://www.jianshu.com/p/a77503548a79)
+# [环状热图](https://mp.weixin.qq.com/s?__biz=MzkyODIyOTY5Ng==&mid=2247485815&idx=1&sn=1769b481c233d258b545d4b54bd08ae7&chksm=c21ab958f56d304ecc9724ffd440850e7616aa05fd50ea33fe8ae25f29ce568927d6fa3f8434&mpshare=1&scene=1&srcid=10211vFAPELgSVA6Rt3zrapA&sharer_sharetime=1666615221816&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
 ggplot(x.melt, aes(x = sub, y = variable, fill = value)) +
   geom_tile(colour = "white", size = 0.25) + # 繪製熱圖
   scale_y_discrete(expand = c(0, 0)) + # 移除多餘空白
@@ -154,17 +176,19 @@ ggplot(x.melt, aes(x = variable, y = sub, fill = value)) +
     ) # X 軸文字轉向
   )
 
+
+########################
 # pie charts
-plot(dt[5:8]) # library
+plot(dt[7:23]) # library
 library(ggplot2)
 library(dplyr)
 library(ggsci)
 library(patchwork)
 theme_set(theme_classic())
 
-group_by(train, Rel._in_5yrs) %>%
+group_by(train, oneyr) %>%
   summarise(percent = n() / nrow(train)) %>%
-  ggplot(aes(x = "", y = percent, fill = factor(Rel._in_5yrs))) +
+  ggplot(aes(x = "", y = percent, fill = factor(oneyr))) +
   geom_bar(width = 1, stat = "identity") +
   coord_polar(theta = "y", start = -0.5)
 
@@ -177,10 +201,10 @@ blank_theme <- theme_minimal() +
     axis.ticks = element_blank(),
     plot.title = element_text(size = 14, face = "bold")
   )
-p1 <- group_by(train, Rel._in_5yrs) %>%
+p1 <- group_by(train, oneyr) %>%
   summarise(percent = n() / nrow(train)) %>%
-  ggplot(aes(x = factor(1), y = percent, fill = factor(Rel._in_5yrs))) +
-  coord_polar(theta = "y", start = -0.85) +
+  ggplot(aes(x = factor(1), y = percent, fill = factor(oneyr))) +
+  coord_polar(theta = "y", start = -0.05) +
   scale_fill_brewer("Blues") +
   blank_theme +
   theme(axis.text.x = element_blank()) +
@@ -188,10 +212,10 @@ p1 <- group_by(train, Rel._in_5yrs) %>%
   geom_text(aes(label = paste0(round(percent * 100, 2), "%")),
     position = position_fill(vjust = 0.5)
   )
-p2 <- group_by(test, Rel._in_5yrs) %>%
+p2 <- group_by(test, oneyr) %>%
   summarise(percent = n() / nrow(test)) %>%
-  ggplot(aes(x = factor(1), y = percent, fill = factor(Rel._in_5yrs))) +
-  coord_polar(theta = "y", start = -0.85) +
+  ggplot(aes(x = factor(1), y = percent, fill = factor(oneyr))) +
+  coord_polar(theta = "y", start = -0.05) +
   scale_fill_brewer("Blues") +
   blank_theme +
   theme(axis.text.x = element_blank()) +
@@ -202,11 +226,20 @@ p2 <- group_by(test, Rel._in_5yrs) %>%
 
 p1 + p2 + plot_layout(guides = "collect") + plot_annotation(tag_levels = "A")
 
-df <- group_by(train, Rel._in_5yrs) %>%
+df <- group_by(train, oneyr) %>%
   summarise(percent = n() / nrow(train)) %>%
   arrange(desc(percent))
-pie(df$percent, labels = df$Rel._in_5yrs)
+pie(df$percent, labels = df$oneyr)
 
+# 
+# You can also call the palette using a name.
+ggplot(train, aes(y=oneyr, x=radscore)) +
+  geom_bin2d(bins = 170) +
+  scale_fill_continuous(type = "viridis") +
+  theme_bw()
+
+ggplot(data = train, mapping = aes(x = factor(oneyr), fill = factor(oneyr))) + geom_bar(stat = 'count', fill = 'steelblue', colour = 'darkred')
+# + geom_text(mapping = aes(label = 'count'))
 
 # [堆积条形图](https://mp.weixin.qq.com/s?__biz=MzI1NjUwMjQxMQ==&mid=2247512387&idx=1&sn=1633a49972f6d7cd39c162995b16067e&chksm=ea274ea7dd50c7b1a6d5af8e5ccd31ee27f8accaf0ae2619444a13d6142b6ce782c21c32b560&mpshare=1&scene=1&srcid=0922dn68ZyKRpn3sak6k8GUD&sharer_sharetime=1663855775145&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
 library(ggplot2)
@@ -349,9 +382,11 @@ par(xpd = T)
 colorlegend(col, vertical = T, labels = c(1, 0, -1), xlim = c(1.1, 1.3), ylim = c(-0.4, 0.4))
 
 # https://www.jianshu.com/p/9477a3405545
-chordDiagram(x = cor1, directional = 1, direction.type = c("arrows", "diffHeight"),   
-  diffHeight = -0.01, annotationTrack = c("name", "grid", "axis"),  
-  annotationTrackHeight = c(0.05, 0.08), link.arr.type = "big.arrow",link.sort = TRUE, link.largest.ontop = TRUE,transparency = 0.25)
+chordDiagram(
+  x = cor1, directional = 1, direction.type = c("arrows", "diffHeight"),
+  diffHeight = -0.01, annotationTrack = c("name", "grid", "axis"),
+  annotationTrackHeight = c(0.05, 0.08), link.arr.type = "big.arrow", link.sort = TRUE, link.largest.ontop = TRUE, transparency = 0.25
+)
 
 # R语言绘制和弦图
 library(circlize)
