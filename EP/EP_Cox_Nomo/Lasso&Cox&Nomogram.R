@@ -20,7 +20,7 @@ library(My.stepwise)
 
 # 读取数据集
 # write.csv(dt,"/home/wane/Desktop/EP/结构化数据/TableS1-2.csv", row.names = FALSE)
-# dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/PT_radiomic_features_temporal_ind2.csv")
+dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/PT_radiomic_features_temporal_ind2_group.csv")
 dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/COX12mon/TLE234group.csv")
 dt <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/Task2/TLE234group.csv")
 
@@ -45,12 +45,13 @@ train <- dt[ind == 1, ] # the training data set
 # 测试集
 test <- dt[ind == 2, ] # the test data set
 # 待筛选组学特征标准化(Standardization或Normalization)
-dtx <- scale(dt[, c(6:1138)])
+dtx <- scale(dt[, c(4:1135)])
 # x=scale(x,center=T,scale=T)  #Z-score标准化方法
 normal_para <- preProcess(x = train[, 4:1135], method = c("center", "scale")) # 提取训练集的标准化参数
 train_normal <- predict(object = normal_para, newdata = train[, 4:1135])
 test_normal <- predict(object = normal_para, newdata = test[, 4:1135])
 train_normal <- mutate(train[, 1:3], train_normal)
+test_normal <- mutate(test[, 1:3], test_normal)
 train1 <- transform(train_normal, Group = "Training")
 test1 <- transform(test_normal, Group = "Test")
 nor <- rbind(train1, test1)
@@ -62,7 +63,7 @@ n_cols <- c(cols[1], cols[length(cols)], cols[2:(length(cols) - 1)])
 n_cols <- c(cols[length(cols)], cols[1:(length(cols) - 1)])
 # dataframe排序
 nor1 <- nor[, n_cols]
-write.csv(nor, "/home/wane/Desktop/EP/Structured_Data/Task2/COX12mon/TLE234group.csv", row.names = F)
+write.csv(nor1, "/home/wane/Desktop/EP/Structured_Data/Task2/PT_radiomic_features_temporal_ind2_group.csv", row.names = F)
 
 train <- subset(dt, dt$Group == "Training")
 test <- subset(dt, dt$Group == "Test")
@@ -81,6 +82,7 @@ prop.table(table(test$Rel._in_5yrs))
 # 9.feature selection: reduce redundancy
 # 9.1 calculate p of normality test
 trainx <- train[5:1136]
+trainx <- train[7:22]
 norm_result <- apply(trainx, 2, function(x) shapiro.test(x)$p.value)
 norm_feature <- trainx[which(norm_result >= 0.05)] # 获取满足正态性特征
 # 9.2 calculate r
@@ -116,7 +118,7 @@ par(font.lab = 2, mfrow = c(2, 1), mar = c(4.5, 5, 3, 2))
 ## cex.axis 坐标轴刻度放大倍数,cex.main 标题的放大倍数,legend.x，legend.y 图例位置的横坐标和纵坐标,legend.cex 图例文字大小
 # layout(matrix(c(1,2,3,3),2,2,byrow=F))
 
-plot(nocv_lasso, xvar = "lambda", las = 1, lwd = 2, xlab = "log(lambda)") # Fig1
+p1 <- plot(nocv_lasso, xvar = "lambda", las = 1, lwd = 2, xlab = "log(lambda)") # Fig1
 abline(v = log(nocv_lasso$lambda.min), lwd = 1, lty = 3, col = "black")
 
 lasso_selection <- cv.glmnet(
@@ -175,7 +177,7 @@ library(broom) # 模型统计结果输出
 library(textreg)
 # 提取数据，就是这么简单！
 tidy_df <- broom::tidy(lasso_selection)
-tidy_cvdf <- broom::tidy(fitcv1)
+tidy_cvdf <- broom::tidy(fitcv)
 head(tidy_df)
 tidy_df
 head(tidy_cvdf)
@@ -264,14 +266,14 @@ var
 train_lasso <- data.frame(cv_x)[var]
 test_lasso <- test[names(train_lasso)]
 Data_all <- as.matrix(rbind(train_lasso, test_lasso))
-xn <- nrow(Data_all)
-yn <- ncol(Data_all)
+xn <- nrow(Data_all) # row 
+yn <- ncol(Data_all) # column
 # get beta and calculate，系数矩阵化，进行矩阵运算
 beta <- as.matrix(coefPara[which(coefPara != 0), ]) # get beta = Coefficients
-beta
+beta[-1]
 betai_matrix <- as.matrix(beta) # get beta_i
-beta0_matrix <- matrix(beta[1], xn, 1) # get beta_0
-Radscore_Matrix <- Data_all %*% betai_matrix + beta0_matrix # get Rad-score
+# beta0_matrix <- matrix(0, xn, 1) # get beta_0, 没有截距项，beta0为0
+Radscore_Matrix <- Data_all %*% betai_matrix  # + beta0_matrix # get Rad-score
 radscore_all <- as.numeric(Radscore_Matrix)
 
 # get radiomics score
@@ -322,6 +324,11 @@ dt <- dt %>%
     - 0.0841 * wavelet.LLL_glcm_Imc2)
 radscore <- as.data.frame(dt["radscore"])
 
+# 列名数组
+cols <- colnames(dt)
+# 最后一列移到第二列
+n_cols <- c(cols[1], cols[length(cols)], cols[2:(length(cols) - 1)])
+nor1 <- dt[, n_cols]
 ### 临床资料汇总、最佳cutoff值及标准化
 dt <- read.csv("/media/wane/wade/EP/EPTLE_PET/TLE234-rad.csv")
 
@@ -418,7 +425,7 @@ p2 <- ggboxplot(test,
   ggtitle("Test Set") + labs(color = "Seizure Outcome", shape = "Seizure Outcome") +
   ggeasy::easy_center_title()
 ggarrange(p1, p2,
-  ncol = 2, labels = c("a", "b"),
+  ncol = 2, labels = c("A", "B"),
   common.legend = TRUE, legend = "right"
 )
 # tableone 基线特征描述统计
