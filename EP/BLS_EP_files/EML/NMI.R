@@ -25,6 +25,32 @@ heat_tree(dt, target_lab = "Y",
 heat_tree(dt, target_lab = "Y",show_all_feats = TRUE,
           show = "heat-only")  # 只显示决策树/热图show = "heat-tree",
 
+####################################
+# Heat map & Radiomics 
+rm(list = ls())
+library(data.table)
+mydata <- read.csv("./TBS/app/data/heat.csv", row.names=1)
+dt <- t(mydata)
+# dt <- transpose(mydata)
+colnames(dt) <- c("RF","ETC","GBC","EGB","KNN","DTC")
+rownames(dt) <- c("Acc","AUC","Recall","Prec.","F1","Kappa")
+par(pin = c(5,3))#pin()函数控制图形的尺寸
+heatmap(as.matrix(mydata),Colv = NA, symm = F, Rowv = NA)
+heatmap(as.matrix(dt),symm = F, add.expr, Colv = NA,
+        Rowv = NA, scale = "column",  xlab = "Performance", ylab = "Classifier",
+        main = "Heatmap", col = cm.colors(256)) # 颜色  
+# write.csv(dt,"./TBS/app/data/heat-ML.csv")
+# [pheatmap热图技巧合集](https://www.jianshu.com/p/86ae39a227f4)
+library(pheatmap)
+set.seed(123)
+# 在单元格中显示对于的数值，可以设置 display_numbers = TRUE, colorRampPalette(brewer.pal(8, "PiYG"))(25)
+pheatmap(as.matrix(dt), angle_col = "0", col = cm.colors(256), legend = FALSE, margins = c(15, 15), 
+         cellwidth = 70, cellheight = 65, number_format = "%.3f", fontsize_number = 20, fontsize = 15, cluster_row = F, cluster_col = FALSE, display_numbers = TRUE)
+# 对显示的数值进行格式化, 显示为科学计数法
+library(RColorBrewer)
+pheatmap(dt, scale = "row", angle_col = "0", display_numbers = TRUE,cluster_row = F, cluster_col = FALSE, color = colorRampPalette(rev(brewer.pal(n = 7, name = "RdYlBu")))(100), 
+         number_format = "%.1e", number_color = "#4daf4a", fontsize_number = 20)
+
 
 # [多分组热图不用愁，Pheatmap](https://www.sohu.com/a/283377402_785442)
 # [R 数据可视化 —— 聚类热图 pheatmap](https://www.jianshu.com/p/c7beb48e8398)
@@ -63,33 +89,107 @@ pheatmap(dt,
 library(ComplexHeatmap)
 Heatmap()
 
-# Heat map & Radiomics 
-library(data.table)
-mydata <- read.csv("./TBS/app/data/heat.csv",row.names=1)
-# data <- mydata[-1]
-dt <- transpose(mydata)
-colnames(dt) <- c("RF","ETC","GBC","EGB","KNN","DTC")
-rownames(dt) <- c("Acc","AUC","Recall","Prec.","F1","Kappa")
-heatmap(as.matrix(mydata),Colv = NA, symm = F, Rowv = NA)
-heatmap(as.matrix(dt),symm = F, add.expr, Colv = NA,
-        Rowv = NA, scale = "column",  xlab = "Performance", ylab = "Classifier",
-        main = "Heatmap", col = cm.colors(256)) # 颜色  
-# write.csv(dt,"./TBS/app/data/heat-ML.csv")
-# [pheatmap热图技巧合集](https://www.jianshu.com/p/86ae39a227f4)
-library(pheatmap)
-set.seed(123)
-# 在单元格中显示对于的数值，可以设置 display_numbers = TRUE, colorRampPalette(brewer.pal(8, "PiYG"))(25)
-pheatmap(as.matrix(dt), angle_col = "0", col = cm.colors(256), legend = FALSE, cluster_row = F, cluster_col = FALSE, display_numbers = TRUE)
-# 对显示的数值进行格式化, 显示为科学计数法
-pheatmap(dt, scale = "row", angle_col = "0", display_numbers = TRUE,cluster_row = F, cluster_col = FALSE, 
-         number_format = "%.1e", number_color = "#4daf4a", fontsize_number = 10)
-
-# [利用ggplot()绘制环状热图](https://mp.weixin.qq.com/s?__biz=MzkyODIyOTY5Ng==&mid=2247485815&idx=1&sn=1769b481c233d258b545d4b54bd08ae7&chksm=c21ab958f56d304ecc9724ffd440850e7616aa05fd50ea33fe8ae25f29ce568927d6fa3f8434&scene=178&cur_album_id=1871868632998215682#rd)
-# 加载数据处理R包
-library(tidyverse)
+# https://officeguide.cc/r-ggplot2-elegant-tiled-heat-maps-tutorial-examples/
 library(reshape2)
+library(ggplot2)
+# 準備原始資料
+x <- data.frame(scale(dt[2:16]))
+rownames(x)
+x$sub <- rownames(dt)
+# 將資料表轉為長型表格，宽数据转长数据格式
+# x.melt <- melt(x)
+x.melt <- melt(x, id.vars = "sub")
 
+# [使用 ggplot 繪製熱圖, ggplot做热图|数据处理|图表设置, waffle热图](https://www.jianshu.com/p/a77503548a79)
+# [环状热图](https://mp.weixin.qq.com/s?__biz=MzkyODIyOTY5Ng==&mid=2247485815&idx=1&sn=1769b481c233d258b545d4b54bd08ae7&chksm=c21ab958f56d304ecc9724ffd440850e7616aa05fd50ea33fe8ae25f29ce568927d6fa3f8434&mpshare=1&scene=1&srcid=10211vFAPELgSVA6Rt3zrapA&sharer_sharetime=1666615221816&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
+# 基础版
+ggplot(x.melt, aes(x = sub, y = variable)) +
+  geom_tile(aes(fill = value),color = 'black') +
+  scale_fill_gradient2(midpoint = 7, # 需要修改的参数
+                       low = '#3C8DAD',
+                       mid="white",
+                       high = '#FF6767')
 
+ggplot(x.melt, aes(x = variable, y = sub, fill = value)) +
+  geom_tile(colour = "white", size = 0.25) + # 繪製熱圖
+  scale_y_discrete(expand = c(0, 0)) + # 移除多餘空白
+  scale_x_discrete(expand = c(0, 0)) + # 移除多餘空白
+  coord_fixed() + # 設定 X 與 Y 軸等比例
+  scale_fill_gradientn(colours = terrain.colors(10)) + # 設定色盤
+  theme(
+    legend.text = element_text(face = "bold"), # 說明文字用粗體
+    axis.ticks = element_line(size = 0.5), # 座標軸上的刻度寬度
+    plot.background = element_blank(), # 移除背景
+    panel.border = element_blank(), # 移除邊框
+    axis.text.x = element_text(
+      angle = 90, vjust = 0.5, hjust = 1
+    ) # X 軸文字轉向
+  )
+
+# 绘制普通分类变量环状热图：
+# X、Y轴为分类变量
+ggplot(x.melt,aes(x = sub, y = variable)) +
+  geom_tile(aes(fill = value),color = 'white') +
+  scale_fill_gradient2(midpoint = 7,# 需要修改的参数
+                       low = '#3C8DAD',
+                       mid="white",
+                       high = '#FF6767') +
+  scale_y_discrete(expand = expansion(mult = c(2,0))) +
+  scale_x_discrete(expand = expansion(mult = c(0,0.05))) +
+  coord_polar(theta = 'x') +
+  theme_void() +
+  geom_text(data = res,
+            aes(x = as.numeric(rownames(res)),
+                y = 13,# 需要修改的参数
+                label = sub, angle = ang, hjust = hjust),
+            size = 2)
+# 绘制聚类封闭环状热图：
+# 基因聚类
+
+# 聚类, 使用原始宽数据
+xclust <- hclust(dist(x[-16]))
+# 加载包
+library(ggh4x)
+library(ggdendro)
+
+# 封闭型
+ggplot(x.melt,aes(x = sub, y = variable)) +
+  geom_tile(aes(fill = value),color = 'white') +
+  # 关键函数，聚类作用
+  scale_x_dendrogram(hclust = xclust) + scale_fill_gradientn(colours = cm.colors(10)) +
+  # scale_fill_gradient2(midpoint = 7,# 需要修改的参数
+  #                      low = '#3C8DAD',
+  #                      mid="white",
+  #                      high = '#FF6767') +
+  scale_y_discrete(expand = expansion(mult = c(2,0))) +
+  theme(axis.text.x = element_blank()) +
+  coord_polar(theta = 'x') +
+  theme_void() +
+  geom_text(data = res,
+            aes(x = as.numeric(rownames(res)),
+                y = 17,# 需要修改的参数
+                label = sub, angle = ang, hjust = hjust),
+            size = 2.0)
+
+# 开口型
+ggplot(x.melt,aes(x = sub, y = variable)) +
+  geom_tile(aes(fill = value),color = 'white') +
+  # 关键函数，聚类作用
+  scale_x_dendrogram(hclust = xclust,
+                     expand = expansion(mult = c(0,0.05))) + scale_fill_gradientn(colours = cm.colors(10)) +
+  # scale_fill_gradient2(midpoint = 10,# 需要修改的参数
+  #                      low = '#3C8DAD',
+  #                      mid="white",
+  #                      high = '#FF6767') +
+  scale_y_discrete(expand = expansion(mult = c(2,0))) +
+  theme(axis.text.x = element_blank()) +
+  coord_polar(theta = 'x') +
+  theme_void() +  theme(legend.position = c(0.5,0.5)) + 
+  geom_text(data = res,
+            aes(x = as.numeric(rownames(res)),
+                y = 16,# 需要修改的参数
+                label = sub, angle = ang, hjust = hjust),
+            size = 2)
 
 
 

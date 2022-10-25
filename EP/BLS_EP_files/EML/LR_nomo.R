@@ -107,7 +107,5 @@ roc.result <- coords(rocplot1, "best", ret = "all", transpose = F)
 as.matrix(roc.result)
 # PR curve
 library(modEvA)
-aupr <- AUC(
-  obs = trainingset$Y, pred = pre, interval = 0.001,
-  curve = "PR", method = "trapezoid", simplif = F, main = "PR curve"
-)
+aupr <- AUC(obs = trainingset$Y, pred = pre, interval = 0.001,
+  curve = "PR", method = "trapezoid", simplif = F, main = "PR curve")

@@ -237,7 +237,7 @@ ggplot(x.melt,aes(x = sub, y = variable)) +
 # plotVaf(maf = maf)
 
 
-########################
+################################
 # pie charts
 plot(dt[7:23]) # library
 library(ggplot2)
@@ -515,3 +515,37 @@ circos.trackPlotRegion(
 
 library(eoffice)
 topptx(filename = "和弦图.pptx")
+
+
+
+# Circular barplot with groups
+# library
+library(tidyverse)
+
+data <- read.csv("/home/wane/Desktop/EP/Structured_Data/process_PT_nor_cn+epcoef_min22_bar.csv")
+
+data <- data %>% arrange(group)
+
+# Get the name and the y position of each label
+label_data <- data
+number_of_bar <- nrow(label_data)
+angle <- 90 - 360 * (label_data$id-0.5) /number_of_bar     # I substract 0.5 because the letter must have the angle of the center of the bars. Not extreme right(1) or extreme left (0)
+label_data$hjust <- ifelse( angle < -90, 1, 0)
+label_data$angle <- ifelse(angle < -90, angle+180, angle)
+
+# Make the plot
+p <- ggplot(data, aes(x=as.factor(id), y=Coef, fill=group)) +       # Note that id is a factor. If x is numeric, there is some space between the first bar
+  geom_bar(stat="identity", alpha=0.5) +
+  # ylim(-100,120) +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    axis.text = element_blank(),
+    axis.title = element_blank(),
+    panel.grid = element_blank(),
+    plot.margin = unit(rep(-1,4), "cm") 
+  ) +
+  coord_polar() + 
+  geom_text(data=label_data, aes(x=id, y=Coef+0.1, label=Feature, hjust=hjust), color="black", fontface="bold",alpha=0.6, size=2.5, angle= label_data$angle, inherit.aes = FALSE ) 
+
+p
