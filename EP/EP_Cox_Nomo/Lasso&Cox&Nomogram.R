@@ -1394,10 +1394,8 @@ train1
 logit.Rad <- glm(outcome2yr ~ Rad, data = train, family = binomial)
 lroc(logit.age.sex.albumin, graph = F)$auc
 
-reportROC(
-  gold = dt$Label, predictor.binary = dt$Phy3,
-  plot = T, important = "se", exact = FALSE
-)
+reportROC(gold = dt$Label, predictor.binary = dt$Phy3,
+  plot = T, important = "se", exact = FALSE)
 
 # install.packages("party")
 library(party)
