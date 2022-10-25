@@ -1360,10 +1360,7 @@ library(reportROC)
 logit.Rad.cli <- glm(Rel._in_5yrs ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = train, family = binomial)
 lroc(logit.Rad.cli, graph = F)$auc
 print(lroc(logit.Rad.cli, graph = F))
-## Model with Rad and clinic separately
-lroc(logit.Rad, graph = F)$auc
-logit.cli <- glm(Rel._in_5yrs ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = train, family = binomial)
-lroc(logit.cli, graph = F)$auc
+
 
 ## Create a variable indicating N-year event
 train <- within(train, {
