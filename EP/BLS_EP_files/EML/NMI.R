@@ -25,7 +25,7 @@ heat_tree(dt, target_lab = "Y",
 heat_tree(dt, target_lab = "Y",show_all_feats = TRUE,
           show = "heat-only")  # 只显示决策树/热图show = "heat-tree",
 
-####################################
+########################################
 # Heat map & Radiomics 
 rm(list = ls())
 library(data.table)
@@ -190,6 +190,32 @@ ggplot(x.melt,aes(x = sub, y = variable)) +
                 y = 16,# 需要修改的参数
                 label = sub, angle = ang, hjust = hjust),
             size = 2)
+
+# AUC/ACC及其森林图展示
+dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/PET-TLE234-radscore-RCS2.csv", row = 2)
+dt <- dt[-1]
+table(dt$oneyr)
+train <- subset(dt, dt$Group == "Training")
+test <- subset(dt, dt$Group == "Test")
+library(epiDisplay)
+
+## Model with age and sex
+logit.clinic <- glm(oneyr ~ SGS + familial_epilepsy + Durmon + SE, data = train, family = binomial)
+lroc(logit.clinic, graph = F)$auc
+
+predict_ <- predict.glm(logit.clinic, type = "response", newdata = test)
+predict <- ifelse(predict_ > 0.5, 1, 0)
+test$predict <- predict
+library(reportROC) # Confusion Matrix
+reportROC(
+  gold = test$oneyr, predictor = test$predict,
+  plot = T, important = "se", exact = FALSE
+)
+reportROC(
+  gold = test$oneyr, predictor.binary = test$predict,
+  plot = T, important = "se", exact = FALSE
+)
+
 
 
 
