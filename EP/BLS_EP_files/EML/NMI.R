@@ -191,16 +191,32 @@ ggplot(x.melt,aes(x = sub, y = variable)) +
                 label = sub, angle = ang, hjust = hjust),
             size = 2)
 
-# AUC/ACC及其森林图展示
+# [AUC/ACC及其森林图展示](https://blog.csdn.net/qazplm12_3/article/details/125139420)
 dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/PET-TLE234-radscore-RCS2.csv", row = 2)
 dt <- dt[-1]
 table(dt$oneyr)
 train <- subset(dt, dt$Group == "Training")
 test <- subset(dt, dt$Group == "Test")
+library(psych)
 library(epiDisplay)
+library(rms)
+library(patchwork)
+p1 <- pairs.panels(train[-1])
+p2 <- pairs.panels(test[-1])
+p1 + p2 + plot_annotation(tag_levels = 'A') + plot_layout(guides='collect')
+library(ggpubr)
+ggarrange(p1, p2,
+          ncol = 2, labels = c("A", "B"),
+          common.legend = TRUE, legend = "right")
+
+ddist <- datadist(train)
+options(datadist = "ddist")
+var <- paste0(colnames(train[c(-1:-2)]), collapse = "+")
+var
 
 ## Model with age and sex
-logit.clinic <- glm(oneyr ~ SGS + familial_epilepsy + Durmon + SE, data = train, family = binomial)
+logit.clinic <- glm(oneyr ~side+Sex+Surgmon+Durmon+SE+SGS+early_brain_injury+familial_epilepsy+brain_hypoxia+Central_Nervous_System_Infections+traumatic_brain_injury+history_of_previous_surgery+MRI+radscore, 
+                    data = train, family = binomial)
 lroc(logit.clinic, graph = F)$auc
 
 predict_ <- predict.glm(logit.clinic, type = "response", newdata = test)
@@ -216,9 +232,30 @@ reportROC(
   plot = T, important = "se", exact = FALSE
 )
 
-
-
-
+# 森林图绘制
+library(forestploter)
+dt <- read.csv("/home/wane/Documents/EP_code/git/Presentation/TBS/app/data/ACC_CI.csv")
+# , row = 2
+# 简单处理下数据格式，比如组别前面添加空格。
+# dt$Model <- ifelse(is.na(dt$Accuracy),
+#                        dt$Model,
+#                        paste0("      ", dt$Model))
+# 再创建一列空列，用来后面存放森林图的图形部分。
+dt$` ` <- paste(rep(" ", 20), collapse = " ")
+# 正常需要在图形显示数据的文本部分，这里可以使用代码实现，也可以提前在Excel中填好。
+dt$`Accuracy(95% CI)` <- ifelse(is.na(dt$Accuracy), "",
+                           sprintf("%.3f (%.3f to %.3f)",
+                                   dt$Accuracy, dt$LowerCI, dt$UpperCI))
+# 首先选中需要在图上显示的列别，这里只需要数据框中的第1，5，6列，2，3，4列用来绘制图形部分。
+# 然后使用ci_column参数指定图形部分存放的位置。
+plot <- forest(dt[, c(1, 8, 9)],
+               est = dt$Accuracy,
+               lower = dt$LowerCI,
+               upper = dt$UpperCI,
+               ci_column = 2, ref_line = 0.80, xlim = c(0.80, 0.9),
+               # arrow_lab = c("Placebo Better", "Treatment Better"),
+               footnote = "Accuracy (95%CI)")
+plot
 
 
 
