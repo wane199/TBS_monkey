@@ -204,6 +204,29 @@ p5 <- ggplot(data = dt, mapping = aes(x = age, y = TBS)) +
 
 plot_grid(p5, p4, nrow = 1)
 
-
+# A colored scatterplot based on a two-dimensional Kernel Density Estimation
 library(LSD)
-heatscatter(dt$age, dt$TBS)
+dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/PET-TLE234-radscore-RCS2.csv", row = 2)
+
+heatscatter(dt$radscore, dt$Surgmon)
+
+points = 10^4
+x = c(rnorm(points/2),rnorm(points/2)+4)
+y = x + rnorm(points,sd=0.8)
+x = sign(x)*abs(x)^1.3
+
+heatscatter(dt$Surgmon, dt$radscore)
+heatscatter(dt$Surgmon, dt$radscore,colpal="bl2gr2rd",main="bl2gr2rd",cor=FALSE)
+heatscatter(dt$Surgmon, dt$radscore,cor=FALSE,add.contour=TRUE,color.contour="red",greyscale=TRUE)
+heatscatter(dt$Surgmon, dt$radscore, colpal="spectral",cor=FALSE,add.contour=TRUE)
+
+points = 10^4
+x = rnorm(points/2)
+x = c(x,x+2.5)
+y = x + rnorm(points,sd=0.75)
+x = sign(x)*abs(x)^1.3
+mat = cbind(x,y,x + rnorm(points,sd=0.5))
+colnames(mat) = c("x","y","z")
+rownames(mat) = 1:nrow(mat)
+
+heatpairs(mat,labels=c(expression(Xi),expression(Lambda),expression(Delta)))
