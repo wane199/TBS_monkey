@@ -109,3 +109,30 @@ as.matrix(roc.result)
 library(modEvA)
 aupr <- AUC(obs = trainingset$Y, pred = pre, interval = 0.001,
   curve = "PR", method = "trapezoid", simplif = F, main = "PR curve")
+
+
+# DCA & CIC
+library(rmda)
+library(ggDCA)
+library(rms)
+d <- dca(fit)
+ggplot(d)
+ggplot(d,color=FALSE)
+ggplot(d,linetype = FALSE)
+rfp=rFP.p100(x=d) # Calculate reduction in false positive count
+ggplot(rfp)
+AUDC(d) # Area under Decision Curve
+range(d) # Ranges for net benefit
+
+library(rmda)
+set.seed(123)
+baseline.model <- decision_curve(outcome ~ branches + thin + stay,  data = dt,
+                                 thresholds = seq(0, .4, by = .001),
+                                 bootstraps = 25) #should use more bootstrap replicates in practice!
+
+#plot using the defaults
+plot_decision_curve(baseline.model,  curve.names = "baseline model")
+
+#plot the clinical impact
+plot_clinical_impact(baseline.model, xlim = c(0, .4),
+                     col = c("black", "blue"))
