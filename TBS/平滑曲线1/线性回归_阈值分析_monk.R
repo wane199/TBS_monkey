@@ -72,6 +72,13 @@ ggplot(dt, aes(Age, whole)) + scale_x_continuous(breaks = seq(0,30,2)) +
   theme_classic() +
   stat_smooth(method = mgcv::gam, formula = y ~ s(x, k=5))
 
+library(ggpmisc)
+library(ggpubr)
+my.formula <- y ~ s(x,  bs = "cs")
+ggplot(TLM, aes(Age, L2_4)) +  geom_point() + stat_cor(aes(), label.x = 3) + 
+  theme_classic() + scale_x_continuous(expand = c(0,0), breaks=seq(0, 30, 2)) + scale_y_continuous(expand = c(0,0)) +  
+  stat_smooth(method = mgcv::gam, se=TRUE,formula = my.formula) 
+
 # 分类gam曲线拟合
 library(ggsci)
 paste0(colnames(dt[4:18]),collapse = "+")
@@ -83,8 +90,8 @@ p1 <- ggplot(dt, aes(x = Age, y = Frontal_Cortex, color = Side)) +
   # ylab(bquote(TBV/BW(cm^3/kg)))  + # 上下标
   # xlab("") +
   geom_point(aes(color = Side), size = 1) + scale_x_continuous(breaks = seq(0,30,2)) +
-  # scale_fill_nejm() + scale_colour_nejm() + 
-  theme_classic() + 
+  # scale_fill_nejm() + scale_colour_nejm() +  
+  stat_cor(aes(), label.x = 3) + theme_classic() + scale_x_continuous(expand = c(0,0), breaks=seq(0, 30, 2)) + scale_y_continuous(expand = c(0,0)) +  
   # geom_vline(aes(xintercept=8.0),linetype=4,col="red") +
   geom_smooth(method = mgcv::gam, formula = y ~ s(x, k = 3), se = T)
 p1

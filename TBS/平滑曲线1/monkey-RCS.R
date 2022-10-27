@@ -12,14 +12,14 @@ library(caret)
 library(readxl)
 library(dlookr)
 library(DataExplorer)
-library(dplyr)
 
 # 读取数据
-TLM <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/Ziqing/66-PVM.csv")
-TLM <- read.csv("C:/Users/wane199/Desktop/TBS&Mon/Monkey/QIANG/PartⅡ猴脑代谢发育数据分析/PET_refWhole_SUVr.csv")
+TLM <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/CAI/BMDCROI.csv")
+TLM <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/QIANG/PartⅡ猴脑代谢发育数据分析/PET_refWhole_SUVr.csv")
+
 # TLM <- read_excel("/home/wane/Desktop/TBS/TLMey/BMC.xlsx")
 # 数据探索
-TLM <- TLM[c(-1, -2, -5)]
+TLM <- TLM[c(-1,-2,-5)]
 summary(TLM)
 glimpse(TLM)
 sum(!is.na(TLM))
@@ -47,7 +47,7 @@ create_report(TLM)
 library(ggdist)
 TLM <- TLM[c(-1, -3)]
 # pdf("/media/wane/wade/EP/EPTLE_PET/CN_PET_csv/raincloud.pdf",width=20, height=10)
-ggplot(data = TLM, aes(y = LM_L3, x = factor(Group), fill = factor(Group))) +
+ggplot(data = TLM, aes(y = L2_4, x = factor(Group), fill = factor(Group))) +
   ggdist::stat_halfeye(adjust = 0.5, justification = -.2, .width = 0, point_colour = NA) +
   geom_boxplot(width = 0.2, outlier.color = NA) +
   ggdist::stat_dots(side = "left", justification = 1.1)
@@ -67,14 +67,14 @@ options(datadist = "dd")
 ggplot(TLM, aes(LM_L3, TLM)) +
   geom_point() # 绘制散点图
 p <- ggplot() +
-  geom_point(data = TLM, mapping = aes(x = LM_L3, y = TLM)) +
+  geom_point(data = TLM, mapping = aes(x = Age, y = L2_4)) +
   theme_classic()
 p
 
 # 建立线性回归模型
-model.lm <- lm(Frontal_Cortex ~ log(Age), data = TLM) # 构建线性回归模型
+model.lm <- lm(TLM ~ LM_L3, data = TLM) # 构建线性回归模型
 summary(model.lm) # 查看回归模型结果
-p1 <- ggplot(TLM, aes(log(Age), Frontal_Cortex)) +
+p1 <- ggplot(TLM, aes(LM_L3, TLM)) +
   geom_point() +
   theme_classic() +
   stat_smooth(method = lm, formula = y ~ x)
@@ -106,9 +106,9 @@ plot(model.segmented, col = "blue", lwd = 2.5, add = T)
 
 p3 <- p + theme_classic() +
   geom_smooth(
-    data = TLM, mapping = aes(x = LM_L3, y = TLM),
+    data = TLM, mapping = aes(x = Age, y = L2_4),
     method = "gam", formula = y ~ x + I((x - 11.3) * (x > 11.3))
-  ) +
+  ) + scale_x_continuous(expand = c(0,0)) + scale_y_continuous(expand = c(0,0)) +
   geom_vline(xintercept = 11.3, linetype = 2, color = "red")
 p3
 
@@ -140,19 +140,21 @@ p5 <- ggplot(TLM, aes(LM_L3, TLM)) +
 p5
 # 广义可加模型gam**
 # https://mp.weixin.qq.com/mp/appmsgalbum?__biz=MzI1NjM3NTE1NQ==&action=getalbum&album_id=2077935014574374912&scene=173&from_msgid=2247485011&from_itemidx=1&count=3&nolastread=1#wechat_redirect
-model.gam <- gam(TLM ~ s(LM_L3), data = TLM) # 建立gam模型
+model.gam <- gam(L2_4 ~ s(Age), data = TLM) # 建立gam模型
 summary(model.gam) # 查看模型概况
 pr.gam <- predict(model.gam, TLM) # 生成预测值
 # 计算RSME和R方
 data.frame(
-  RMSE = RMSE(pr.gam, TLM$TLM),
-  R2 = R2(pr.gam, TLM$TLM)
+  RMSE = RMSE(pr.gam, TLM$L2_4),
+  R2 = R2(pr.gam, TLM$L2_4)
 )
 # 查看模型拟合情况
-p6 <- ggplot(TLM, aes(LM_L3, TLM)) +
-  geom_point() +
-  theme_classic() +
-  stat_smooth(method = gam, formula = y ~ s(x))
+library(ggpmisc)
+library(ggpubr)
+my.formula <- y ~ s(x,  bs = "cs")
+p6 <- ggplot(TLM, aes(Age, L2_4)) +  geom_point() + stat_cor(aes(color = 'blue'), label.x = 6) + 
+  theme_classic() + scale_x_continuous(expand = c(0,0), breaks=seq(0, 30, 2)) + scale_y_continuous(expand = c(0,0)) +  
+  stat_smooth(method = mgcv::gam, se=TRUE,formula = my.formula) 
 p6
 # gam
 coef(model.gam)[1] # Intercept
@@ -326,16 +328,17 @@ ggplot(TLM, aes(x = LM_L3, y = TLM, color = Gender)) +
 # 显著性检验stat_cor(data=data, method = "pearson")意为用pearson相关进行相关性分析，可编辑更改。
 
 
+
 # 平滑曲线与阈值效应分析(一)gam
 rm(list = ls())
 dt <- read.csv("/home/wane/Desktop/TBS/TLMey/VoxelNumbers_InMachin_atlas_whole.csv")
 str(dt)
 # 2.3拟合平滑曲线
 # 2.3.1 构建模型，使用mgcv::gam()函数拟合平滑曲线。
-fml <- "TLM ~ s(LM_L3,fx=FALSE) + Gender"
+fml <- "L2_4 ~ s(Age,fx=FALSE)"
 gam <- mgcv::gam(formula(fml),
-  weights = dt$weights,
-  data = dt, family = gaussian(link = "identity")
+  # weights = dt$weights,
+  data = TLM, family = gaussian(link = "identity")
 )
 gam1 <- gam(TLM ~ s(LM_L3, k = 4, bs = "fs") + Gender,
   data = dt, method = "REML"
@@ -421,3 +424,98 @@ plot(dt$y.upp ~ dt$LM_L3,
 )
 rug(dt$LM_L3, col = "blue")
 abline(v = cut_off, col = "black", lty = 2)
+
+
+
+##############################################
+##############################################
+data(aids)
+a<-gamlss(y~pb(x)+qrt,family=PO,data=aids)
+summary(a)
+print(a)
+plot(a)
+rm(a)
+mod<-gamlss(y~pb(x),sigma.fo=~pb(x),family=BCT, data=abdom, method=mixed(1,20))
+plot(mod)
+
+
+#######################################
+# Same plot with custom colors
+# our own (very beta) plot package: details later
+library(WVPlots)
+ScatterHist(TLM, "Age", "L2_4",
+            smoothmethod="gam",
+            # annot_size=2,
+            title="L2_4 with Age") 
+
+WVPlots::ScatterHist(TLM, "Age", "L2_4",
+                     title= "Example Fit",
+                     smoothmethod = "gam",
+                     # contour = TRUE, annot_size=1,
+                     point_color = "#006d2c", # dark green
+                     hist_color = "#6baed6", # medium blue
+                     smoothing_color = "#54278f", # dark purple
+                     density_color = "#08519c", # darker blue
+                     contour_color = "#9e9ac8") # lighter purple
+
+
+# [绘制散点相关图并自动添加相关系数和拟合方程](https://blog.csdn.net/zhouhucheng00/article/details/106413401/?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-0--blog-112583698.pc_relevant_3mothn_strategy_recovery&spm=1001.2101.3001.4242.1&utm_relevant_index=3)
+library(ggplot2)
+library(ggpubr)
+library(ggpmisc)
+theme_set(ggpubr::theme_pubr()+
+            theme(legend.position = "top"))
+
+b <- ggplot(TLM, aes(x = Age, y = L2_4)) + scale_x_continuous(expand = c(0,0), breaks=seq(0, 28, 2)) + scale_y_continuous(expand = c(0,0))
+# Scatter plot with regression line
+b + geom_point() + 
+  geom_smooth(method = "lm", color = "black", fill = "lightgray") 
+# Add a loess smoothed fit curve
+b + geom_point()+
+  geom_smooth(method = "loess", color = "black", fill = "lightgray")
+
+b + geom_point(shape = 17)+
+  geom_smooth(method = "lm", color = "black", fill = "lightgray")
+
+# Add regression line and confidence interval
+# Add correlation coefficient: stat_cor()
+ggscatter(TLM, x = "Age", y = "L2_4",
+          add = "reg.line", conf.int = TRUE,    
+          add.params = list(fill = "lightgray"))+ stat_cor(method = "pearson")
+
+formula <- L2_4 ~ Age
+b + geom_point(shape = 17)+
+  geom_smooth(method = "lm", color = "black", fill = "lightgray") +
+  stat_cor(method = "pearson") +
+  stat_poly_eq(
+    aes(label = ..eq.label..),
+    formula = formula,parse = TRUE, geom = "text", hjust = 0)
+
+b + geom_point(shape = 17)+
+  geom_smooth(method = "lm", color = "black", fill = "lightgray") +
+  stat_cor(method = "pearson",label.x.npc = 0.5, label.y.npc = 0.9) +
+  stat_poly_eq(
+    aes(label = ..eq.label..),
+    formula = formula,parse = TRUE,label.x.npc = 0.5,label.y.npc = 0.8, hjust = 0)
+
+# 采用多项式回归拟合并添加拟合方程
+# Polynomial regression. Sow equation and adjusted R2
+formula <- TLM$L2_4 ~ poly(TLM$Age, 3, raw = TRUE)
+formula <- y ~ s(x,  bs = "cs")
+p <- ggplot(TLM, aes(Age, L2_4)) +  geom_point() + 
+  scale_x_continuous(expand = c(0,0), breaks=seq(0, 28, 2)) + scale_y_continuous(expand = c(0,0)) +
+  geom_smooth(aes(), method = "gam", formula = formula) +
+  stat_poly_eq(
+    aes(label =  paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
+    formula = formula, parse = TRUE
+  )+
+  scale_fill_manual(values = c("#00AFBB", "#E7B800"))+
+  scale_color_manual(values = c("#00AFBB", "#E7B800"))
+p
+
+# 注意：可以在 label 中添加 ..AIC.label.. 和 ..BIC.label.. ，
+# 将会显示拟合方程的AIC值和BIC值。stat_poly_eq()中的 label.x 和 label.y 可用于调整标签显示的位置。
+# 想要查看更多的示例，请键入该命令进行查看：
+browseVignettes("ggpmisc")
+# 将打开如下网页：http://127.0.0.1:18537/session/Rvig.2970595b7d23.html
+
