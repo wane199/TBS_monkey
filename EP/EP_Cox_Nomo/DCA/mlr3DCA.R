@@ -66,12 +66,30 @@ confusionMatrix(p1, factor(train$oneyr))
 p2 <- predict(df_rf, test)
 confusionMatrix(p2, factor(test$oneyr))
 
+predict_ <- predict(df_rf, type = "response", newdata = test) # 预测概率，预测分类(class)
+predict <- ifelse(predict_ > 0.5, 1, 0)
+train$predict1 <- predict
+head(train)
 #获取预测数据并整理数据
 # outcome = ifelse(test$oneyr == "Relapse",1,0)#重编码响应变量，我们一般习惯阳性结局为1，阴性结局为0
 prob <- data.frame("outcome" = oneyr, "rf_prob" = as.data.frame(prob)$malignant)  
 head(prob)
 
 
+##尽管文章中没有展示，我们也可以探索一下calibration plot
+cal1 <- calibration(as.factor(a) ~ b, data = r1)
+cal2 <- calibration(as.factor(c) ~ d, data = r2)
+xyplot(cal1)
+xyplot(cal2)
+
+## 其实前面的步骤基本上都是基本建模的流程，我们重点其实是需要知道，我们想要绘制DCA只需要两类数据，一个是结局的编码（这里我们需要我们的编码是二分类并且是0和1的形式），然后我们需要提供我们机器学习模型预测阳性结局的概率
+## 注意，由于随机森林等机器学习算法给出来的预测是0或者1，而非连续性的概率，所以calibration，DCA等分析方法并不十分适合(需要概率)
+
+
+
+####################################################
+####################################################
+# RSF
 dt0 <- na.omit(dt0) # 按行删除缺失值
 attach(dt0)
 set.seed(123)
@@ -87,8 +105,8 @@ ddist <- datadist(train)
 options(datadist = "ddist")
 vars <- paste0(colnames(train[c(7:22)]), collapse = "+")
 rad.obj <- rfsrc(Surv(Follow_up_timemon, Rel._in_5yrs) ~ radscore+side+Sex+Surgmon+Onsetmon+Durmon+Freq+SE+SGS+early_brain_injury+familial_epilepsy+brain_hypoxia+Central_Nervous_System_Infections+traumatic_brain_injury+history_of_previous_surgery+MRI,
-  data = train, nsplit = 10, block.size = 10,
-  mtry = 50, nodesize = 15, ntree = 400, importance = TRUE, samptype = "swor", splitrule = "logrank"
+                 data = train, nsplit = 10, block.size = 10,
+                 mtry = 50, nodesize = 15, ntree = 400, importance = TRUE, samptype = "swor", splitrule = "logrank"
 )
 
 print(rad.obj)
@@ -103,7 +121,6 @@ topvars <- vs.rad$topvars
 topvars
 
 max.subtree(rad.obj, conservative = T)$topvars
-
 vimp.obj <- vimp(rad.obj,importance = "random", block.size = 10)
 print(sort(vimp.obj$importance,decreasing = T))
 
@@ -114,29 +131,9 @@ plot.variable(rad.obj, xvar.names = c("radscore"), surv.type = "rel.freq")
 
 # 绘制生存图形
 plot.variable(rad.obj, xvar.names = c("radscore"), surv.type = "surv", time = 36)
-
 plot.survival(rad.obj, subset = c(80))
-
 plot.survival(rad.obj, plots.one.page=F)
-
 which.min(rad.obj$err.rate)
-
 rad.pred <- predict(rad.obj, test)
 print(rad.pred)
 
-
-##尽管文章中没有展示，我们也可以探索一下calibration plot
-
-cal1 <- calibration(as.factor(a) ~ b, data = r1)
-
-cal2 <- calibration(as.factor(c) ~ d, data = r2)
-
-xyplot(cal1)
-
-xyplot(cal2)
-
-
-####################################################
-
-## 其实前面的步骤基本上都是基本建模的流程，我们重点其实是需要知道，我们想要绘制DCA只需要两类数据，一个是结局的编码（这里我们需要我们的编码是二分类并且是0和1的形式），然后我们需要提供我们机器学习模型预测阳性结局的概率
-## 注意，由于随机森林等机器学习算法给出来的预测是0或者1，而非连续性的概率，所以calibration，DCA等分析方法并不十分适合(需要概率)
