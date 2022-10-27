@@ -64,8 +64,8 @@ p1 <- predict(df_rf, train)
 confusionMatrix(p1, factor(train$oneyr))
 #测试集的C-index,敏感度，特异度，阴性预测值，阳性预测值，准确度等
 p2 <- predict(df_rf, test)
+confusionMatrix(p2, factor(test$oneyr))
 
-confusionMatrix(p2, test$Class)
 #获取预测数据并整理数据
 # outcome = ifelse(test$oneyr == "Relapse",1,0)#重编码响应变量，我们一般习惯阳性结局为1，阴性结局为0
 prob <- data.frame("outcome" = oneyr, "rf_prob" = as.data.frame(prob)$malignant)  
