@@ -26,7 +26,7 @@ source("./EP/EP_Cox_Nomo/DCA/dca.r") # 执行DCA的脚本
 dt1 <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/TLE234group.csv")
 dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/PT_radiomic_features_temporal_ind2.csv")
 dt0 <- read.csv("/home/wane/Desktop/EP/Structured_Data/PET-TLE234-radscore-RCS2.csv")
-dt0 <- dt0[c(-1,-2)]
+dt0 <- dt0[c(-1, -2)]
 # dt1 <- read_excel("/home/wane/Desktop/EP/Structured_Data/Task2/TLE234group.xlsx")
 
 train <- subset(dt0, dt0$Group == "Training")
@@ -43,49 +43,120 @@ test <- cbind(test[, 2], test_normal)
 colnames(train)[1] <- "oneyr"
 colnames(test)[1] <- "oneyr"
 
-#利用Boruta函数进行特征选取
-Boruta(oneyr~.,data=train,doTrace=2)->Bor.train
-#random forest with selected variables
-getConfirmedFormula(Bor.train) #确认为重要的变量（绿色）
-getNonRejectedFormula(Bor.train) #没有被拒绝的变量（绿色+黄色）
+# 利用Boruta函数进行特征选取
+Boruta(oneyr ~ ., data = train, doTrace = 2) -> Bor.train
+# random forest with selected variables
+getConfirmedFormula(Bor.train) # 确认为重要的变量（绿色）
+getNonRejectedFormula(Bor.train) # 没有被拒绝的变量（绿色+黄色）
 print(Bor.train)
 plot(Bor.train) # Shows important bands
-plot(Bor.train,sort=FALSE)
+plot(Bor.train, sort = FALSE)
 plotImpHistory(Bor.train)
 
 ## Prediction & Confusion Matrix,模型验证
-#运用训练集构建随机森林模型
-df_rf <- randomForest(factor(oneyr) ~ ., data=train,
-                      ntree=400,important=TRUE,proximity=TRUE)
+# 运用训练集构建随机森林模型
+df_rf <- randomForest(factor(oneyr) ~ .,
+  data = train,
+  ntree = 400, important = TRUE, proximity = TRUE
+)
 df_rf
 
 # 训练集的C-index,敏感度，特异度，阴性预测值，阳性预测值，准确度等
 p1 <- predict(df_rf, train)
 confusionMatrix(p1, factor(train$oneyr))
-#测试集的C-index,敏感度，特异度，阴性预测值，阳性预测值，准确度等
+# 测试集的C-index,敏感度，特异度，阴性预测值，阳性预测值，准确度等
 p2 <- predict(df_rf, test)
 confusionMatrix(p2, factor(test$oneyr))
 
-predict_ <- predict(df_rf, type = "response", newdata = test) # 预测概率，预测分类(class)
-predict <- ifelse(predict_ > 0.5, 1, 0)
-train$predict1 <- predict
+predic_ <- predict(df_rf, type = "response", newdata = test) # 预测分类(class)
+predict <- ifelse(prob > 0.5, 1, 0)
+test$predict1 <- predict
 head(train)
-#获取预测数据并整理数据
-# outcome = ifelse(test$oneyr == "Relapse",1,0)#重编码响应变量，我们一般习惯阳性结局为1，阴性结局为0
-prob <- data.frame("outcome" = oneyr, "rf_prob" = as.data.frame(prob)$malignant)  
+# 测试集预测概率
+testpredprob <- predict(df_rf, newdata = test, type = "prob") # 预测概率，预测分类(class)
+testroc <- roc(response = test$oneyr, predict = testpredprob[, 2])
+# ROC曲线
+plot(testroc,
+  print.auc = TRUE,
+  auc.polygon = TRUE,
+  grid = T,
+  max.auc.polygon = T,
+  auc.polygon.col = "skyblue",
+  print.thres = T,
+  legacy.axes = T,
+  bty = "l"
+)
+# 约登法则
+bestp
+# 测试集预测分类
+testpredlab <- as.factor(ifelse(testpredprob[, 2] > 0.5, 1, 0))
+# 测试集混淆矩阵
+confusionMatrix(
+  data = testpredlab, # 预测类别
+  reference = factor(test$oneyr), # 实际类别
+  positive = "1",
+  mode = "everything"
+)
+# 测试集ROC
+testroc <- roc(
+  response = test$oneyr, # 实际类别
+  predict = testpredprob[, 2]
+) # 预测概率
+# 测试集、训练集ROC曲线叠加
+plot(testroc,
+  print.auc = TRUE,
+  grid = c(0.1, 0.2),
+  auc.polygon = T, print.thres = T,
+  legacy.axes = T,
+  max.auc.polygon = T,
+  main = "ROC",
+  grid.col = c("green", "red")
+)
+# 获取预测数据并整理数据
+prob <- data.frame("outcome" = test$oneyr, "rf_prob" = testpredprob[, 2])
 head(prob)
+dcaoutput <- dca(
+  data = prob, outcome = "outcome",
+  predictors = c("rf_prob"),
+  xstart = 0, xstop = 1, ymin = 0
+)
 
+# 当然我们也可以通过导入到ggplot2来进行DIY
+dcadf <- data.frame(dcaoutput$net.benefit)
+# 宽数据转长数据
+temp <- melt(dcadf, id = "threshold", measure = c("rf_prob", "all", "none"))
+ggplot(temp, aes(x = threshold, y = value, colour = variable)) +
+  geom_line() +
+  coord_cartesian(xlim = c(0, 1), ylim = c(-0.05, 0.15)) +
+  scale_color_discrete(name = "Model", labels = c("ranger", "all", "none")) +
+  labs(x = "Threshold probability (%)") +
+  labs(y = "Net benefit") +
+  theme_bw() +
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    legend.title = element_blank()
+  )
 
-##尽管文章中没有展示，我们也可以探索一下calibration plot
-cal1 <- calibration(as.factor(a) ~ b, data = r1)
-cal2 <- calibration(as.factor(c) ~ d, data = r2)
+## 尽管文章中没有展示，我们也可以探索一下calibration plot
+p2=as.numeric(p2)
+cal1 <- calibration(as.factor(oneyr) ~ p2, data = test)
+# cal2 <- calibration(as.factor(c) ~ d, data = r2)
 xyplot(cal1)
-xyplot(cal2)
+# xyplot(cal2)
+# 绘制预测模型的校准曲线
+library(riskRegression)
+xb <- Score(list(model1 = df_rf), oneyr ~ 1, 
+            data = test,
+            plots="cal")
+# 绘制校准曲线使用riskRegression包的plotCalibration()函数。
+plotCalibration(xb, brier.in.legend=TRUE)
+# 上面的模型的校准曲线使用的是曲线形式，还可以使用条形图的形式来表示。
+plotCalibration(xb, bars=TRUE, model="model1")
+
 
 ## 其实前面的步骤基本上都是基本建模的流程，我们重点其实是需要知道，我们想要绘制DCA只需要两类数据，一个是结局的编码（这里我们需要我们的编码是二分类并且是0和1的形式），然后我们需要提供我们机器学习模型预测阳性结局的概率
 ## 注意，由于随机森林等机器学习算法给出来的预测是0或者1，而非连续性的概率，所以calibration，DCA等分析方法并不十分适合(需要概率)
-
-
 
 ####################################################
 ####################################################
@@ -104,9 +175,9 @@ library(rms)
 ddist <- datadist(train)
 options(datadist = "ddist")
 vars <- paste0(colnames(train[c(7:22)]), collapse = "+")
-rad.obj <- rfsrc(Surv(Follow_up_timemon, Rel._in_5yrs) ~ radscore+side+Sex+Surgmon+Onsetmon+Durmon+Freq+SE+SGS+early_brain_injury+familial_epilepsy+brain_hypoxia+Central_Nervous_System_Infections+traumatic_brain_injury+history_of_previous_surgery+MRI,
-                 data = train, nsplit = 10, block.size = 10,
-                 mtry = 50, nodesize = 15, ntree = 400, importance = TRUE, samptype = "swor", splitrule = "logrank"
+rad.obj <- rfsrc(Surv(Follow_up_timemon, Rel._in_5yrs) ~ radscore + side + Sex + Surgmon + Onsetmon + Durmon + Freq + SE + SGS + early_brain_injury + familial_epilepsy + brain_hypoxia + Central_Nervous_System_Infections + traumatic_brain_injury + history_of_previous_surgery + MRI,
+  data = train, nsplit = 10, block.size = 10,
+  mtry = 50, nodesize = 15, ntree = 400, importance = TRUE, samptype = "swor", splitrule = "logrank"
 )
 
 print(rad.obj)
@@ -121,8 +192,8 @@ topvars <- vs.rad$topvars
 topvars
 
 max.subtree(rad.obj, conservative = T)$topvars
-vimp.obj <- vimp(rad.obj,importance = "random", block.size = 10)
-print(sort(vimp.obj$importance,decreasing = T))
+vimp.obj <- vimp(rad.obj, importance = "random", block.size = 10)
+print(sort(vimp.obj$importance, decreasing = T))
 
 # 绘制变量与mortality的关系
 plot.variable(rad.obj, plots.per.page = 6)
@@ -132,8 +203,7 @@ plot.variable(rad.obj, xvar.names = c("radscore"), surv.type = "rel.freq")
 # 绘制生存图形
 plot.variable(rad.obj, xvar.names = c("radscore"), surv.type = "surv", time = 36)
 plot.survival(rad.obj, subset = c(80))
-plot.survival(rad.obj, plots.one.page=F)
+plot.survival(rad.obj, plots.one.page = F)
 which.min(rad.obj$err.rate)
 rad.pred <- predict(rad.obj, test)
 print(rad.pred)
-

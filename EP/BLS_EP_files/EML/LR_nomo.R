@@ -32,7 +32,7 @@ val.prob(P2, train$Y, m = m, cex = 0.8) # 预测概率与真实值进行矫正
 
 fit <- lrm(Y ~ .,  data = train)
 fit
-fit$stats # Brier score
+fit$stats # Brier score: 衡量了预测概率与实际概率之间的差异，取值范围在0-1之间，数值越小表示校准度越好。
 
 # Alignment Diagram/Nomogram Plot
 nomogram <- nomogram(fit, # 模型名称
@@ -90,9 +90,10 @@ regplot(fit, # 模型名称
 # https://mp.weixin.qq.com/s?__biz=MzU4OTc0OTg2MA==&mid=2247497910&idx=1&sn=350a4d6c689462d7337e04455912c8ce&chksm=fdca73bdcabdfaab401fab2a00a9a24a60e7e706675b774bd3d866f6c884cfc80c7a478e7403&mpshare=1&scene=1&srcid=0607mDKXD346ABXXHRc5Sn6I&sharer_sharetime=1654698032379&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd
 # ROC曲线及PR曲线
 pre <- predict(fit1, type = "response") # 预测概率，预测分类(class)
+pro <- predict(fit1, type = "prob") # 预测概率，预测分类(class)
 pre
 library(pROC)
-plot.roc(trainingset$Y, pre,
+plot.roc(train$Y, pre,
          main = "ROC curve in Training set", percent = TRUE,
          print.auc = TRUE,
          ci = TRUE, of = "thresholds",
@@ -136,3 +137,27 @@ plot_decision_curve(baseline.model,  curve.names = "baseline model")
 #plot the clinical impact
 plot_clinical_impact(baseline.model, xlim = c(0, .4),
                      col = c("black", "blue"))
+
+# [predictiveness curve](https://mp.weixin.qq.com/s?__biz=MjM5NDM3NjczOA==&mid=2247485894&idx=1&sn=829d7b464a84a2cb83de3a2f83a94ef4&chksm=a689f48b91fe7d9d7e0fe5d8cfce6af7ea4cadc39859edcd0ef35fafe3e4c0ccdffac015ec2f&mpshare=1&scene=1&srcid=10275oDAiISr7KXj5S6szHzp&sharer_sharetime=1666845032744&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
+# specify dataset with outcome and predictor variables 
+library(PredictABEL)
+data(ExampleData)
+
+# fit logistic regression models
+# all steps needed to construct a logistic regression model are written in a function
+# called 'ExampleModels', which is described on page 4-5
+riskmodel1 <- ExampleModels()$riskModel1
+riskmodel2 <- ExampleModels()$riskModel2
+
+# obtain predicted risks
+predRisk1 <- predRisk(riskmodel1)
+predRisk2 <- predRisk(riskmodel2)
+
+# specify range of y-axis
+rangeyaxis <- c(0,1) 
+# specify labels of the predictiveness curves
+labels <- c("without genetic factors", "with genetic factors")
+
+# produce predictiveness curves
+plotPredictivenessCurve(predrisk=cbind(predRisk1,predRisk2),
+                        rangeyaxis=rangeyaxis, labels=labels)
