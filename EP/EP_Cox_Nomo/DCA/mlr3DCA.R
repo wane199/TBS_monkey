@@ -61,12 +61,43 @@ df_rf <- randomForest(factor(oneyr) ~ .,
 )
 df_rf
 
+df_rf$importance
+df_rf$p
+# 随机森林分析与可视化
+library(linkET)
+correlate(train[1], train[-1]) %>% 
+  qcorrplot(extra_mat = list(importance = df_rf$importance,
+                             pvalue = df_rf$p),
+            fixed = FALSE) 
+p <- correlate(train[1], train[-1]) %>% 
+  qcorrplot(extra_mat = list(importance = df_rf$importance),
+            fixed = FALSE) +
+  geom_tile(colour = "grey80", size = 0.25) +
+  geom_point(aes(size = importance), fill = NA, shape = 21,
+             data = function(data) data[data$pvalue < 0.05, , drop = FALSE]) +
+  scale_fill_gradientn(colours = RColorBrewer::brewer.pal(11, "RdBu"))
+
+df_rf$explained
+
+p2 <- ggplot(df_rf$explained, aes(df_rf$explained, df_rf$name)) +
+  geom_col(fill = "steelblue") +
+  scale_y_discrete(limits = rev(names(train[1]))) +
+  theme_bw() +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.title.y = element_blank())
+p2
 # 训练集的C-index,敏感度，特异度，阴性预测值，阳性预测值，准确度等
 p1 <- predict(df_rf, train)
 confusionMatrix(p1, factor(train$oneyr))
 # 测试集的C-index,敏感度，特异度，阴性预测值，阳性预测值，准确度等
 p2 <- predict(df_rf, test)
 confusionMatrix(p2, factor(test$oneyr))
+
+library(reportROC)
+reportROC(gold=factor(test$oneyr), predictor.binary=p2)
+library(DescTools)
+BrierScore(df_rf)
 
 predic_ <- predict(df_rf, type = "response", newdata = test) # 预测分类(class)
 predict <- ifelse(prob > 0.5, 1, 0)
@@ -87,9 +118,12 @@ plot(testroc,
   bty = "l"
 )
 # 约登法则
+bestp <- testroc$thresholds[
+  which.max(testroc$sensitivities + testroc$specificities - 1)
+]
 bestp
 # 测试集预测分类
-testpredlab <- as.factor(ifelse(testpredprob[, 2] > 0.5, 1, 0))
+testpredlab <- as.factor(ifelse(testpredprob[, 2] > 0.11, 1, 0))
 # 测试集混淆矩阵
 confusionMatrix(
   data = testpredlab, # 预测类别
@@ -112,7 +146,12 @@ plot(testroc,
   main = "ROC",
   grid.col = c("green", "red")
 )
-# 获取预测数据并整理数据
+
+model <- riskRegression::Score(list("full" = df_rf), formula = oneyr ~ 1,  data = test, plots = "roc",
+                               metrics = "auc")
+plotROC(model)
+
+# 获取预测数据并整理数据, DCA & CIC 曲线绘制
 prob <- data.frame("outcome" = test$oneyr, "rf_prob" = testpredprob[, 2])
 head(prob)
 dcaoutput <- dca(
@@ -135,8 +174,22 @@ ggplot(temp, aes(x = threshold, y = value, colour = variable)) +
   theme(
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
-    legend.title = element_blank()
-  )
+    legend.title = element_blank())
+
+# DCA & CIC
+library(rmda)
+library(ggDCA)
+library(rms)
+d <- dca(df_rf)
+ggplot(d)
+ggplot(d,color=FALSE)
+ggplot(d,linetype = FALSE)
+rfp=rFP.p100(x=d) # Calculate reduction in false positive count
+ggplot(rfp)
+AUDC(d) # Area under Decision Curve
+range(d) # Ranges for net benefit
+
+
 
 ## 尽管文章中没有展示，我们也可以探索一下calibration plot
 p2=as.numeric(p2)
@@ -150,13 +203,22 @@ xb <- Score(list(model1 = df_rf), oneyr ~ 1,
             data = test,
             plots="cal")
 # 绘制校准曲线使用riskRegression包的plotCalibration()函数。
-plotCalibration(xb, brier.in.legend=TRUE)
+plotCalibration(xb, brier.in.legend=TRUE) # 显示AUC和Brier score
 # 上面的模型的校准曲线使用的是曲线形式，还可以使用条形图的形式来表示。
 plotCalibration(xb, bars=TRUE, model="model1")
-
+plotCalibration(xb, 
+                model="model1", # 绘制模型1的校准曲线
+                bars=TRUE,  # 校准曲线为条形图形式
+                show.frequencies = TRUE, # 条形图上显示频率
+                xlab = "", # x轴标签
+                ylab = "", # y轴标签
+                col = c("#ca3e47","#1ee3cf"), # 设置条形图的颜色
+                names.cex = 1.0, # X轴数字的缩放倍数
+                cex = 1.5) # 设置图例和标签的缩放倍数
 
 ## 其实前面的步骤基本上都是基本建模的流程，我们重点其实是需要知道，我们想要绘制DCA只需要两类数据，一个是结局的编码（这里我们需要我们的编码是二分类并且是0和1的形式），然后我们需要提供我们机器学习模型预测阳性结局的概率
 ## 注意，由于随机森林等机器学习算法给出来的预测是0或者1，而非连续性的概率，所以calibration，DCA等分析方法并不十分适合(需要概率)
+
 
 ####################################################
 ####################################################
@@ -207,3 +269,5 @@ plot.survival(rad.obj, plots.one.page = F)
 which.min(rad.obj$err.rate)
 rad.pred <- predict(rad.obj, test)
 print(rad.pred)
+
+

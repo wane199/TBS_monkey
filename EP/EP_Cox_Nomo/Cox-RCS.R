@@ -1,5 +1,5 @@
 # 医学统计与R语言：绘制Cox回归模型中的样条曲线（spline）https://mp.weixin.qq.com/s?__biz=MzIzMzc1ODc4OA==&mid=2247485639&idx=1&sn=0b8f2e37e2b705b6fe2457270c660d2b&chksm=e88181ecdff608fa662afd60f61377be66534fdd6506d9b9db80dbb3419cb6c57df75d27cb11&scene=132#wechat_redirect
-# 生存分析之限制性立方样条(RCS)
+# 生存分析之限制性立方样条(RCS)，剂量反应关系图
 rm(list = ls())
 dt <- read.csv("data.csv")
 library(rms) # RCS
@@ -25,7 +25,7 @@ ggcoxdiagnostics(fit,
   linear.predictions = FALSE, ggtheme = theme_bw()
 )
 anova(fit) # 非线性关系P-Nonlinear<0.05为存在非线性关系
-## 注意：这里的R命令是“cph”，而不是常见的生存分析中用到的“coxph"
+## 注意：这里的R命令是“cph”(rms包)，而不是常见的生存分析中用到的“coxph"(survival包)。
 ## Tips：若因变量为二分类变量，改用lrm函数拟合模型：fit<- lrm(y ~  rcs(x1),data=data)；若因变量为连续变量，改用ols函数拟合模型：fit<-ols(y~ rcs(x1)
 ## 2.检验比例风险假设-PH假设
 ## Cox比例风险模型构建的一个前提条件是比例风险(PH)的假定，可以通过假设检验和Schoenfeld残差图检验，前者P>0.05,表示满足假设检验，后者残差图的横轴是时间，纵轴是残差，如果残差与时间有相关趋势，则违反PH假定，如果残差均匀分布则表示残差与时间相互独立，满足假设。
@@ -254,7 +254,7 @@ plotHR(before.cox.curve.1,
   cex = 1.2
 ) # 字体大小
 
-#################### -------------------
+####################################################
 # 连续变量阈值效应分析
 library(survival)
 library(rms)
