@@ -65,10 +65,15 @@ df_rf$importance
 df_rf$p
 # 随机森林分析与可视化
 library(linkET)
-correlate(train[1], train[-1]) %>% 
-  qcorrplot(extra_mat = list(importance = df_rf$importance,
-                             pvalue = df_rf$p),
-            fixed = FALSE) 
+correlate(train) %>% 
+    qcorrplot(type = "lower") +
+    geom_square() +
+    scale_fill_gradientn(colours = RColorBrewer::brewer.pal(11, "RdBu"))
+qpairs(train) + geom_pairs(base_size = 2) # pairs plot
+correlate(train[-1]) %>% 
+  as.igraph() %>% 
+  plot(layout = layout_with_circular) # network
+
 p <- correlate(train[1], train[-1]) %>% 
   qcorrplot(extra_mat = list(importance = df_rf$importance),
             fixed = FALSE) +
