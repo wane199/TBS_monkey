@@ -14,9 +14,20 @@ library(dlookr)
 library(DataExplorer)
 
 # 读取数据
-TLM <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/CAI/BMDCROI.csv")
+TLM <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/CAI/1028/mus.csv")
 TLM <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/QIANG/PartⅡ猴脑代谢发育数据分析/PET_refWhole_SUVr.csv")
+library(gt)
+library(dplyr)
+TLM %>% 
+  slice_head(n = 4) %>% 
+  gt() # print output using gt
+glimpse(TLM)
+library(visdat)
+vis_dat(TLM,palette = "qual") # cb_safe
 
+TLM %>% 
+  count(Age,
+        sort = TRUE)
 # TLM <- read_excel("/home/wane/Desktop/TBS/TLMey/BMC.xlsx")
 # 数据探索
 TLM <- TLM[c(-1,-2,-5)]
@@ -140,21 +151,24 @@ p5 <- ggplot(TLM, aes(LM_L3, TLM)) +
 p5
 # 广义可加模型gam**
 # https://mp.weixin.qq.com/mp/appmsgalbum?__biz=MzI1NjM3NTE1NQ==&action=getalbum&album_id=2077935014574374912&scene=173&from_msgid=2247485011&from_itemidx=1&count=3&nolastread=1#wechat_redirect
-model.gam <- gam(L2_4 ~ s(Age), data = TLM) # 建立gam模型
+model.gam <- gam(BMDL2L4 ~ s(Age), data = TLM) # 建立gam模型
 summary(model.gam) # 查看模型概况
 pr.gam <- predict(model.gam, TLM) # 生成预测值
 # 计算RSME和R方
 data.frame(
-  RMSE = RMSE(pr.gam, TLM$L2_4),
-  R2 = R2(pr.gam, TLM$L2_4)
+  RMSE = RMSE(pr.gam, TLM$BMDL2L4),
+  R2 = R2(pr.gam, TLM$BMDL2L4)
 )
 # 查看模型拟合情况
 library(ggpmisc)
 library(ggpubr)
 my.formula <- y ~ s(x,  bs = "cs")
-p6 <- ggplot(TLM, aes(Age, L2_4)) +  geom_point() + stat_cor(aes(color = 'blue'), label.x = 6) + 
-  theme_classic() + scale_x_continuous(expand = c(0,0), breaks=seq(0, 30, 2)) + scale_y_continuous(expand = c(0,0)) +  
-  stat_smooth(method = mgcv::gam, se=TRUE,formula = my.formula) 
+p0 <- ggplot(TLM, aes(Age, BMDL2L4)) +  geom_point() + stat_cor(aes(), label.x = 6) + 
+  theme_classic() + scale_x_continuous(expand = c(0,0), breaks=seq(0, 27, 1)) + scale_y_continuous(expand = c(0,0)) +  
+  stat_smooth(method = mgcv::gam, se=TRUE, formula = my.formula) + 
+  theme(axis.text = element_text(size = 10, face = "bold"), axis.ticks.length=unit(-0.15, "cm"), 
+        axis.text.x = element_text(margin=unit(c(0.3,0.3,0.3,0.3), "cm")), 
+        axis.text.y = element_text(margin=unit(c(0.3,0.3,0.3,0.3), "cm")))
 p6
 # gam
 coef(model.gam)[1] # Intercept
@@ -175,8 +189,8 @@ anova(model.log, model.gam)
 # https://cloud.tencent.com/developer/article/1972411
 library(patchwork)
 p4 + p1 + p6 + plot_layout(nrow = 2, byrow = FALSE) #  从上到下
-p4 + p5 + p6 +
-  plot_layout(ncol = 2) # 从左到右
+p0 + p1 + p2 + p3 + p4 + p5 + p6  + plot_annotation(tag_levels = 'A') +
+  plot_layout(ncol = 3, guides='collect') # 从左到右
 p4 / p5 | (p6)
 # https://zhuanlan.zhihu.com/p/384189537
 library(cowplot)
@@ -185,7 +199,7 @@ plot_grid(p1, p2, p3, p4, p5, p6,
   hjust = -0.2, vjust = 1.4,
   labels = c("LM", "LOG", "SEGMENTED", "RCS", "LOWESS", "GAM")
 )
-cowplot::plot_grid(p1, p2, p3, p4, p5, p6,
+cowplot::plot_grid(p0, p1, p2, p3, p4, p5, p6,
   ncol = 3, labels = "AUTO"
 )
 

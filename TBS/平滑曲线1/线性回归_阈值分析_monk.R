@@ -93,7 +93,10 @@ p1 <- ggplot(dt, aes(x = Age, y = Frontal_Cortex, color = Side)) +
   # scale_fill_nejm() + scale_colour_nejm() +  
   stat_cor(aes(), label.x = 3) + theme_classic() + scale_x_continuous(expand = c(0,0), breaks=seq(0, 30, 2)) + scale_y_continuous(expand = c(0,0)) +  
   # geom_vline(aes(xintercept=8.0),linetype=4,col="red") +
-  geom_smooth(method = mgcv::gam, formula = y ~ s(x, k = 3), se = T)
+  geom_smooth(method = mgcv::gam, formula = y ~ s(x, k = 3), se = T) + 
+  theme(axis.text = element_text(size = 10, face = "bold"), axis.ticks.length=unit(-0.25, "cm"), 
+        axis.text.x = element_text(margin=unit(c(0.5,0.5,0.5,0.5), "cm")), 
+        axis.text.y = element_text(margin=unit(c(0.5,0.5,0.5,0.5), "cm"))) 
 p1
 # [combine into single plot](https://www.math.pku.edu.cn/teachers/lidf/docs/Rbook/html/_Rbook/ggplot2.html)
 library("patchwork")
