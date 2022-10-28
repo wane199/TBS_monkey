@@ -25,7 +25,7 @@ source("./EP/EP_Cox_Nomo/DCA/dca.r") # 执行DCA的脚本
 
 dt1 <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/TLE234group.csv")
 dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/PT_radiomic_features_temporal_ind2.csv")
-dt0 <- read.csv("/home/wane/Desktop/EP/Structured_Data/PET-TLE234-radscore-RCS2.csv")
+dt0 <- read.csv("C:/Users/wane199/Desktop/EP/Structured_Data/PET-TLE234-radscore-RCS2.csv")
 dt0 <- dt0[c(-1, -2)]
 # dt1 <- read_excel("/home/wane/Desktop/EP/Structured_Data/Task2/TLE234group.xlsx")
 
@@ -195,7 +195,6 @@ AUDC(d) # Area under Decision Curve
 range(d) # Ranges for net benefit
 
 
-
 ## 尽管文章中没有展示，我们也可以探索一下calibration plot
 p2=as.numeric(p2)
 cal1 <- calibration(as.factor(oneyr) ~ p2, data = test)
@@ -224,6 +223,23 @@ plotCalibration(xb,
 ## 其实前面的步骤基本上都是基本建模的流程，我们重点其实是需要知道，我们想要绘制DCA只需要两类数据，一个是结局的编码（这里我们需要我们的编码是二分类并且是0和1的形式），然后我们需要提供我们机器学习模型预测阳性结局的概率
 ## 注意，由于随机森林等机器学习算法给出来的预测是0或者1，而非连续性的概率，所以calibration，DCA等分析方法并不十分适合(需要概率)
 
+# mlr3体系完成机器学习模型的构建并进行DCA的绘制
+# 建立任务
+dt <- dt0[c(-1,-3)] #获取数据
+dt$oneyr #查看阳性结局
+ep_task <- as_task_classif(dt, 'ID', target="oneyr", positive = "1")
+train_set <- sample(ep_task$nrow,0.7*ep_task$nrow)#划分训练集
+test_set <- setdiff(seq_len(ep_task$nrow),train_set)#划分测试集
+
+lrn <- lrn("classif.ranger",predict_type = "prob")#选择随机森林学习器
+lrn$train(ep_task, row_ids = train_set)#拟合模型
+pred <- lrn$predict(ep_task,row_ids = test_set)#预测
+pred
+outcome <- ifelse(pred$truth == "1",1,0)
+prob <- data.frame("outcome" = outcome, "rf_prob" = pred$prob[,1])
+dcaoutput <- dca(data = prob, outcome = "outcome", 
+                 predictors = c("rf_prob"),
+                 xstart = 0, xstop = 1, ymin = 0)
 
 ####################################################
 ####################################################
