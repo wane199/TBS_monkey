@@ -9,10 +9,10 @@ library(writexl)
 library(dplyr)
 
 dt <- read.csv("jixian.csv")
-dt <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/QIANG/PartⅠ猴脑体积发育数据分析/L&R.csv")
+dt <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/QIANG/1030/SUVr_whole.csv")
 # TLM <- read_excel("/home/wane/Desktop/TBS/TLMey/BMC.xlsx")
 # 数据探索
-dt <- dt[c(-1,-2,-5)]
+dt <- dt[c(-1,-2)]
 dt$Sex <- as.factor(dt$Sex)
 dt$Side <- as.factor(dt$Side)
 summary(dt)
@@ -79,6 +79,7 @@ ggplot(TLM, aes(Age, L2_4)) +  geom_point() + stat_cor(aes(), label.x = 3) +
   theme_classic() + scale_x_continuous(expand = c(0,0), breaks=seq(0, 30, 2)) + scale_y_continuous(expand = c(0,0)) +  
   stat_smooth(method = mgcv::gam, se=TRUE,formula = my.formula) 
 
+
 # 分类gam曲线拟合
 library(ggsci)
 paste0(colnames(dt[4:18]),collapse = "+")
@@ -86,14 +87,37 @@ Frontal_Cortex+Temporal_Cortex+Parietal_Cortex+Occipital_Cortex+Insula_Cortex+Ce
   Hippocampus+Thalamus+Amygdala+Cingulate+Globus_pallidus+corpus_callosum
 
 # ?formula.gam
-p1 <- ggplot(dt, aes(x = Age, y = Frontal_Cortex, color = Side)) + 
-  # ylab(bquote(TBV/BW(cm^3/kg)))  + # 上下标
-  # xlab("") +
-  geom_point(aes(color = Side), size = 1) + scale_x_continuous(breaks = seq(0,30,2)) +
-  # scale_fill_nejm() + scale_colour_nejm() +  
+library(ggsci)
+library(ggpmisc)
+library(ggpubr)
+my.formula <- y ~ s(x,  bs = "cs")
+my.formula <- y ~ x + I(x^2) 
+# 散点图
+ggplot(data = dt, mapping=aes(x = Age, y = SUVr_whole_refPons, color = Sex, shape = Sex)) + geom_point(size = 2) + 
+  theme_classic() + scale_colour_nejm() + scale_x_continuous(expand = c(0,0), breaks=seq(0, 30, 1)) + scale_y_continuous(expand = c(0,0)) +
+  theme(axis.text = element_text(size = 10, face = "bold"), axis.ticks.length=unit(-0.15, "cm"),  legend.position = "bottom",       
+        axis.text.x = element_text(margin=unit(c(0.3,0.3,0.3,0.3), "cm")), 
+        axis.text.y = element_text(margin=unit(c(0.3,0.3,0.3,0.3), "cm")))
+# 置信区间虚线
+ggplot(data = dt, mapping = aes(x = Age, y = SUVr_whole_refPons, colour = Sex)) + stat_cor(aes(), label.x = 6) + scale_colour_nejm() +
+  # geom_point(size = 2) +
+  theme_classic() + scale_x_continuous(expand = c(0,0), breaks=seq(0, 30, 1)) + scale_y_continuous(expand = c(0,0)) +  
+  geom_smooth(method = "gam",formula = my.formula, size = 3,
+              se = FALSE) +
+  geom_ribbon(stat = "smooth", formula = my.formula, size = 1,
+              method = "gam", se = TRUE,
+              alpha = 0, # or, use fill = NA
+              linetype = "dotted") + 
+  theme(axis.text = element_text(size = 10, face = "bold"), axis.ticks.length=unit(-0.15, "cm"),  legend.position = "bottom",       
+        axis.text.x = element_text(margin=unit(c(0.3,0.3,0.3,0.3), "cm")), 
+        axis.text.y = element_text(margin=unit(c(0.3,0.3,0.3,0.3), "cm")))
+# 置信区间带
+p1 <- ggplot(dt, mapping = aes(x = Age, y = SUVr_whole_refPons, colour = Sex, fill = Sex, linetype = Sex)) + 
+  # ylab(bquote(TBV/BW(cm^3/kg)))  + # 上下标 xlab("") + scale_fill_nejm() + scale_colour_nejm() +  
   stat_cor(aes(), label.x = 3) + theme_classic() + scale_x_continuous(expand = c(0,0), breaks=seq(0, 30, 2)) + scale_y_continuous(expand = c(0,0)) +  
   # geom_vline(aes(xintercept=8.0),linetype=4,col="red") +
-  geom_smooth(method = mgcv::gam, formula = y ~ s(x, k = 3), se = T) + 
+  geom_smooth(method = mgcv::gam, formula = y ~ s(x, k = 6), se = T) + 
+  # geom_point(aes(colour = Sex, shape = Sex, fill = Sex), size = 1) + 
   theme(axis.text = element_text(size = 10, face = "bold"), axis.ticks.length=unit(-0.25, "cm"), 
         axis.text.x = element_text(margin=unit(c(0.5,0.5,0.5,0.5), "cm")), 
         axis.text.y = element_text(margin=unit(c(0.5,0.5,0.5,0.5), "cm"))) 
@@ -106,6 +130,7 @@ p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8 +p9 + p10+
 
 p1 + p2 + plot_annotation(tag_levels = 'A') +
   plot_layout(guides='collect')
+ggsave("p.tiff", p, dpi=600) # 保存为精度为600 dpi的tiff文件
 # gam
 coef(gam1)[1] # Intercept
 par(mfrow = c(1, 2)) # 2*2画布
