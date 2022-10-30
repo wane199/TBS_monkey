@@ -45,7 +45,7 @@ summary(fit1)
 
 ##model II 分段模型
 fml <- "HB ~ AGE + factor(GENDER)"
-source('get_cutoff_lm.R')
+source('/home/wane/Documents/EP_code/git/Presentation/TBS/Monkey_fitting/get_cutoff_lm.R')
 cut_off <- get_cutoff_lm('AGE',dt,fml)
 cut_off <- 60
 

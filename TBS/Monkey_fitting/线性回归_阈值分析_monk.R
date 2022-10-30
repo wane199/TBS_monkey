@@ -10,6 +10,7 @@ library(dplyr)
 
 dt <- read.csv("jixian.csv")
 dt <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/QIANG/1030/SUVr_whole.csv")
+dt <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/QIANG/1030/SUVrL&R.csv")
 # TLM <- read_excel("/home/wane/Desktop/TBS/TLMey/BMC.xlsx")
 # 数据探索
 dt <- dt[c(-1,-2)]
@@ -79,9 +80,8 @@ ggplot(TLM, aes(Age, L2_4)) +  geom_point() + stat_cor(aes(), label.x = 3) +
   theme_classic() + scale_x_continuous(expand = c(0,0), breaks=seq(0, 30, 2)) + scale_y_continuous(expand = c(0,0)) +  
   stat_smooth(method = mgcv::gam, se=TRUE,formula = my.formula) 
 
-
+####################################
 # 分类gam曲线拟合
-library(ggsci)
 paste0(colnames(dt[4:18]),collapse = "+")
 Frontal_Cortex+Temporal_Cortex+Parietal_Cortex+Occipital_Cortex+Insula_Cortex+Cerebellum+Pons+Striatum+
   Hippocampus+Thalamus+Amygdala+Cingulate+Globus_pallidus+corpus_callosum
@@ -90,17 +90,20 @@ Frontal_Cortex+Temporal_Cortex+Parietal_Cortex+Occipital_Cortex+Insula_Cortex+Ce
 library(ggsci)
 library(ggpmisc)
 library(ggpubr)
+theme_set(theme_classic() + theme(legend.position = "bottom"))
 my.formula <- y ~ s(x,  bs = "cs")
-my.formula <- y ~ x + I(x^2) 
+my.formula <- y ~ s(x,  k = 4)
+
+my.formula <- y ~ x + I(x^2) + I(x^3) 
 # 散点图
-ggplot(data = dt, mapping=aes(x = Age, y = SUVr_whole_refPons, color = Sex, shape = Sex)) + geom_point(size = 2) + 
+ggplot(data = dt, mapping=aes(x = Age, y = Frontal_Cortex, color = Side, shape = Side)) + geom_point(size = 2) + 
   theme_classic() + scale_colour_nejm() + scale_x_continuous(expand = c(0,0), breaks=seq(0, 30, 1)) + scale_y_continuous(expand = c(0,0)) +
   theme(axis.text = element_text(size = 10, face = "bold"), axis.ticks.length=unit(-0.15, "cm"),  legend.position = "bottom",       
         axis.text.x = element_text(margin=unit(c(0.3,0.3,0.3,0.3), "cm")), 
         axis.text.y = element_text(margin=unit(c(0.3,0.3,0.3,0.3), "cm")))
 # 置信区间虚线
-ggplot(data = dt, mapping = aes(x = Age, y = SUVr_whole_refPons, colour = Sex)) + stat_cor(aes(), label.x = 6) + scale_colour_nejm() +
-  # geom_point(size = 2) +
+ggplot(data = dt, mapping = aes(x = Age, y = Frontal_Cortex, colour = Side)) + scale_colour_nejm() +
+  # geom_point(size = 2) + stat_cor(aes(), label.x = 6) # 显示p值和R值
   theme_classic() + scale_x_continuous(expand = c(0,0), breaks=seq(0, 30, 1)) + scale_y_continuous(expand = c(0,0)) +  
   geom_smooth(method = "gam",formula = my.formula, size = 3,
               se = FALSE) +
@@ -110,18 +113,42 @@ ggplot(data = dt, mapping = aes(x = Age, y = SUVr_whole_refPons, colour = Sex)) 
               linetype = "dotted") + 
   theme(axis.text = element_text(size = 10, face = "bold"), axis.ticks.length=unit(-0.15, "cm"),  legend.position = "bottom",       
         axis.text.x = element_text(margin=unit(c(0.3,0.3,0.3,0.3), "cm")), 
-        axis.text.y = element_text(margin=unit(c(0.3,0.3,0.3,0.3), "cm")))
+        axis.text.y = element_text(margin=unit(c(0.3,0.3,0.3,0.3), "cm"))) +
+  stat_poly_eq(
+    aes(label =  paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
+    formula = my.formula, parse = TRUE
+  ) 
 # 置信区间带
 p1 <- ggplot(dt, mapping = aes(x = Age, y = SUVr_whole_refPons, colour = Sex, fill = Sex, linetype = Sex)) + 
   # ylab(bquote(TBV/BW(cm^3/kg)))  + # 上下标 xlab("") + scale_fill_nejm() + scale_colour_nejm() +  
-  stat_cor(aes(), label.x = 3) + theme_classic() + scale_x_continuous(expand = c(0,0), breaks=seq(0, 30, 2)) + scale_y_continuous(expand = c(0,0)) +  
+  stat_cor(aes(), label.x = 3) + scale_x_continuous(expand = c(0,0), breaks=seq(0, 30, 2)) + scale_y_continuous(expand = c(0,0)) +  
   # geom_vline(aes(xintercept=8.0),linetype=4,col="red") +
-  geom_smooth(method = mgcv::gam, formula = y ~ s(x, k = 6), se = T) + 
+  geom_smooth(method = mgcv::gam, formula = y ~ s(x, k = 3), se = T) + 
   # geom_point(aes(colour = Sex, shape = Sex, fill = Sex), size = 1) + 
   theme(axis.text = element_text(size = 10, face = "bold"), axis.ticks.length=unit(-0.25, "cm"), 
         axis.text.x = element_text(margin=unit(c(0.5,0.5,0.5,0.5), "cm")), 
-        axis.text.y = element_text(margin=unit(c(0.5,0.5,0.5,0.5), "cm"))) 
+        axis.text.y = element_text(margin=unit(c(0.5,0.5,0.5,0.5), "cm"))) +
+  stat_poly_eq(
+    aes(label =  paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
+    formula =  y ~ s(x, k = 3), parse = TRUE
+  ) 
 p1
+
+# Fit polynomial equation:
+ggplot(data = dt, mapping = aes(x = Age, y = SUVr_whole_refPons, colour = Sex)) +
+  geom_point() + stat_cor(aes(), label.x = 3) + 
+  geom_smooth(aes(fill = Sex), method="lm", formula=y ~ poly(x, 3, raw=T), se=T)
+# Polynomial regression. Sow equation and adjusted R2
+formula <- y ~ poly(x, 2, raw = TRUE)
+ggplot(data = dt, mapping = aes(x = Age, y = SUVr_whole_refPons, colour = Sex)) +
+  # geom_point() +
+  geom_smooth(aes(fill = Sex), method = "lm", formula = formula) +
+  stat_poly_eq(
+    aes(label =  paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
+    formula = formula, parse = TRUE
+  ) -> p
+ggpar(p, palette = "jco")
+
 # [combine into single plot](https://www.math.pku.edu.cn/teachers/lidf/docs/Rbook/html/_Rbook/ggplot2.html)
 library("patchwork")
 p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8 +p9 + p10+ 
@@ -201,8 +228,11 @@ fit1 <- lm(Frontal_Cortex ~ Age, data = dt)
 summary(fit1)
 
 ## model II 分段模型
-fml <- "Frontal_Cortex ~ Age"
-source("/home/wane/Documents/RDocu/RCS/平滑曲线1/get_cutoff_lm.R")
+fml <- "Age ~ SUVr_whole_refPons"
+my.formula <- y ~ s(x,  k = 3)
+my.formula <- y ~ x + I(x^2) + I(x^3) 
+dt$SUVr_whole_refPons
+source("/home/wane/Documents/EP_code/git/Presentation/TBS/Monkey_fitting/get_cutoff_lm.R")
 cut_off <- get_cutoff_lm("Age", dt, fml)
 cut_off
 
@@ -289,5 +319,22 @@ ggplot(Pre1) +
   ) +
   geom_hline(yintercept = 1, linetype = 2, size = 0.75)
 View(Pre1)
+
+# [非线性拟合及寻找数据拐点](https://www.jianshu.com/p/e8f8f7ec10d2)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
