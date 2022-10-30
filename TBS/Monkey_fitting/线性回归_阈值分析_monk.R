@@ -94,7 +94,7 @@ theme_set(theme_classic() + theme(legend.position = "bottom"))
 my.formula <- y ~ s(x,  bs = "cs")
 my.formula <- y ~ s(x,  k = 4)
 
-my.formula <- y ~ x + I(x^2) + I(x^3) 
+my.formula <- y ~ x + I(x^2)
 # 散点图
 ggplot(data = dt, mapping=aes(x = Age, y = Frontal_Cortex, color = Side, shape = Side)) + geom_point(size = 2) + 
   theme_classic() + scale_colour_nejm() + scale_x_continuous(expand = c(0,0), breaks=seq(0, 30, 1)) + scale_y_continuous(expand = c(0,0)) +
