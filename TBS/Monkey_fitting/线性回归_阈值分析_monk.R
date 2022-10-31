@@ -10,7 +10,7 @@ library(dplyr)
 
 dt <- read.csv("jixian.csv")
 dt <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/QIANG/1030/SUVr_whole.csv")
-dt <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/QIANG/1030/SUVrL&R.csv")
+dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\SUVr_whole.csv")
 # TLM <- read_excel("/home/wane/Desktop/TBS/TLMey/BMC.xlsx")
 # 数据探索
 dt <- dt[c(-1,-2)]
@@ -92,21 +92,21 @@ library(ggpmisc)
 library(ggpubr)
 theme_set(theme_classic() + theme(legend.position = "bottom"))
 my.formula <- y ~ s(x,  bs = "cs")
-my.formula <- y ~ s(x,  k = 4)
+my.formula <- y ~ s(x,  k = 6)
 
 my.formula <- y ~ x + I(x^2)
 # 散点图
-ggplot(data = dt, mapping=aes(x = Age, y = Frontal_Cortex, color = Side, shape = Side)) + geom_point(size = 2) + 
+ggplot(data = dt, mapping=aes(x = Age, y = SUVr_whole_refPons, color = Sex, shape = Sex)) + geom_point(size = 2) + 
   theme_classic() + scale_colour_nejm() + scale_x_continuous(expand = c(0,0), breaks=seq(0, 30, 1)) + scale_y_continuous(expand = c(0,0)) +
   theme(axis.text = element_text(size = 10, face = "bold"), axis.ticks.length=unit(-0.15, "cm"),  legend.position = "bottom",       
         axis.text.x = element_text(margin=unit(c(0.3,0.3,0.3,0.3), "cm")), 
         axis.text.y = element_text(margin=unit(c(0.3,0.3,0.3,0.3), "cm")))
 # 置信区间虚线
-ggplot(data = dt, mapping = aes(x = Age, y = Frontal_Cortex, colour = Side)) + scale_colour_nejm() +
+ggplot(data = dt, mapping = aes(x = Age, y = SUVr_whole_refPons, colour = Sex)) + scale_colour_nejm() +
   # geom_point(size = 2) + stat_cor(aes(), label.x = 6) # 显示p值和R值
   theme_classic() + scale_x_continuous(expand = c(0,0), breaks=seq(0, 30, 1)) + scale_y_continuous(expand = c(0,0)) +  
   geom_smooth(method = "gam",formula = my.formula, size = 3,
-              se = FALSE) +
+              se = FALSE) + stat_cor(aes(), label.x = 6) +
   geom_ribbon(stat = "smooth", formula = my.formula, size = 1,
               method = "gam", se = TRUE,
               alpha = 0, # or, use fill = NA
