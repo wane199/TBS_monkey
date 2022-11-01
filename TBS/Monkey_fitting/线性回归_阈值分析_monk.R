@@ -19,14 +19,14 @@ dt$Side <- as.factor(dt$Side)
 summary(dt)
 str(dt)
 # colnames(dt) <- toupper(colnames(dt))
-fml <- "Frontal_Cortex~s(Age,k=3,fx=FALSE)+factor(Side)"
+fml <- "SUVr_whole_refPons ~ s(Age,k=3,fx=FALSE)+factor(Sex)"
 gam1 <- mgcv::gam(formula(fml), weights=dt$weights, data = dt, family = gaussian(link = "identity"))
 summary(gam1) # 检验自变量的显著性以及评估回归整体的方差解释率
 vis.gam(gam1,color="heat",theta=30,phi=30)
 gam1$weights
 plot(gam1, pages = 1, col = "blue", las = 1, se = T, rug = T)
 
-m <- mgcv::gam(Frontal_Cortex ~ s(Age, k=3, by = Side) + factor(Side), data = dt)
+m <- mgcv::gam(SUVr_whole_refPons ~ s(Age, k=4, by = Sex) + factor(Sex), data = dt)
 summary(m)
 anova(m)
 plot(modelbased::estimate_relation(m, length = 100, preserve_range = FALSE))
@@ -108,8 +108,7 @@ ggplot(data = dt, mapping = aes(x = Age, y = SUVr_whole_refPons, colour = Sex)) 
   geom_smooth(method = "gam",formula = my.formula, size = 3,
               se = FALSE) + stat_cor(aes(), label.x = 6) +
   geom_ribbon(stat = "smooth", formula = my.formula, size = 1,
-              method = "gam", se = TRUE,
-              alpha = 0, # or, use fill = NA
+              method = "gam", se = TRUE,  alpha = 0, # or, use fill = NA
               linetype = "dotted") + 
   theme(axis.text = element_text(size = 10, face = "bold"), axis.ticks.length=unit(-0.15, "cm"),  legend.position = "bottom",       
         axis.text.x = element_text(margin=unit(c(0.3,0.3,0.3,0.3), "cm")), 
@@ -123,7 +122,7 @@ p1 <- ggplot(dt, mapping = aes(x = Age, y = SUVr_whole_refPons, colour = Sex, fi
   # ylab(bquote(TBV/BW(cm^3/kg)))  + # 上下标 xlab("") + scale_fill_nejm() + scale_colour_nejm() +  
   stat_cor(aes(), label.x = 3) + scale_x_continuous(expand = c(0,0), breaks=seq(0, 30, 2)) + scale_y_continuous(expand = c(0,0)) +  
   # geom_vline(aes(xintercept=8.0),linetype=4,col="red") +
-  geom_smooth(method = mgcv::gam, formula = y ~ s(x, k = 3), se = T) + 
+  geom_smooth(method = mgcv::gam, formula = y ~ s(x, k = 7), se = T) + 
   # geom_point(aes(colour = Sex, shape = Sex, fill = Sex), size = 1) + 
   theme(axis.text = element_text(size = 10, face = "bold"), axis.ticks.length=unit(-0.25, "cm"), 
         axis.text.x = element_text(margin=unit(c(0.5,0.5,0.5,0.5), "cm")), 
