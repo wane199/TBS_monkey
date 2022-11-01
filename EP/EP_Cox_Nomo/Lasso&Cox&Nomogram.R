@@ -24,7 +24,6 @@ dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/PT_radiomic_features
 dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/COX12mon/TLE234group.csv")
 dt <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/Task2/TLE234group.csv")
 
-dt0 <- read.csv("./EP/EP_Cox_Nomo/TLE234-rad.csv")
 table(dt$Freq)
 
 dt <- dt[c(-1:-2, -4)]
