@@ -446,8 +446,9 @@ table2docx(ft) # Exported table as Report.docx
 table2docx(ft, title = "Test", append = TRUE, vanilla = TRUE)
 library(CBCgrps)
 tab1 <- twogrps(dt[c(-1, -2, -4)], gvar = "Group", skewvar = c("radscore"))
+tab1 <- twogrps(test[c(-1)], gvar = "Rel._in_5yrs", skewvar = c("Durmon"))
 print(tab1, quote = T)
-write.csv(tab1[1], "/home/wane/Desktop/EP/Structured_Data/Task2/traintesttable1.csv", row.names = F)
+write.csv(tab1[1], "/home/wane/Desktop/EP/Structured_Data/Task2/testtable1.csv", row.names = F)
 # 基线资料汇总，tableone
 library(tableone)
 ## 需要转为分类变量的变量
