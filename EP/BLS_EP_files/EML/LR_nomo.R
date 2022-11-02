@@ -1,7 +1,7 @@
 # binomial classification nomogram-LR
 rm(list = ls())
-
-dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/process_PT-22.csv")
+options(digits=3) # 限定输出小数点后数字的位数为3位
+dt <- read.csv("C:/Users/wane199/Desktop/EP/Structured_Data/process_PT-22.csv")
 str(dt) ## 查看每个变量结构
 summary(dt)
 colnames(dt)
@@ -28,7 +28,7 @@ pred.logit2 <- predict(fit2)
 P2 <- predict(fit2, type = "response")
 
 m <- NROW(train) / 5
-val.prob(P2, train$Y, m = m, cex = 0.8) # 预测概率与真实值进行矫正
+Ca1 <- val.prob(P2, train$Y, m = m, cex = 0.8) # 预测概率与真实值进行矫正
 
 fit <- lrm(Y ~ .,  data = train)
 fit
@@ -67,6 +67,19 @@ plot(nom,
      col.conf = c("red", "green"), # 设置置信区间的颜色
      conf.space = c(0.1, 0.5) # 设置置信区间条位置
 )
+
+library(regplot)
+regplot(fit, observation = train[10,], interval = "confidence")
+# 彩色条带式静态诺莫图
+library(VRPM)
+col <- glm(Y ~ .,  data = train, family = "binomial")
+colplot(col)
+# visualize the model: more than one plot is generated in the current directory
+outnames=colnames(fitted(col))
+labels=c(paste("Linear predictor for",outnames[-1]),paste
+         ("Predicted chance of being",outnames))
+colplot(col,coloroptions=3,risklabel=labels,filename="div")
+
 
 library(shinyPredict)
 getwd()
