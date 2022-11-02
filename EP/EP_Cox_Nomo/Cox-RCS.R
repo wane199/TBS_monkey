@@ -19,6 +19,9 @@ S <- Surv(train$Follow_up_timemon, train$Rel._in_5yrs == 1)
 ## rcs
 fit <- cph(S ~ rcs(radscore, 3), x = TRUE, y = TRUE, data = train)
 cox.zph(fit, "rank") # tests of PH
+plot(cox.zph(fit))
+res_martingale <- residuals(fit, type = "martingale") # dfbetas, score, deviance, partial, schoenfeld
+scatter.smooth(radscore, res_martingale) # https://www.youtube.com/watch?v=4Edu6Ij7jEM
 ggcoxzph(cox.zph(fit, "rank")) # 可视化等比例假定
 ggcoxdiagnostics(fit,
   type = "dfbeta",
@@ -297,5 +300,24 @@ plrt <- 1 - pchisq(2 * (logLik(fit2)[1] - logLik(fit0)[1]), 1)
 plrt
 ##  method2
 anova(fit0, fit2)$"P(>|Chi|)"[2]
+
+
+##################################################
+library(ggrcs)
+library(rms)
+library(ggplot2)
+library(scales)
+dt<-smoke
+dd<-datadist(dt)
+options(datadist='dd')
+fit<- cph(Surv(time,status==1) ~ rcs(age,4)+gender, x=TRUE, y=TRUE,data=dt)
+###single group
+ggrcs(data=dt,fit=fit,x="age")
+##two groups
+ggrcs(data=dt,fit=fit,x="age",group="gender") + xlab('Age(years)') + 
+    theme(axis.text = element_text(size = 10, face = "bold"), axis.ticks.length=unit(-0.25, "cm"), 
+                                                        axis.text.x = element_text(margin=unit(c(0.5,0.5,0.5,0.5), "cm")), 
+                                                        axis.text.y = element_text(margin=unit(c(0.5,0.5,0.5,0.5), "cm")))
+
 
 

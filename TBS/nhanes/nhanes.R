@@ -1,0 +1,144 @@
+# https://mp.weixin.qq.com/s?__biz=MzI1NjM3NTE1NQ==&mid=2247486750&idx=1&sn=90c3338d3a010e024252687b32207246&chksm=ea26ed02dd516414ef982e116c1a1f114a5c72b395854c41b7f4692d2e28919b9993a425bcdd&mpshare=1&scene=1&srcid=11029kwnODSUuMBjcI9ptQHa&sharer_sharetime=1667362719667&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd
+# [NHANES, National Health and Nutrition Examination Survey](https://wwwn.cdc.gov/nchs/nhanes/Default.aspx)
+library(haven)
+library(nhanesA)
+library(tidyverse)
+
+mydata <- read_xpt("/home/wane/Downloads/P_DEMO.XPT") # NHANES 2017-March 2020 Pre-Pandemic Demographics Data
+mydata1 <- nhanes("DEMO_E") # NHANES 2007-2008 Demographics Data
+
+# 对照变量说明提取需要的变量
+dat1 <- mydata1 %>% select(
+  SEQN, # 序列号
+  RIAGENDR, # 性别
+  RIDAGEYR, # 年龄
+  RIDRETH1, # 种族
+  DMDMARTL, # 婚姻状况
+  WTINT2YR, WTMEC2YR, # 权重
+  SDMVPSU, # psu
+  SDMVSTRA
+) # strata
+# 关键的血糖和肺功能的指标，在化验室指标
+xuetang <- nhanes("GLU_E")
+# 对数据进行提取，序列号提取，
+xuetang1 <- xuetang %>% select(
+  SEQN, # 序列号
+  LBDGLUSI, # 血糖mmol表示
+  LBDINSI, # 胰岛素( pmmol/L)
+  PHAFSTHR # 餐后血糖
+)
+#
+# 同理依次取糖化血红蛋白、肺功能数据
+tanghuadb <- nhanes("GHB_E")
+tanghuadb1 <- tanghuadb %>% select(
+  SEQN, # 序列号
+  LBXGH
+) # 糖化血红蛋白
+feihuoliang <- nhanes("SPX_E")
+feihuoliang1 <- feihuoliang %>% select(
+  SEQN, # 序列号
+  SPXNFEV1, # FEV1：第一秒用力呼气量
+  SPXNFVC # FVC：用力肺活量，ml（估计肺容量）
+)
+dxaspn <- nhanes("DXXSPN_E")
+dxaspn1 <- dxaspn %>% select(
+  SEQN, # 序列号
+  DXXTOTBS
+) # Total Trabecular Bone Score
+
+# 处理好数据以后把数据合并就好了
+hdata <- plyr::join_all(list(dat1, xuetang1, tanghuadb1, feihuoliang1, dxaspn1), by = "SEQN", type = "full")
+
+# 我们把它保存起来，今后的操作将在这个数据展开
+getwd()
+write.csv(hdata, file = "./TBS/nhanes/07-08.csv", row.names = F)
+
+#######################################################
+# 基线表绘制(table1)
+library(tableone)
+library(survey)
+bc <- read.csv("./TBS/nhanes/07-08.csv", sep = ",", header = TRUE)
+glimpse(bc)
+Hmisc::describe(bc)
+
+# 分组
+hist(bc$DXXTOTBS)
+bc$TBS <- ifelse(bc$DXXTOTBS < 1.352, 1, 2)
+table(bc$TBS)
+# ifelse(bc$DXXTOTBS>=1.352,
+
+# 开始建立抽样调查函数svydesign
+bcSvy2 <- svydesign(
+  ids = ~SDMVPSU, strata = ~SDMVSTRA, weights = ~WTMEC2YR,
+  nest = TRUE, data = bc
+)
+summary(bcSvy2)
+
+# 绘制基线表，使用的是svyCreateTableOne函数，先要定义全部变量和分类变量
+dput(names(bc)) ## 输出变量名
+allVars <- c(
+  "SEQN", "RIAGENDR", "RIDAGEYR", "RIDRETH1", "DMDMARTL", "WTINT2YR",
+  "WTMEC2YR", "SDMVPSU", "SDMVSTRA", "LBDGLUSI", "LBDINSI", "PHAFSTHR",
+  "LBXGH", "SPXNFEV1", "SPXNFVC", "DXXTOTBS", "TBS"
+) ### 所有变量名
+fvars <- c("RIAGENDR", "RIDRETH1", "DMDMARTL") # 分类变量定义为fvars
+
+Svytab2 <- svyCreateTableOne(
+  vars = allVars,
+  strata = "TBS", data = bcSvy2, factorVars = fvars
+)
+Svytab2
+
+#####################################
+# 缺失值
+# https://www.yisu.com/zixun/444909.html
+library(lattice)
+library(mice)
+library(VIM)
+
+summary(bc)
+dim(bc)
+aggr(bc) # VIM::aggr()查看缺失值
+
+#  缺失状况了解
+# 计算数据集中的缺失值的数量
+is.na(bc)
+# 计算缺失值个数，等于0则不存在缺失值
+sum(is.na(bc))
+# 计算数据集中完整样本的数量
+complete.cases(bc)
+# 通过列表显示数据集缺失情况
+md.pattern(bc)
+
+# 5.3 缺失值处理
+# 1. 删除法
+# 使用na.omit()函数来对缺失数据的行进行删除
+newnhanes <- na.omit(bc)
+newnhanes
+
+# 2. 插补法
+# 将第16列中为NA值的行号存入数据集sub中
+is.na(bc[, 16])
+sub <- which(is.na(bc[, 16]))
+sub
+# 第16列不为NA的数存入数据集A中
+A <- bc[-sub, ]
+A
+# 将第16列为NA的数存入数据集B中
+B <- bc[sub, ]
+B
+# 计算数据集第四列没有缺失值数据的均值
+A_16mean <- mean(A[, 16])
+A_16mean
+
+# 平均值填补
+bc$DMDMARTL[is.na(bc$DMDMARTL)] <- mean(bc$DMDMARTL, na.rm = T)
+# 中位数填补
+bc$ Solar.R[is.na(bc$ Solar.R)] <- median(bc$ Solar.R, na.rm = T)
+# 相邻均值填补
+for (i in 1:length(bc$ Ozone)) {
+  bc$ Ozone[i] <- ifelse(is.na(bc$ Ozone[i]),
+    mean(c(bc$ Ozone[i - 1], bc$ Ozone[i + 1]), na.rm = T),
+    bc$ Ozone[i]
+  )
+}

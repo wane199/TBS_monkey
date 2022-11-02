@@ -8,9 +8,10 @@ setwd("/home/wane/Documents/RDocu") ## 设置工作目录
 getwd()
 rm(list = ls())
 list.files() ## 列出工作目录下的文件
+options(digits=3) # 限定输出小数点后数字的位数为3位
 library(glmnet) ## Lasso回归、岭回归、弹性网络模型
 library(caret) ## 标准化及混淆矩阵
-library(survival) ##  生存分析包
+library(survival) ## 生存分析包, 包括非参数(Kaplan-Meier分析)和半参数(CPH), 参数模型(参数比例，附加危害，AFT)
 library(survminer) # ggforest
 library(rms) ## 画列线图
 library(randomForest)
@@ -643,8 +644,12 @@ show_forest(train,
 )
 
 # Stepwise筛选变量
-# options(scipen = 100, digits=5)
+# options(scipen = 100, digits=5), no interaction, no stratification
 library(MASS) # 逐步回归，stepAIC()函数 https://www.bilibili.com/video/BV18F411q7v3/?vd_source=23f183f0c5968777e138f31842bde0a0
+coxbasemodel <- coxph(Surv(Follow_up_timemon,Rel._in_5yrs==1) ~ .,
+                      train)
+stepAIC(coxbasemodel, direction = "both", scope = list(lower = .~1, upper = .~radscore + Sex + Freq + Durmon))
+
 
 library(My.stepwise)
 My.stepwise.coxph(
@@ -667,6 +672,11 @@ stepwiseCox(Surv,
   weights = NULL,
   best = NULL
 )
+
+# check collinearity of the selected variables
+cor(train[c(2,3,6,8,10)])
+
+
 
 # 用for循环语句将数值型变量转为因子变量
 for (i in names(train)[c(1, 21, 7:18)]) {
@@ -1548,3 +1558,27 @@ summary(cbfit)
 names <- cbfit$xnames[which(cbfit$coefficients[111, ] != 0)]
 coef <- cbfit$coefficients[111, ][which(cbfit$coefficients[111, ] != 0)]
 cbind(names, coef)
+
+
+###################################
+## [Accelerated Failure Time (AFT) Model](https://www.youtube.com/watch?v=v1TFklm4OFM&list=PLCj1LhGni3hOON9isnuVYIL8dNwkvwqr9&index=7)
+## Weibull parametrisation
+y<-rweibull(1000, shape=2, scale=5)
+survreg(Surv(y)~1, dist="weibull") # exponential,gaussian,loglogistic,lognormal
+
+library(flexsurv)
+fitg <- flexsurvreg(formula = Surv(futime, fustat) ~ 1, data = ovarian, dist="weibull")
+fitg
+plot(fitg)
+lines(fitg, col="blue", lwd.ci=1, lty.ci=1)
+# survreg scale parameter maps to 1/shape, linear predictor to log(scale)
+scale(y, center=T, scale=F)  # 数据中心化和标准化为了消除量纲对数据结构的影响, scale为真表示数据标准化
+
+library(e1071)
+probplot(y, qt)
+
+
+
+
+
+
