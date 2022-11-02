@@ -1422,7 +1422,7 @@ nomo <- nomogram(fita,
 )
 nomogramEx(nomo = nomo, np = 3, digit = 5)
 
-# test dataset二次验证，最终Cox模型，cutoff风险分层(12,36,60 months)，最优决策阈值进行高低分组间的K-M曲线绘制***
+# All data(training &| test dataset) Revalidation(二次验证)，ROC & DCA, 最终Cox模型，cutoff风险分层(12,36,60 months)，最优决策阈值进行高低分组间的K-M曲线绘制***
 # Score card, get the formula of total points by the best power using formula_lp
 results <- formula_lp(nomogram = nomo)
 points <- points_cal(formula = results$formula, lp = fita$linear.predictors)

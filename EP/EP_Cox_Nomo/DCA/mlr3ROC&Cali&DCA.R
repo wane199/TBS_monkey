@@ -207,6 +207,7 @@ xb <- Score(list(model1 = df_rf), oneyr ~ 1,
             data = test,
             plots="cal")
 # 绘制校准曲线使用riskRegression包的plotCalibration()函数。
+# 或者使用pec包深度验证Cox模型：pec包函数和rms包中的calibrate()函数原理一致
 plotCalibration(xb, brier.in.legend=TRUE) # 显示AUC和Brier score
 # 上面的模型的校准曲线使用的是曲线形式，还可以使用条形图的形式来表示。
 plotCalibration(xb, bars=TRUE, model="model1")
