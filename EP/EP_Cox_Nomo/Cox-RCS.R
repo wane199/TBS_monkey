@@ -1,5 +1,6 @@
 # 医学统计与R语言：绘制Cox回归模型中的样条曲线（spline）https://mp.weixin.qq.com/s?__biz=MzIzMzc1ODc4OA==&mid=2247485639&idx=1&sn=0b8f2e37e2b705b6fe2457270c660d2b&chksm=e88181ecdff608fa662afd60f61377be66534fdd6506d9b9db80dbb3419cb6c57df75d27cb11&scene=132#wechat_redirect
 # 生存分析之限制性立方样条(RCS)，剂量反应关系图
+# [Cox比例风险模型的假设检验条件](https://zhuanlan.zhihu.com/p/164668320)
 rm(list = ls())
 dt <- read.csv("data.csv")
 library(rms) # RCS
@@ -12,29 +13,57 @@ library(scales)
 # 设定数据环境
 dd <- datadist(train)
 options(datadist = "dd")
+
 str(train)
 train$Rel._in_5yrs <- as.factor(train$Rel._in_5yrs)
-S <- Surv(train$Follow_up_timemon, train$Rel._in_5yrs == 1)
 
-## rcs
-fit <- cph(S ~ rcs(radscore, 3), x = TRUE, y = TRUE, data = train)
+# Cox比例风险模型的假设检验条件
+fit <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = train)
+fit
 cox.zph(fit, "rank") # tests of PH
-plot(cox.zph(fit))
+zph <- cox.zph(fit, "rank")[[1]] # 检验结果导出
+library(xtable)
+library(flextable)
+set_flextable_defaults(digits = 3)
+m1 = xtable_to_flextable(xtable(zph))
+m1
+library(officer)
+doc = read_docx()
+doc = body_add_flextable(doc,m1)
+print(doc,"./EP/EP_Cox_Nomo/supple_zph.docx")
+write.table(zph,"./EP/EP_Cox_Nomo/supple_zph.csv",sep=",") #result是想保存的变量
+
+ggcoxzph(cox.zph(fit, "rank")) # 可视化等比例假定
+# plot(cox.zph(fit)) # 分图展示
 res_martingale <- residuals(fit, type = "martingale") # dfbetas, score, deviance, partial, schoenfeld
 scatter.smooth(radscore, res_martingale) # https://www.youtube.com/watch?v=4Edu6Ij7jEM
-ggcoxzph(cox.zph(fit, "rank")) # 可视化等比例假定
+
 ggcoxdiagnostics(fit,
-  type = "dfbeta",
+  type = "dfbeta", # type = "deviance",“ martingale”，“ score”，“ schoenfeld”，“ dfbeta”，“ dfbetas”，“ scaledsch”，“ partial”
   linear.predictions = FALSE, ggtheme = theme_bw()
-)
-anova(fit) # 非线性关系P-Nonlinear<0.05为存在非线性关系
+)  # 检查异常值, Anomaly Detection
+ano <- anova(fit) # 非线性关系P-Nonlinear<0.05为存在非线性关系
+library(texreg)
+screenreg(fit, custom.model.names = "coxphmodel", digits = 3, single.row = T, ci.force = T)
+htmlreg(fit, file = "texreg.doc",
+        inline.css = FALSE,
+        doctype = TRUE,
+        html.tag = TRUE,
+        head.tag = TRUE,
+        body.tag = TRUE)
+
 ## 注意：这里的R命令是“cph”(rms包)，而不是常见的生存分析中用到的“coxph"(survival包)。
 ## Tips：若因变量为二分类变量，改用lrm函数拟合模型：fit<- lrm(y ~  rcs(x1),data=data)；若因变量为连续变量，改用ols函数拟合模型：fit<-ols(y~ rcs(x1)
 ## 2.检验比例风险假设-PH假设
 ## Cox比例风险模型构建的一个前提条件是比例风险(PH)的假定，可以通过假设检验和Schoenfeld残差图检验，前者P>0.05,表示满足假设检验，后者残差图的横轴是时间，纵轴是残差，如果残差与时间有相关趋势，则违反PH假定，如果残差均匀分布则表示残差与时间相互独立，满足假设。
 res.cox <- coxph(S ~ radscore + I(radscore^2), data = train)
-ggcoxfunctional(res.cox, data = train, point.col = "blue", point.alpha = 0.5)
-# ggrcs包，一个用于绘制直方图+限制立方样条+双坐标轴图的R包
+ggcoxfunctional(res.cox, data = train, point.col = "blue", point.alpha = 0.5) # 检测对数风险值与协变量之间关系的非线性情况,仅针对连续变量绘制martingale残差图和部分残差图。
+ggcoxfunctional(S ~ radscore + sqrt(radscore), data = train)
+
+
+## rcs, ggrcs包，一个用于绘制直方图+限制立方样条+双坐标轴图的R包
+S <- Surv(train$Follow_up_timemon, train$Rel._in_5yrs == 1)
+fit <- cph(S ~ radscore, x = TRUE, y = TRUE, data = train)
 ggrcs(data=train,fit=fit,x="radscore", histbinwidth = 0.05, histcol="blue", ribcol="green",
       histlimit=c(0,50),leftaxislimit=c(0,1),lift = T)
 
