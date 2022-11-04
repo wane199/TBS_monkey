@@ -43,6 +43,8 @@ ggcoxdiagnostics(fit,
   linear.predictions = FALSE, ggtheme = theme_bw()
 )  # 检查异常值, Anomaly Detection
 ano <- anova(fit) # 非线性关系P-Nonlinear<0.05为存在非线性关系
+library(broom)
+tidy(zph)
 library(texreg)
 screenreg(fit, custom.model.names = "coxphmodel", digits = 3, single.row = T, ci.force = T)
 htmlreg(fit, file = "texreg.doc",
