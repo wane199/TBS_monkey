@@ -26,6 +26,11 @@ vis.gam(gam1,color="heat",theta=30,phi=30)
 gam1$weights
 plot(gam1, pages = 1, col = "blue", las = 1, se = T, rug = T)
 
+mgam<-gam(SUVr_whole_refPons ~ s(Age), data=dt, family= poisson(), #  binomial(link = "logit"),
+          model=T)
+summary(mgam)
+plot(mgam, se=T)
+
 m <- mgcv::gam(SUVr_whole_refPons ~ s(Age, k=4, by = Sex) + factor(Sex), data = dt)
 summary(m)
 anova(m)
