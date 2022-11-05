@@ -281,9 +281,12 @@ reportROC(gold = dt$outcome1yr, predictor = c(dt$SGS, dt$radscore, dt$familial_e
           plot = T, important = "se", exact = FALSE)
 
 # [利用timeROC包绘制多分类多条ROC曲线](https://mp.weixin.qq.com/s?__biz=MzkyODIyOTY5Ng==&mid=2247485325&idx=2&sn=9e87a03c95f6d6d7733221f943e59441&chksm=c21ab7a2f56d3eb439d5c6e3821ca7101255021f7b49166f8bf32d186485bb146c5a8d89b1ba&mpshare=1&scene=1&srcid=1019d64aFsP83P9MWOGnNUpN&sharer_sharetime=1666136506398&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
-# 引用包
+# [多个时间点及多指标ROC曲线](https://zhuanlan.zhihu.com/p/453214424)
 train <- subset(dt, dt$Group == "Training")
 test <- subset(dt, dt$Group == "Test")
+dt <- read.csv('/Users/mac/Downloads/glioma1.csv')
+summary(dt)
+
 table(dt$oneyr)
 train <- train[4:19]
 library(survminer)
@@ -311,10 +314,17 @@ legend("bottomright", cex=0.6, aucText, lwd=1, bty="n", col=bioCol[1:(ncol(train
 # dev.off()
 
 # This is equivalent to using roc.formula:
-library(pROC)
-roc.list <- roc(Rel._in_5yrs ~  radscore + SGS + familial_epilepsy + Durmon + SE, data = train)
-g3 <- ggroc(roc.list, size = 1.2,alpha=.6)
-g3+ggsci::scale_color_lancet()
+library(pROC) # 单一因素ROC绘制，
+library(glmnet) # 多指标联合预测ROC曲线分析
+dt <- dt[-1]
+roc.list <- roc(grade ~  ., data = dt)
+ggroc(roc.list, size = 1.2, alpha=.6, legacy.axes = TRUE) + theme_bw() + xlab('1-Specificity(FPR)') + ylab('Sensitivity(TPR)') +
+  scale_y_continuous(expand = c(0, 0),breaks = seq(0,1.0,0.2)) + scale_x_continuous(expand = c(0, 0),breaks = seq(0,1.0,0.2)) +
+  theme(legend.background=element_rect(fill = alpha("white", 0)), legend.title=element_blank(), legend.justification=c(1,0), legend.position=c(1,0))
+
+  
+
+g3 + ggsci::scale_color_lancet()
 
 # Also without ROC objects.
 # For instance what AUC would be significantly different from 0.5?
