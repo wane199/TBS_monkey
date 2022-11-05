@@ -121,6 +121,7 @@ tab2 <- multigrps(dt, gvar = "type")
 
 print(tab2, quote = T)
 
+#############################################
 ## 分组柱状图展示多个模型三分类AUROC及AUPRC
 # 多模型效能比较，除了ROC还有别的选择吗？
 library(ggplot2) 
@@ -214,7 +215,7 @@ setwd('/home/wane/Desktop/EP/REFER/BLS/roc/')
 pdf_combine(c("rocforleft_mri.pdf","rocforright_mri.pdf"),
             output = "./joined.pdf")
 
-################# -----------------
+#########################################################
 # [multiROC](https://github.com/WandeRum/multiROC)
 require(multiROC)
 # 70% training data and 30% testing data
