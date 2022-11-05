@@ -9,7 +9,7 @@ library(pec) # cox回归时间c指数用
 
 # 读入数据
 dt0 <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/Task2/TLE234group.csv")
-dt <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/PET-TLE234-radscore-RCS2.csv")
+dt <- read.csv("C:\\Users\\wane199\\Desktop\\EP\\Structured_Data\\PET-TLE234-radscore-RCS2.csv")
 table(dt$Freq)
 train <- subset(dt, dt$Group == "Training")
 test <- subset(dt, dt$Group == "Test")
@@ -218,7 +218,7 @@ ggplot(res1, aes(x = Sample, y = value, fill = Sample)) +
   theme(legend.position = "none")
 
 
-###############################
+#####################################
 # 生存分析任务转化为分类任务
 rm(list = ls())
 library(survival)
@@ -312,23 +312,45 @@ for(i in 4:ncol(train)){
 }
 legend("bottomright", cex=0.6, aucText, lwd=1, bty="n", col=bioCol[1:(ncol(train)-2)])
 # dev.off()
+# [list筛选数据_ROC居然能够批量筛选](https://blog.csdn.net/weixin_36320737/article/details/112071868)
+library(survivalROC)
+roc = survivalROC(Stime=train$Follow_up_timemon, status=train$Rel._in_5yrs, marker = train[,7], predict.time = 24, method="KM")
+roc$AUC
+# 构建一个空数据框，用来存贮循环的数据
+outTab <- data.frame()
 
+for(i in colnames(train[,7:ncol(train)])) {roc=survivalROC(Stime=train$Follow_up_timemon, status=train$Rel._in_5yrs, marker = train[,i], predict.time = 24,  method="KM") 
+    if(roc$AUC>0.55){outTab=rbind(outTab,cbind(gene=i,AUC=roc$AUC))}}
+
+# 排序提取列
+train %>% dplyr::select(5,6,all_of("radscore"))
+
+plot(roc$FP, roc$TP, type="l", xlim=c(0,1), ylim=c(0,1),    
+     xlab=paste( "FP", "\n", "AUC = ",round(roc$AUC,3)),    
+     ylab="TP",main="roc, Method = KM \n Month = 12")
+abline(0,1)
+
+
+
+############################################
 # This is equivalent to using roc.formula:
-library(pROC) # 单一因素ROC绘制，
+library(pROC) # 单一因素ROC绘制，logistic二分类回归
 library(glmnet) # 多指标联合预测ROC曲线分析
 dt <- dt[-1]
-roc.list <- roc(grade ~  ., data = dt)
+roc(oneyr ~  ., data = train, print.thres=TRUE, percent=TRUE, plot=TRUE, print.auc=TRUE, ci=TRUE)
+roc.list <- roc(oneyr ~  ., data = train, ci=TRUE)
+print(roc.list[[1]][[1]])
 ggroc(roc.list, size = 1.2, alpha=.6, legacy.axes = TRUE) + theme_bw() + xlab('1-Specificity(FPR)') + ylab('Sensitivity(TPR)') +
   scale_y_continuous(expand = c(0, 0),breaks = seq(0,1.0,0.2)) + scale_x_continuous(expand = c(0, 0),breaks = seq(0,1.0,0.2)) +
   theme(legend.background=element_rect(fill = alpha("white", 0)), legend.title=element_blank(), legend.justification=c(1,0), legend.position=c(1,0))
-
-  
 
 g3 + ggsci::scale_color_lancet()
 
 # Also without ROC objects.
 # For instance what AUC would be significantly different from 0.5?
 power.roc.test(ncases=41, ncontrols=72, sig.level=0.05, power=0.95)
+
+
 
 
 # R语言pec包深度验证Cox模型
@@ -343,6 +365,9 @@ power.roc.test(ncases=41, ncontrols=72, sig.level=0.05, power=0.95)
 # multiple regression
 library(riskRegression) # 可同时绘制ROC曲线和校正曲线
 library(prodlim)
+data(Melanoma,package="riskRegression")
+## tumor thickness on the log-scale
+Melanoma$logthick <- log(Melanoma$thick)
 # absolute risk model
 multi.arr <- ARR(Hist(time,status)~logthick+sex+age+ulcer,data=Melanoma,cause=1)
 
@@ -374,4 +399,4 @@ x <- Score(list(fit.arr2a,fit.arr2b,fit.lrr),
            formula=Hist(time,status)~1,
            cause=1,
            split.method="none")
-
+x
