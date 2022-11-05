@@ -1,13 +1,16 @@
 # 预测模型 | 10. K折交叉验证可视化 (Cox回归)
 # https://mp.weixin.qq.com/s?__biz=Mzg2MjU2NDQwMg==&mid=2247497310&idx=1&sn=d0aade5c787e85e1689579679e8a6ba7&chksm=ce074f03f970c6157372da63431520b5009c590824f2b087f6ccc67c7d08b7e83ec08c296424&mpshare=1&scene=1&srcid=0904ZBKuwGpRm9OC14OkTKHm&sharer_sharetime=1662264266271&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd
+# 清理工作环境
+rm(list = ls())
 library(survival) # cox回归用
 library(caret) # K折交叉验证用
 library(riskRegression) # cox回归时间AUC用
 library(pec) # cox回归时间c指数用
-# 清理工作环境
-rm(list = ls())
+
 # 读入数据
-dt <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/Task2/TLE234group.csv")
+dt0 <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/Task2/TLE234group.csv")
+dt <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/PET-TLE234-radscore-RCS2.csv")
+table(dt$Freq)
 train <- subset(dt, dt$Group == "Training")
 test <- subset(dt, dt$Group == "Test")
 
@@ -188,7 +191,6 @@ summ_res1 <- res1 %>%
   )
 summ_res1
 
-
 ## 小提琴+箱线图+散点+误差
 ggplot(res1, aes(x = Sample, y = value, fill = Sample)) +
   geom_half_violin(aes(fill = Sample),
@@ -216,7 +218,7 @@ ggplot(res1, aes(x = Sample, y = value, fill = Sample)) +
   theme(legend.position = "none")
 
 
-############################
+###############################
 # 生存分析任务转化为分类任务
 rm(list = ls())
 library(survival)
@@ -282,8 +284,8 @@ reportROC(gold = dt$outcome1yr, predictor = c(dt$SGS, dt$radscore, dt$familial_e
 # 引用包
 train <- subset(dt, dt$Group == "Training")
 test <- subset(dt, dt$Group == "Test")
-table(dt$Rel._in_5yrs)
-train <- train[5:22]
+table(dt$oneyr)
+train <- train[4:19]
 library(survminer)
 library(timeROC)
 # 绘制ROC图：
@@ -293,8 +295,8 @@ bioCol=rainbow(ncol(train)-2,0.4)
 aucText=c()
 # outFile="ROC.pdf"   
 # pdf(file=outFile,width=6,height=6)
-i=3
-ROC_train=timeROC(T=train$Follow_up_timemon,delta=train$Rel._in_5yrs,marker=train[,i],cause=1,weighting='aalen',times=c(12),ROC=TRUE)
+i=2
+ROC_train=timeROC(T=train$Follow_up_timemon,delta=train$oneyr,marker=train[,i],cause=1,weighting='aalen',times=c(12),ROC=TRUE)
 print(ROC_train)
 plot(ROC_train,time=12,col=bioCol[i-2],title=FALSE,lwd=2)
 aucText=c(paste0(colnames(train)[i],", AUC=",sprintf("%.3f",ROC_train$AUC[2])))
