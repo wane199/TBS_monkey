@@ -10,6 +10,8 @@ library(pec) # cox回归时间c指数用
 # 读入数据
 dt0 <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/Task2/TLE234group.csv")
 dt <- read.csv("C:\\Users\\wane199\\Desktop\\EP\\Structured_Data\\PET-TLE234-radscore-RCS2.csv")
+dt <- read.csv("C:\\Users\\wane199\\Desktop\\EP\\Structured_Data\\process_PT-22.csv")
+
 table(dt$Freq)
 train <- subset(dt, dt$Group == "Training")
 test <- subset(dt, dt$Group == "Test")
@@ -218,7 +220,7 @@ ggplot(res1, aes(x = Sample, y = value, fill = Sample)) +
   theme(legend.position = "none")
 
 
-#####################################
+########################################
 # 生存分析任务转化为分类任务
 rm(list = ls())
 library(survival)
@@ -337,15 +339,19 @@ abline(0,1)
 library(pROC) # 单一因素ROC绘制，logistic二分类回归
 library(glmnet) # 多指标联合预测ROC曲线分析
 dt <- dt[-1]
-par(mfrow=c(3,5))
+par(mfrow=c(4,6))
 roc(oneyr ~  ., data = train[4:19], print.thres=TRUE, percent=TRUE, plot=TRUE, print.auc=TRUE, ci=TRUE)
+
+roc.list <- roc(Y ~  ., data = dt, ci=T)
+ggroc(roc.list, size = 1.2, alpha=.6, legacy.axes = TRUE) + theme_bw() + xlab('1-Specificity(FPR)') + ylab('Sensitivity(TPR)') +
+  ggsci::scale_color_lancet()  + scale_y_continuous(expand = c(0, 0),breaks = seq(0,1.0,0.20)) + scale_x_continuous(expand = c(0, 0),breaks = seq(0,1.0,0.2)) + 
+  theme(legend.title=element_blank())
 roc.list <- roc(oneyr ~  ., data = train[4:19], ci=TRUE)
 print(roc.list[[1]][[1]])
 ggroc(roc.list, size = 1.2, alpha=.6, legacy.axes = TRUE) + theme_bw() + xlab('1-Specificity(FPR)') + ylab('Sensitivity(TPR)') +
-  scale_y_continuous(expand = c(0, 0),breaks = seq(0,1.0,0.2)) + scale_x_continuous(expand = c(0, 0),breaks = seq(0,1.0,0.2)) +
+  scale_y_continuous(expand = c(0, 0),breaks = seq(0,1.0,0.2)) + # scale_x_continuous(expand = c(0, 0),breaks = seq(0,1.0,0.2)) +
   theme(plot.margin = unit(c(1,4,1,1),"lines"),legend.background=element_rect(fill = alpha("white", 0)), legend.title=element_blank(), legend.justification=c(1,0), legend.position=c(1,0))
 
-g3 + ggsci::scale_color_lancet()
 
 # Also without ROC objects.
 # For instance what AUC would be significantly different from 0.5?
