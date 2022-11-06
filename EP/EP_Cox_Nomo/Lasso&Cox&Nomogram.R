@@ -66,7 +66,12 @@ write.csv(nor1, "/home/wane/Desktop/EP/Structured_Data/Task2/PT_radiomic_feature
 
 train <- subset(dt, dt$Group == "Training")
 test <- subset(dt, dt$Group == "Test")
+train1 <- as.data.frame(scale(train[4:19])) # 自变量Z-score标准化
+test1 <- as.data.frame(scale(test[4:19]))
+train <- mutate(train[, 2:3], train1) 
+test <- mutate(test[, 2:3], test1) 
 
+# 外部验证, 增加数据集
 train <- read.csv("E:/BLS-ep-pre/EP/Structured_Data/Task2/COX12mon/220trainnor.csv")
 test <- read.csv("E:/BLS-ep-pre/EP/Structured_Data/Task2/COX12mon/78testnor.csv")
 
@@ -673,8 +678,9 @@ stepwiseCox(Surv,
 )
 
 # check collinearity of the selected variables
-cor(train[c(2,3,6,8,10)])
-
+Hmisc::rcorr(as.matrix(train[c(4,9,11,12,14)]))
+library(PerformanceAnalytics) #加载包
+chart.Correlation(train[c(4,9,11,12,14)], histogram=TRUE, pch=19)
 
 
 # 用for循环语句将数值型变量转为因子变量
@@ -823,9 +829,10 @@ shinyPredict(
   shinytheme = "journal"
 )
 
+#############################################
 ## 模型区分度对比和验证
 # Concordance index(未校准的时间C-index)
-f0 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore, data = train)
+f0 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy + Durmon + SE, data = train)
 f01 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
   x = T, data = train
 )
@@ -834,10 +841,39 @@ sum.surv <- summary(f01)
 print(sum.surv)
 c_index <- sum.surv$concordance
 c_index
+# https://blog.csdn.net/fjsd155/article/details/84669331
+# 独立验证
+# Method 1: rcorr.cens
+library(Hmisc)
+fit <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE, data=train)
+fp <- predict(fit,test)
+cindex.orig=1-rcorr.cens(fp,Surv(test$Follow_up_timemon,test$Rel._in_5yrs))
+cindex.orig
+# Method 2: survConcordance
+library(survival)
+c_index <- concordance(Surv(test$Follow_up_timemon,test$Rel._in_5yrs==1)~predict(fit,test))$concordance
+c_index
+# 内部交叉验证或Bootstrap验证
+library(boot)
+
+c_index <- function(formula, data, indices) {
+  tran.data <- data[indices,]
+  vali.data <- data[-indices,]
+  fit <- coxph(formula, data=train)
+  result<-survConcordance(Surv(test$Follow_up_timemon,test$Rel._in_5yrs)~predict(fit,test))
+  index<-as.numeric(result$concordance)
+  return(index)
+}
+
+set.seed(123)
+results <- boot(data=test, statistic=c_index, R=1000, formula=Surv(time,death)~x1+x2+x3)
+mean(results$t)
+boot.ci(results)
+
 
 # C-index计算及ROC曲线绘制(校准后的时间C-index)
 require(pec) # 计算时间C-index验证模型
-var <- colnames(test)
+var <- colnames(train)
 var
 f00 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ .,
   x = T, data = test
@@ -846,6 +882,7 @@ t <- c(1 * 12, 2 * 12, 3 * 12) # 设置预测生存概率的时间点，根据�
 survprob <- predictSurvProb(f01, newd = test, times = t)
 head(survprob)
 as.matrix(head(train))
+
 ddist <- datadist(train)
 options(datadist = "ddist")
 
@@ -853,7 +890,7 @@ cli <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy 
   x = T, y = T, surv = T, data = train)
 full <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
   x = T, y = T, surv = T, data = train) #  time.inc = 60
-test$SE <- as.factor(test$SE)
+# test$SE <- as.factor(test$SE)
 summary(test)
 c_index <- cindex(list("Clinic" = cli, "Rad-clinic" = full),
   formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ .,
@@ -867,7 +904,7 @@ par(mgp = c(3.1, 0.8, 0), mar = c(5, 5, 3, 1), cex.axis = 0.8, cex.main = 0.8, l
 plot(c_index, xlim = c(0, 60), legend.x = 1, legend.y = 1, legend.cex = 0.8)
 ## splitMethod 拆分方法 ="bootcv"表示采用重抽样方法, B表示重抽样次数
 c_index1 <- cindex(list("Clinic" = cli, "Rad-clinic" = full),
-  formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ 1,
+  formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ .,
   data = test,
   eval.times = seq(0, 5 * 12, 12),
   splitMethod = "bootcv",
@@ -946,17 +983,19 @@ library(riskRegression) # 可同时绘制ROC曲线和校正曲线
 str(train)
 train$Follow_up_timemon <- as.numeric(as.character(train$Follow_up_timemon))
 # 拟合cox回归
-f1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy + Durmon + SE, data = train, x = T)
-f2 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore, data = train, x = T)
-f3 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = train, x = T)
+f1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy + Durmon + SE, data = train, y=TRUE, x = TRUE)
+f2 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore, data = train, y=TRUE, x = TRUE)
+f3 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = train, y=TRUE, x = TRUE)
 ### 例如评估两年的ROC及AUC值
-model <- riskRegression::Score(list("full" = f3),
+model <- riskRegression::Score(list("clinic" = f1, "rad-clinic" = f3),
   formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ 1,
   data = test,
-  times = 12,
+  times = c(12,24,36),
   plots = "roc",
   metrics = "auc"
 )
+model
+plotROC(model)
 # 3.画图
 plotROC(model,
   xlab = "1-Specificity",
@@ -966,7 +1005,7 @@ plotROC(model,
   pch = 2, # 文字格式
   lwd = 2, # 线粗
   col = "red",
-  legend = "Radscore_clinc model"
+  legend = c("Clinic model","Radscore_clinc model")
 )
 # 也可绘制校正曲线
 model <- riskRegression::Score(list("Clinc-Rad" = f3),formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ 1,
@@ -982,7 +1021,7 @@ pk1 <- Score(list(
   model.rad.clinic = f3
 ),
 Hist(Follow_up_timemon, Rel._in_5yrs == 1) ~ 1,
-data = train,
+data = test,
 times = 12, # 比较三者5年ROC
 plots = "roc",
 metrics = "auc"
@@ -1005,7 +1044,7 @@ pk <- Score(list(
   model3 = f3
 ),
 formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ 1,
-data = train,
+data = test,
 metrics = "auc",
 null.model = F,
 times = seq(1, 36, 6)
