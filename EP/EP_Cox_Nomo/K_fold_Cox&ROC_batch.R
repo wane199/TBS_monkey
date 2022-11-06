@@ -31,7 +31,7 @@ set.seed(123)
 # 设定K和N,预测3年AUC的5折200次验证
 # status是结局1为复发
 folds <- createMultiFolds(
-  y = dt$Rel._in_5yrs,
+  y = train$Rel._in_5yrs,
   k = 5, times = 100
 )
 

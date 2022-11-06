@@ -26,7 +26,6 @@ dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/COX12mon/TLE234group
 dt <- read.csv("C:/Users/wane199/Desktop/EP/Structured_Data/Task2/TLE234group.csv")
 
 table(dt$Freq)
-
 dt <- dt[c(-1:-2, -4)]
 dt <- as.data.frame(dt)
 as.matrix(head(dt))
@@ -851,17 +850,15 @@ ddist <- datadist(train)
 options(datadist = "ddist")
 
 cli <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy + Durmon + SE,
-  x = T, y = T, surv = T, data = train, time.inc = 60
-)
+  x = T, y = T, surv = T, data = train)
 full <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
-  x = T, y = T, surv = T, data = train, time.inc = 60
-)
+  x = T, y = T, surv = T, data = train) #  time.inc = 60
 test$SE <- as.factor(test$SE)
 summary(test)
 c_index <- cindex(list("Clinic" = cli, "Rad-clinic" = full),
   formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ .,
   data = test,
-  eval.times = seq(12, 5 * 12, 6)
+  eval.times = seq(12, 5 * 12, 12)
 )
 c_index
 ## 设置画图参数: mar以数值向量表示的边界大小，顺序为“下、左、上、右”，单位为英分*。默认值为c(5, 4, 4, 2) + 0.1 ,mgp 设定标题、坐标轴名称、坐标轴距图形边框的距离。默认值为c(3,1,0)，其中第一个值影响的是标题
@@ -870,12 +867,13 @@ par(mgp = c(3.1, 0.8, 0), mar = c(5, 5, 3, 1), cex.axis = 0.8, cex.main = 0.8, l
 plot(c_index, xlim = c(0, 60), legend.x = 1, legend.y = 1, legend.cex = 0.8)
 ## splitMethod 拆分方法 ="bootcv"表示采用重抽样方法, B表示重抽样次数
 c_index1 <- cindex(list("Clinic" = cli, "Rad-clinic" = full),
-  formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ .,
+  formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ 1,
   data = test,
-  eval.times = seq(0, 5 * 12, 6),
+  eval.times = seq(0, 5 * 12, 12),
   splitMethod = "bootcv",
-  B = 100
+  B = 20
 )
+c_index1
 plot(c_index1, xlim = c(0, 60), legend.x = 1, legend.y = 1, legend.cex = 0.8)
 set.seed(123)
 c_index1 <- cindex(list("Clinic" = cli, "Rad-clinic" = full),
@@ -899,9 +897,9 @@ plot(c_index1,
 library(survivalROC)
 ## Put linear predictors ("lp") into pbc dataset
 full <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
-  x = T, y = T, surv = T, data = test, time.inc = 60
+  x = T, y = T, surv = T, data = train, time.inc = 60
 )
-test$lp.Radscore_clinic <- predict(full, type = "lp")
+test$lp.Radscore_clinic <- predict(full, type = "lp", newdata = test)
 ## Define a function
 fun.survivalROC <- function(lp, t) {
   res <- with(
@@ -954,7 +952,7 @@ f3 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + famili
 ### 例如评估两年的ROC及AUC值
 model <- riskRegression::Score(list("full" = f3),
   formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ 1,
-  data = train,
+  data = test,
   times = 12,
   plots = "roc",
   metrics = "auc"
@@ -972,7 +970,7 @@ plotROC(model,
 )
 # 也可绘制校正曲线
 model <- riskRegression::Score(list("Clinc-Rad" = f3),formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ 1,
-                               data = train, plots = "cal", metrics = "auc")
+                               data = test, plots = "cal", metrics = "auc")
 plotCalibration(model,bars = T)
 plotCalibration(model,cens.method="local",pseudo=1)
 plotCalibration(model,method="quantile")
