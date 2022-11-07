@@ -26,7 +26,7 @@ vis.gam(gam1,color="heat",theta=30,phi=30)
 gam1$weights
 plot(gam1, pages = 1, col = "blue", las = 1, se = T, rug = T)
 
-mgam<-gam(SUVr_whole_refPons ~ s(Age), data=dt, family= poisson(), #  binomial(link = "logit"),
+mgam<-gam(SUVr_whole_refPons ~ s(Age), data=dt, family = gaussian(link = "identity"), #  poisson(), gaussian(link = "identity")，binomial(link = "logit"),
           model=T)
 summary(mgam)
 plot(mgam, se=T)
@@ -127,7 +127,7 @@ p1 <- ggplot(dt, mapping = aes(x = Age, y = SUVr_whole_refPons, colour = Sex, fi
   # ylab(bquote(TBV/BW(cm^3/kg)))  + # 上下标 xlab("") + scale_fill_nejm() + scale_colour_nejm() +  
   stat_cor(aes(), label.x = 3) + scale_x_continuous(expand = c(0,0), breaks=seq(0, 30, 2)) + scale_y_continuous(expand = c(0,0)) +  
   # geom_vline(aes(xintercept=8.0),linetype=4,col="red") +
-  geom_smooth(method = mgcv::gam, formula = y ~ s(x, k = 7), se = T) + 
+  geom_smooth(method = mgcv::gam, formula = y ~ s(x, k = 4), se = T) + 
   # geom_point(aes(colour = Sex, shape = Sex, fill = Sex), size = 1) + 
   theme(axis.text = element_text(size = 10, face = "bold"), axis.ticks.length=unit(-0.25, "cm"), 
         axis.text.x = element_text(margin=unit(c(0.5,0.5,0.5,0.5), "cm")), 
