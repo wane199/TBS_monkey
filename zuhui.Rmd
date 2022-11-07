@@ -62,7 +62,7 @@ PET/CT-MRI, JNU
 ???
 https://huhuaping.com/2021/02/01/css-base-xaringan/
 ---
-# 吴环华工作汇报1107
+# 吴环华工作汇报1107-1024
 
 ## First
 Gam & Gamlss package;
@@ -70,16 +70,8 @@ Gam & Gamlss package;
 ## Second
 CPH & EML in TLE dataset(234); 
 
----
----
-# 吴环华工作汇报1024
-
-## First
-Gam & Gamlss package;
-
-## Second
-CPH & EML in TLE dataset(234); 
-
+$$L(x, y) \equiv \sum_{i=1}^n\left(y_i-h_\theta\left(x_i\right)\right)^2+
+\lambda \sum_{i=1}^n\left|\theta_i\right|$$
 ---
 # 吴环华工作汇报1017
 

@@ -21,8 +21,8 @@ library(My.stepwise)
 
 # 读取数据集
 # write.csv(dt,"/home/wane/Desktop/EP/结构化数据/TableS1-2.csv", row.names = FALSE)
-dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/PT_radiomic_features_temporal_ind2_group.csv")
-dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/COX12mon/TLE234group.csv")
+dt <- read.csv("/home/wane/Desktop/EP/sci/cph/PT_radiomic_features_nor_mask_both_label_234_AI.csv")
+dt <- read.csv("/home/wane/Desktop/EP/sci/cph/TLE234group.csv")
 dt <- read.csv("C:/Users/wane199/Desktop/EP/Structured_Data/Task2/TLE234group.csv")
 
 table(dt$Freq)
@@ -83,13 +83,13 @@ prop.table(table(test$Follow_up_timemon))
 prop.table(table(train$Rel._in_5yrs))
 prop.table(table(test$Rel._in_5yrs))
 
-## 影像组学导论R语言实现冗余性分析（含代码）
-## 影像组学导论 冗余性分析 你懂她嘛?(pearson OR spearman)
+## [影像组学导论R语言实现冗余性分析/影像组学导论--冗余性分析(pearson OR spearman)](https://mp.weixin.qq.com/s?__biz=MzAwMjIwMTIzNA==&mid=2247484813&idx=1&sn=d43f4897c8be4eac54ca0fa357bed0cc&chksm=9acf4670adb8cf664fbba4a32d13acb196b9c0c95a05b0266389509538596cd067bef8e0dde9&mpshare=1&scene=1&srcid=06062ez3l3xMK1pmRJqIDjzv&sharer_sharetime=1654487807730&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
 # 9.feature selection: reduce redundancy
 # 9.1 calculate p of normality test
-trainx <- train[5:1136]
-trainx <- train[7:22]
-norm_result <- apply(trainx, 2, function(x) shapiro.test(x)$p.value)
+trainx <- train[7:1138]
+dim(trainx)
+# trainx <- train[7:22]
+norm_result <- apply(trainx, 1, function(x) shapiro.test(x)$p.value)
 norm_feature <- trainx[which(norm_result >= 0.05)] # 获取满足正态性特征
 # 9.2 calculate r
 cor_nor <- cor(norm_feature, method = "pearson") # 针对正态特征使用Pearson
@@ -111,6 +111,7 @@ train[16] <- lapply(train[16], FUN = function(y) {
   as.numeric(y)
 }) # int类型转num类型
 cv_x <- as.matrix(data_reduce) # 数据矩阵化
+cv_x <- as.matrix(train[7:1138])
 # cv_y <- train[1:2]
 cv_y <- data.matrix(Surv(train$Follow_up_timemon, train$Rel._in_5yrs))
 set.seed(123)
@@ -129,10 +130,11 @@ abline(v = log(nocv_lasso$lambda.min), lwd = 1, lty = 3, col = "black")
 
 lasso_selection <- cv.glmnet(
   x = cv_x,
-  y = cv_y, type.measure = "deviance",
+  y = cv_y, type.measure = "deviance", # 评价指标deviance
   family = "cox", alpha = 1, nfolds = 1000
 ) # cross validation
-# fitcv1 <- cv.glmnet(x, y, alpha = 1, family = "cox", type.measure = "C")
+# fitcv1 <- cv.glmnet(cv_x, cv_y, alpha = 5, family = "cox", type.measure = "C") 
+# fitcv1
 lasso_selection
 plot(x = lasso_selection, las = 1, xlab = "log(lambda)") # Fig2
 # 给每一副子图加上序号，tag_level选a，表示用小写字母来标注
@@ -261,7 +263,7 @@ ggplot(lasso_coef, aes(x = reorder(Feature, Coef), y = Coef, fill = Coef)) +
   theme(axis.text.y = element_blank()) + # hjust=1调整横轴距离
   geom_text(aes(y = ifelse(Coef > 0, -0.01, 0.01), label = Feature, fontface = 4, hjust = ifelse(Coef > 0, 1, 0))) +
   scale_fill_gradient2(low = "#366488", high = "red", mid = "white", midpoint = 0)
-write.csv(lasso_coef, file = "/home/wane/Desktop/EP/Structured_Data/Task2/coef.minPTcox9.csv", quote = T, row.names = F)
+write.csv(lasso_coef, file = "/home/wane/Desktop/EP/Structured_Data/Task2/coef.minPTcox_ai_7.csv", quote = T, row.names = F)
 # coef <- read_csv("/media/wane/wade/EP/EPTLE_PET/TLE_pet_ind/coef.minPTcox9.csv", show_col_types = FALSE)
 # 提取特征名
 var <- unlist(lasso_coef[, 1])
@@ -294,7 +296,7 @@ test1 <- mutate(Rad_test, test)
 train1 %>% rename(radscore = Radscore_train) -> train1
 test1 %>% rename(radscore = Radscore_test) -> test1
 rad <- rbind(train1, test1)
-write.csv(rad, file = "/home/wane/Desktop/EP/Structured_Data/Task2/process_ind2_rad.csv", quote = T, row.names = F)
+write.csv(rad, file = "/home/wane/Desktop/EP/Structured_Data/Task2/process_rad_ai_7.csv", quote = T, row.names = F)
 
 ## Lasso筛选变量后进一步逐步回归筛选(训练集)stepwise
 vars <- c(
@@ -681,8 +683,9 @@ stepwiseCox(Surv,
 
 # check collinearity of the selected variables
 Hmisc::rcorr(as.matrix(train[c(4,9,11,12,14)]))
+Hmisc::rcorr(as.matrix(train[c(4:20)]))
 library(PerformanceAnalytics) #加载包
-chart.Correlation(train[c(4,9,11,12,14)], histogram=TRUE, pch=19)
+chart.Correlation(train[c(4:20)], histogram=TRUE, pch=19)
 
 
 # 用for循环语句将数值型变量转为因子变量
@@ -699,7 +702,7 @@ train$rad <- factor(train$rad,
 # coxm1 <- cph(Surv(Follow_up_timemon,Rel._in_5yrs==1) ~ Radscore, x=T,y=T,data=train,surv=T)
 coxm0 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy + Durmon + SE + Surgmon, data = test)
 coxm1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore, data = test)
-coxm2 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = train)
+coxm2 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + radscore + SGS + familial_epilepsy + Durmon + SE, data = train)
 
 cox.zph(coxm2) # 半参数模型CPH, 依赖于风险随时间变化的假设(PH假设/等比例风险假定), COX时变系数模型(含时间依存协变量的Cox回归模型)
 print(coxm2)
@@ -835,7 +838,7 @@ shinyPredict(
 ## 模型区分度对比和验证
 # Concordance index(未校准的时间C-index)
 f0 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy + Durmon + SE, data = train)
-f01 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
+f01 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + radscore + SGS + familial_epilepsy + Durmon + SE,
   x = T, data = train
 )
 print(f01)
@@ -847,7 +850,7 @@ c_index
 # 独立验证
 # Method 1: rcorr.cens
 library(Hmisc)
-fit <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE, data=train)
+fit <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore  + radscore + SGS + familial_epilepsy + Durmon + SE, data=train)
 fp <- predict(fit,test)
 cindex.orig=1-rcorr.cens(fp,Surv(test$Follow_up_timemon,test$Rel._in_5yrs))
 cindex.orig
@@ -889,14 +892,14 @@ ddist <- datadist(train)
 options(datadist = "ddist")
 
 cli <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy + Durmon + SE,
-  x = T, y = T, surv = T, data = train)
-full <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
-  x = T, y = T, surv = T, data = train) #  time.inc = 60
+  x = T, y = T, surv = T, data = dt)
+full <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + radscore + SGS + familial_epilepsy + Durmon + SE,
+  x = T, y = T, surv = T, data = dt) #  time.inc = 60
 # test$SE <- as.factor(test$SE)
 summary(test)
 c_index <- cindex(list("Clinic" = cli, "Rad-clinic" = full),
   formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ .,
-  data = test,
+  data = dt,
   eval.times = seq(12, 5 * 12, 12)
 )
 c_index
@@ -907,10 +910,10 @@ plot(c_index, xlim = c(0, 60), legend.x = 1, legend.y = 1, legend.cex = 0.8)
 ## splitMethod 拆分方法 ="bootcv"表示采用重抽样方法, B表示重抽样次数
 c_index1 <- cindex(list("Clinic" = cli, "Rad-clinic" = full),
   formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ .,
-  data = test,
+  data = dt,
   eval.times = seq(0, 5 * 12, 12),
   splitMethod = "bootcv",
-  B = 20
+  B = 1000
 )
 c_index1
 plot(c_index1, xlim = c(0, 60), legend.x = 1, legend.y = 1, legend.cex = 0.8)
@@ -935,7 +938,7 @@ plot(c_index1,
 # 绘制Time-dependent ROC curve, Assessment of Discrimination in Survival Analysis (C-statistics, etc), https://rpubs.com/kaz_yos/survival-auc
 library(survivalROC)
 ## Put linear predictors ("lp") into pbc dataset
-full <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
+full <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~SGS + familial_epilepsy + Durmon + SE,
   x = T, y = T, surv = T, data = train, time.inc = 60
 )
 test$lp.Radscore_clinic <- predict(full, type = "lp", newdata = test)
