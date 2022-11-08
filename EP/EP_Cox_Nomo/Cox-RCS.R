@@ -16,12 +16,15 @@ options(datadist = "dd")
 
 str(train)
 train$Rel._in_5yrs <- as.factor(train$Rel._in_5yrs)
+train$Lat_radscore <- as.numeric(as.character(train$Lat_radscore))
 
-# Cox比例风险模型的假设检验条件
-fit <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = train)
-fit
+# Cox比例风险模型的假设检验条件, 
+fit <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + + tt(Lat_radscore) + SGS + Durmon, 
+             data = train, tt = function(x, t, ...) x*log(t+18))
+summary(fit) # + tt(Lat_radscore) 
 cox.zph(fit, "rank") # tests of PH
-zph <- cox.zph(fit, "rank")[[1]] # 检验结果导出
+cox.zph(fit, transform = function(time) log(time)) # tests of PH
+zph <- cox.zph(fit, "rank")[[1]] # 检验结果导出(https://blog.csdn.net/yijiaobani/article/details/83116578)
 library(xtable)
 library(flextable)
 set_flextable_defaults(digits = 3)
@@ -62,11 +65,29 @@ res.cox <- coxph(S ~ radscore + I(radscore^2), data = train)
 ggcoxfunctional(res.cox, data = train, point.col = "blue", point.alpha = 0.5) # 检测对数风险值与协变量之间关系的非线性情况,仅针对连续变量绘制martingale残差图和部分残差图。
 ggcoxfunctional(S ~ radscore + sqrt(radscore), data = train)
 
+# 非比例风险的Cox回归模型--时依系数法(https://zhuanlan.zhihu.com/p/420063750)
+
+
+
+
+
+
+
+
+
+# chest包自动计算效应改变量change-in-estimate(https://mp.weixin.qq.com/s?__biz=MzIzMzc1ODc4OA==&mid=2247485666&idx=1&sn=f28aff82d66af79d099f237e8e302f89&chksm=e88181c9dff608df3a55a831f6d7dbcce32a29cb1f52ae16bf994c4585b06a52d1013084af29&mpshare=1&scene=24&srcid=1108Gz1ANkBpbNLK03j9kR93&sharer_sharetime=1667838586772&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
+library(chest)
+? chest_cox
+vlist <- c("Lat_radscore", "SGS" ,"Durmon")
+results <- chest_cox(crude = "Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore", xlist = vlist, data = train)
+chest_plot(results)
+chest_forest(results)  
 
 ## rcs, ggrcs包，一个用于绘制直方图+限制立方样条+双坐标轴图的R包
 S <- Surv(train$Follow_up_timemon, train$Rel._in_5yrs == 1)
-fit <- cph(S ~ radscore, x = TRUE, y = TRUE, data = train)
-ggrcs(data=train,fit=fit,x="radscore", histbinwidth = 0.05, histcol="blue", ribcol="green",
+fit <- cph(S ~ Lat_radscore, x = TRUE, y = TRUE, data = train)
+fit
+ggrcs(data=train,fit=fit,x="Lat_radscore", histbinwidth = 0.05, histcol="blue", ribcol="green",
       histlimit=c(0,50),leftaxislimit=c(0,1),lift = T)
 
 ## 不分组/总体

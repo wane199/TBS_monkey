@@ -7,11 +7,14 @@ dt <- read.csv("C:\\Users\\wane199\\Desktop\\EP\\Structured_Data\\process_PT-22.
 str(dt) ## 查看每个变量结构
 summary(dt)
 
-dt <- read.csv("/home/wane/Desktop/EP/sci/cph/XML/TLE234group_2019.csv")
+dt <- read.csv("/home/wane/Desktop/EP/sci/cph/XML/TLE234group_2019_factor.csv")
 dt <- dt[c(7:23)]
 dtx <- as.data.frame(scale(dt[4:17]))
 dt <- mutate(dt[, 1:3], dtx) 
 table(dt$oneyr)
+train <- subset(dt, dt$Group1 == "Training")
+test <- subset(dt, dt$Group1 == "Test")
+
 heat_tree(dt, target_lab = "oneyr", task = 'classification')
 
 # 任意修改图片颜色
@@ -27,7 +30,18 @@ heat_tree(dt, target_lab = "Y",
 heat_tree(dt, target_lab = "oneyr",show_all_feats = TRUE,
           show = "heat-only")  # 只显示决策树/热图show = "heat-tree",
 
-########################################
+# change-in-estimate(https://mp.weixin.qq.com/s?__biz=MzIzMzc1ODc4OA==&mid=2247485666&idx=1&sn=f28aff82d66af79d099f237e8e302f89&chksm=e88181c9dff608df3a55a831f6d7dbcce32a29cb1f52ae16bf994c4585b06a52d1013084af29&mpshare=1&scene=24&srcid=1108Gz1ANkBpbNLK03j9kR93&sharer_sharetime=1667838586772&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
+library(chest)
+
+results <- chest_speedglm(
+  crude = "Endpoint ~ Diabetes",
+  xlist = c("Age", "Sex", "Married", "Smoke", 
+            "Cancer", "CVD","Education", "Income"),
+  data = diab_df)
+chest_plot(results)
+chest_forest(results)  
+
+################################################
 # Heat map & Radiomics 
 rm(list = ls())
 library(data.table)

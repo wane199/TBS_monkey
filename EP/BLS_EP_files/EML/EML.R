@@ -1,3 +1,65 @@
+# [机器学习特征选择](https://blog.csdn.net/ARPOSPF/article/details/84979032)
+rm(list = ls()) 
+
+# 移除冗余特征，移除高度关联的特征
+set.seed(123)
+library(mlbench)
+library(caret)
+# data(PimaIndiansDiabetes)
+# Matrix <- PimaIndiansDiabetes[,1:8]
+dt <- read.csv("/home/wane/Desktop/EP/sci/cph/XML/TLE234group_2019_factor.csv")
+head(dt)
+# dtx <- as.data.frame(scale(dt[4:17]))
+# dt <- mutate(dt[, 1:3], dtx) 
+table(dt$oneyr)
+train <- subset(dt, dt$Group == "Training")
+train <- train[c(7:23)]
+test <- subset(dt, dt$Group == "Test")
+
+library(Hmisc)
+up_CorMatrix <- function(cor,p) {ut <- upper.tri(cor) 
+data.frame(row = rownames(cor)[row(cor)[ut]] ,
+           column = rownames(cor)[col(cor)[ut]], 
+           cor =(cor)[ut] ) }
+
+res <- rcorr(as.matrix(train))
+cor_data <- up_CorMatrix (res$r)
+cor_data <- subset(cor_data, cor_data$cor > 0.5)
+cor_data
+
+# 根据重要性进行特征排序
+# 构建一个Learning Vector Quantization（LVQ）模型。varImp用于获取特征重要性
+# ensure results are repeatable
+set.seed(123)
+# load the library
+library(mlbench)
+library(caret)
+# load the dataset
+# data(PimaIndiansDiabetes)
+# prepare training scheme
+control <- trainControl(method="repeatedcv", number=10, repeats=3)
+# train the model
+model <- train(factor(oneyr)~., data=train, method="lvq", preProcess="scale", trControl=control)
+# estimate variable importance
+importance <- varImp(model, scale=FALSE)
+# summarize importance
+print(importance)
+# plot importance
+plot(importance)
+
+
+library(mlr)
+# 创建task
+train.task <- makeClassifTask(data = train, target = "oneyr")
+# 查看变量选择可选方法listFilterMethods()
+# 选择计算方差，进行特征选择
+var_imp <- generateFilterValuesData(train.task, method = "variance", nselect = 6)
+var_imp
+# 对衡量特征指标进行绘图
+plotFilterValues(var_imp, feat.type.cols = TRUE, n.show = 10)
+
+
+
 # [mlr3book.pdf](https://mlr3book.mlr-org.com/interpretation.html)
 # Model Interpretation/or more in omnixai(python)
 data("penguins", package = "palmerpenguins")

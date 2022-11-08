@@ -540,9 +540,13 @@ res.cat <- read.csv("/media/wane/wade/EP/EPTLE_PET/res.cat.csv")
 res.cat <- as.data.frame(res.cat)
 
 # 采用cut函数, 连续变量处理成分类变量(训练集的cutoff应用于全数据(验证集))
-dt$rad <- cut(dt$radscore, breaks = c(-Inf, 0.3346, Inf), labels = c("low", "high"), right = FALSE)
-
-write.csv(dt, "/media/wane/wade/EP/EPTLE_PET/TLE234-rad.csv", row.names = FALSE)
+str(dt)
+dt$AI_radscore <- cut(dt$AI_radscore, breaks = c(-Inf, 0.339, Inf), labels = c("1", "2"), right = FALSE)
+dt$Lat_radscore <- cut(dt$Lat_radscore, breaks = c(-Inf, 0.103, Inf), labels = c("1", "2"), right = FALSE)
+dt$Surgmon <- cut(dt$Surgmon, breaks = c(-Inf, 252, Inf), labels = c("1", "2"), right = FALSE)
+dt$Onsetmon <- cut(dt$Onsetmon, breaks = c(-Inf, 156, Inf), labels = c("1", "2"), right = FALSE)
+dt$Durmon <- cut(dt$Durmon, breaks = c(-Inf, 96, Inf), labels = c("1", "2"), right = FALSE)
+write.csv(dt, "/home/wane/Desktop/EP/sci/cph/TLE234group_factor.csv", row.names = FALSE)
 
 dt$Rad[dt$rad == "low"] <- "0"
 dt$Rad[dt$rad == "high"] <- "1"
@@ -551,10 +555,15 @@ dtx <- as.data.frame(dtx)
 head(dt[, 1:2])
 dt <- mutate(dt[, 1:2], dtx)
 write.csv(dt, "/media/wane/wade/EP/EPTLE_PET/process_TLE234-rad.csv", row.names = F)
-dt <- read.csv("/media/wane/wade/EP/EPTLE_PET/TLE234-rad.csv")
-dt <- read.csv("./EP/EP_Cox_Nomo/TLE234-rad.csv")
 
-create_report(dt)
+dt <- read.csv("/home/wane/Desktop/EP/sci/cph/TLE234group_factor.csv")
+train <- subset(dt, dt$Group1 == "Training")
+test <- subset(dt, dt$Group1 == "Test")
+
+library(dlookr)
+library(DataExplorer)
+create_report(dt) # 数据EDA分析报告
+
 # 对数据初步预处理(批量单因素分析变量保留数值型变量)
 # 用for循环语句将数值型变量转为因子变量
 for (i in names(train)[c(-1:-6, -7, -10:-12)]) {
@@ -573,7 +582,7 @@ train["Follow_up_timemon"] <- lapply(train["Follow_up_timemon"], FUN = function(
 
 paste0(colnames(dt[c(-1, -2)]), collapse = "\",\"")
 # Crosstable
-explanatory <- unlist(colnames(train)[c(7:23)])
+explanatory <- unlist(colnames(train)[c(8:24)])
 # explanatory <- c(
 #   "side", "Sex", "Surgmon", "Onsetmon", "Durmon", "SE", "SGS",
 #   "early_brain_injury", "familial_epilepsy", "brain_hypoxia", "Central_Nervous_System_Infections", "traumatic_brain_injury", "history_of_previous_surgery", "MRI", "radscore"
@@ -606,7 +615,7 @@ train %>%
     add_dependent_label = F
   ) -> t2 # add_dependent_label=F表示不在表的左上角添加因变量标签。
 knitr::kable(t2, "simple")
-write.csv(t2, "/home/wane/Desktop/EP/sci/cph/table2.csv", row.names = F)
+write.csv(t2, "/home/wane/Desktop/EP/sci/cph/table2_2019.csv", row.names = F)
 
 # hr_plot()生成Cox比例风险模型的风险比表和图, or_plot用于从glm()或lme4::glmer()模型中生成一个OR值表和图。
 # https://mp.weixin.qq.com/s?__biz=MzIzMzc1ODc4OA==&mid=2247485564&idx=1&sn=db5b0e544afa6f09e89d8c4606e21659&chksm=e8818157dff60841de4e60cc25785defca31241f2342d6b6a1b705151b6cbe7e023bfbd44aaa&mpshare=1&scene=1&srcid=0205aGisjDzv3Rrn1Raq1gUL&sharer_sharetime=1660926034730&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd
@@ -642,19 +651,22 @@ str(train)
 ddist <- datadist(train)
 options(datadist = "ddist")
 paste0(colnames(dt)[3:17], collapse = '","')
-var <- unlist(colnames(train)[7:23])
-
+var <- unlist(colnames(train)[8:24])
+for (i in names(train)[c(8:24)]) {
+  train[, i] <- as.factor(train[, i])
+}
+var
 results <- ezcox(train,
   time = "Follow_up_timemon", status = "Rel._in_5yrs",
   covariates = var
 )
 results
 knitr::kable(results, "latex")
-write.csv(results, "/home/wane/Desktop/EP/sci/cph/results.csv", row.names = FALSE)
+write.csv(results, "/home/wane/Desktop/EP/sci/cph/results2019.csv", row.names = FALSE)
 
 show_forest(train,
   time = "Follow_up_timemon", status = "Rel._in_5yrs",
-  covariates = unlist(colnames(train)[c(-1:-4)]), controls = "radscore"
+  covariates = unlist(colnames(train)[c(-1:-6)]), controls = "AI_radscore"
 )
 
 # Stepwise筛选变量
@@ -689,10 +701,9 @@ stepwiseCox(Surv,
 
 # check collinearity of the selected variables
 Hmisc::rcorr(as.matrix(train[c(4,9,11,12,14)]))
-Hmisc::rcorr(as.matrix(train[c(4:20)]))
+Hmisc::rcorr(as.matrix(train[c(7:23)]))
 library(PerformanceAnalytics) #加载包
-chart.Correlation(train[c(4:20)], histogram=TRUE, pch=19)
-
+chart.Correlation(train[c(7:23)], histogram=TRUE, pch=19)
 
 # 用for循环语句将数值型变量转为因子变量
 for (i in names(train)[c(1, 21, 7:18)]) {
@@ -708,7 +719,7 @@ train$rad <- factor(train$rad,
 # coxm1 <- cph(Surv(Follow_up_timemon,Rel._in_5yrs==1) ~ Radscore, x=T,y=T,data=train,surv=T)
 coxm0 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy + Durmon + SE + Surgmon, data = test)
 coxm1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore, data = test)
-coxm2 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + radscore + SGS + familial_epilepsy + Durmon + SE, data = train)
+coxm2 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon, data = train)
 
 cox.zph(coxm2) # 半参数模型CPH, 依赖于风险随时间变化的假设(PH假设/等比例风险假定), COX时变系数模型(含时间依存协变量的Cox回归模型)
 print(coxm2)
@@ -724,15 +735,17 @@ test$lp.rad_clinic <- predict(coxm2, type = "lp")
 
 library(Hmisc)
 ## Model with clinic(Hmisc::rcorrcens)
-rcorrcens(formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = train)
+rcorrcens(formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon, data = train)
 
-model1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = train)
+train$Durmon <- ifelse(train$Durmon > 96 , 2, 1)
+
+model1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SE + side, data = train) # SGS + Durmon,
 print(model1, data = train)
 
 library(eoffice) # export figure to pptx
 p <- ggforest(model1, data = train) # https://cache.one/read/16896085
 p
-topptx(figure = p, filename = "./EP/EP_Cox_Nomo/forest.pptx")
+topptx(figure = p, filename = "/home/wane/Desktop/EP/sci/cph/forest.pptx")
 
 ### 开始cox-nomo graph
 # 设置因子的水平标签(常见列线图的绘制及自定义美化详细教程)
@@ -829,7 +842,7 @@ train$Rel._in_5yrs <- factor(train$Rel._in_5yrs)
 mod1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy + Durmon + SE,
   data = train, model = FALSE, y = FALSE
 )
-mod2 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
+mod2 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon,
   data = train, model = FALSE, y = FALSE
 )
 shinyPredict(
@@ -843,8 +856,8 @@ shinyPredict(
 #############################################
 ## 模型区分度对比和验证
 # Concordance index(未校准的时间C-index)
-f0 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy + Durmon + SE, data = train)
-f01 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ Lat_radscore + AI_radscore + SGS + Surgmon,
+f0 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~  SGS + Durmon, data = train)
+f01 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SE + side,
   x = T, data = train
 )
 print(f01)
@@ -856,7 +869,7 @@ c_index
 # 独立验证
 # Method 1: rcorr.cens
 library(Hmisc)
-fit <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ Lat_radscore + AI_radscore + SGS + Surgmon, data=train)
+fit <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SE + side, data=train) #  SGS + Durmon
 fp <- predict(fit,test)
 cindex.orig=1-rcorr.cens(fp,Surv(test$Follow_up_timemon,test$Rel._in_5yrs))
 cindex.orig
@@ -896,15 +909,15 @@ as.matrix(head(train))
 ddist <- datadist(train)
 options(datadist = "ddist")
 
-cli <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ Lat_radscore + AI_radscore + SGS + Surgmon,
+cli <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SE + side, #SGS + Durmon,
   x = T, y = T, surv = T, data = train)
-full <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ Lat_radscore + AI_radscore + SGS + familial_epilepsy + Durmon + Surgmon,
+full <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ Lat_radscore + AI_radscore + SE + side, #SGS + Durmon,
   x = T, y = T, surv = T, data = train) #  time.inc = 60
 # test$SE <- as.factor(test$SE)
 summary(test)
 c_index <- cindex(list("Clinic" = cli, "Rad-clinic" = full),
   formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ .,
-  data = train,
+  data = test,
   eval.times = seq(12, 5 * 12, 12)
 )
 c_index
@@ -914,11 +927,11 @@ par(mgp = c(3.1, 0.8, 0), mar = c(5, 5, 3, 1), cex.axis = 0.8, cex.main = 0.8, l
 plot(c_index, xlim = c(0, 60), legend.x = 1, legend.y = 1, legend.cex = 0.8)
 ## splitMethod 拆分方法 ="bootcv"表示采用重抽样方法, B表示重抽样次数
 c_index1 <- cindex(list("Clinic" = cli, "Rad-clinic" = full),
-  formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ .,
-  data = test,
+  formula = Surv(Follow_up_timemon, Rel._in_5yrs == 0) ~ .,
+  data = train,
   eval.times = seq(0, 5 * 12, 12),
   splitMethod = "bootcv",
-  B = 10
+  B = 1000
 )
 c_index1
 plot(c_index1, xlim = c(0, 60), legend.x = 1, legend.y = 1, legend.cex = 0.8)
@@ -943,7 +956,7 @@ plot(c_index1,
 # 绘制Time-dependent ROC curve, Assessment of Discrimination in Survival Analysis (C-statistics, etc), https://rpubs.com/kaz_yos/survival-auc
 library(survivalROC)
 ## Put linear predictors ("lp") into pbc dataset
-full <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~SGS + familial_epilepsy + Durmon + SE,
+full <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ Lat_radscore + AI_radscore + SGS + Durmon,
   x = T, y = T, surv = T, data = train, time.inc = 60
 )
 test$lp.Radscore_clinic <- predict(full, type = "lp", newdata = test)
