@@ -4,8 +4,8 @@
 # https://www.bilibili.com/video/BV1bq4y1P7uN?spm_id_from=333.999.0.0
 # https://www.bilibili.com/video/BV1b3411y7bJ?spm_id_from=333.337.search-card.all.click
 # https://www.jianshu.com/p/0512bc3e3be9
-setwd("/home/wane/Documents/RDocu") ## 设置工作目录
 getwd()
+# setwd("/home/wane/Documents/RDocu") ## 设置工作目录
 rm(list = ls())
 list.files() ## 列出工作目录下的文件
 options(digits=3) # 限定输出小数点后数字的位数为3位
@@ -22,7 +22,7 @@ library(My.stepwise)
 # 读取数据集
 # write.csv(dt,"/home/wane/Desktop/EP/结构化数据/TableS1-2.csv", row.names = FALSE)
 dt <- read.csv("/home/wane/Desktop/EP/sci/cph/PT_radiomic_features_nor_mask_both_label_234_AI.csv")
-dt <- read.csv("/home/wane/Desktop/EP/sci/cph/TLE234group.csv")
+dt <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/sci/cph/TLE234group_factor.csv")
 dt <- read.csv("C:/Users/wane199/Desktop/EP/Structured_Data/Task2/TLE234group.csv")
 
 table(dt$Freq)
@@ -857,7 +857,7 @@ shinyPredict(
 ## 模型区分度对比和验证
 # Concordance index(未校准的时间C-index)
 f0 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~  SGS + Durmon, data = train)
-f01 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SE + side,
+f01 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon,# SE + side,
   x = T, data = train
 )
 print(f01)
@@ -869,7 +869,7 @@ c_index
 # 独立验证
 # Method 1: rcorr.cens
 library(Hmisc)
-fit <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SE + side, data=train) #  SGS + Durmon
+fit <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon, data = train) #  SGS + Durmon
 fp <- predict(fit,test)
 cindex.orig=1-rcorr.cens(fp,Surv(test$Follow_up_timemon,test$Rel._in_5yrs))
 cindex.orig
@@ -909,10 +909,10 @@ as.matrix(head(train))
 ddist <- datadist(train)
 options(datadist = "ddist")
 
-cli <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SE + side, #SGS + Durmon,
-  x = T, y = T, surv = T, data = train)
-full <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ Lat_radscore + AI_radscore + SE + side, #SGS + Durmon,
-  x = T, y = T, surv = T, data = train) #  time.inc = 60
+cli <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + Durmon,
+  x = T, y = T, surv = T, data = test)
+full <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ Lat_radscore + AI_radscore + SGS + Durmon, # SE + side,
+  x = T, y = T, surv = T, data = test) #  time.inc = 60
 # test$SE <- as.factor(test$SE)
 summary(test)
 c_index <- cindex(list("Clinic" = cli, "Rad-clinic" = full),
