@@ -858,7 +858,7 @@ shinyPredict(
 # Concordance index(未校准的时间C-index)
 f0 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~  SGS + Durmon, data = train)
 f01 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon,# SE + side,
-  x = T, data = train
+  x = T, data = test
 )
 print(f01)
 sum.surv <- summary(f01)
