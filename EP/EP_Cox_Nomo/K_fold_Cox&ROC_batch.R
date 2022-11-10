@@ -10,7 +10,6 @@ library(pec) # cox回归时间c指数用
 # 读入数据
 dt0 <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/Structured_Data/Task2/TLE234group.csv")
 dt <- read.csv("C:\\Users\\wane199\\Desktop\\EP\\Structured_Data\\PET-TLE234-radscore-RCS2.csv")
-dt <- read.csv("C:\\Users\\wane199\\Desktop\\EP\\Structured_Data\\process_PT-22.csv")
 
 table(dt$Freq)
 train <- subset(dt, dt$Group == "Training")
@@ -338,11 +337,44 @@ abline(0,1)
 # This is equivalent to using roc.formula:
 library(pROC) # 单一因素ROC绘制，logistic二分类回归
 library(glmnet) # 多指标联合预测ROC曲线分析
-dt <- dt[-1]
-par(mfrow=c(4,6))
-roc(oneyr ~  ., data = train[4:19], print.thres=TRUE, percent=TRUE, plot=TRUE, print.auc=TRUE, ci=TRUE)
+library(readxl)
+dt <- read_excel("/Volumes/UNTITLED/QH/SUVc+ADCc+CBFc.xlsx")
+# dt <- dt[-1]
+summary(dt)
+par(mfrow=c(1,3))
+roc(grade ~  ., data = dt, print.thres=TRUE, percent=TRUE, plot=TRUE, print.auc=TRUE, ci=TRUE)
+library(reportROC) # Confusion Matrix
+rep <- reportROC(gold = dt$grade, predictor = dt$SUVmax_center_ADCmin_center, 
+          plot = T, important = "se", exact = FALSE)
+rep1 <- reportROC(gold = dt$grade, predictor = dt$SUVmax_center_rCBF_center, 
+                 plot = T, important = "se", exact = FALSE)
+rep2 <- reportROC(gold = dt$grade, predictor = dt$ADCmin_center_rCBF_center, 
+                  plot = T, important = "se", exact = FALSE)
+DT::datatable(c(rep,rep1))
+DT::datatable(as.matrix(c(rep,rep1,rep2)))
+DT::datatable(as.data.frame(c(rep,rep1,rep2)))
+# 混淆矩阵
+library(caret) # http://topepo.github.io/caret/train-models-by-tag.html#logic-regression
+lrFit <- train(dt$SUVmax_center_ADCmin_center, dt$grade,
+                method = "knn",
+                preProcess = c("center", "scale"),
+                tuneLength = 10,
+                trControl = trainControl(method = "cv"))
+## 建模
+glm <- glm(formula = factor(grade) ~ SUVmax_center_ADCmin_center,      # 以Species为y，其他特征为X
+           family = binomial(link = "logit"),       # 适用于逻辑回归的二项分布
+           data = dt)                         # 训练集训练数据
+## 输出predication
+prob1 <- predict(glm, newdata = dt, type = "response") # 预测分类概率
+# type = "link", 缺省值，给出线性函数预测值
+# type = "response", 给出概率预测值
+# type = "terms"，给出各个变量的预测值
+predlab <- as.factor(ifelse(prob1 > 0.5, 2, 1)) # 预测分类类别，计算cutoof值(Youden index)
+confusionMatrix(predlab, factor(dt$grade))
 
-roc.list <- roc(Y ~  ., data = dt, ci=T)
+
+
+roc.list <- roc(grade ~  ., data = dt, ci=T)
 ggroc(roc.list, size = 1.2, alpha=.6, legacy.axes = TRUE) + theme_bw() + xlab('1-Specificity(FPR)') + ylab('Sensitivity(TPR)') +
   ggsci::scale_color_lancet()  + scale_y_continuous(expand = c(0, 0),breaks = seq(0,1.0,0.20)) + scale_x_continuous(expand = c(0, 0),breaks = seq(0,1.0,0.2)) + 
   theme(legend.title=element_blank())
