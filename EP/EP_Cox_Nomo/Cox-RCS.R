@@ -19,12 +19,13 @@ train$Rel._in_5yrs <- as.factor(train$Rel._in_5yrs)
 train$Lat_radscore <- as.numeric(as.character(train$Lat_radscore))
 
 # Cox比例风险模型的假设检验条件, 
-fit <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + + tt(Lat_radscore) + SGS + Durmon, 
+fit <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon, 
              data = train, tt = function(x, t, ...) x*log(t+18))
 summary(fit) # + tt(Lat_radscore) 
 cox.zph(fit, "rank") # tests of PH
 cox.zph(fit, transform = function(time) log(time)) # tests of PH
 zph <- cox.zph(fit, "rank")[[1]] # 检验结果导出(https://blog.csdn.net/yijiaobani/article/details/83116578)
+DT::datatable(zph)
 library(xtable)
 library(flextable)
 set_flextable_defaults(digits = 3)

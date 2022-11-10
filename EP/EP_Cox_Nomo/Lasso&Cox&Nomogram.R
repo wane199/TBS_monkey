@@ -719,7 +719,7 @@ train$rad <- factor(train$rad,
 # coxm1 <- cph(Surv(Follow_up_timemon,Rel._in_5yrs==1) ~ Radscore, x=T,y=T,data=train,surv=T)
 coxm0 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy + Durmon + SE + Surgmon, data = test)
 coxm1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore, data = test)
-coxm2 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon, data = train)
+coxm2 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon + strata(Lat_radscore), data = train)
 
 cox.zph(coxm2) # 半参数模型CPH, 依赖于风险随时间变化的假设(PH假设/等比例风险假定), COX时变系数模型(含时间依存协变量的Cox回归模型)
 print(coxm2)
@@ -739,7 +739,7 @@ rcorrcens(formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + L
 
 train$Durmon <- ifelse(train$Durmon > 96 , 2, 1)
 
-model1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SE + side, data = train) # SGS + Durmon,
+model1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon, data = train) # SGS + Durmon,
 print(model1, data = train)
 
 library(eoffice) # export figure to pptx
