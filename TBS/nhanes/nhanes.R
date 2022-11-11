@@ -142,3 +142,24 @@ for (i in 1:length(bc$ Ozone)) {
     bc$ Ozone[i]
   )
 }
+
+# Plot incomplete or imputed data
+# load packages
+library(ggplot2)
+library(mice)
+library(ggmice)
+# load some data
+dat <- boys
+# visualize the incomplete data
+ggmice(dat, aes(age, bmi)) + geom_point()
+
+# impute the incomplete data
+imp <- mice(dat, m = 1, seed = 1, printFlag = FALSE)
+# visualize the imputed data
+ggmice(imp, aes(age, bmi)) + geom_point() 
+
+
+
+
+
+
