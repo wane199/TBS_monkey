@@ -23,7 +23,7 @@ library(My.stepwise)
 # write.csv(dt,"/home/wane/Desktop/EP/结构化数据/TableS1-2.csv", row.names = FALSE)
 dt <- read.csv("/home/wane/Desktop/EP/sci/cph/PT_radiomic_features_nor_mask_both_label_234_AI.csv")
 dt <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/sci/cph/TLE234group_factor.csv")
-dt <- read.csv("C:/Users/wane199/Desktop/EP/Structured_Data/Task2/TLE234group.csv")
+dt <- read.csv("/media/wane/UNTITLED/sci/cph/TLE234group_factor.csv")
 
 table(dt$Freq)
 dt <- dt[c(-1:-2)]
@@ -701,12 +701,12 @@ stepwiseCox(Surv,
 
 # check collinearity of the selected variables
 Hmisc::rcorr(as.matrix(train[c(4,9,11,12,14)]))
-Hmisc::rcorr(as.matrix(train[c(7:23)]))
+Hmisc::rcorr(as.matrix(train[c(6:22)]))
 library(PerformanceAnalytics) #加载包
-chart.Correlation(train[c(7:23)], histogram=TRUE, pch=19)
+chart.Correlation(train[c(6:22)], histogram=TRUE, pch=25)
 
 # 用for循环语句将数值型变量转为因子变量
-for (i in names(train)[c(1, 21, 7:18)]) {
+for (i in names(train)[c(6:22)]) {
   train[, i] <- as.factor(train[, i])
 }
 str(train)
@@ -719,7 +719,7 @@ train$rad <- factor(train$rad,
 # coxm1 <- cph(Surv(Follow_up_timemon,Rel._in_5yrs==1) ~ Radscore, x=T,y=T,data=train,surv=T)
 coxm0 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy + Durmon + SE + Surgmon, data = test)
 coxm1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore, data = test)
-coxm2 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon + strata(Lat_radscore), data = train)
+coxm2 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon, data = train) # + strata(Lat_radscore)
 
 cox.zph(coxm2) # 半参数模型CPH, 依赖于风险随时间变化的假设(PH假设/等比例风险假定), COX时变系数模型(含时间依存协变量的Cox回归模型)
 print(coxm2)
@@ -739,11 +739,18 @@ rcorrcens(formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + L
 
 train$Durmon <- ifelse(train$Durmon > 96 , 2, 1)
 
+library(eoffice) # export figure to pptx
+# 调整变量名称
+train <- within(train, {
+  AI_radscore <- factor(AI_radscore, labels = c('low', 'high'))
+  Lat_radscore <- factor(Lat_radscore, labels = c('low', 'high'))
+  SGS <- factor(SGS, labels = c('no', 'yes'))
+  Durmon <- factor(Durmon, labels = c('short', 'long'))
+})
 model1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon, data = train) # SGS + Durmon,
 print(model1, data = train)
-
-library(eoffice) # export figure to pptx
-p <- ggforest(model1, data = train) # https://cache.one/read/16896085
+p <- ggforest(model1, noDigits = 3,#保留HR值以及95%CI的小数位数
+              data = train) # https://cache.one/read/16896085
 p
 topptx(figure = p, filename = "/home/wane/Desktop/EP/sci/cph/forest.pptx")
 

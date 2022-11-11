@@ -1,7 +1,6 @@
 # https://r-graph-gallery.com/215-the-heatmap-function.html
 rm(list = ls())
 # 读入数据
-
 dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/PET-TLE234-radscore-RCS2.csv", row = 2)
 # dt <- read.csv("/media/wane/UNTITLED/BLS-ep-pre/EP/Structured_Data/Task2/COX12mon/TLE234group.csv")
 dt <- dt[-1]
