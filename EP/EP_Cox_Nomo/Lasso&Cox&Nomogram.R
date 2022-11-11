@@ -858,7 +858,7 @@ shinyPredict(
 # Concordance index(未校准的时间C-index)
 f0 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~  SGS + Durmon, data = train)
 f01 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon,# SE + side,
-  x = T, data = test
+  x = T, data = train
 )
 print(f01)
 sum.surv <- summary(f01)
@@ -910,14 +910,14 @@ ddist <- datadist(train)
 options(datadist = "ddist")
 
 cli <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + Durmon,
-  x = T, y = T, surv = T, data = test)
+  x = T, y = T, surv = T, data = train)
 full <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ Lat_radscore + AI_radscore + SGS + Durmon, # SE + side,
-  x = T, y = T, surv = T, data = test) #  time.inc = 60
+  x = T, y = T, surv = T, data = train) #  time.inc = 60
 # test$SE <- as.factor(test$SE)
 summary(test)
 c_index <- cindex(list("Clinic" = cli, "Rad-clinic" = full),
   formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ .,
-  data = test,
+  data = train,
   eval.times = seq(12, 5 * 12, 12)
 )
 c_index

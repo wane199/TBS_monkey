@@ -20,7 +20,7 @@ train$Lat_radscore <- as.numeric(as.character(train$Lat_radscore))
 
 # Cox比例风险模型的假设检验条件, 
 fit <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon, 
-             data = train, tt = function(x, t, ...) x*log(t+18))
+             data = train) # , tt = function(x, t, ...) x*log(t+18)
 summary(fit) # + tt(Lat_radscore) 
 cox.zph(fit, "rank") # tests of PH
 cox.zph(fit, transform = function(time) log(time)) # tests of PH
@@ -40,8 +40,9 @@ write.table(zph,"./EP/EP_Cox_Nomo/supple_zph.csv",sep=",") #result是想保存�
 ggcoxzph(cox.zph(fit, "rank")) # 可视化等比例假定
 # plot(cox.zph(fit)) # 分图展示
 res_martingale <- residuals(fit, type = "martingale") # dfbetas, score, deviance, partial, schoenfeld
-scatter.smooth(radscore, res_martingale) # https://www.youtube.com/watch?v=4Edu6Ij7jEM
+scatter.smooth(Lat_radscore, res_martingale) # https://www.youtube.com/watch?v=4Edu6Ij7jEM
 
+ggcoxdiagnostics(fit, type = "scaledsch", ox.scale = "linear.predictions")
 ggcoxdiagnostics(fit,
   type = "dfbeta", # type = "deviance",“ martingale”，“ score”，“ schoenfeld”，“ dfbeta”，“ dfbetas”，“ scaledsch”，“ partial”
   linear.predictions = FALSE, ggtheme = theme_bw()
@@ -74,8 +75,6 @@ ggcoxfunctional(S ~ radscore + sqrt(radscore), data = train)
 
 
 
-
-
 # chest包自动计算效应改变量change-in-estimate(https://mp.weixin.qq.com/s?__biz=MzIzMzc1ODc4OA==&mid=2247485666&idx=1&sn=f28aff82d66af79d099f237e8e302f89&chksm=e88181c9dff608df3a55a831f6d7dbcce32a29cb1f52ae16bf994c4585b06a52d1013084af29&mpshare=1&scene=24&srcid=1108Gz1ANkBpbNLK03j9kR93&sharer_sharetime=1667838586772&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
 library(chest)
 ? chest_cox
@@ -84,9 +83,13 @@ results <- chest_cox(crude = "Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_ra
 chest_plot(results)
 chest_forest(results)  
 
+# rcssci()
+library(rcssci)
+rcssci_cox(data=sbpdata, y = "status",x = "sbp",covs = c("age", "gender"), time = "time", 
+           prob=0.1, filepath = "/Users/mac/Desktop/BLS-ep-pre/EP/sci/cph/")
 ## rcs, ggrcs包，一个用于绘制直方图+限制立方样条+双坐标轴图的R包
 S <- Surv(train$Follow_up_timemon, train$Rel._in_5yrs == 1)
-fit <- cph(S ~ Lat_radscore, x = TRUE, y = TRUE, data = train)
+fit <- cph(S ~ AI_radscore + Lat_radscore + SGS + Durmon, x = TRUE, y = TRUE, data = train)
 fit
 ggrcs(data=train,fit=fit,x="Lat_radscore", histbinwidth = 0.05, histcol="blue", ribcol="green",
       histlimit=c(0,50),leftaxislimit=c(0,1),lift = T)

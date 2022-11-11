@@ -149,6 +149,12 @@ p5 <- ggplot(TLM, aes(LM_L3, TLM)) +
   theme_classic() +
   stat_smooth(method = loess, formula = y ~ x)
 p5
+# rcssci(linear models with RCS splines were performed to explore the shape linear or nonlinear(U, inverted U,J,S,L,log,-log,temporary plateau shape)
+library(rcssci)
+data=sbpdata
+rcssci_linear(data=sbpdata, y = "sbp",x = "age",covs = c("status", "gender"), time = "time", ref.zero = F,
+           prob=0.1, filepath = "/Volumes/UNTITLED/") + # 默认prob = 0.5
+           ggplot2::theme_classic()
 # 广义可加模型gam**
 # https://mp.weixin.qq.com/mp/appmsgalbum?__biz=MzI1NjM3NTE1NQ==&action=getalbum&album_id=2077935014574374912&scene=173&from_msgid=2247485011&from_itemidx=1&count=3&nolastread=1#wechat_redirect
 model.gam <- gam(BMDL2L4 ~ s(Age), data = TLM) # 建立gam模型
