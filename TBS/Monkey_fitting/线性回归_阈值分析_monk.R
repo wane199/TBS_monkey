@@ -4,13 +4,14 @@
 rm(list=ls())##清空当前环境
 options(digits=3) # 限定输出小数点后数字的位数为3位
 library(mgcv) ##GAMM
+library(gamm4)
 library(ggplot2)#画图
 library(ggthemes)##ggplot主题
 library(writexl)
 library(dplyr)
 
 # dt <- read.csv("jixian.csv")
-dt <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/QIANG/1030/T1_TBV.csv")
+dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\T1_TBV.csv")
 dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\SUVr_whole.csv")
 # TLM <- read_excel("/home/wane/Desktop/TBS/TLMey/BMC.xlsx")
 # 数据探索
@@ -22,23 +23,26 @@ str(dt)
 # colnames(dt) <- toupper(colnames(dt))
 # rcssci(linear models with RCS splines were performed to explore the shape linear or nonlinear(U, inverted U,J,S,L,log,-log,temporary plateau shape)
 library(rcssci)
-rcssci_linear(data = dt, y = "TBV_mm3",x = "Age",covs = c("Sex"), time = "time", ref.zero = F,
-              prob=0.1, filepath = "/Volumes/UNTITLED/") + # 默认prob = 0.5
+rcssci_linear(data = dt, y = "TBV_mm3",x = "Age",covs = c("Sex"), ref.zero = F,
+              prob=0.1, filepath = "C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\") + # 默认prob = 0.5
   ggplot2::theme_classic()
 
-fml <- "SUVr_whole_refPons ~ s(Age,k=3,fx=FALSE)+factor(Sex)"
+fml <- "TBV ~ s(Age,k=4,fx=FALSE)+factor(Sex)"
 gam1 <- mgcv::gam(formula(fml), weights=dt$weights, data = dt, family = gaussian(link = "identity"))
 summary(gam1) # 检验自变量的显著性以及评估回归整体的方差解释率
-vis.gam(gam1,color="heat",theta=30,phi=30)
+vis.gam(gam1,color="gray",theta=30,phi=30) # "topo", "heat", "cm", "terrain", "gray" or "bw"
 gam1$weights
 plot(gam1, pages = 1, col = "blue", las = 1, se = T, rug = T)
 
-mgam<-gam(SUVr_whole_refPons ~ s(Age), data=dt, family = gaussian(link = "identity"), #  poisson(), gaussian(link = "identity")，binomial(link = "logit"),
+mgam<-gam(TBV ~ s(Age)+factor(Sex), data=dt, family = gaussian(link = "identity"), #  poisson(), gaussian(link = "identity")，binomial(link = "logit"),
           model=T)
 summary(mgam)
+vis.gam(mgam,ticktype="detailed",color="bw",theta=40,phi=40)  
+vis.gam(mgam,se=2,theta=-35,color="cm") 
+vis.gam(mgam,theta=30,phi=30,plot.type="contour",color="cm")
 plot(mgam, se=T)
 
-m <- mgcv::gam(SUVr_whole_refPons ~ s(Age, k=4, by = Sex) + factor(Sex), data = dt)
+m <- mgcv::gam(TBV ~ s(Age, k=4, by = Sex) + factor(Sex), data = dt)
 summary(m)
 anova(m)
 plot(modelbased::estimate_relation(m, length = 100, preserve_range = FALSE))
@@ -75,21 +79,22 @@ rug(dt$AGE, col = "blue")
 # https://mp.weixin.qq.com/mp/appmsgalbum?__biz=MzI1NjM3NTE1NQ==&action=getalbum&album_id=2077935014574374912&scene=173&from_msgid=2247485011&from_itemidx=1&count=3&nolastread=1#wechat_redirect
 pr.gam <- predict(gam1, dt) # 生成预测值
 # 计算RSME和R方
+library(caret)
 data.frame(
-  RMSE = RMSE(pr.gam, dt$Frontal_Cortex),
-  R2 = R2(pr.gam, dt$Frontal_Cortex)
+  RMSE = RMSE(pr.gam, dt$TBV),
+  R2 = R2(pr.gam, dt$TBV)
 )
 # 查看模型拟合情况
-ggplot(dt, aes(Age, whole)) + scale_x_continuous(breaks = seq(0,30,2)) +
+ggplot(dt, aes(Age, TBV)) + scale_x_continuous(breaks = seq(0,30,2)) +
   geom_point() + geom_vline(aes(xintercept=8.0),linetype=4,col="red") +
   theme_classic() +
   stat_smooth(method = mgcv::gam, formula = y ~ s(x, k=5))
 
 library(ggpmisc)
 library(ggpubr)
-my.formula <- y ~ s(x,  bs = "cs")
-ggplot(TLM, aes(Age, L2_4)) +  geom_point() + stat_cor(aes(), label.x = 3) + 
-  theme_classic() + scale_x_continuous(expand = c(0,0), breaks=seq(0, 30, 2)) + scale_y_continuous(expand = c(0,0)) +  
+my.formula <- y ~ s(x,  k = 4, bs = "cs")
+ggplot(dt, aes(Age, TBV)) +  geom_point() + stat_cor(aes(), label.x = 3) + 
+  theme_classic() + scale_x_continuous(expand = c(0,0), breaks=seq(0, 32, 2)) + scale_y_continuous(expand = c(0,0)) +  
   stat_smooth(method = mgcv::gam, se=TRUE,formula = my.formula) 
 
 ####################################
@@ -104,17 +109,17 @@ library(ggpmisc)
 library(ggpubr)
 theme_set(theme_classic() + theme(legend.position = "bottom"))
 my.formula <- y ~ s(x,  bs = "cs")
-my.formula <- y ~ s(x,  k = 6)
+my.formula <- y ~ s(x,  k = 4)
 
 my.formula <- y ~ x + I(x^2)
 # 散点图
-ggplot(data = dt, mapping=aes(x = Age, y = SUVr_whole_refPons, color = Sex, shape = Sex)) + geom_point(size = 2) + 
+ggplot(data = dt, mapping=aes(x = Age, y = TBV, color = Sex, shape = Sex)) + geom_point(size = 2) + 
   theme_classic() + scale_colour_nejm() + scale_x_continuous(expand = c(0,0), breaks=seq(0, 30, 1)) + scale_y_continuous(expand = c(0,0)) +
   theme(axis.text = element_text(size = 10, face = "bold"), axis.ticks.length=unit(-0.15, "cm"),  legend.position = "bottom",       
         axis.text.x = element_text(margin=unit(c(0.3,0.3,0.3,0.3), "cm")), 
         axis.text.y = element_text(margin=unit(c(0.3,0.3,0.3,0.3), "cm")))
 # 置信区间虚线
-ggplot(data = dt, mapping = aes(x = Age, y = SUVr_whole_refPons, colour = Sex)) + scale_colour_nejm() +
+ggplot(data = dt, mapping = aes(x = Age, y = TBV, colour = Sex)) + scale_colour_nejm() +
   # geom_point(size = 2) + stat_cor(aes(), label.x = 6) # 显示p值和R值
   theme_classic() + scale_x_continuous(expand = c(0,0), breaks=seq(0, 30, 1)) + scale_y_continuous(expand = c(0,0)) +  
   geom_smooth(method = "gam",formula = my.formula, size = 3,
@@ -130,7 +135,7 @@ ggplot(data = dt, mapping = aes(x = Age, y = SUVr_whole_refPons, colour = Sex)) 
     formula = my.formula, parse = TRUE
   ) 
 # 置信区间带
-p1 <- ggplot(dt, mapping = aes(x = Age, y = SUVr_whole_refPons, colour = Sex, fill = Sex, linetype = Sex)) + 
+p1 <- ggplot(dt, mapping = aes(x = Age, y = TBV, colour = Sex, fill = Sex, linetype = Sex)) + 
   # ylab(bquote(TBV/BW(cm^3/kg)))  + # 上下标 xlab("") + scale_fill_nejm() + scale_colour_nejm() +  
   stat_cor(aes(), label.x = 3) + scale_x_continuous(expand = c(0,0), breaks=seq(0, 30, 2)) + scale_y_continuous(expand = c(0,0)) +  
   # geom_vline(aes(xintercept=8.0),linetype=4,col="red") +
@@ -138,20 +143,20 @@ p1 <- ggplot(dt, mapping = aes(x = Age, y = SUVr_whole_refPons, colour = Sex, fi
   # geom_point(aes(colour = Sex, shape = Sex, fill = Sex), size = 1) + 
   theme(axis.text = element_text(size = 10, face = "bold"), axis.ticks.length=unit(-0.25, "cm"), 
         axis.text.x = element_text(margin=unit(c(0.5,0.5,0.5,0.5), "cm")), 
-        axis.text.y = element_text(margin=unit(c(0.5,0.5,0.5,0.5), "cm"))) +
-  stat_poly_eq(
-    aes(label =  paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
-    formula =  y ~ s(x, k = 3), parse = TRUE
-  ) 
+        axis.text.y = element_text(margin=unit(c(0.5,0.5,0.5,0.5), "cm"))) 
+  # stat_poly_eq(
+  #   aes(label =  paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
+  #   formula =  y ~ s(x, k = 4), parse = TRUE
+  # ) 
 p1
 
 # Fit polynomial equation:
-ggplot(data = dt, mapping = aes(x = Age, y = SUVr_whole_refPons, colour = Sex)) +
+ggplot(data = dt, mapping = aes(x = Age, y = TBV, colour = Sex)) +
   geom_point() + stat_cor(aes(), label.x = 3) + 
   geom_smooth(aes(fill = Sex), method="lm", formula=y ~ poly(x, 3, raw=T), se=T)
 # Polynomial regression. Sow equation and adjusted R2
 formula <- y ~ poly(x, 2, raw = TRUE)
-ggplot(data = dt, mapping = aes(x = Age, y = SUVr_whole_refPons, colour = Sex)) +
+ggplot(data = dt, mapping = aes(x = Age, y = TBV, colour = Sex)) +
   # geom_point() +
   geom_smooth(aes(fill = Sex), method = "lm", formula = formula) +
   stat_poly_eq(
@@ -239,7 +244,7 @@ fit1 <- lm(Frontal_Cortex ~ Age, data = dt)
 summary(fit1)
 
 ## model II 分段模型
-fml <- "Age ~ SUVr_whole_refPons"
+fml <- "Age ~ TBV"
 my.formula <- y ~ s(x,  k = 3)
 my.formula <- y ~ x + I(x^2) + I(x^3) 
 dt$SUVr_whole_refPons
@@ -277,7 +282,7 @@ plot(dt$y.upp ~ dt$Age, ylim = c(co[3], co[4]), xlim = c(co[1], co[2]), col = co
 rug(dt$AGE, col = "blue")
 abline(v = cut_off, col = "black", lty = 2)
 
-
+#######################################
 # 限制性立方样条RCS-R语言代码实战 
 library(rms) #限制性立方样条需要的包
 library(survminer)#曲线
@@ -290,7 +295,7 @@ dt$Side <- as.numeric(as.character(dt$Side,levels = c('Left','Right'),labels = c
 
 dd <- datadist(dt) #为后续程序设定数据环境
 options(datadist='dd') #为后续程序设定数据环境
-fit <-ols(Frontal_Cortex ~ rcs(Age, 4) + Side, data=dt) #做变量的回归
+fit <-ols(TBV ~ rcs(Age, 5) + Sex, data=dt) #做变量的回归
 summary(fit)
 an<-anova(fit) 
 an
@@ -307,7 +312,7 @@ ggplot() +
   labs(title = "RCS", x = "Age", y = "Frontal_Cortex")
 
 # 不同分组(男女组)之间HR与协变量变化关系
-Pre1 <- rms::Predict(fit, Age, Side = c("1", "2"), type = "predictions", ref.zero = T, conf.int = 0.95, digits = 2)
+Pre1 <- rms::Predict(fit, Age, Sex = c("F", "M"), type = "predictions", ref.zero = F, conf.int = 0.95, digits = 2)
 par(mfrow = c(1, 2))
 ggplot(Pre1) +
   geom_line(
@@ -321,12 +326,12 @@ ggplot(Pre1) +
   ) +
   scale_fill_nejm() +
   scale_colour_discrete(
-    name = "Side", breaks = c("1", "2"),
-    labels = c("L", "R")
+    name = "Sex", breaks = c("F", "M"),
+    labels = c("F", "M")
   ) +
   scale_shape_discrete(
-    name = "Side", breaks = c("1", "2"),
-    labels = c("L", "R")
+    name = "Sex", breaks = c("F", "M"),
+    labels = c("F", "M")
   ) +
   geom_hline(yintercept = 1, linetype = 2, size = 0.75)
 View(Pre1)

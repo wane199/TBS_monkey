@@ -341,10 +341,10 @@ ggplot(TLM, aes(x = LM_L3, y = TLM, color = Gender)) +
   scale_fill_nejm() +
   scale_colour_nejm() +
   geom_smooth(method = "lm", formula = y ~ rcs(x, 3), se = T)
-ggplot(TLM, aes(x = LM_L3, y = TLM, color = Gender)) +
-  geom_point(aes(color = Gender), size = 5) +
+ggplot(dt, aes(x = Age, y = TBV, color = Sex)) +
+  geom_point(aes(color = Sex), size = 5) +
   geom_smooth(method = "lm", formula = y ~ rcs(x, 3), se = T) +
-  stat_cor(data = TLM, method = "spearman")
+  stat_cor(data = dt, method = "spearman")
 # 显著性检验stat_cor(data=data, method = "pearson")意为用pearson相关进行相关性分析，可编辑更改。
 
 
@@ -355,15 +355,15 @@ dt <- read.csv("/home/wane/Desktop/TBS/TLMey/VoxelNumbers_InMachin_atlas_whole.c
 str(dt)
 # 2.3拟合平滑曲线
 # 2.3.1 构建模型，使用mgcv::gam()函数拟合平滑曲线。
-fml <- "L2_4 ~ s(Age,fx=FALSE)"
+fml <- "TBV ~ s(Age,fx=FALSE)"
 gam <- mgcv::gam(formula(fml),
   # weights = dt$weights,
-  data = TLM, family = gaussian(link = "identity")
+  data = dt, family = gaussian(link = "identity")
 )
-gam1 <- gam(TLM ~ s(LM_L3, k = 4, bs = "fs") + Gender,
+gam1 <- gam(dt ~ s(Age, k = 4, bs = "fs") + Sex,
   data = dt, method = "REML"
 )
-gam2 <- gam(TLM ~ s(LM_L3, k = 3) + Gender,
+gam2 <- gam(dt ~ s(Age, k = 3) + Sex,
   weights = dt$weights,
   data = dt, family = gaussian(link = "identity")
 )
@@ -449,6 +449,7 @@ abline(v = cut_off, col = "black", lty = 2)
 
 ##############################################
 ##############################################
+library(gamlss)
 data(aids)
 a<-gamlss(y~pb(x)+qrt,family=PO,data=aids)
 summary(a)
@@ -463,12 +464,12 @@ plot(mod)
 # Same plot with custom colors
 # our own (very beta) plot package: details later
 library(WVPlots)
-ScatterHist(TLM, "Age", "L2_4",
+ScatterHist(dt, "Age", "TBV",
             smoothmethod="gam",
             # annot_size=2,
             title="L2_4 with Age") 
 
-WVPlots::ScatterHist(TLM, "Age", "L2_4",
+WVPlots::ScatterHist(dt, "Age", "TBV",
                      title= "Example Fit",
                      smoothmethod = "gam",
                      # contour = TRUE, annot_size=1,
@@ -486,7 +487,7 @@ library(ggpmisc)
 theme_set(ggpubr::theme_pubr()+
             theme(legend.position = "top"))
 
-b <- ggplot(TLM, aes(x = Age, y = L2_4)) + scale_x_continuous(expand = c(0,0), breaks=seq(0, 28, 2)) + scale_y_continuous(expand = c(0,0))
+b <- ggplot(dt, aes(x = Age, y = TBV)) + scale_x_continuous(expand = c(0,0), breaks=seq(0, 28, 2)) + scale_y_continuous(expand = c(0,0))
 # Scatter plot with regression line
 b + geom_point() + 
   geom_smooth(method = "lm", color = "black", fill = "lightgray") 
@@ -495,15 +496,15 @@ b + geom_point()+
   geom_smooth(method = "loess", color = "black", fill = "lightgray")
 
 b + geom_point(shape = 17)+
-  geom_smooth(method = "lm", color = "black", fill = "lightgray")
+  geom_smooth(method = "gam", color = "black", fill = "lightgray")
 
 # Add regression line and confidence interval
 # Add correlation coefficient: stat_cor()
-ggscatter(TLM, x = "Age", y = "L2_4",
+ggscatter(dt, x = "Age", y = "TBV",
           add = "reg.line", conf.int = TRUE,    
           add.params = list(fill = "lightgray"))+ stat_cor(method = "pearson")
 
-formula <- L2_4 ~ Age
+formula <- TBV ~ Age
 b + geom_point(shape = 17)+
   geom_smooth(method = "lm", color = "black", fill = "lightgray") +
   stat_cor(method = "pearson") +
