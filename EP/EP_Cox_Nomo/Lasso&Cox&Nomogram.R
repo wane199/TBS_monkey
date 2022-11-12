@@ -771,7 +771,7 @@ train$familial_epilepsy <- factor(train$familial_epilepsy,
 )
 # 设置生存函数
 model <- cph(
-  formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
+  formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon,
   surv = T, data = train
 )
 surv <- Survival(model) # 建立生存函数
@@ -1038,7 +1038,7 @@ plotROC(model,
   col = "red",
   legend = c("Clinic model","Radscore_clinc model")
 )
-# 也可绘制校正曲线
+# 也可绘制校正曲线(https://mp.weixin.qq.com/s?__biz=MzU4OTc0OTg2MA==&mid=2247494081&idx=1&sn=18a2cf98d09ae4d73d1bbd9719f4d239&chksm=fdca62cacabdebdc593c44459933f17480ac5e11a3bf71a5c1b6b4e529b569d0dadc6673aef1&mpshare=1&scene=1&srcid=10214qI37ajpAIJcmDyKbaxA&sharer_sharetime=1666846938138&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
 model <- riskRegression::Score(list("Clinc-Rad" = f3),formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ 1,
                                data = test, plots = "cal", metrics = "auc")
 plotCalibration(model,bars = T)

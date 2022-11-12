@@ -20,13 +20,16 @@ train$Rel._in_5yrs <- as.factor(train$Rel._in_5yrs)
 train$Lat_radscore <- as.numeric(as.character(train$Lat_radscore))
 
 # Cox比例风险模型的假设检验条件(https://mengte.online/archives/3900)
+# 共线性诊断
 # library(car)
 lm.reg<-lm(Rel._in_5yrs ~ AI_radscore + Lat_radscore + SGS + Durmon, data=train) #线性回归分析
 vif(lm.reg) #计算vif
 
 fit <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon, 
              data = train) # , tt = function(x, t, ...) x*log(t+18)
-summary(fit) # + tt(Lat_radscore) 
+model <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon + tt(Lat_radscore), 
+              tt=function(x,t,...) x*log(t+18), data = train) # , tt = function(x, t, ...) x*log(t+18)
+summary(fit1) 
 cox.zph(fit, "rank") # tests of PH
 cox.zph(fit, transform = function(time) log(time)) # tests of PH
 zph <- cox.zph(fit, "rank")[[1]] # 检验结果导出(https://blog.csdn.net/yijiaobani/article/details/83116578)
