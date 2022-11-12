@@ -21,12 +21,12 @@ library(My.stepwise)
 
 # 读取数据集
 # write.csv(dt,"/home/wane/Desktop/EP/结构化数据/TableS1-2.csv", row.names = FALSE)
-dt <- read.csv("/home/wane/Desktop/EP/sci/cph/cph2/PT_radiomic_features_nor_label_78_lateral.csv")
+dt <- read.csv("/home/wane/Desktop/EP/sci/cph/cph2/Test_MRIneg-78_CSB.csv")
 dt <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/sci/cph/TLE234group_factor.csv")
 dt <- read.csv("/media/wane/UNTITLED/sci/cph/TLE234group_factor.csv")
 
 table(dt$Freq)
-dt <- dt[c(-1:-2)]
+dt <- dt[c(-1:-3)]
 dt <- as.data.frame(dt)
 as.matrix(head(dt))
 
@@ -76,8 +76,10 @@ train %>%
 test %>% 
   select_if(~!any(is.na(.))) -> test  # 删除全是缺失值的列
 # 外部验证, 增加数据集
-train <- read.csv("C:/Users/wane199/Desktop/EP/Structured_Data/Task2/COX12mon/220trainnor.csv")
-test <- read.csv("E:/BLS-ep-pre/EP/Structured_Data/Task2/COX12mon/78testnor.csv")
+train <- read.csv("/home/wane/Desktop/EP/sci/cph/cph2/220trainnor.csv")
+train <- train[-1]
+test <- read.csv("/home/wane/Desktop/EP/sci/cph/cph2/89testnor.csv")
+test <- test[-1]
 write.csv(train, file = "C:/Users/wane199/Desktop/EP/Structured_Data/Task2/COX12mon/220trainnor.csv", quote = T, row.names = F)
 
 # 看一下，不要让临床信息差的太多，输出table1
@@ -325,20 +327,20 @@ My.stepwise.coxph(
 )
 
 # 计算radscore并z-score标准化，添加至临床资料表
-dt1 <- as.data.frame(scale(dt[2:1133]))
-dt <- mutate(dt[1], dt1) 
+dt1 <- as.data.frame(scale(dt[6:19]))
+dt <- mutate(dt[1:5], dt1) 
 dt <- dt %>%
   as_tibble(dt) %>%
-  mutate(radscore = 0.0552 * log.sigma.4.0.mm.3D_firstorder_Maximum
-         + 0.0613 * log.sigma.5.0.mm.3D_glcm_ClusterShade
-         + 0.3712 * wavelet.LLH_gldm_SmallDependenceHighGrayLevelEmphasis
-         -  0.2282 * wavelet.LHL_glcm_Imc2
-         - 0.007 * wavelet.LHH_firstorder_Median
-         - 0.0704 * wavelet.LHH_gldm_SmallDependenceLowGrayLevelEmphasis
-         + 0.0997 * wavelet.HHL_glszm_GrayLevelNonUniformity
-         + 0.2659 * wavelet.LLL_firstorder_Kurtosis)
+  mutate(radscore = -0.0179 * original_gldm_DependenceEntropy
+         -0.1196 * log.sigma.4.0.mm.3D_firstorder_Maximum
+         -0.1219 * wavelet.HHL_glcm_Correlation
+         -0.0741 * wavelet.HHL_glszm_SmallAreaLowGrayLevelEmphasis
+         -0.0209 * wavelet.HHH_gldm_DependenceNonUniformityNormalized
+         -0.001 * wavelet.HHH_gldm_DependenceVariance
+         -0.1939 * wavelet.LLL_glcm_Correlation
+         -0.1723 * wavelet.LLL_gldm_DependenceEntropy)
 radscore <- as.data.frame(dt["radscore"])
-write.csv(dt,'/home/wane/Desktop/EP/sci/cph/cph2/PT_radiomic_features_nor_label_78_lateral_rad.csv',row.names = F)
+write.csv(dt,'/home/wane/Desktop/EP/sci/cph/cph2/89testnor.csv',row.names = F)
 
 # 列名数组
 cols <- colnames(dt)
@@ -721,7 +723,8 @@ train$rad <- factor(train$rad,
 # 拟合cox回归
 # coxm1 <- cph(Surv(Follow_up_timemon,Rel._in_5yrs==1) ~ Radscore, x=T,y=T,data=train,surv=T)
 coxm0 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy + Durmon + SE + Surgmon, data = test)
-coxm1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore, data = test)
+train <- train[-8]
+coxm1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ ., data = train)
 coxm2 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon, data = train) # + strata(Lat_radscore)
 
 cox.zph(coxm2) # 半参数模型CPH, 依赖于风险随时间变化的假设(PH假设/等比例风险假定), COX时变系数模型(含时间依存协变量的Cox回归模型)
@@ -729,7 +732,7 @@ print(coxm2)
 summary(coxm2)
 ## These models are significantly different by likelihood ratio test
 anova(coxm0, coxm1, coxm2, test = "LRT")
-summary(coxm2)$concordance # 未校准的时间C-index
+summary(coxm1)$concordance # 未校准的时间C-index
 
 ## Put linear predictors ("lp") into EP train dataset
 test$lp.clinic <- predict(coxm0, type = "lp")
@@ -866,7 +869,7 @@ shinyPredict(
 #############################################
 ## 模型区分度对比和验证
 # Concordance index(未校准的时间C-index)
-f0 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~  SGS + Durmon, data = train)
+f01 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~  ., data = train)
 f01 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon,# SE + side,
   x = T, data = train
 )
@@ -916,16 +919,19 @@ survprob <- predictSurvProb(f01, newd = test, times = t)
 head(survprob)
 as.matrix(head(train))
 
+train <- train[c(-14:-16)]
+
 ddist <- datadist(train)
 options(datadist = "ddist")
 
-cli <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + Durmon,
+cli <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ Lat_radscore + AI_radscore + SGS + Durmon + SE + traumatic_brain_injury,
   x = T, y = T, surv = T, data = train)
+full <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ .,
+           x = T, y = T, surv = T, data = test)
 full <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ Lat_radscore + AI_radscore + SGS + Durmon, # SE + side,
   x = T, y = T, surv = T, data = train) #  time.inc = 60
 # test$SE <- as.factor(test$SE)
-summary(test)
-c_index <- cindex(list("Clinic" = cli, "Rad-clinic" = full),
+c_index <- cindex(list("Clinic" = cli), # "Rad-clinic" = full
   formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ .,
   data = train,
   eval.times = seq(12, 5 * 12, 12)
