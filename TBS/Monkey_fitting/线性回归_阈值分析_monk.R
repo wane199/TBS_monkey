@@ -2,14 +2,15 @@
 # R语言绘图|2.基于GAMM：分层的平滑曲线怎么画？https://zhuanlan.zhihu.com/p/489149912
 # https://www.bilibili.com/read/cv16417407?spm_id_from=333.999.0.0
 rm(list=ls())##清空当前环境
+options(digits=3) # 限定输出小数点后数字的位数为3位
 library(mgcv) ##GAMM
 library(ggplot2)#画图
 library(ggthemes)##ggplot主题
 library(writexl)
 library(dplyr)
 
-dt <- read.csv("jixian.csv")
-dt <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/QIANG/1030/SUVr_whole.csv")
+# dt <- read.csv("jixian.csv")
+dt <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/QIANG/1030/T1_TBV.csv")
 dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\SUVr_whole.csv")
 # TLM <- read_excel("/home/wane/Desktop/TBS/TLMey/BMC.xlsx")
 # 数据探索
@@ -19,6 +20,12 @@ dt$Side <- as.factor(dt$Side)
 summary(dt)
 str(dt)
 # colnames(dt) <- toupper(colnames(dt))
+# rcssci(linear models with RCS splines were performed to explore the shape linear or nonlinear(U, inverted U,J,S,L,log,-log,temporary plateau shape)
+library(rcssci)
+rcssci_linear(data = dt, y = "TBV_mm3",x = "Age",covs = c("Sex"), time = "time", ref.zero = F,
+              prob=0.1, filepath = "/Volumes/UNTITLED/") + # 默认prob = 0.5
+  ggplot2::theme_classic()
+
 fml <- "SUVr_whole_refPons ~ s(Age,k=3,fx=FALSE)+factor(Sex)"
 gam1 <- mgcv::gam(formula(fml), weights=dt$weights, data = dt, family = gaussian(link = "identity"))
 summary(gam1) # 检验自变量的显著性以及评估回归整体的方差解释率

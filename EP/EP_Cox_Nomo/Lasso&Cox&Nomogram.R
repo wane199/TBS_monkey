@@ -21,7 +21,7 @@ library(My.stepwise)
 
 # 读取数据集
 # write.csv(dt,"/home/wane/Desktop/EP/结构化数据/TableS1-2.csv", row.names = FALSE)
-dt <- read.csv("/home/wane/Desktop/EP/sci/cph/PT_radiomic_features_nor_mask_both_label_234_AI.csv")
+dt <- read.csv("/home/wane/Desktop/EP/sci/cph/cph2/PT_radiomic_features_nor_label_78_lateral.csv")
 dt <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/sci/cph/TLE234group_factor.csv")
 dt <- read.csv("/media/wane/UNTITLED/sci/cph/TLE234group_factor.csv")
 
@@ -325,18 +325,20 @@ My.stepwise.coxph(
 )
 
 # 计算radscore并z-score标准化，添加至临床资料表
+dt1 <- as.data.frame(scale(dt[2:1133]))
+dt <- mutate(dt[1], dt1) 
 dt <- dt %>%
   as_tibble(dt) %>%
-  mutate(radscore = 0.1675 * log.sigma.5.0.mm.3D_glcm_ClusterShade
-    - 0.0648 * log.sigma.5.0.mm.3D_glszm_SmallAreaLowGrayLevelEmphasis
-    - 0.0012 * wavelet.LLH_gldm_LowGrayLevelEmphasis
-    + 0.0503 * wavelet.LHL_firstorder_Median
-    + 0.048 * wavelet.LHL_firstorder_RootMeanSquared
-    - 0.2359 * wavelet.LHL_glcm_Imc2
-    + 0.0407 * wavelet.LHL_gldm_DependenceNonUniformity
-    + 0.0662 * wavelet.HHH_glszm_ZoneEntropy
-    - 0.0841 * wavelet.LLL_glcm_Imc2)
+  mutate(radscore = 0.0552 * log.sigma.4.0.mm.3D_firstorder_Maximum
+         + 0.0613 * log.sigma.5.0.mm.3D_glcm_ClusterShade
+         + 0.3712 * wavelet.LLH_gldm_SmallDependenceHighGrayLevelEmphasis
+         -  0.2282 * wavelet.LHL_glcm_Imc2
+         - 0.007 * wavelet.LHH_firstorder_Median
+         - 0.0704 * wavelet.LHH_gldm_SmallDependenceLowGrayLevelEmphasis
+         + 0.0997 * wavelet.HHL_glszm_GrayLevelNonUniformity
+         + 0.2659 * wavelet.LLL_firstorder_Kurtosis)
 radscore <- as.data.frame(dt["radscore"])
+write.csv(dt,'/home/wane/Desktop/EP/sci/cph/cph2/PT_radiomic_features_nor_label_78_lateral_rad.csv',row.names = F)
 
 # 列名数组
 cols <- colnames(dt)

@@ -2,6 +2,7 @@
 # 生存分析之限制性立方样条(RCS)，剂量反应关系图
 # [Cox比例风险模型的假设检验条件](https://zhuanlan.zhihu.com/p/164668320)
 rm(list = ls())
+options(digits=3) # 限定输出小数点后数字的位数为3位
 dt <- read.csv("data.csv")
 library(rms) # RCS
 library(survminer) # 曲线
