@@ -81,7 +81,8 @@ test <- read.csv("E:/BLS-ep-pre/EP/Structured_Data/Task2/COX12mon/78testnor.csv"
 write.csv(train, file = "C:/Users/wane199/Desktop/EP/Structured_Data/Task2/COX12mon/220trainnor.csv", quote = T, row.names = F)
 
 # 看一下，不要让临床信息差的太多，输出table1
-prop.table(table(train$Follow_up_timemon))
+table(train$Rel._in_5yrs) #计数
+prop.table(table(train$Follow_up_timemon)) #计算百分比
 prop.table(table(test$Follow_up_timemon))
 prop.table(table(train$Rel._in_5yrs))
 prop.table(table(test$Rel._in_5yrs))

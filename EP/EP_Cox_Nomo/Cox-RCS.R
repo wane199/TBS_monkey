@@ -14,11 +14,16 @@ library(scales)
 dd <- datadist(train)
 options(datadist = "dd")
 
+attr(train, "tcount")
 str(train)
 train$Rel._in_5yrs <- as.factor(train$Rel._in_5yrs)
 train$Lat_radscore <- as.numeric(as.character(train$Lat_radscore))
 
-# Cox比例风险模型的假设检验条件, 
+# Cox比例风险模型的假设检验条件(https://mengte.online/archives/3900)
+# library(car)
+lm.reg<-lm(Rel._in_5yrs ~ AI_radscore + Lat_radscore + SGS + Durmon, data=train) #线性回归分析
+vif(lm.reg) #计算vif
+
 fit <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon, 
              data = train) # , tt = function(x, t, ...) x*log(t+18)
 summary(fit) # + tt(Lat_radscore) 
