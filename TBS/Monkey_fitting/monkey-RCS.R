@@ -83,7 +83,7 @@ p <- ggplot() +
 p
 
 # 建立线性回归模型
-model.lm <- lm(TLM ~ LM_L3, data = TLM) # 构建线性回归模型
+model.lm <- lm(TBV ~ Age, data = dt) # 构建线性回归模型
 summary(model.lm) # 查看回归模型结果
 p1 <- ggplot(TLM, aes(LM_L3, TLM)) +
   geom_point() +
@@ -157,25 +157,25 @@ rcssci_linear(data=sbpdata, y = "sbp",x = "age",covs = c("status", "gender"), ti
            ggplot2::theme_classic()
 # 广义可加模型gam**
 # https://mp.weixin.qq.com/mp/appmsgalbum?__biz=MzI1NjM3NTE1NQ==&action=getalbum&album_id=2077935014574374912&scene=173&from_msgid=2247485011&from_itemidx=1&count=3&nolastread=1#wechat_redirect
-model.gam <- gam(BMDL2L4 ~ s(Age), data = TLM) # 建立gam模型
+model.gam <- gam(TBV ~ s(Age), data = dt) # 建立gam模型
 summary(model.gam) # 查看模型概况
-pr.gam <- predict(model.gam, TLM) # 生成预测值
+pr.gam <- predict(model.gam, dt) # 生成预测值
 # 计算RSME和R方
 data.frame(
-  RMSE = RMSE(pr.gam, TLM$BMDL2L4),
-  R2 = R2(pr.gam, TLM$BMDL2L4)
+  RMSE = RMSE(pr.gam, dt$TBV),
+  R2 = R2(pr.gam, dt$TBV)
 )
 # 查看模型拟合情况
 library(ggpmisc)
 library(ggpubr)
 my.formula <- y ~ s(x,  bs = "cs")
-p0 <- ggplot(TLM, aes(Age, BMDL2L4)) +  geom_point() + stat_cor(aes(), label.x = 6) + 
+p0 <- ggplot(dt, aes(Age, TBV)) +  geom_point() + stat_cor(aes(), label.x = 6) + 
   theme_classic() + scale_x_continuous(expand = c(0,0), breaks=seq(0, 27, 1)) + scale_y_continuous(expand = c(0,0)) +  
   stat_smooth(method = mgcv::gam, se=TRUE, formula = my.formula) + 
   theme(axis.text = element_text(size = 10, face = "bold"), axis.ticks.length=unit(-0.15, "cm"), 
         axis.text.x = element_text(margin=unit(c(0.3,0.3,0.3,0.3), "cm")), 
         axis.text.y = element_text(margin=unit(c(0.3,0.3,0.3,0.3), "cm")))
-p6
+p0
 # gam
 coef(model.gam)[1] # Intercept
 par(mfrow = c(1, 2)) # 2*2画布

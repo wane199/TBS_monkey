@@ -320,7 +320,8 @@ roc$AUC
 # 构建一个空数据框，用来存贮循环的数据
 outTab <- data.frame()
 
-for(i in colnames(train[,7:ncol(train)])) {roc=survivalROC(Stime=train$Follow_up_timemon, status=train$Rel._in_5yrs, marker = train[,i], predict.time = 24,  method="KM") 
+for(i in colnames(train[,7:ncol(train)])) 
+  {roc=survivalROC(Stime=train$Follow_up_timemon, status=train$Rel._in_5yrs, marker = train[,i], predict.time = 24,  method="KM") 
     if(roc$AUC>0.55){outTab=rbind(outTab,cbind(gene=i,AUC=roc$AUC))}}
 
 # 排序提取列

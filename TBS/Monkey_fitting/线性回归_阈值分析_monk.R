@@ -12,9 +12,9 @@ library(dplyr)
 
 # dt <- read.csv("jixian.csv")
 dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\T1_TBV.csv")
-dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\SUVr_whole.csv")
+dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\SUVr_refPonsL&R.csv")
 # TLM <- read_excel("/home/wane/Desktop/TBS/TLMey/BMC.xlsx")
-# 数据探索
+# 数据探索EDA
 dt <- dt[c(-1,-2)]
 dt$Sex <- as.factor(dt$Sex)
 dt$Side <- as.factor(dt$Side)
@@ -27,7 +27,7 @@ rcssci_linear(data = dt, y = "TBV_mm3",x = "Age",covs = c("Sex"), ref.zero = F,
               prob=0.1, filepath = "C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\") + # 默认prob = 0.5
   ggplot2::theme_classic()
 
-fml <- "TBV ~ s(Age,k=4,fx=FALSE)+factor(Sex)"
+fml <- "SUVr_whole_refPons ~ s(Age,k=4,fx=FALSE)+factor(Sex)"
 gam1 <- mgcv::gam(formula(fml), weights=dt$weights, data = dt, family = gaussian(link = "identity"))
 summary(gam1) # 检验自变量的显著性以及评估回归整体的方差解释率
 vis.gam(gam1,color="gray",theta=30,phi=30) # "topo", "heat", "cm", "terrain", "gray" or "bw"
@@ -38,11 +38,11 @@ mgam<-gam(TBV ~ s(Age)+factor(Sex), data=dt, family = gaussian(link = "identity"
           model=T)
 summary(mgam)
 vis.gam(mgam,ticktype="detailed",color="bw",theta=40,phi=40)  
-vis.gam(mgam,se=2,theta=-35,color="cm") 
+vis.gam(mgam,color="gray",theta=30,phi=30) 
 vis.gam(mgam,theta=30,phi=30,plot.type="contour",color="cm")
-plot(mgam, se=T)
+plot(mgam, pages = 1, col = "blue", las = 1, se = T, rug = T)
 
-m <- mgcv::gam(TBV ~ s(Age, k=4, by = Sex) + factor(Sex), data = dt)
+m <- mgcv::gam(TBV ~ s(Age, k=4) + factor(Sex), data = dt) # , by = Sex
 summary(m)
 anova(m)
 plot(modelbased::estimate_relation(m, length = 100, preserve_range = FALSE))
@@ -99,9 +99,10 @@ ggplot(dt, aes(Age, TBV)) +  geom_point() + stat_cor(aes(), label.x = 3) +
 
 ####################################
 # 分类gam曲线拟合
-paste0(colnames(dt[4:18]),collapse = "+")
-Frontal_Cortex+Temporal_Cortex+Parietal_Cortex+Occipital_Cortex+Insula_Cortex+Cerebellum+Pons+Striatum+
-  Hippocampus+Thalamus+Amygdala+Cingulate+Globus_pallidus+corpus_callosum
+paste0(colnames(dt[4:16]),collapse = "+")
+Frontal_Cortex+Temporal_Cortex+Parietal_Cortex+Occipital_Cortex+Insula_Cortex+
+  Striatum+Hippocampus+
+  Thalamus+Amygdala+Cingulate+Globus_pallidus+corpus_callosum+Cerebellum
 
 # ?formula.gam
 library(ggsci)
@@ -119,7 +120,7 @@ ggplot(data = dt, mapping=aes(x = Age, y = TBV, color = Sex, shape = Sex)) + geo
         axis.text.x = element_text(margin=unit(c(0.3,0.3,0.3,0.3), "cm")), 
         axis.text.y = element_text(margin=unit(c(0.3,0.3,0.3,0.3), "cm")))
 # 置信区间虚线
-ggplot(data = dt, mapping = aes(x = Age, y = TBV, colour = Sex)) + scale_colour_nejm() +
+ggplot(data = dt, mapping = aes(x = Age, y = SUVr_whole_refPons, colour = Sex)) + scale_colour_nejm() +
   # geom_point(size = 2) + stat_cor(aes(), label.x = 6) # 显示p值和R值
   theme_classic() + scale_x_continuous(expand = c(0,0), breaks=seq(0, 30, 1)) + scale_y_continuous(expand = c(0,0)) +  
   geom_smooth(method = "gam",formula = my.formula, size = 3,
@@ -135,12 +136,12 @@ ggplot(data = dt, mapping = aes(x = Age, y = TBV, colour = Sex)) + scale_colour_
     formula = my.formula, parse = TRUE
   ) 
 # 置信区间带
-p1 <- ggplot(dt, mapping = aes(x = Age, y = TBV, colour = Sex, fill = Sex, linetype = Sex)) + 
+p13 <- ggplot(dt, mapping = aes(x = Age, y = Cerebellum, colour = Side, fill = Side, linetype = Side)) + 
   # ylab(bquote(TBV/BW(cm^3/kg)))  + # 上下标 xlab("") + scale_fill_nejm() + scale_colour_nejm() +  
-  stat_cor(aes(), label.x = 3) + scale_x_continuous(expand = c(0,0), breaks=seq(0, 30, 2)) + scale_y_continuous(expand = c(0,0)) +  
-  # geom_vline(aes(xintercept=8.0),linetype=4,col="red") +
-  geom_smooth(method = mgcv::gam, formula = y ~ s(x, k = 4), se = T) + 
-  # geom_point(aes(colour = Sex, shape = Sex, fill = Sex), size = 1) + 
+  scale_x_continuous(expand = c(0,0), breaks=seq(0, 30, 1)) + # scale_y_continuous(expand = c(0,0)) +  
+  # stat_cor(aes(), label.x = 3) + geom_vline(aes(xintercept=8.0),linetype=4,col="red") +
+  geom_smooth(method = mgcv::gam, formula = y ~ s(x, k = 4), se = T) + #ylab(bquote(TBV/BW(cm^3/kg))) +
+  geom_point(aes(colour = Side, shape = Side, fill = Side), size = 2) + 
   theme(axis.text = element_text(size = 10, face = "bold"), axis.ticks.length=unit(-0.25, "cm"), 
         axis.text.x = element_text(margin=unit(c(0.5,0.5,0.5,0.5), "cm")), 
         axis.text.y = element_text(margin=unit(c(0.5,0.5,0.5,0.5), "cm"))) 
@@ -148,8 +149,27 @@ p1 <- ggplot(dt, mapping = aes(x = Age, y = TBV, colour = Sex, fill = Sex, linet
   #   aes(label =  paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
   #   formula =  y ~ s(x, k = 4), parse = TRUE
   # ) 
-p1
+p13
+# for循环
+plot_list = list()
+for (i in 4:ncol(dt)){
+  print(p <- ggplot(dt, aes_string(x = 'Age', y = colnames(dt)[i], colour = 'Side', fill = 'Side', linetype = 'Side')) + 
+    scale_x_continuous(expand = c(0,0), breaks=seq(0, 30, 1)) + geom_smooth(method = mgcv::gam, formula = y ~ s(x, k = 4), se = T) + 
+    geom_point(aes(colour = Side, shape = Side, fill = Side), size = 2) + 
+      theme(axis.text = element_text(size = 10, face = "bold"), axis.ticks.length=unit(-0.25, "cm"), 
+            axis.text.x = element_text(margin=unit(c(0.5,0.5,0.5,0.5), "cm")), 
+            axis.text.y = element_text(margin=unit(c(0.5,0.5,0.5,0.5), "cm"))))
+  plot_list[[i-3]] = p
+  }
+# 拼图
+library(cowplot)
+combined_plot <- cowplot::plot_grid(plotlist = plot_list, align = "h", nrow = 4) 
+legend <- get_legend(plot_list[[13]] + guides(color = guide_legend(nrow = 1)) + theme(legend.position = "bottom"))
+plot_grid(combined_plot, legend,ncol=1,rel_heights = c(1, .1)) 
 
+library("patchwork")
+wrap_plots(plot_list, byrow = T, nrow = 4) + plot_annotation(tag_levels = 'A') +
+  plot_layout(guides='collect')
 # Fit polynomial equation:
 ggplot(data = dt, mapping = aes(x = Age, y = TBV, colour = Sex)) +
   geom_point() + stat_cor(aes(), label.x = 3) + 
@@ -168,7 +188,7 @@ ggpar(p, palette = "jco")
 # [combine into single plot](https://www.math.pku.edu.cn/teachers/lidf/docs/Rbook/html/_Rbook/ggplot2.html)
 library("patchwork")
 p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8 +p9 + p10+ 
-  p11 + p12 + p13 + p14 + plot_annotation(tag_levels = 'A') +
+  p11 + p12 + p13 + plot_annotation(tag_levels = 'A') +
   plot_layout(guides='collect')
 
 p1 + p2 + plot_annotation(tag_levels = 'A') +
