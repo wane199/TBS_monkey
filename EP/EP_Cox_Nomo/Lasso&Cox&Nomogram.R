@@ -8,7 +8,7 @@ getwd()
 # setwd("/home/wane/Documents/RDocu") ## 设置工作目录
 rm(list = ls())
 list.files() ## 列出工作目录下的文件
-options(digits=3) # 限定输出小数点后数字的位数为3位
+options(digits = 3) # 限定输出小数点后数字的位数为3位
 library(glmnet) ## Lasso回归、岭回归、弹性网络模型
 library(caret) ## 标准化及混淆矩阵
 library(survival) ## 生存分析包, 包括非参数(Kaplan-Meier分析)和半参数(CPH), 参数模型(参数比例，附加危害，AFT)
@@ -68,13 +68,13 @@ train <- subset(dt, dt$Group == "Training")
 test <- subset(dt, dt$Group == "Test")
 train1 <- as.data.frame(scale(train[5:1136])) # 自变量Z-score标准化
 test1 <- as.data.frame(scale(test[5:1136]))
-train <- mutate(train[, 3:4], train1) 
-test <- mutate(test[, 3:4], test1) 
-# library(dplyr) 
-train %>% 
-  select_if(~!any(is.na(.))) -> train  # 删除全是缺失值的列
-test %>% 
-  select_if(~!any(is.na(.))) -> test  # 删除全是缺失值的列
+train <- mutate(train[, 3:4], train1)
+test <- mutate(test[, 3:4], test1)
+# library(dplyr)
+train %>%
+  select_if(~ !any(is.na(.))) -> train # 删除全是缺失值的列
+test %>%
+  select_if(~ !any(is.na(.))) -> test # 删除全是缺失值的列
 # 外部验证, 增加数据集
 train <- read.csv("/home/wane/Desktop/EP/sci/cph/cph2/220trainnor.csv")
 train <- train[-1]
@@ -83,8 +83,8 @@ test <- test[-1]
 write.csv(train, file = "C:/Users/wane199/Desktop/EP/Structured_Data/Task2/COX12mon/220trainnor.csv", quote = T, row.names = F)
 
 # 看一下，不要让临床信息差的太多，输出table1
-table(train$Rel._in_5yrs) #计数
-prop.table(table(train$Follow_up_timemon)) #计算百分比
+table(train$Rel._in_5yrs) # 计数
+prop.table(table(train$Follow_up_timemon)) # 计算百分比
 prop.table(table(test$Follow_up_timemon))
 prop.table(table(train$Rel._in_5yrs))
 prop.table(table(test$Rel._in_5yrs))
@@ -280,14 +280,14 @@ var
 train_lasso <- data.frame(cv_x)[var]
 test_lasso <- test[names(train_lasso)]
 Data_all <- as.matrix(rbind(train_lasso, test_lasso))
-xn <- nrow(Data_all) # row 
+xn <- nrow(Data_all) # row
 yn <- ncol(Data_all) # column
 # get beta and calculate，系数矩阵化，进行矩阵运算
 beta <- as.matrix(coefPara[which(coefPara != 0), ]) # get beta = Coefficients
 beta[-1]
 betai_matrix <- as.matrix(beta) # get beta_i
 # beta0_matrix <- matrix(0, xn, 1) # get beta_0, 没有截距项，beta0为0
-Radscore_Matrix <- Data_all %*% betai_matrix  # + beta0_matrix # get Rad-score
+Radscore_Matrix <- Data_all %*% betai_matrix # + beta0_matrix # get Rad-score
 radscore_all <- as.numeric(Radscore_Matrix)
 
 # get radiomics score
@@ -328,19 +328,19 @@ My.stepwise.coxph(
 
 # 计算radscore并z-score标准化，添加至临床资料表
 dt1 <- as.data.frame(scale(dt[6:19]))
-dt <- mutate(dt[1:5], dt1) 
+dt <- mutate(dt[1:5], dt1)
 dt <- dt %>%
   as_tibble(dt) %>%
   mutate(radscore = -0.0179 * original_gldm_DependenceEntropy
-         -0.1196 * log.sigma.4.0.mm.3D_firstorder_Maximum
-         -0.1219 * wavelet.HHL_glcm_Correlation
-         -0.0741 * wavelet.HHL_glszm_SmallAreaLowGrayLevelEmphasis
-         -0.0209 * wavelet.HHH_gldm_DependenceNonUniformityNormalized
-         -0.001 * wavelet.HHH_gldm_DependenceVariance
-         -0.1939 * wavelet.LLL_glcm_Correlation
-         -0.1723 * wavelet.LLL_gldm_DependenceEntropy)
+    - 0.1196 * log.sigma.4.0.mm.3D_firstorder_Maximum
+    - 0.1219 * wavelet.HHL_glcm_Correlation
+    - 0.0741 * wavelet.HHL_glszm_SmallAreaLowGrayLevelEmphasis
+    - 0.0209 * wavelet.HHH_gldm_DependenceNonUniformityNormalized
+    - 0.001 * wavelet.HHH_gldm_DependenceVariance
+    - 0.1939 * wavelet.LLL_glcm_Correlation
+    - 0.1723 * wavelet.LLL_gldm_DependenceEntropy)
 radscore <- as.data.frame(dt["radscore"])
-write.csv(dt,'/home/wane/Desktop/EP/sci/cph/cph2/89testnor.csv',row.names = F)
+write.csv(dt, "/home/wane/Desktop/EP/sci/cph/cph2/89testnor.csv", row.names = F)
 
 # 列名数组
 cols <- colnames(dt)
@@ -505,7 +505,7 @@ ggline(logresult,
 
 res.cut <- surv_cutpoint(
   data = train, time = "Follow_up_timemon",
-  event = "Rel._in_5yrs", variables = c("AI_radscore","Lat_radscore","Surgmon","Onsetmon","Durmon")
+  event = "Rel._in_5yrs", variables = c("AI_radscore", "Lat_radscore", "Surgmon", "Onsetmon", "Durmon")
 )
 summary(res.cut) # 最佳截断值为0.339 +- 5.9
 plot(res.cut, "Durmon", palette = "npg")
@@ -677,9 +677,11 @@ show_forest(train,
 # Stepwise筛选变量
 # options(scipen = 100, digits=5), no interaction, no stratification
 library(MASS) # 逐步回归，stepAIC()函数 https://www.bilibili.com/video/BV18F411q7v3/?vd_source=23f183f0c5968777e138f31842bde0a0
-coxbasemodel <- coxph(Surv(Follow_up_timemon,Rel._in_5yrs==1) ~ .,
-                      train)
-stepAIC(coxbasemodel, direction = "both", scope = list(lower = .~1, upper = .~radscore + Sex + Freq + Durmon))
+coxbasemodel <- coxph(
+  Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ .,
+  train
+)
+stepAIC(coxbasemodel, direction = "both", scope = list(lower = . ~ 1, upper = . ~ radscore + Sex + Freq + Durmon))
 
 
 library(My.stepwise)
@@ -705,10 +707,10 @@ stepwiseCox(Surv,
 )
 
 # check collinearity of the selected variables
-Hmisc::rcorr(as.matrix(train[c(4,9,11,12,14)]))
+Hmisc::rcorr(as.matrix(train[c(4, 9, 11, 12, 14)]))
 Hmisc::rcorr(as.matrix(train[c(6:22)]))
-library(PerformanceAnalytics) #加载包
-chart.Correlation(train[c(6:22)], histogram=TRUE, pch=25)
+library(PerformanceAnalytics) # 加载包
+chart.Correlation(train[c(6:22)], histogram = TRUE, pch = 25)
 
 # 用for循环语句将数值型变量转为因子变量
 for (i in names(train)[c(6:22)]) {
@@ -743,20 +745,22 @@ library(Hmisc)
 ## Model with clinic(Hmisc::rcorrcens)
 rcorrcens(formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon, data = train)
 
-train$Durmon <- ifelse(train$Durmon > 96 , 2, 1)
+train$Durmon <- ifelse(train$Durmon > 96, 2, 1)
 
 library(eoffice) # export figure to pptx
 # 调整变量名称
 train <- within(train, {
-  AI_radscore <- factor(AI_radscore, labels = c('low', 'high'))
-  Lat_radscore <- factor(Lat_radscore, labels = c('low', 'high'))
-  SGS <- factor(SGS, labels = c('no', 'yes'))
-  Durmon <- factor(Durmon, labels = c('short', 'long'))
+  AI_radscore <- factor(AI_radscore, labels = c("low", "high"))
+  Lat_radscore <- factor(Lat_radscore, labels = c("low", "high"))
+  SGS <- factor(SGS, labels = c("no", "yes"))
+  Durmon <- factor(Durmon, labels = c("short", "long"))
 })
 model1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon, data = train) # SGS + Durmon,
 print(model1, data = train)
-p <- ggforest(model1, noDigits = 3,#保留HR值以及95%CI的小数位数
-              data = train) # https://cache.one/read/16896085
+p <- ggforest(model1,
+  noDigits = 3, # 保留HR值以及95%CI的小数位数
+  data = train
+) # https://cache.one/read/16896085
 p
 topptx(figure = p, filename = "/home/wane/Desktop/EP/sci/cph/forest.pptx")
 
@@ -783,25 +787,27 @@ surv <- Survival(model) # 建立生存函数
 surv1 <- function(x) surv(1 * 12, lp = x) # 定义time.inc,1年OS
 surv3 <- function(x) surv(1 * 36, lp = x) # 定义time.inc,3年OS
 surv5 <- function(x) surv(1 * 60, lp = x) # 定义time.inc,5年OS
-plot(nomogram(model,
-  fun = list(surv1, surv3, surv5),
-  lp = F, # naxes=13,
-  # force.label=F,
-  # col.grid=c("Tomato2","DodgerBlue"),
-  funlabel = c("1-Year Relapse", "3-Year Relapse", "5-Year Relapse"),
-  maxscale = 100,
-  fun.at = c("0.90", "0.85", "0.80", "0.70", "0.60", "0.50", "0.40", "0.30", "0.20", "0.10")
-),
-xfrac = .45
+plot(
+  nomogram(model,
+    fun = list(surv1, surv3, surv5),
+    lp = F, # naxes=13,
+    # force.label=F,
+    # col.grid=c("Tomato2","DodgerBlue"),
+    funlabel = c("1-Year Relapse", "3-Year Relapse", "5-Year Relapse"),
+    maxscale = 100,
+    fun.at = c("0.90", "0.85", "0.80", "0.70", "0.60", "0.50", "0.40", "0.30", "0.20", "0.10")
+  ),
+  xfrac = .45
 )
 # 画上参考线
-plot(nomogram(model,
-  fun = list(surv1, surv3, surv5),
-  funlabel = c("1-Year Relapse", "3-Year Relapse", "5-Year Relapse"),
-  maxscale = 100, lp = F,
-  fun.at = c("0.9", "0.8", "0.7", "0.6", "0.5", "0.4", "0.3", "0.2", "0.1")
-),
-col.grid = c("pink", "cyan")
+plot(
+  nomogram(model,
+    fun = list(surv1, surv3, surv5),
+    funlabel = c("1-Year Relapse", "3-Year Relapse", "5-Year Relapse"),
+    maxscale = 100, lp = F,
+    fun.at = c("0.9", "0.8", "0.7", "0.6", "0.5", "0.4", "0.3", "0.2", "0.1")
+  ),
+  col.grid = c("pink", "cyan")
 )
 # 常见列线图的绘制及自定义美化详细教程 https://mp.weixin.qq.com/s?__biz=MzU4OTc0OTg2MA==&mid=2247497910&idx=1&sn=350a4d6c689462d7337e04455912c8ce&chksm=fdca73bdcabdfaab401fab2a00a9a24a60e7e706675b774bd3d866f6c884cfc80c7a478e7403&mpshare=1&scene=1&srcid=0607mDKXD346ABXXHRc5Sn6I&sharer_sharetime=1660988218815&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd
 # maxscale 参数指定最高分数，一般设置为100或者10分
@@ -869,8 +875,8 @@ shinyPredict(
 #############################################
 ## 模型区分度对比和验证
 # Concordance index(未校准的时间C-index)
-f01 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~  ., data = train)
-f01 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon,# SE + side,
+f01 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ ., data = train)
+f01 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon, # SE + side,
   x = T, data = train
 )
 print(f01)
@@ -883,27 +889,27 @@ c_index
 # Method 1: rcorr.cens
 library(Hmisc)
 fit <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon, data = train) #  SGS + Durmon
-fp <- predict(fit,test)
-cindex.orig=1-rcorr.cens(fp,Surv(test$Follow_up_timemon,test$Rel._in_5yrs))
+fp <- predict(fit, test)
+cindex.orig <- 1 - rcorr.cens(fp, Surv(test$Follow_up_timemon, test$Rel._in_5yrs))
 cindex.orig
 # Method 2: survConcordance
 library(survival)
-c_index <- concordance(Surv(test$Follow_up_timemon,test$Rel._in_5yrs==1)~predict(fit,test))$concordance
+c_index <- concordance(Surv(test$Follow_up_timemon, test$Rel._in_5yrs == 1) ~ predict(fit, test))$concordance
 c_index
 # 内部交叉验证或Bootstrap验证
 library(boot)
 
 c_index <- function(formula, data, indices) {
-  tran.data <- data[indices,]
-  vali.data <- data[-indices,]
-  fit <- coxph(formula, data=train)
-  result<-survConcordance(Surv(test$Follow_up_timemon,test$Rel._in_5yrs)~predict(fit,test))
-  index<-as.numeric(result$concordance)
+  tran.data <- data[indices, ]
+  vali.data <- data[-indices, ]
+  fit <- coxph(formula, data = train)
+  result <- survConcordance(Surv(test$Follow_up_timemon, test$Rel._in_5yrs) ~ predict(fit, test))
+  index <- as.numeric(result$concordance)
   return(index)
 }
 
 set.seed(123)
-results <- boot(data=test, statistic=c_index, R=1000, formula=Surv(time,death)~x1+x2+x3)
+results <- boot(data = test, statistic = c_index, R = 1000, formula = Surv(time, death) ~ x1 + x2 + x3)
 mean(results$t)
 boot.ci(results)
 
@@ -925,11 +931,14 @@ ddist <- datadist(train)
 options(datadist = "ddist")
 
 cli <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ Lat_radscore + AI_radscore + SGS + Durmon + SE + traumatic_brain_injury,
-  x = T, y = T, surv = T, data = train)
+  x = T, y = T, surv = T, data = train
+)
 full <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ .,
-           x = T, y = T, surv = T, data = test)
+  x = T, y = T, surv = T, data = test
+)
 full <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ Lat_radscore + AI_radscore + SGS + Durmon, # SE + side,
-  x = T, y = T, surv = T, data = train) #  time.inc = 60
+  x = T, y = T, surv = T, data = train
+) #  time.inc = 60
 # test$SE <- as.factor(test$SE)
 c_index <- cindex(list("Clinic" = cli), # "Rad-clinic" = full
   formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ .,
@@ -1022,14 +1031,14 @@ library(riskRegression) # 可同时绘制ROC曲线和校正曲线
 str(train)
 train$Follow_up_timemon <- as.numeric(as.character(train$Follow_up_timemon))
 # 拟合cox回归
-f1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy + Durmon + SE, data = train, y=TRUE, x = TRUE)
-f2 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore, data = train, y=TRUE, x = TRUE)
-f3 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = train, y=TRUE, x = TRUE)
+f1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ SGS + familial_epilepsy + Durmon + SE, data = train, y = TRUE, x = TRUE)
+f2 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore, data = train, y = TRUE, x = TRUE)
+f3 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon, data = train, y = TRUE, x = TRUE)
 ### 例如评估两年的ROC及AUC值
 model <- riskRegression::Score(list("clinic" = f1, "rad-clinic" = f3),
   formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ 1,
   data = test,
-  times = c(12,24,36),
+  times = c(12, 24, 36),
   plots = "roc",
   metrics = "auc"
 )
@@ -1044,26 +1053,29 @@ plotROC(model,
   pch = 2, # 文字格式
   lwd = 2, # 线粗
   col = "red",
-  legend = c("Clinic model","Radscore_clinc model")
+  legend = c("Clinic model", "Radscore_clinc model")
 )
 # 也可绘制校正曲线(https://mp.weixin.qq.com/s?__biz=MzU4OTc0OTg2MA==&mid=2247494081&idx=1&sn=18a2cf98d09ae4d73d1bbd9719f4d239&chksm=fdca62cacabdebdc593c44459933f17480ac5e11a3bf71a5c1b6b4e529b569d0dadc6673aef1&mpshare=1&scene=1&srcid=10214qI37ajpAIJcmDyKbaxA&sharer_sharetime=1666846938138&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
-model <- riskRegression::Score(list("Clinc-Rad" = f3),formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ 1,
-                               data = test, plots = "cal", metrics = "auc")
-plotCalibration(model,bars = T)
-plotCalibration(model,cens.method="local",pseudo=1)
-plotCalibration(model,method="quantile")
+model <- riskRegression::Score(list("Clinc-Rad" = f3),
+  formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ 1,
+  data = test, plots = "cal", metrics = "auc"
+)
+plotCalibration(model, bars = T)
+plotCalibration(model, cens.method = "local", pseudo = 1)
+plotCalibration(model, method = "quantile")
 
 # 2.3个模型同时进行ROC评估，
-pk1 <- Score(list(
-  model.clinic = f1,
-  model.rad = f2,
-  model.rad.clinic = f3
-),
-Hist(Follow_up_timemon, Rel._in_5yrs == 1) ~ 1,
-data = test,
-times = 12, # 比较三者5年ROC
-plots = "roc",
-metrics = "auc"
+pk1 <- Score(
+  list(
+    model.clinic = f1,
+    model.rad = f2,
+    model.rad.clinic = f3
+  ),
+  Hist(Follow_up_timemon, Rel._in_5yrs == 1) ~ 1,
+  data = test,
+  times = 12, # 比较三者5年ROC
+  plots = "roc",
+  metrics = "auc"
 )
 # 3.画图
 plotROC(pk1,
@@ -1077,16 +1089,17 @@ plotROC(pk1,
   legend = c("clinc model", "Radscore model", "Radscore_clinc model")
 )
 # 时间AUC
-pk <- Score(list(
-  model1 = f1,
-  model2 = f2,
-  model3 = f3
-),
-formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ 1,
-data = test,
-metrics = "auc",
-null.model = F,
-times = seq(1, 36, 6)
+pk <- Score(
+  list(
+    model1 = f1,
+    model2 = f2,
+    model3 = f3
+  ),
+  formula = Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ 1,
+  data = test,
+  metrics = "auc",
+  null.model = F,
+  times = seq(1, 36, 6)
 )
 # 2. 画图+展示每个模型每个时间点的auc值
 auc <- plotAUC(pk)
@@ -1480,8 +1493,10 @@ train1
 logit.Rad <- glm(outcome2yr ~ Rad, data = train, family = binomial)
 lroc(logit.age.sex.albumin, graph = F)$auc
 
-reportROC(gold = dt$Label, predictor.binary = dt$Phy3,
-  plot = T, important = "se", exact = FALSE)
+reportROC(
+  gold = dt$Label, predictor.binary = dt$Phy3,
+  plot = T, important = "se", exact = FALSE
+)
 
 # install.packages("party")
 library(party)
@@ -1494,13 +1509,15 @@ plot(tree)
 # Total points
 library(rms)
 library(nomogramEx)
-library(nomogramFormula) # formula_lp函数，计算原始数据中每个患者的总分值和生存概率
+library(nomogramFormula) # formula_lp函数，计算原始数据中每个患者的总分值和生存概率.
 ddist <- datadist(train)
 options(datadist = "ddist")
 train$Rel._in_5yrs <- as.factor(train$Rel._in_5yrs)
-fita <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ radscore + SGS + familial_epilepsy + Durmon + SE,
+fita <- cph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon,
   data = train, x = TRUE, y = TRUE, surv = TRUE
 )
+summary(fita)
+print(fita)
 surv <- Survival(fita)
 nomo <- nomogram(fita,
   fun = list(function(x) surv(12, x), function(x) surv(36, x), function(x) surv(60, x)),
@@ -1533,8 +1550,6 @@ dt <- dt %>%
     + 0.0662 * wavelet.HHH_glszm_ZoneEntropy
     - 0.0841 * wavelet.LLL_glcm_Imc2)
 radscore <- as.data.frame(dt["radscore"])
-
-summary(fita)
 summary(m.new)
 train$lp.rad_clinic <- predict(m.new, type = "lp")
 logresult <- cutoff::logrank(
@@ -1639,22 +1654,16 @@ cbind(names, coef)
 ###################################
 ## [Accelerated Failure Time (AFT) Model](https://www.youtube.com/watch?v=v1TFklm4OFM&list=PLCj1LhGni3hOON9isnuVYIL8dNwkvwqr9&index=7)
 ## Weibull parametrisation
-y<-rweibull(1000, shape=2, scale=5)
-survreg(Surv(y)~1, dist="weibull") # exponential,gaussian,loglogistic,lognormal
+y <- rweibull(1000, shape = 2, scale = 5)
+survreg(Surv(y) ~ 1, dist = "weibull") # exponential,gaussian,loglogistic,lognormal
 
 library(flexsurv)
-fitg <- flexsurvreg(formula = Surv(futime, fustat) ~ 1, data = ovarian, dist="weibull")
+fitg <- flexsurvreg(formula = Surv(futime, fustat) ~ 1, data = ovarian, dist = "weibull")
 fitg
 plot(fitg)
-lines(fitg, col="blue", lwd.ci=1, lty.ci=1)
+lines(fitg, col = "blue", lwd.ci = 1, lty.ci = 1)
 # survreg scale parameter maps to 1/shape, linear predictor to log(scale)
-scale(y, center=T, scale=F)  # 数据中心化和标准化为了消除量纲对数据结构的影响, scale为真表示数据标准化
+scale(y, center = T, scale = F) # 数据中心化和标准化为了消除量纲对数据结构的影响, scale为真表示数据标准化
 
 library(e1071)
 probplot(y, qt)
-
-
-
-
-
-

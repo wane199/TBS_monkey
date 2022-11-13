@@ -249,18 +249,18 @@ table(dt1$oneyr)
 logit.clinic <- glm(outcome1yr ~ radscore + SGS + familial_epilepsy + Durmon + SE, data = dt, family = binomial)
 lroc(logit.clinic, graph = F)$auc
 library(Rmisc)
-CI(lroc(logit.clinic, graph = F)$auc,ci=0.95)
+CI(lroc(logit.clinic, graph = F)$auc, ci = 0.95)
 
 # ROC曲线及PR曲线
 pre <- predict(logit.clinic, type = "response") # 预测概率，预测分类(class)
 pre
 library(pROC)
 plot.roc(dt$outcome1yr, pre,
-         main = "ROC curve in Training set", percent = TRUE,
-         print.auc = TRUE,
-         ci = TRUE, of = "thresholds",
-         thresholds = "best",
-         print.thres = "best"
+  main = "ROC curve in Training set", percent = TRUE,
+  print.auc = TRUE,
+  ci = TRUE, of = "thresholds",
+  thresholds = "best",
+  print.thres = "best"
 )
 rocplot1 <- roc(dt$outcome1yr, pre)
 auc(rocplot1)
@@ -276,16 +276,20 @@ aupr <- AUC(
 )
 # 绘制ROC需要实际值和预测值，DCA需要实际值和预测概率(阳性结局)
 library(reportROC) # Confusion Matrix
-reportROC(gold = dt$outcome1yr, predictor = pre, 
-          plot = T, important = "se", exact = FALSE)
-reportROC(gold = dt$outcome1yr, predictor = c(dt$SGS, dt$radscore, dt$familial_epilepsy, dt$Durmon, dt$SE),
-          plot = T, important = "se", exact = FALSE)
+reportROC(
+  gold = dt$outcome1yr, predictor = pre,
+  plot = T, important = "se", exact = FALSE
+)
+reportROC(
+  gold = dt$outcome1yr, predictor = c(dt$SGS, dt$radscore, dt$familial_epilepsy, dt$Durmon, dt$SE),
+  plot = T, important = "se", exact = FALSE
+)
 
 # [利用timeROC包绘制多分类多条ROC曲线](https://mp.weixin.qq.com/s?__biz=MzkyODIyOTY5Ng==&mid=2247485325&idx=2&sn=9e87a03c95f6d6d7733221f943e59441&chksm=c21ab7a2f56d3eb439d5c6e3821ca7101255021f7b49166f8bf32d186485bb146c5a8d89b1ba&mpshare=1&scene=1&srcid=1019d64aFsP83P9MWOGnNUpN&sharer_sharetime=1666136506398&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
 # [多个时间点及多指标ROC曲线](https://zhuanlan.zhihu.com/p/453214424)
 train <- subset(dt, dt$Group == "Training")
 test <- subset(dt, dt$Group == "Test")
-dt <- read.csv('/Users/mac/Downloads/glioma1.csv')
+dt <- read.csv("/Users/mac/Downloads/glioma1.csv")
 summary(dt)
 
 table(dt$oneyr)
@@ -293,44 +297,50 @@ train <- train[4:19]
 library(survminer)
 library(timeROC)
 # 绘制ROC图：
-#颜色
-bioCol=rainbow(ncol(train)-2,0.4)
-#绘制
-aucText=c()
-# outFile="ROC.pdf"   
+# 颜色
+bioCol <- rainbow(ncol(train) - 2, 0.4)
+# 绘制
+aucText <- c()
+# outFile="ROC.pdf"
 # pdf(file=outFile,width=6,height=6)
-i=2
-ROC_train=timeROC(T=train$Follow_up_timemon,delta=train$oneyr,marker=train[,i],cause=1,weighting='aalen',times=c(12),ROC=TRUE)
+i <- 2
+ROC_train <- timeROC(T = train$Follow_up_timemon, delta = train$oneyr, marker = train[, i], cause = 1, weighting = "aalen", times = c(12), ROC = TRUE)
 print(ROC_train)
-plot(ROC_train,time=12,col=bioCol[i-2],title=FALSE,lwd=2)
-aucText=c(paste0(colnames(train)[i],", AUC=",sprintf("%.3f",ROC_train$AUC[2])))
-abline(0,1)
+plot(ROC_train, time = 12, col = bioCol[i - 2], title = FALSE, lwd = 2)
+aucText <- c(paste0(colnames(train)[i], ", AUC=", sprintf("%.3f", ROC_train$AUC[2])))
+abline(0, 1)
 
-for(i in 4:ncol(train)){
-  ROC_train=timeROC(T=train$Follow_up_timemon,delta=train$Rel._in_5yrs,marker=train[,i],cause=1,weighting='aalen',times=c(12),ROC=TRUE)
-  plot(ROC_train,time=12,col=bioCol[i-2],title=FALSE,lwd=2,add=TRUE)
-  aucText=c(aucText,paste0(colnames(train)[i],", AUC=",sprintf("%.3f",ROC_train$AUC[2])))
+for (i in 4:ncol(train)) {
+  ROC_train <- timeROC(T = train$Follow_up_timemon, delta = train$Rel._in_5yrs, marker = train[, i], cause = 1, weighting = "aalen", times = c(12), ROC = TRUE)
+  plot(ROC_train, time = 12, col = bioCol[i - 2], title = FALSE, lwd = 2, add = TRUE)
+  aucText <- c(aucText, paste0(colnames(train)[i], ", AUC=", sprintf("%.3f", ROC_train$AUC[2])))
 }
-legend("bottomright", cex=0.6, aucText, lwd=1, bty="n", col=bioCol[1:(ncol(train)-2)])
+legend("bottomright", cex = 0.6, aucText, lwd = 1, bty = "n", col = bioCol[1:(ncol(train) - 2)])
 # dev.off()
 # [list筛选数据_ROC居然能够批量筛选](https://blog.csdn.net/weixin_36320737/article/details/112071868)
 library(survivalROC)
-roc = survivalROC(Stime=train$Follow_up_timemon, status=train$Rel._in_5yrs, marker = train[,7], predict.time = 24, method="KM")
+roc <- survivalROC(Stime = train$Follow_up_timemon, status = train$Rel._in_5yrs, marker = train[, 7], predict.time = 24, method = "KM")
 roc$AUC
 # 构建一个空数据框，用来存贮循环的数据
 outTab <- data.frame()
 
-for(i in colnames(train[,7:ncol(train)])) 
-  {roc=survivalROC(Stime=train$Follow_up_timemon, status=train$Rel._in_5yrs, marker = train[,i], predict.time = 24,  method="KM") 
-    if(roc$AUC>0.55){outTab=rbind(outTab,cbind(gene=i,AUC=roc$AUC))}}
+for (i in colnames(train[, 7:ncol(train)]))
+{
+  roc <- survivalROC(Stime = train$Follow_up_timemon, status = train$Rel._in_5yrs, marker = train[, i], predict.time = 24, method = "KM")
+  if (roc$AUC > 0.55) {
+    outTab <- rbind(outTab, cbind(gene = i, AUC = roc$AUC))
+  }
+}
 
 # 排序提取列
-train %>% dplyr::select(5,6,all_of("radscore"))
+train %>% dplyr::select(5, 6, all_of("radscore"))
 
-plot(roc$FP, roc$TP, type="l", xlim=c(0,1), ylim=c(0,1),    
-     xlab=paste( "FP", "\n", "AUC = ",round(roc$AUC,3)),    
-     ylab="TP",main="roc, Method = KM \n Month = 12")
-abline(0,1)
+plot(roc$FP, roc$TP,
+  type = "l", xlim = c(0, 1), ylim = c(0, 1),
+  xlab = paste("FP", "\n", "AUC = ", round(roc$AUC, 3)),
+  ylab = "TP", main = "roc, Method = KM \n Month = 12"
+)
+abline(0, 1)
 
 
 
@@ -342,29 +352,38 @@ library(readxl)
 dt <- read_excel("/Volumes/UNTITLED/QH/SUVc+ADCc+CBFc.xlsx")
 # dt <- dt[-1]
 summary(dt)
-par(mfrow=c(1,3))
-roc(grade ~  ., data = dt, print.thres=TRUE, percent=TRUE, plot=TRUE, print.auc=TRUE, ci=TRUE)
+par(mfrow = c(1, 3))
+roc(grade ~ ., data = dt, print.thres = TRUE, percent = TRUE, plot = TRUE, print.auc = TRUE, ci = TRUE)
 library(reportROC) # Confusion Matrix
-rep <- reportROC(gold = dt$grade, predictor = dt$SUVmax_center_ADCmin_center, 
-          plot = T, important = "se", exact = FALSE)
-rep1 <- reportROC(gold = dt$grade, predictor = dt$SUVmax_center_rCBF_center, 
-                 plot = T, important = "se", exact = FALSE)
-rep2 <- reportROC(gold = dt$grade, predictor = dt$ADCmin_center_rCBF_center, 
-                  plot = T, important = "se", exact = FALSE)
-DT::datatable(c(rep,rep1))
-DT::datatable(as.matrix(c(rep,rep1,rep2)))
-DT::datatable(as.data.frame(c(rep,rep1,rep2)))
+rep <- reportROC(
+  gold = dt$grade, predictor = dt$SUVmax_center_ADCmin_center,
+  plot = T, important = "se", exact = FALSE
+)
+rep1 <- reportROC(
+  gold = dt$grade, predictor = dt$SUVmax_center_rCBF_center,
+  plot = T, important = "se", exact = FALSE
+)
+rep2 <- reportROC(
+  gold = dt$grade, predictor = dt$ADCmin_center_rCBF_center,
+  plot = T, important = "se", exact = FALSE
+)
+DT::datatable(c(rep, rep1))
+DT::datatable(as.matrix(c(rep, rep1, rep2)))
+DT::datatable(as.data.frame(c(rep, rep1, rep2)))
 # 混淆矩阵
 library(caret) # http://topepo.github.io/caret/train-models-by-tag.html#logic-regression
 lrFit <- train(dt$SUVmax_center_ADCmin_center, dt$grade,
-                method = "knn",
-                preProcess = c("center", "scale"),
-                tuneLength = 10,
-                trControl = trainControl(method = "cv"))
+  method = "knn",
+  preProcess = c("center", "scale"),
+  tuneLength = 10,
+  trControl = trainControl(method = "cv")
+)
 ## 建模
-glm <- glm(formula = factor(grade) ~ SUVmax_center_ADCmin_center,      # 以Species为y，其他特征为X
-           family = binomial(link = "logit"),       # 适用于逻辑回归的二项分布
-           data = dt)                         # 训练集训练数据
+glm <- glm(
+  formula = factor(grade) ~ SUVmax_center_ADCmin_center, # 以Species为y，其他特征为X
+  family = binomial(link = "logit"), # 适用于逻辑回归的二项分布
+  data = dt
+) # 训练集训练数据
 ## 输出predication
 prob1 <- predict(glm, newdata = dt, type = "response") # 预测分类概率
 # type = "link", 缺省值，给出线性函数预测值
@@ -375,20 +394,20 @@ confusionMatrix(predlab, factor(dt$grade))
 
 
 
-roc.list <- roc(grade ~  ., data = dt, ci=T)
-ggroc(roc.list, size = 1.2, alpha=.6, legacy.axes = TRUE) + theme_bw() + xlab('1-Specificity(FPR)') + ylab('Sensitivity(TPR)') +
-  ggsci::scale_color_lancet()  + scale_y_continuous(expand = c(0, 0),breaks = seq(0,1.0,0.20)) + scale_x_continuous(expand = c(0, 0),breaks = seq(0,1.0,0.2)) + 
-  theme(legend.title=element_blank())
-roc.list <- roc(oneyr ~  ., data = train[4:19], ci=TRUE)
+roc.list <- roc(grade ~ ., data = dt, ci = T)
+ggroc(roc.list, size = 1.2, alpha = .6, legacy.axes = TRUE) + theme_bw() + xlab("1-Specificity(FPR)") + ylab("Sensitivity(TPR)") +
+  ggsci::scale_color_lancet() + scale_y_continuous(expand = c(0, 0), breaks = seq(0, 1.0, 0.20)) + scale_x_continuous(expand = c(0, 0), breaks = seq(0, 1.0, 0.2)) +
+  theme(legend.title = element_blank())
+roc.list <- roc(oneyr ~ ., data = train[4:19], ci = TRUE)
 print(roc.list[[1]][[1]])
-ggroc(roc.list, size = 1.2, alpha=.6, legacy.axes = TRUE) + theme_bw() + xlab('1-Specificity(FPR)') + ylab('Sensitivity(TPR)') +
-  scale_y_continuous(expand = c(0, 0),breaks = seq(0,1.0,0.2)) + # scale_x_continuous(expand = c(0, 0),breaks = seq(0,1.0,0.2)) +
-  theme(plot.margin = unit(c(1,4,1,1),"lines"),legend.background=element_rect(fill = alpha("white", 0)), legend.title=element_blank(), legend.justification=c(1,0), legend.position=c(1,0))
+ggroc(roc.list, size = 1.2, alpha = .6, legacy.axes = TRUE) + theme_bw() + xlab("1-Specificity(FPR)") + ylab("Sensitivity(TPR)") +
+  scale_y_continuous(expand = c(0, 0), breaks = seq(0, 1.0, 0.2)) + # scale_x_continuous(expand = c(0, 0),breaks = seq(0,1.0,0.2)) +
+  theme(plot.margin = unit(c(1, 4, 1, 1), "lines"), legend.background = element_rect(fill = alpha("white", 0)), legend.title = element_blank(), legend.justification = c(1, 0), legend.position = c(1, 0))
 
 
 # Also without ROC objects.
 # For instance what AUC would be significantly different from 0.5?
-power.roc.test(ncases=41, ncontrols=72, sig.level=0.05, power=0.95)
+power.roc.test(ncases = 41, ncontrols = 72, sig.level = 0.05, power = 0.95)
 
 
 
@@ -405,38 +424,40 @@ power.roc.test(ncases=41, ncontrols=72, sig.level=0.05, power=0.95)
 # multiple regression
 library(riskRegression) # 可同时绘制ROC曲线和校正曲线
 library(prodlim)
-data(Melanoma,package="riskRegression")
+data(Melanoma, package = "riskRegression")
 ## tumor thickness on the log-scale
 Melanoma$logthick <- log(Melanoma$thick)
 # absolute risk model
-multi.arr <- ARR(Hist(time,status)~logthick+sex+age+ulcer,data=Melanoma,cause=1)
+multi.arr <- ARR(Hist(time, status) ~ logthick + sex + age + ulcer, data = Melanoma, cause = 1)
 
 # stratified model allowing different baseline risk for the two gender
-multi.arr <- ARR(Hist(time,status)~thick+strata(sex)+age+ulcer,data=Melanoma,cause=1)
+multi.arr <- ARR(Hist(time, status) ~ thick + strata(sex) + age + ulcer, data = Melanoma, cause = 1)
 
 # stratify by a continuous variable: strata(age)
-multi.arr <- ARR(Hist(time,status)~tp(thick,power=0)+strata(age)+sex+ulcer,
-                 data=Melanoma,
-                 cause=1)
+multi.arr <- ARR(Hist(time, status) ~ tp(thick, power = 0) + strata(age) + sex + ulcer,
+  data = Melanoma,
+  cause = 1
+)
 
-fit.arr2a <- ARR(Hist(time,status)~tp(thick,power=1),data=Melanoma,cause=1)
+fit.arr2a <- ARR(Hist(time, status) ~ tp(thick, power = 1), data = Melanoma, cause = 1)
 summary(fit.arr2a)
-fit.arr2b <- ARR(Hist(time,status)~timevar(thick),data=Melanoma,cause=1)
+fit.arr2b <- ARR(Hist(time, status) ~ timevar(thick), data = Melanoma, cause = 1)
 summary(fit.arr2b)
 
 ## logistic risk model
-fit.lrr <- LRR(Hist(time,status)~thick,data=Melanoma,cause=1)
+fit.lrr <- LRR(Hist(time, status) ~ thick, data = Melanoma, cause = 1)
 summary(fit.lrr)
 
 ## nearest neighbor non-parametric Aalen-Johansen estimate
 library(prodlim)
-fit.aj <- prodlim(Hist(time,status)~thick,data=Melanoma)
-plot(fit.aj,conf.int=FALSE)
+fit.aj <- prodlim(Hist(time, status) ~ thick, data = Melanoma)
+plot(fit.aj, conf.int = FALSE)
 
 # prediction performance
-x <- Score(list(fit.arr2a,fit.arr2b,fit.lrr),
-           data=Melanoma,
-           formula=Hist(time,status)~1,
-           cause=1,
-           split.method="none")
+x <- Score(list(fit.arr2a, fit.arr2b, fit.lrr),
+  data = Melanoma,
+  formula = Hist(time, status) ~ 1,
+  cause = 1,
+  split.method = "none"
+)
 x

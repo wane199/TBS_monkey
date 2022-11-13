@@ -2,7 +2,7 @@
 # 生存分析之限制性立方样条(RCS)，剂量反应关系图
 # [Cox比例风险模型的假设检验条件](https://zhuanlan.zhihu.com/p/164668320)
 rm(list = ls())
-options(digits=3) # 限定输出小数点后数字的位数为3位
+options(digits = 3) # 限定输出小数点后数字的位数为3位
 dt <- read.csv("data.csv")
 library(rms) # RCS
 library(survminer) # 曲线
@@ -23,14 +23,16 @@ train$Lat_radscore <- as.numeric(as.character(train$Lat_radscore))
 # Cox比例风险模型的假设检验条件(https://mengte.online/archives/3900)
 # 共线性诊断
 # library(car)
-lm.reg<-lm(Rel._in_5yrs ~ AI_radscore + Lat_radscore + SGS + Durmon, data=train) #线性回归分析
-vif(lm.reg) #计算vif
+lm.reg <- lm(Rel._in_5yrs ~ AI_radscore + Lat_radscore + SGS + Durmon, data = train) # 线性回归分析
+vif(lm.reg) # 计算vif
 
-fit <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon, 
-             data = train) # , tt = function(x, t, ...) x*log(t+18)
-model <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon + tt(Lat_radscore), 
-              tt=function(x,t,...) x*log(t+18), data = train) # , tt = function(x, t, ...) x*log(t+18)
-summary(fit1) 
+fit <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon,
+  data = train
+) # , tt = function(x, t, ...) x*log(t+18)
+model <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon + tt(Lat_radscore),
+  tt = function(x, t, ...) x * log(t + 18), data = train
+) # , tt = function(x, t, ...) x*log(t+18)
+summary(fit1)
 cox.zph(fit, "rank") # tests of PH
 cox.zph(fit, transform = function(time) log(time)) # tests of PH
 zph <- cox.zph(fit, "rank")[[1]] # 检验结果导出(https://blog.csdn.net/yijiaobani/article/details/83116578)
@@ -38,13 +40,13 @@ DT::datatable(zph)
 library(xtable)
 library(flextable)
 set_flextable_defaults(digits = 3)
-m1 = xtable_to_flextable(xtable(zph))
+m1 <- xtable_to_flextable(xtable(zph))
 m1
 library(officer)
-doc = read_docx()
-doc = body_add_flextable(doc,m1)
-print(doc,"./EP/EP_Cox_Nomo/supple_zph.docx")
-write.table(zph,"./EP/EP_Cox_Nomo/supple_zph.csv",sep=",") #result是想保存的变量
+doc <- read_docx()
+doc <- body_add_flextable(doc, m1)
+print(doc, "./EP/EP_Cox_Nomo/supple_zph.docx")
+write.table(zph, "./EP/EP_Cox_Nomo/supple_zph.csv", sep = ",") # result是想保存的变量
 
 ggcoxzph(cox.zph(fit, "rank")) # 可视化等比例假定
 # plot(cox.zph(fit)) # 分图展示
@@ -55,18 +57,20 @@ ggcoxdiagnostics(fit, type = "scaledsch", ox.scale = "linear.predictions")
 ggcoxdiagnostics(fit,
   type = "dfbeta", # type = "deviance",“ martingale”，“ score”，“ schoenfeld”，“ dfbeta”，“ dfbetas”，“ scaledsch”，“ partial”
   linear.predictions = FALSE, ggtheme = theme_bw()
-)  # 检查异常值, Anomaly Detection
+) # 检查异常值, Anomaly Detection
 ano <- anova(fit) # 非线性关系P-Nonlinear<0.05为存在非线性关系
 library(broom)
 tidy(zph)
 library(texreg)
 screenreg(fit, custom.model.names = "coxphmodel", digits = 3, single.row = T, ci.force = T)
-htmlreg(fit, file = "texreg.doc",
-        inline.css = FALSE,
-        doctype = TRUE,
-        html.tag = TRUE,
-        head.tag = TRUE,
-        body.tag = TRUE)
+htmlreg(fit,
+  file = "texreg.doc",
+  inline.css = FALSE,
+  doctype = TRUE,
+  html.tag = TRUE,
+  head.tag = TRUE,
+  body.tag = TRUE
+)
 
 ## 注意：这里的R命令是“cph”(rms包)，而不是常见的生存分析中用到的“coxph"(survival包)。
 ## Tips：若因变量为二分类变量，改用lrm函数拟合模型：fit<- lrm(y ~  rcs(x1),data=data)；若因变量为连续变量，改用ols函数拟合模型：fit<-ols(y~ rcs(x1)
@@ -87,21 +91,25 @@ ggcoxfunctional(S ~ radscore + sqrt(radscore), data = train)
 # chest包自动计算效应改变量change-in-estimate(https://mp.weixin.qq.com/s?__biz=MzIzMzc1ODc4OA==&mid=2247485666&idx=1&sn=f28aff82d66af79d099f237e8e302f89&chksm=e88181c9dff608df3a55a831f6d7dbcce32a29cb1f52ae16bf994c4585b06a52d1013084af29&mpshare=1&scene=24&srcid=1108Gz1ANkBpbNLK03j9kR93&sharer_sharetime=1667838586772&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
 library(chest)
 ? chest_cox
-vlist <- c("Lat_radscore", "SGS" ,"Durmon")
+vlist <- c("Lat_radscore", "SGS", "Durmon")
 results <- chest_cox(crude = "Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore", xlist = vlist, data = train)
 chest_plot(results)
-chest_forest(results)  
+chest_forest(results)
 
 # rcssci()
 library(rcssci)
-rcssci_cox(data=sbpdata, y = "status",x = "sbp",covs = c("age", "gender"), time = "time", 
-           prob=0.1, filepath = "/Users/mac/Desktop/BLS-ep-pre/EP/sci/cph/")
+rcssci_cox(
+  data = sbpdata, y = "status", x = "sbp", covs = c("age", "gender"), time = "time",
+  prob = 0.1, filepath = "/Users/mac/Desktop/BLS-ep-pre/EP/sci/cph/"
+)
 ## rcs, ggrcs包，一个用于绘制直方图+限制立方样条+双坐标轴图的R包
 S <- Surv(train$Follow_up_timemon, train$Rel._in_5yrs == 1)
 fit <- cph(S ~ AI_radscore + Lat_radscore + SGS + Durmon, x = TRUE, y = TRUE, data = train)
 fit
-ggrcs(data=train,fit=fit,x="Lat_radscore", histbinwidth = 0.05, histcol="blue", ribcol="green",
-      histlimit=c(0,50),leftaxislimit=c(0,1),lift = T)
+ggrcs(
+  data = train, fit = fit, x = "Lat_radscore", histbinwidth = 0.05, histcol = "blue", ribcol = "green",
+  histlimit = c(0, 50), leftaxislimit = c(0, 1), lift = T
+)
 
 ## 不分组/总体
 Pre0 <- rms::Predict(fit, radscore, fun = exp, type = "predictions", ref.zero = TRUE, conf.int = 0.95, digits = 2)
@@ -151,8 +159,8 @@ ggplot() +
 
 # 基于Cox+限制性立方样条：密度曲线+平滑曲线双坐标轴超详细绘图 https://zhuanlan.zhihu.com/p/444672731
 # https://blog.csdn.net/Tuo1uo/article/details/121267836
-fit <- cph(S ~ rcs(radscore,3), x=TRUE, y=TRUE,data=train)
-Pre0<-rms::Predict(fit,radscore,fun=exp,type="predictions",ref.zero=T,conf.int = 0.95,digits=2)
+fit <- cph(S ~ rcs(radscore, 3), x = TRUE, y = TRUE, data = train)
+Pre0 <- rms::Predict(fit, radscore, fun = exp, type = "predictions", ref.zero = T, conf.int = 0.95, digits = 2)
 par(mar = c(5, 4, 4, 5)) # 说明见下,BLTR
 col <- c("#5BA5DA", "#F06955", "#FDC059", "skyblue", "blue") ## 颜色变量 col <- c("darkcyan", "tomato", "purple")
 plot(density(train$radscore), ### 密度估计曲线
@@ -168,7 +176,8 @@ plot(density(train$radscore), ### 密度估计曲线
 ) ## 标题
 # axis(side=2,col='red')
 ## 绘制图形填充颜色
-polygon(density(train$radscore),angle = c(-45, 45), lty = c("dashed"),##### 密度估计曲线
+polygon(density(train$radscore),
+  angle = c(-45, 45), lty = c("dashed"), ##### 密度估计曲线
   col = col[4], ## 填充颜色
   border = col[1]
 ) ## 边界颜色
@@ -176,7 +185,8 @@ polygon(density(train$radscore),angle = c(-45, 45), lty = c("dashed"),##### 密�
 axis(4, las = 1) ## 加右边Y轴；说明见下
 par(new = T) ## 创建新的画布，类似于ggplot2中的图层叠加
 ### 叠加平滑曲线
-plot(Pre0[, 1], Pre0$yhat, las = 1,
+plot(Pre0[, 1], Pre0$yhat,
+  las = 1,
   axes = T, type = "l", lty = 1, lwd = 2, col = col[2],
   ylim = c(0, 5.0), ## Y轴刻度范围
   xlim = c(-1.0, 1.5), ## 注意刻度范围要和上面保持一致
@@ -185,7 +195,7 @@ plot(Pre0[, 1], Pre0$yhat, las = 1,
 ## 叠加平滑曲线的95%直线区间
 lines(Pre0[, 1], Pre0$lower, type = "l", lty = 2, lwd = 2, col = col[2])
 lines(Pre0[, 1], Pre0$upper, type = "l", lty = 2, lwd = 2, col = col[2])
-abline(h = 1.0, lty = 3, lwd = 2, col = 'lightgray')
+abline(h = 1.0, lty = 3, lwd = 2, col = "lightgray")
 ## 图形周边添加文本
 mtext("density", side = 4) ## 取值1，2，3，4分别代表下左上右，本例右边添加文本
 ## 图形添加散点
@@ -198,8 +208,10 @@ points(
 Text <- paste("Ref=", round(dd$limits$radscore[2], 3), sep = "")
 ## 图像添加文字，这里添加参考点及箭头 ggannotate包
 text(Text, x = dd$limits$radscore[2], y = 0.5, cex = 1)
-arrows(0.183, 0.70, 0.183, 0.95, col = 'black', length = 0.14, angle = 30,
-       code = 2)
+arrows(0.183, 0.70, 0.183, 0.95,
+  col = "black", length = 0.14, angle = 30,
+  code = 2
+)
 
 
 ### 分组做
@@ -282,10 +294,12 @@ before.cox.curve.1
 library(smoothHR)
 hr1 <- smoothHR(data = train, coxfit = before.cox.curve.1)
 print(hr1)
-plot(hr1, predictor = train$radscore, prob=0,conf.level=0.95,ref.label="radscore",
-     col=c("red","blue","green"), 
-     #分别设置拟合曲线、95%置信线和区域范围的颜色
-     xlab="radscore",ylab="调整的HR自然对数",main="")
+plot(hr1,
+  predictor = train$radscore, prob = 0, conf.level = 0.95, ref.label = "radscore",
+  col = c("red", "blue", "green"),
+  # 分别设置拟合曲线、95%置信线和区域范围的颜色
+  xlab = "radscore", ylab = "调整的HR自然对数", main = ""
+)
 
 Pre0 <- rms::Predict(before.cox.curve.1, radscore, fun = exp, type = "predictions", ref.zero = TRUE, conf.int = 0.95, digits = 2)
 plot(Pre0,
@@ -372,17 +386,16 @@ library(ggrcs)
 library(rms)
 library(ggplot2)
 library(scales)
-dt<-smoke
-dd<-datadist(dt)
-options(datadist='dd')
-fit<- cph(Surv(time,status==1) ~ rcs(age,4)+gender, x=TRUE, y=TRUE,data=dt)
-###single group
-ggrcs(data=dt,fit=fit,x="age")
-##two groups
-ggrcs(data=dt,fit=fit,x="age",group="gender") + xlab('Age(years)') + 
-    theme(axis.text = element_text(size = 10, face = "bold"), axis.ticks.length=unit(-0.25, "cm"), 
-                                                        axis.text.x = element_text(margin=unit(c(0.5,0.5,0.5,0.5), "cm")), 
-                                                        axis.text.y = element_text(margin=unit(c(0.5,0.5,0.5,0.5), "cm")))
-
-
-
+dt <- smoke
+dd <- datadist(dt)
+options(datadist = "dd")
+fit <- cph(Surv(time, status == 1) ~ rcs(age, 4) + gender, x = TRUE, y = TRUE, data = dt)
+### single group
+ggrcs(data = dt, fit = fit, x = "age")
+## two groups
+ggrcs(data = dt, fit = fit, x = "age", group = "gender") + xlab("Age(years)") +
+  theme(
+    axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.25, "cm"),
+    axis.text.x = element_text(margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm")),
+    axis.text.y = element_text(margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm"))
+  )
