@@ -12,7 +12,7 @@ library(dplyr)
 
 # dt <- read.csv("jixian.csv")
 dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\T1_TBV.csv")
-dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\SUVr_refWholeF&M.csv")
+dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\T1_hemi.csv",fileEncoding="GBK")
 # TLM <- read_excel("/home/wane/Desktop/TBS/TLMey/BMC.xlsx")
 # 数据探索EDA
 dt <- dt[c(-1,-2)]
@@ -136,7 +136,7 @@ ggplot(data = dt, mapping = aes(x = Age, y = SUVr_whole_refPons, colour = Sex)) 
     formula = my.formula, parse = TRUE
   ) 
 # 置信区间带
-p13 <- ggplot(dt, mapping = aes(x = Age, y = Cerebellum, colour = Side, fill = Side, linetype = Side)) + 
+p2 <- ggplot(dt, mapping = aes(x = Age, y = volume_ratio, colour = Side, fill = Side, linetype = Side)) + 
   # ylab(bquote(TBV/BW(cm^3/kg)))  + # 上下标 xlab("") + scale_fill_nejm() + scale_colour_nejm() +  
   scale_x_continuous(expand = c(0,0), breaks=seq(0, 30, 1)) + # scale_y_continuous(expand = c(0,0)) +  
   # stat_cor(aes(), label.x = 3) + geom_vline(aes(xintercept=8.0),linetype=4,col="red") +
@@ -149,18 +149,18 @@ p13 <- ggplot(dt, mapping = aes(x = Age, y = Cerebellum, colour = Side, fill = S
   #   aes(label =  paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
   #   formula =  y ~ s(x, k = 4), parse = TRUE
   # ) 
-p13
+p2
 # for循环
 theme_set(theme_classic() + theme(legend.position = "bottom"))
 plot_list = list()
-for (i in 3:ncol(dt)){
-  print(p <- ggplot(dt, aes_string(x = 'Age', y = colnames(dt)[i], colour = 'Sex', fill = 'Sex', linetype = 'Sex')) + 
+for (i in 4:ncol(dt)){
+  print(p <- ggplot(dt, aes_string(x = 'Age', y = colnames(dt)[i], colour = 'Side', fill = 'Side', linetype = 'Side')) + 
     scale_x_continuous(expand = c(0,0), breaks=seq(0, 30, 1)) + geom_smooth(method = mgcv::gam, formula = y ~ s(x, k = 4), se = T) + 
-    geom_point(aes(colour = Sex, shape = Sex, fill = Sex), size = 2) + 
+    geom_point(aes(colour = Side, shape = Side, fill = Side), size = 2) + 
       theme(axis.text = element_text(size = 10, face = "bold"), axis.ticks.length=unit(-0.25, "cm"), 
             axis.text.x = element_text(margin=unit(c(0.5,0.5,0.5,0.5), "cm")), 
             axis.text.y = element_text(margin=unit(c(0.5,0.5,0.5,0.5), "cm"))))
-  plot_list[[i-2]] = p
+  plot_list[[i-3]] = p
   }
 # 拼图
 # library(cowplot)
@@ -193,7 +193,7 @@ p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8 +p9 + p10+
   p11 + p12 + p13 + plot_annotation(tag_levels = 'A') +
   plot_layout(guides='collect')
 
-p1 + p2 + plot_annotation(tag_levels = 'A') +
+p1 + p2 + p3 + p4 + plot_annotation(tag_levels = 'A') +
   plot_layout(guides='collect')
 ggsave("p.tiff", p, dpi=600) # 保存为精度为600 dpi的tiff文件
 # gam
