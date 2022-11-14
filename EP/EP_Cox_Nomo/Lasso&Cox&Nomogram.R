@@ -1548,6 +1548,16 @@ dt <- dt %>%
 novelscore <- as.data.frame(dt["novelscore"])
 hist(dt$novelscore)
 dt$Rel._in_5yrs <- factor(dt$Rel._in_5yrs)
+library(cutoff)
+cox(data=dt,
+    time = 'Follow_up_timemon', y='Rel._in_5yrs', x='novelscore',
+    cut.numb=2,
+    n.per=0.25,
+    y.per=0.10,
+    p.cut=0.05,
+    strict=TRUE,
+    include='low',
+    round=2)
 logresult <- cutoff::logrank(
   data = dt, # 数据集
   time = "Follow_up_timemon", # 生存时间
