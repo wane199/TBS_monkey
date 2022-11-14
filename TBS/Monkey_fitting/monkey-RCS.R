@@ -18,19 +18,20 @@ TLM <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/CAI/1028/mus.csv")
 TLM <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/QIANG/PartⅡ猴脑代谢发育数据分析/PET_refWhole_SUVr.csv")
 library(gt)
 library(dplyr)
-TLM %>% 
-  slice_head(n = 4) %>% 
+TLM %>%
+  slice_head(n = 4) %>%
   gt() # print output using gt
 glimpse(TLM)
 library(visdat)
-vis_dat(TLM,palette = "qual") # cb_safe
+vis_dat(TLM, palette = "qual") # cb_safe
 
-TLM %>% 
+TLM %>%
   count(Age,
-        sort = TRUE)
+    sort = TRUE
+  )
 # TLM <- read_excel("/home/wane/Desktop/TBS/TLMey/BMC.xlsx")
 # 数据探索
-TLM <- TLM[c(-1,-2,-5)]
+TLM <- TLM[c(-1, -2, -5)]
 summary(TLM)
 glimpse(TLM)
 sum(!is.na(TLM))
@@ -119,7 +120,7 @@ p3 <- p + theme_classic() +
   geom_smooth(
     data = TLM, mapping = aes(x = Age, y = L2_4),
     method = "gam", formula = y ~ x + I((x - 11.3) * (x > 11.3))
-  ) + scale_x_continuous(expand = c(0,0)) + scale_y_continuous(expand = c(0,0)) +
+  ) + scale_x_continuous(expand = c(0, 0)) + scale_y_continuous(expand = c(0, 0)) +
   geom_vline(xintercept = 11.3, linetype = 2, color = "red")
 p3
 
@@ -151,10 +152,12 @@ p5 <- ggplot(TLM, aes(LM_L3, TLM)) +
 p5
 # rcssci(linear models with RCS splines were performed to explore the shape linear or nonlinear(U, inverted U,J,S,L,log,-log,temporary plateau shape)
 library(rcssci)
-data=sbpdata
-rcssci_linear(data=sbpdata, y = "sbp",x = "age",covs = c("status", "gender"), time = "time", ref.zero = F,
-           prob=0.1, filepath = "/Volumes/UNTITLED/") + # 默认prob = 0.5
-           ggplot2::theme_classic()
+data <- sbpdata
+rcssci_linear(
+  data = sbpdata, y = "sbp", x = "age", covs = c("status", "gender"), time = "time", ref.zero = F,
+  prob = 0.1, filepath = "/Volumes/UNTITLED/"
+) + # 默认prob = 0.5
+  ggplot2::theme_classic()
 # 广义可加模型gam**
 # https://mp.weixin.qq.com/mp/appmsgalbum?__biz=MzI1NjM3NTE1NQ==&action=getalbum&album_id=2077935014574374912&scene=173&from_msgid=2247485011&from_itemidx=1&count=3&nolastread=1#wechat_redirect
 model.gam <- gam(TBV ~ s(Age), data = dt) # 建立gam模型
@@ -168,13 +171,19 @@ data.frame(
 # 查看模型拟合情况
 library(ggpmisc)
 library(ggpubr)
-my.formula <- y ~ s(x,  bs = "cs")
-p0 <- ggplot(dt, aes(Age, TBV)) +  geom_point() + stat_cor(aes(), label.x = 6) + 
-  theme_classic() + scale_x_continuous(expand = c(0,0), breaks=seq(0, 27, 1)) + scale_y_continuous(expand = c(0,0)) +  
-  stat_smooth(method = mgcv::gam, se=TRUE, formula = my.formula) + 
-  theme(axis.text = element_text(size = 10, face = "bold"), axis.ticks.length=unit(-0.15, "cm"), 
-        axis.text.x = element_text(margin=unit(c(0.3,0.3,0.3,0.3), "cm")), 
-        axis.text.y = element_text(margin=unit(c(0.3,0.3,0.3,0.3), "cm")))
+my.formula <- y ~ s(x, bs = "cs")
+p0 <- ggplot(dt, aes(Age, TBV)) +
+  geom_point() +
+  stat_cor(aes(), label.x = 6) +
+  theme_classic() +
+  scale_x_continuous(expand = c(0, 0), breaks = seq(0, 27, 1)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  stat_smooth(method = mgcv::gam, se = TRUE, formula = my.formula) +
+  theme(
+    axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
+    axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
+    axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
+  )
 p0
 # gam
 coef(model.gam)[1] # Intercept
@@ -195,8 +204,8 @@ anova(model.log, model.gam)
 # https://cloud.tencent.com/developer/article/1972411
 library(patchwork)
 p4 + p1 + p6 + plot_layout(nrow = 2, byrow = FALSE) #  从上到下
-p0 + p1 + p2 + p3 + p4 + p5 + p6  + plot_annotation(tag_levels = 'A') +
-  plot_layout(ncol = 3, guides='collect') # 从左到右
+p0 + p1 + p2 + p3 + p4 + p5 + p6 + plot_annotation(tag_levels = "A") +
+  plot_layout(ncol = 3, guides = "collect") # 从左到右
 p4 / p5 | (p6)
 # https://zhuanlan.zhihu.com/p/384189537
 library(cowplot)
@@ -451,12 +460,12 @@ abline(v = cut_off, col = "black", lty = 2)
 ##############################################
 library(gamlss)
 data(aids)
-a<-gamlss(y~pb(x)+qrt,family=PO,data=aids)
+a <- gamlss(y ~ pb(x) + qrt, family = PO, data = aids)
 summary(a)
 print(a)
 plot(a)
 rm(a)
-mod<-gamlss(y~pb(x),sigma.fo=~pb(x),family=BCT, data=abdom, method=mixed(1,20))
+mod <- gamlss(y ~ pb(x), sigma.fo = ~ pb(x), family = BCT, data = abdom, method = mixed(1, 20))
 plot(mod)
 
 
@@ -465,72 +474,82 @@ plot(mod)
 # our own (very beta) plot package: details later
 library(WVPlots)
 ScatterHist(dt, "Age", "TBV",
-            smoothmethod="gam",
-            # annot_size=2,
-            title="L2_4 with Age") 
+  smoothmethod = "gam",
+  # annot_size=2,
+  title = "L2_4 with Age"
+)
 
 WVPlots::ScatterHist(dt, "Age", "TBV",
-                     title= "Example Fit",
-                     smoothmethod = "gam",
-                     # contour = TRUE, annot_size=1,
-                     point_color = "#006d2c", # dark green
-                     hist_color = "#6baed6", # medium blue
-                     smoothing_color = "#54278f", # dark purple
-                     density_color = "#08519c", # darker blue
-                     contour_color = "#9e9ac8") # lighter purple
+  title = "Example Fit",
+  smoothmethod = "gam",
+  # contour = TRUE, annot_size=1,
+  point_color = "#006d2c", # dark green
+  hist_color = "#6baed6", # medium blue
+  smoothing_color = "#54278f", # dark purple
+  density_color = "#08519c", # darker blue
+  contour_color = "#9e9ac8"
+) # lighter purple
 
 
 # [绘制散点相关图并自动添加相关系数和拟合方程](https://blog.csdn.net/zhouhucheng00/article/details/106413401/?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-0--blog-112583698.pc_relevant_3mothn_strategy_recovery&spm=1001.2101.3001.4242.1&utm_relevant_index=3)
 library(ggplot2)
 library(ggpubr)
 library(ggpmisc)
-theme_set(ggpubr::theme_pubr()+
-            theme(legend.position = "top"))
+theme_set(ggpubr::theme_pubr() +
+  theme(legend.position = "top"))
 
-b <- ggplot(dt, aes(x = Age, y = TBV)) + scale_x_continuous(expand = c(0,0), breaks=seq(0, 28, 2)) + scale_y_continuous(expand = c(0,0))
+b <- ggplot(dt, aes(x = Age, y = TBV)) +
+  scale_x_continuous(expand = c(0, 0), breaks = seq(0, 28, 2)) +
+  scale_y_continuous(expand = c(0, 0))
 # Scatter plot with regression line
-b + geom_point() + 
-  geom_smooth(method = "lm", color = "black", fill = "lightgray") 
+b + geom_point() +
+  geom_smooth(method = "lm", color = "black", fill = "lightgray")
 # Add a loess smoothed fit curve
-b + geom_point()+
+b + geom_point() +
   geom_smooth(method = "loess", color = "black", fill = "lightgray")
 
-b + geom_point(shape = 17)+
+b + geom_point(shape = 17) +
   geom_smooth(method = "gam", color = "black", fill = "lightgray")
 
 # Add regression line and confidence interval
 # Add correlation coefficient: stat_cor()
-ggscatter(dt, x = "Age", y = "TBV",
-          add = "reg.line", conf.int = TRUE,    
-          add.params = list(fill = "lightgray"))+ stat_cor(method = "pearson")
+ggscatter(dt,
+  x = "Age", y = "TBV",
+  add = "reg.line", conf.int = TRUE,
+  add.params = list(fill = "lightgray")
+) + stat_cor(method = "pearson")
 
 formula <- TBV ~ Age
-b + geom_point(shape = 17)+
+b + geom_point(shape = 17) +
   geom_smooth(method = "lm", color = "black", fill = "lightgray") +
   stat_cor(method = "pearson") +
   stat_poly_eq(
     aes(label = ..eq.label..),
-    formula = formula,parse = TRUE, geom = "text", hjust = 0)
+    formula = formula, parse = TRUE, geom = "text", hjust = 0
+  )
 
-b + geom_point(shape = 17)+
+b + geom_point(shape = 17) +
   geom_smooth(method = "lm", color = "black", fill = "lightgray") +
-  stat_cor(method = "pearson",label.x.npc = 0.5, label.y.npc = 0.9) +
+  stat_cor(method = "pearson", label.x.npc = 0.5, label.y.npc = 0.9) +
   stat_poly_eq(
     aes(label = ..eq.label..),
-    formula = formula,parse = TRUE,label.x.npc = 0.5,label.y.npc = 0.8, hjust = 0)
+    formula = formula, parse = TRUE, label.x.npc = 0.5, label.y.npc = 0.8, hjust = 0
+  )
 
 # 采用多项式回归拟合并添加拟合方程
 # Polynomial regression. Sow equation and adjusted R2
 formula <- TLM$L2_4 ~ poly(TLM$Age, 3, raw = TRUE)
-formula <- y ~ s(x,  bs = "cs")
-p <- ggplot(TLM, aes(Age, L2_4)) +  geom_point() + 
-  scale_x_continuous(expand = c(0,0), breaks=seq(0, 28, 2)) + scale_y_continuous(expand = c(0,0)) +
+formula <- y ~ s(x, bs = "cs")
+p <- ggplot(TLM, aes(Age, L2_4)) +
+  geom_point() +
+  scale_x_continuous(expand = c(0, 0), breaks = seq(0, 28, 2)) +
+  scale_y_continuous(expand = c(0, 0)) +
   geom_smooth(aes(), method = "gam", formula = formula) +
   stat_poly_eq(
-    aes(label =  paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
+    aes(label = paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
     formula = formula, parse = TRUE
-  )+
-  scale_fill_manual(values = c("#00AFBB", "#E7B800"))+
+  ) +
+  scale_fill_manual(values = c("#00AFBB", "#E7B800")) +
   scale_color_manual(values = c("#00AFBB", "#E7B800"))
 p
 
@@ -539,4 +558,3 @@ p
 # 想要查看更多的示例，请键入该命令进行查看：
 browseVignettes("ggpmisc")
 # 将打开如下网页：http://127.0.0.1:18537/session/Rvig.2970595b7d23.html
-
