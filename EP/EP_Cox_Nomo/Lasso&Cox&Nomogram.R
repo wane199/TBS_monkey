@@ -1540,23 +1540,19 @@ head(train)
 
 dt <- dt %>%
   as_tibble(dt) %>%
-  mutate(radscore = 0.1675 * log.sigma.5.0.mm.3D_glcm_ClusterShade
-    - 0.0648 * log.sigma.5.0.mm.3D_glszm_SmallAreaLowGrayLevelEmphasis
-    - 0.0012 * wavelet.LLH_gldm_LowGrayLevelEmphasis
-    + 0.0503 * wavelet.LHL_firstorder_Median
-    + 0.048 * wavelet.LHL_firstorder_RootMeanSquared
-    - 0.2359 * wavelet.LHL_glcm_Imc2
-    + 0.0407 * wavelet.LHL_gldm_DependenceNonUniformity
-    + 0.0662 * wavelet.HHH_glszm_ZoneEntropy
-    - 0.0841 * wavelet.LLL_glcm_Imc2)
-radscore <- as.data.frame(dt["radscore"])
-summary(m.new)
-train$lp.rad_clinic <- predict(m.new, type = "lp")
+  mutate(novelscore = 2.08 * AI_radscore
+    + 1.55 * Lat_radscore
+    + 1.48 * SGS 
+    + 1.00 * Durmon)
+
+novelscore <- as.data.frame(dt["novelscore"])
+hist(dt$novelscore)
+dt$Rel._in_5yrs <- factor(dt$Rel._in_5yrs)
 logresult <- cutoff::logrank(
-  data = train, # 数据集
+  data = dt, # 数据集
   time = "Follow_up_timemon", # 生存时间
   y = "Rel._in_5yrs", # 生存状态
-  x = "points", # 连续自变量
+  x = "novelscore", # 连续自变量
   cut.numb = 2, # 截断值选择1个分界点
   n.per = 0.10, # 分组后自变量组最少比例
   y.per = 0.10, # 分组后因变量组最少比例
@@ -1570,15 +1566,15 @@ ggpubr::ggline(logresult,
 )
 
 res.cut <- surv_cutpoint(
-  data = train, time = "Follow_up_timemon",
-  event = "Rel._in_5yrs", variables = c("points")
+  data = dt, time = "Follow_up_timemon",
+  event = "Rel._in_5yrs", variables = c("novelscore")
 )
-summary(res.cut) # 最佳截断值为102
-plot(res.cut, "points", palette = "npg")
+summary(res.cut) # 最佳截断值为7.18
+plot(res.cut, "novelscore", palette = "npg")
 res.cat <- surv_categorize(res.cut)
-fit <- survfit(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ points, data = res.cat)
+fit <- survfit(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ novelscore, data = res.cat)
 summary(fit)
-survdiff(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ points, data = res.cat)
+survdiff(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ novelscore, data = res.cat)
 
 ggsurvplot(fit,
   data = res.cat,
@@ -1586,14 +1582,21 @@ ggsurvplot(fit,
   surv.median.line = "hv", # 同时显示垂直和水平参考线
   pval = T, xlab = "months", ylab = "Free of Relapse(%)"
 )
-
-str(train)
-fi3 <- survfit(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ factor(Freq), data = train)
-ggsurvplot(fi3,
-  data = train, risk.table = TRUE, conf.int = TRUE,
-  surv.median.line = "hv", # 同时显示垂直和水平参考线
-  pval = T, xlab = "months", ylab = "Free of Relapse(%)"
+# 绘制累积风险曲线
+ggsurvplot(fit,
+           plaette = "#2E9FDF", data = dt,
+           fun = "cumhaz", # 绘制累积风险曲线
+           conf.int = T, pval = T,
+           palette = c("#E7B800", "#2E9FDF"),
+           legend.labs = c("novelscore-low", "novelscore-high"),
+           xlab = "Time in months", ylab = "Cum Relapse"
 )
+
+library(reportROC)
+reportROC(gold=dt$Rel._in_5yr,predictor=dt$novelscore,important="se",plot=TRUE)
+reportROC(gold=res.cat$Rel._in_5yr,predictor.binary=res.cat$novelscore,important="se",plot=TRUE)
+reportROC(gold=dt$Rel._in_5yr,predictor.binary=binary[1:50],exact=FALSE)
+
 
 # 交叉验证与重抽样, 重复论证
 library(CoxBoost)
