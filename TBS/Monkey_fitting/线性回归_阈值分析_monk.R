@@ -127,14 +127,14 @@ squash_axis <- function(from, to, factor) {
   return(trans_new("squash_axis", trans, inv))
 }
 
-my.formula <- y ~ s(x, k = 4, bs = "cs")
+my.formula <- y ~ s(x, k = 5, bs = "cs")
 ggplot(dt, aes(Age, TBV.BW, colour = Sex)) +
   geom_point() +
   stat_cor(aes(), label.x = 3) +
   scale_x_continuous(expand = c(0, 0), breaks = seq(0, 32, 2)) +
   scale_y_continuous(expand = c(0, 0)) +
   stat_smooth(method = mgcv::gam, se = TRUE, formula = my.formula) +
-  coord_trans(x = squash_axis(0, 5, 0.50)) + 
+  coord_trans(x = squash_axis(0, 5, 0.40)) + 
   theme(
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"), legend.position = "bottom",
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
