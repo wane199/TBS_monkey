@@ -741,18 +741,60 @@ fviz_pca_ind(res.pca,
              addEllipses = TRUE, # Concentration ellipses
              palette = "jco"
 )
-
-fviz_pca_biplot(res.pca, 
-                # Individuals
-                geom.ind = "point",
-                fill.ind = dataset$oneyr, col.ind = "black",
-                pointshape = 21, pointsize = 2,
-                palette = "jco",
-                addEllipses = TRUE,
-                # Variables
-                alpha.var ="contrib", col.var = "contrib",
-                gradient.cols = "RdYlBu",
-                
-                legend.title = list(fill = "Species", color = "Contrib",
-                                    alpha = "Contrib")
+fviz_pca_ind(res.pca, col.ind = "cos2", 
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             repel = TRUE # Avoid text overlapping (slow if many points)
 )
+
+fviz_pca_ind(res.pca, pointsize = "cos2", 
+             pointshape = 21, fill = "#E7B800",
+             repel = TRUE # Avoid text overlapping (slow if many points)
+)
+  
+fviz_pca_ind(res.pca, col.ind = "cos2", pointsize = "cos2",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             repel = TRUE # Avoid text overlapping (slow if many points)
+)
+
+
+fviz_cos2(res.pca, choice = "ind")
+# Total contribution on PC1 and PC2
+fviz_contrib(res.pca, choice = "ind", axes = 1:2)
+
+fviz_pca_ind(res.pca,
+             geom.ind = "point", # show points only (nbut not "text")
+             col.ind = factor(dataset$oneyr), # color by groups
+             palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+             addEllipses = TRUE, # Concentration ellipses
+             legend.title = "Groups"
+)
+
+# Add confidence ellipses
+fviz_pca_ind(res.pca, geom.ind = "point", col.ind = factor(dataset$oneyr), 
+             palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+             addEllipses = TRUE, ellipse.type = "confidence",
+             legend.title = "Groups"
+)
+
+fviz_pca_ind(res.pca,
+             label = "none", # hide individual labels
+             habillage = factor(dataset$oneyr), # color by groups
+             addEllipses = TRUE, # Concentration ellipses
+             palette = "jco"
+)
+
+# Add confidence ellipses
+fviz_pca_ind(res.pca, geom.ind = "point", 
+             col.ind = factor(dataset$oneyr), # color by groups
+             palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+             addEllipses = TRUE, ellipse.type = "confidence",
+             legend.title = "Groups"
+)
+# Convex hull
+fviz_pca_ind(res.pca, geom.ind = "point",
+             col.ind = factor(dataset$oneyr), # color by groups
+             palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+             addEllipses = TRUE, ellipse.type = "convex",
+             legend.title = "Groups"
+)
+
