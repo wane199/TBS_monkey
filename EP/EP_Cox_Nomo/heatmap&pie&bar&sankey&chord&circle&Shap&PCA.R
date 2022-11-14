@@ -516,14 +516,12 @@ library(eoffice)
 topptx(filename = "和弦图.pptx")
 
 
-# Circular barplot with groups
-# library
+# Circular barplot with groups，SHAP plot，biplot(https://mp.weixin.qq.com/s?__biz=MjM5NDM3NjczOA==&mid=2247486488&idx=1&sn=dfa1716520a4651d7de5c1c729f9c295&chksm=a689f15591fe7843c866711a72eb15adcdf7be2e19389c9521e2c3ce03bcbcfba765aef6d146&mpshare=1&scene=1&srcid=1114axjBUfHqmSUluMnmq6um&sharer_sharetime=1668438220853&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
+# library(https://r-graph-gallery.com/297-circular-barplot-with-groups.html)
 library(tidyverse)
-
 data <- read.csv("/home/wane/Desktop/EP/Structured_Data/process_PT_nor_cn+epcoef_min22_bar.csv")
-
 data <- data %>% arrange(group)
-
+summary(data)
 # Get the name and the y position of each label
 label_data <- data
 number_of_bar <- nrow(label_data)
@@ -543,7 +541,218 @@ p <- ggplot(data, aes(x=as.factor(id), y=Coef, fill=group)) +       # Note that 
     panel.grid = element_blank(),
     plot.margin = unit(rep(-1,4), "cm") 
   ) +
-  coord_polar() + 
+  coord_polar() +  # Add text showing the value of each 100/75/50/25 lines
+  ggplot2::annotate("text", x = rep(max(data$id),5), y = c(0, .50, 1.00, 1.50, 2.00), label = c("0", "0.5", "1.0", "1.5", "2.0") , color="grey", size=6 , angle=0, fontface="bold", hjust=1) +
   geom_text(data=label_data, aes(x=id, y=Coef+0.1, label=Feature, hjust=hjust), color="black", fontface="bold",alpha=0.6, size=2.5, angle= label_data$angle, inherit.aes = FALSE ) 
-
 p
+
+# Explaining individual machine learning predictions with Shapley values(https://cran.r-project.org/web/packages/shapr/vignettes/understanding_shapr.html)
+library(xgboost)
+library(shapr)
+data("Boston", package = "MASS")
+
+x_var <- c("lstat", "rm", "dis", "indus")
+y_var <- "medv"
+
+x_train <- as.matrix(Boston[-1:-6, x_var])
+y_train <- Boston[-1:-6, y_var]
+x_test <- as.matrix(Boston[1:6, x_var])
+
+# Fitting a basic xgboost model to the training data
+model <- xgboost(
+  data = x_train,
+  label = y_train,
+  nround = 20,
+  verbose = FALSE
+)
+
+# Prepare the data for explanation
+explainer <- shapr(x_train, model)
+#> The specified model provides feature classes that are NA. The classes of data are taken as the truth.
+
+# Specifying the phi_0, i.e. the expected prediction without any features
+p <- mean(y_train)
+
+# Computing the actual Shapley values with kernelSHAP accounting for feature dependence using
+# the empirical (conditional) distribution approach with bandwidth parameter sigma = 0.1 (default)
+explanation <- explain(
+  x_test,
+  approach = "empirical",
+  explainer = explainer,
+  prediction_zero = p
+)
+
+# Printing the Shapley values for the test data.
+# For more information about the interpretation of the values in the table, see ?shapr::explain.
+print(explanation$dt)
+
+# Plot the resulting explanations for observations 1 and 6
+plot(explanation, plot_phi0 = FALSE, index_x_test = c(1, 6))
+
+# Use the combined approach
+explanation_combined <- explain(
+  x_test,
+  approach = c("empirical", "copula", "gaussian", "gaussian"),
+  explainer = explainer,
+  prediction_zero = p
+)
+
+# Plot the resulting explanations for observations 1 and 6, excluding
+# the no-covariate effect
+plot(explanation_combined, plot_phi0 = FALSE, index_x_test = c(1, 6))
+
+library(gbm)
+#> Loaded gbm 2.1.5
+
+xy_train <- data.frame(x_train,medv = y_train)
+
+form <- as.formula(paste0(y_var,"~",paste0(x_var,collapse="+")))
+
+# Fitting a gbm model
+set.seed(825)
+model <- gbm::gbm(
+  form,
+  data = xy_train,
+  distribution = "gaussian"
+)
+
+#### Full feature versions of the three required model functions ####
+
+predict_model.gbm <- function(x, newdata) {
+  
+  if (!requireNamespace('gbm', quietly = TRUE)) {
+    stop('The gbm package is required for predicting train models')
+  }
+  
+  model_type <- ifelse(
+    x$distribution$name %in% c("bernoulli","adaboost"),
+    "classification",
+    "regression"
+  )
+  if (model_type == "classification") {
+    
+    predict(x, as.data.frame(newdata), type = "response",n.trees = x$n.trees)
+  } else {
+    
+    predict(x, as.data.frame(newdata),n.trees = x$n.trees)
+  }
+}
+
+get_model_specs.gbm <- function(x){
+  feature_list = list()
+  feature_list$labels <- labels(x$Terms)
+  m <- length(feature_list$labels)
+  
+  feature_list$classes <- attr(x$Terms,"dataClasses")[-1]
+  feature_list$factor_levels <- setNames(vector("list", m), feature_list$labels)
+  feature_list$factor_levels[feature_list$classes=="factor"] <- NA # the model object doesn't contain factor levels info
+  
+  return(feature_list)
+}
+
+# Prepare the data for explanation
+set.seed(123)
+explainer <- shapr(xy_train, model)
+#> The columns(s) medv is not used by the model and thus removed from the data.
+p0 <- mean(xy_train[,y_var])
+explanation <- explain(x_test, explainer, approach = "empirical", prediction_zero = p0)
+# Plot results
+plot(explanation)
+
+#### Minimal version of the three required model functions ####      
+# Note: Working only for this exact version of the model class 
+# Avoiding to define get_model_specs skips all feature         
+# consistency checking between your data and model             
+
+# Removing the previously defined functions to simulate a fresh start
+rm(predict_model.gbm)
+rm(get_model_specs.gbm)
+
+predict_model.gbm <- function(x, newdata) {
+  predict(x, as.data.frame(newdata),n.trees = x$n.trees)
+}
+
+# Prepare the data for explanation
+set.seed(123)
+explainer <- shapr(x_train, model)
+#> get_model_specs is not available for your custom model. All feature consistency checking between model and data is disabled.
+#> See the 'Advanced usage' section of the vignette:
+#> vignette('understanding_shapr', package = 'shapr')
+#> for more information.
+#> The specified model provides feature labels that are NA. The labels of data are taken as the truth.
+p0 <- mean(xy_train[,y_var])
+explanation <- explain(x_test, explainer, approach = "empirical", prediction_zero = p0)
+# Plot results
+plot(explanation)
+
+# Principal Component Analysis with Biplot Analysis in R(https://medium.com/@RaharditoDP/principal-component-analysis-with-biplot-analysis-in-r-ee39d17096a1)
+# create coloumn branch become row names
+dataset <- read.csv('/home/wane/Desktop/EP/sci/cph/XML/TLE234group_2019.csv')
+str(dataset)
+datasetnew <- dataset[,c(-1:-7)]
+rownames(datasetnew) <- dataset[,4]
+View(datasetnew)
+
+# show eigen value score of PCA
+library(factoextra)
+library(FactoMineR)
+
+res.pca <- PCA(datasetnew,  graph = FALSE)
+res.pca$eig
+# show scree plot of PCA
+fviz_screeplot(res.pca, addlabels = TRUE)
+# show pricipal component score
+res.pca$ind$coord
+# show graph of two dimensional variable
+fviz_pca_ind(res.pca, col.ind = "cos2", gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), repel = TRUE)
+# show graph of biplot analysis
+fviz_pca_biplot(res.pca, repel = TRUE, ggtheme = theme_minimal())
+
+fviz_pca_var(res.pca, col.var = "steelblue")
+# Control variable colors using their contributions
+fviz_pca_var(res.pca, col.var = "contrib", 
+             gradient.cols = c("white", "blue", "red"),
+             ggtheme = theme_minimal())
+# Graph of variables(https://f0nzie.github.io/machine_learning_compilation/detailed-study-of-principal-component-analysis.html)
+var <- get_pca_var(res.pca)
+var
+# Coordinates
+head(var$coord)
+# Cos2: quality on the factore map
+head(var$cos2)
+head(var$contrib)
+# Correlation circle
+library(corrplot)
+corrplot(var$cos2, is.corr=FALSE)
+# Total cos2 of variables on Dim.1 and Dim.2
+fviz_cos2(res.pca, choice = "var", axes = 1:2)
+
+# Color by cos2 values: quality on the factor map
+fviz_pca_var(res.pca, col.var = "cos2",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
+             repel = TRUE # Avoid text overlapping
+)
+# Change the transparency by cos2 values
+fviz_pca_var(res.pca, alpha.var = "cos2")
+
+fviz_pca_ind(res.pca,
+             label = "none", # hide individual labels
+             habillage = dataset$oneyr, # color by groups
+             addEllipses = TRUE, # Concentration ellipses
+             palette = "jco"
+)
+
+fviz_pca_biplot(res.pca, 
+                # Individuals
+                geom.ind = "point",
+                fill.ind = dataset$oneyr, col.ind = "black",
+                pointshape = 21, pointsize = 2,
+                palette = "jco",
+                addEllipses = TRUE,
+                # Variables
+                alpha.var ="contrib", col.var = "contrib",
+                gradient.cols = "RdYlBu",
+                
+                legend.title = list(fill = "Species", color = "Contrib",
+                                    alpha = "Contrib")
+)
