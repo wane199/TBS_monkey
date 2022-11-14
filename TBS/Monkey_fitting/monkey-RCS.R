@@ -185,6 +185,36 @@ p0 <- ggplot(dt, aes(Age, TBV)) +
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
 p0
+# 构建一个 squash_axis 函数来实现坐标轴压缩功能，这个函数需要使用scales包(https://zhuanlan.zhihu.com/p/358781655)
+library(scales)
+squash_axis <- function(from, to, factor) {
+  # Args:
+  #   from: left end of the axis
+  #   to: right end of the axis
+  #   factor: the compression factor of the range [from, to]
+  trans <- function(x) {
+    # get indices for the relevant regions
+    isq <- x > from & x < to
+    ito <- x >= to
+    # apply transformation
+    x[isq] <- from + (x[isq] - from) / factor
+    x[ito] <- from + (to - from) / factor + (x[ito] - to)
+    return(x)
+  }
+  inv <- function(x) {
+    # get indices for the relevant regions
+    isq <- x > from & x < from + (to - from) / factor
+    ito <- x >= from + (to - from) / factor
+
+    # apply transformation
+    x[isq] <- from + (x[isq] - from) * factor
+    x[ito] <- to + (x[ito] - (from + (to - from) / factor))
+    return(x)
+  }
+  # return the transformation
+  return(trans_new("squash_axis", trans, inv))
+}
+
 # gam
 coef(model.gam)[1] # Intercept
 par(mfrow = c(1, 2)) # 2*2画布
