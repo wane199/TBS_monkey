@@ -6,16 +6,16 @@ rm(list = ls())
 getwd()
 library(skimr)
 # 读取数据
-data <- read.csv("/home/wane/Desktop/EP/Structured_Data/MRIneg-98-2.csv", header = T)
+data <- read.csv("/home/wane/Desktop/EP/Structured_Data/MRIneg-98-3.csv", header = T)
 View(data)
 # 批量数值转因子
-for (i in names(data)[c(3:5, 7:16)]) {
+for (i in names(data)[c(37:46)]) {
   data[, i] <- as.factor(data[, i])
 }
 
 # 提取子集
-dt <- data[7:16]
-paste0(names(dt), collapse = ",")
+dt <- data[37:46]
+paste0(names(dt), collapse = " ")
 summary(dt)
 table(dt)
 skim(dt)
@@ -29,6 +29,7 @@ library(plotrix)
 L.pop <- c(25, 3, 1, 23, 2)
 R.pop <- c(17, 2, 3, 28, 5)
 lobelabels <- c("Frontal", "Parietal", "Occipital", "Temporal", "Insular")
+library(plotrix)
 mcol <- color.gradient(c(0, 1), c(1, 0.6), c(0.1, 0.6), 5)
 fcol <- color.gradient(c(0, 1), c(1, 0.6), c(0.1, 0.6), 5)
 
