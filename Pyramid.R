@@ -37,7 +37,7 @@ fcol <- color.gradient(c(0, 1), c(1, 0.6), c(0.1, 0.6), 5)
 library(RColorBrewer)
 # 查看sequential连续型颜色画板，每个颜色画板中包含9种颜色
 display.brewer.all(type="seq")
-mcol <- colorRampPalette(brewer.pal(5,"Reds"))(5) ->fcol
+mcol <- colorRampPalette(brewer.pal(7,"Set2"))(7) ->fcol
 mcol <- c("#BBCCEE", "#CCEEFF", "#CCDDAA", "#EEEEBB", "#FFCCCC", "#DDDDDD"
 )->fcol
 head(L.pop)

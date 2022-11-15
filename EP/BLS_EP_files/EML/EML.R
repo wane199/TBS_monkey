@@ -1,4 +1,5 @@
 # [机器学习特征选择](https://blog.csdn.net/ARPOSPF/article/details/84979032)
+# [Interpretable Machine Learning](https://christophm.github.io/interpretable-ml-book/)
 rm(list = ls()) 
 # 移除冗余特征，移除高度关联的特征
 set.seed(123)
