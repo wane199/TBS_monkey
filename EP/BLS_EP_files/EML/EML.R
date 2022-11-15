@@ -1,13 +1,12 @@
 # [机器学习特征选择](https://blog.csdn.net/ARPOSPF/article/details/84979032)
 rm(list = ls()) 
-
 # 移除冗余特征，移除高度关联的特征
 set.seed(123)
 library(mlbench)
 library(caret)
 # data(PimaIndiansDiabetes)
 # Matrix <- PimaIndiansDiabetes[,1:8]
-dt <- read.csv("/home/wane/Desktop/EP/sci/cph/XML/TLE234group_2019_factor.csv")
+dt <- read.csv("/Volumes/UNTITLED/sci/cph/XML/TLE234group_2019.csv")
 head(dt)
 # dtx <- as.data.frame(scale(dt[4:17]))
 # dt <- mutate(dt[, 1:3], dtx) 
@@ -38,8 +37,8 @@ library(caret)
 # data(PimaIndiansDiabetes)
 # prepare training scheme
 control <- trainControl(method="repeatedcv", number=10, repeats=3)
-# train the model
-model <- train(factor(oneyr)~., data=train, method="lvq", preProcess="scale", trControl=control)
+# train the model(http://topepo.github.io/caret/train-models-by-tag.html)
+model <- train(factor(oneyr)~., data=train, method="rf", preProcess="scale", trControl=control) # Learning Vector Quantization
 # estimate variable importance
 importance <- varImp(model, scale=FALSE)
 # summarize importance
@@ -53,11 +52,124 @@ library(mlr)
 train.task <- makeClassifTask(data = train, target = "oneyr")
 # 查看变量选择可选方法listFilterMethods()
 # 选择计算方差，进行特征选择
-var_imp <- generateFilterValuesData(train.task, method = "variance", nselect = 6)
+var_imp <- generateFilterValuesData(train.task, method = "variance", nselect = 6) 
 var_imp
 # 对衡量特征指标进行绘图
 plotFilterValues(var_imp, feat.type.cols = TRUE, n.show = 10)
 
+# PCA
+# Principal Component Analysis with Biplot Analysis in R(https://medium.com/@RaharditoDP/principal-component-analysis-with-biplot-analysis-in-r-ee39d17096a1)
+# create coloumn branch become row names
+dataset <- read.csv('/home/wane/Desktop/EP/sci/cph/XML/TLE234group_2019.csv')
+str(dataset)
+datasetnew <- dataset[,c(-1:-7)]
+rownames(datasetnew) <- dataset[,4]
+View(datasetnew)
+
+# show eigen value score of PCA
+library(factoextra)
+library(FactoMineR)
+
+res.pca <- PCA(datasetnew,  graph = FALSE)
+res.pca$eig
+# show scree plot of PCA
+fviz_screeplot(res.pca, addlabels = TRUE)
+# show pricipal component score
+res.pca$ind$coord
+# show graph of two dimensional variable
+fviz_pca_ind(res.pca, col.ind = "cos2", gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), repel = TRUE)
+# show graph of biplot analysis
+fviz_pca_biplot(res.pca, repel = TRUE, ggtheme = theme_minimal())
+
+fviz_pca_var(res.pca, col.var = "steelblue")
+# Control variable colors using their contributions
+fviz_pca_var(res.pca, col.var = "contrib", 
+             gradient.cols = c("white", "blue", "red"),
+             ggtheme = theme_minimal())
+# Graph of variables(https://f0nzie.github.io/machine_learning_compilation/detailed-study-of-principal-component-analysis.html)
+var <- get_pca_var(res.pca)
+var
+# Coordinates
+head(var$coord)
+# Cos2: quality on the factore map
+head(var$cos2)
+head(var$contrib)
+# Correlation circle
+library(corrplot)
+corrplot(var$cos2, is.corr=FALSE)
+# Total cos2 of variables on Dim.1 and Dim.2
+fviz_cos2(res.pca, choice = "var", axes = 1:2)
+
+# Color by cos2 values: quality on the factor map
+fviz_pca_var(res.pca, col.var = "cos2",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
+             repel = TRUE # Avoid text overlapping
+)
+# Change the transparency by cos2 values
+fviz_pca_var(res.pca, alpha.var = "cos2")
+
+fviz_pca_ind(res.pca,
+             label = "none", # hide individual labels
+             habillage = dataset$oneyr, # color by groups
+             addEllipses = TRUE, # Concentration ellipses
+             palette = "jco"
+)
+fviz_pca_ind(res.pca, col.ind = "cos2", 
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             repel = TRUE # Avoid text overlapping (slow if many points)
+)
+
+fviz_pca_ind(res.pca, pointsize = "cos2", 
+             pointshape = 21, fill = "#E7B800",
+             repel = TRUE # Avoid text overlapping (slow if many points)
+)
+
+fviz_pca_ind(res.pca, col.ind = "cos2", pointsize = "cos2",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             repel = TRUE # Avoid text overlapping (slow if many points)
+)
+
+
+fviz_cos2(res.pca, choice = "ind")
+# Total contribution on PC1 and PC2
+fviz_contrib(res.pca, choice = "ind", axes = 1:2)
+
+fviz_pca_ind(res.pca,
+             geom.ind = "point", # show points only (nbut not "text")
+             col.ind = factor(dataset$oneyr), # color by groups
+             palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+             addEllipses = TRUE, # Concentration ellipses
+             legend.title = "Groups"
+)
+
+# Add confidence ellipses
+fviz_pca_ind(res.pca, geom.ind = "point", col.ind = factor(dataset$oneyr), 
+             palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+             addEllipses = TRUE, ellipse.type = "confidence",
+             legend.title = "Groups"
+)
+
+fviz_pca_ind(res.pca,
+             label = "none", # hide individual labels
+             habillage = factor(dataset$oneyr), # color by groups
+             addEllipses = TRUE, # Concentration ellipses
+             palette = "jco"
+)
+
+# Add confidence ellipses
+fviz_pca_ind(res.pca, geom.ind = "point", 
+             col.ind = factor(dataset$oneyr), # color by groups
+             palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+             addEllipses = TRUE, ellipse.type = "confidence",
+             legend.title = "Groups"
+)
+# Convex hull
+fviz_pca_ind(res.pca, geom.ind = "point",
+             col.ind = factor(dataset$oneyr), # color by groups
+             palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+             addEllipses = TRUE, ellipse.type = "convex",
+             legend.title = "Groups"
+)
 
 
 # [mlr3book.pdf](https://mlr3book.mlr-org.com/interpretation.html)
