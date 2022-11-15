@@ -798,3 +798,69 @@ fviz_pca_ind(res.pca, geom.ind = "point",
              legend.title = "Groups"
 )
 
+# umap(https://datavizpyr.com/how-to-make-umap-plot-in-r/)
+# 使用umap包进行UMAP降维可视化分析
+library(umap)
+data.labels = dataset$oneyr
+# 使用umap函数进行UMAP降维分析
+data.umap = umap::umap(datasetnew)
+data.umap
+## umap embedding of 150 items in 2 dimensions
+## object components: layout, data, knn, config
+
+# 查看降维后的结果
+head(data.umap$layout)
+
+# 使用plot函数可视化UMAP的结果
+plot(data.umap$layout,col=data.labels,pch=16,asp = 1,
+     xlab = "UMAP_1",ylab = "UMAP_2",
+     main = "A UMAP visualization of the iris dataset")
+# 添加分隔线
+abline(h=0,v=0,lty=2,col="gray")
+# 添加图例
+legend("topright",title = "Species",inset = 0.01,
+       legend = unique(data.labels),pch=16,
+       col = unique(data.labels))
+
+# 使用uwot包进行UMAP降维可视化分析
+library(uwot)
+
+head(iris)
+
+# 使用umap函数进行UMAP降维分析
+iris_umap <- uwot::umap(dataset)
+head(iris_umap)
+
+
+# 使用plot函数可视化UMAP降维的结果
+plot(iris_umap,col=dataset$oneyr,pch=16,asp = 1,
+     xlab = "UMAP_1",ylab = "UMAP_2",
+     main = "A UMAP visualization of the iris dataset")
+# 添加分隔线
+abline(h=0,v=0,lty=2,col="gray")
+# 添加图例
+legend("topright",title = "Species",inset = 0.01,
+       legend = unique(dataset$oneyr),pch=16,
+       col = unique(dataset$oneyr))
+
+# Supervised dimension reduction using the 'Species' factor column
+data_sumap <- uwot::umap(dataset, n_neighbors = 15, min_dist = 0.001,
+                         y = dataset$oneyr, target_weight = 0.5)
+head(data_sumap)
+
+
+data_sumap_res <- data.frame(data_sumap,Oneyr=dataset$oneyr)
+head(data_sumap_res)
+
+
+# 使用ggplot2包可视化UMAP降维的结果
+library(ggplot2)
+
+ggplot(data_sumap_res,aes(X1,X2,color=Oneyr)) + 
+  geom_point() + theme_bw() + 
+  geom_hline(yintercept = 0,lty=2,col="red") + 
+  geom_vline(xintercept = 0,lty=2,col="blue",lwd=1) +
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  labs(x="UMAP_1",y="UMAP_2",
+       title = "A UMAP visualization of the TLE dataset")
+
