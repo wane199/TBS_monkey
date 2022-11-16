@@ -13,7 +13,7 @@ theme_set(theme_classic() + theme(legend.position = "bottom"))
 
 # dt <- read.csv("jixian.csv")
 dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\T1_TBV.csv")
-dt <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/QIANG/1030/T1_TBV.csv", fileEncoding = "GBK")
+dt <- read.csv("/Users/mac/Desktop/Nomo-TBS/TBS&Mon/Monkey/QIANG/1030/T1_TBV.csv", fileEncoding = "GBK")
 # TLM <- read_excel("/home/wane/Desktop/TBS/TLMey/BMC.xlsx")
 # 数据探索EDA
 dt <- dt[c(-1, -2)]
@@ -79,7 +79,6 @@ plot(dt$y.low ~ dt$Age, ylim = c(co[3], co[4]), xlim = c(co[1], co[2]), col = co
 par(new = TRUE)
 plot(dt$y.upp ~ dt$Age, ylim = c(co[3], co[4]), xlim = c(co[1], co[2]), col = col[2], type = "l", lty = 3, lwd = 1, ylab = "HB", xlab = "AGE")
 rug(dt$AGE, col = "blue")
-
 # 广义可加模型gam**
 # https://mp.weixin.qq.com/mp/appmsgalbum?__biz=MzI1NjM3NTE1NQ==&action=getalbum&album_id=2077935014574374912&scene=173&from_msgid=2247485011&from_itemidx=1&count=3&nolastread=1#wechat_redirect
 pr.gam <- predict(gam1, dt) # 生成预测值
@@ -96,6 +95,7 @@ ggplot(dt, aes(Age, TBV)) +
   geom_vline(aes(xintercept = 8.0), linetype = 4, col = "red") +
   theme_classic() +
   stat_smooth(method = mgcv::gam, formula = y ~ s(x, k = 5))
+
 
 library(ggpmisc)
 library(ggpubr)
@@ -127,22 +127,38 @@ squash_axis <- function(from, to, factor) {
   return(trans_new("squash_axis", trans, inv))
 }
 
-my.formula <- y ~ s(x, k = 5, bs = "cs")
-ggplot(dt, aes(Age, TBV.BW, colour = Sex)) +
+my.formula <- y ~ s(x, k = 6, bs = "cs")
+ggplot(dt, aes(Age, TBV)) +
   geom_point() +
-  stat_cor(aes(), label.x = 3) +
-  scale_x_continuous(expand = c(0, 0), breaks = seq(0, 32, 2)) +
-  scale_y_continuous(expand = c(0, 0)) +
+  stat_cor(aes(), label.x = 3) + 
+  scale_x_continuous(expand = c(0, 0), breaks = c(0, 1, 3, 5, 13, 20)) + # seq(0, 32, 1)
+  scale_y_continuous(expand = c(0, 0)) + # scale_x_log10() +
   stat_smooth(method = mgcv::gam, se = TRUE, formula = my.formula) +
-  coord_trans(x = squash_axis(0, 5, 0.40)) + 
+  coord_trans(x = squash_axis(0, 5, 0.40)) + geom_vline(aes(xintercept=5),colour="#990000",linetype="dashed") +
+  theme(
+    axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"), legend.position = "bottom",
+    axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
+    axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
+  )
+####################################
+# 分类gam曲线拟合
+ggplot(dt, aes(Age, TBV, colour = Sex)) +
+  geom_point() +
+  stat_cor(aes(), label.x = 3) + 
+  scale_x_continuous(expand = c(0, 0), breaks = c(0, 1, 3, 5, 13, 20)) + # seq(0, 32, 1)
+  scale_y_continuous(expand = c(0, 0)) + # scale_x_log10() +
+  stat_smooth(method = mgcv::gam, se = TRUE, formula = my.formula) +
+  coord_trans(x = squash_axis(0, 5, 0.40)) + geom_vline(aes(xintercept=5),colour="#990000",linetype="dashed") +
   theme(
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"), legend.position = "bottom",
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
 
-####################################
-# 分类gam曲线拟合
+library(plotly)
+df1:p %>% add_markers() %>% add_lines()p %>%
+      layout(xaxis=list(ticktext=list("one","two","three","four","five","six"),tickvals=list(1,2,0,4,0,0),  tickmode="array"))  #下图只会显示对应了1，2，4的图，其它的0对应的位置不存在(x中没有)
+
 paste0(colnames(dt[4:16]), collapse = "+")
 Frontal_Cortex + Temporal_Cortex + Parietal_Cortex + Occipital_Cortex + Insula_Cortex +
   Striatum + Hippocampus +
