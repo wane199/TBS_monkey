@@ -59,7 +59,174 @@ var_imp
 # 对衡量特征指标进行绘图
 plotFilterValues(var_imp, feat.type.cols = TRUE, n.show = 10)
 
-# PCA
+# 模型自带的feature importance, 环状柱状图展示；SHAP技术验证，PCA探究SHAP分析中top变量
+library(tidyverse)
+data <- read.csv("/home/wane/Desktop/EP/Structured_Data/process_PT_nor_cn+epcoef_min22_bar.csv")
+data <- data %>% arrange(group)
+summary(data)
+# Get the name and the y position of each label
+label_data <- data
+number_of_bar <- nrow(label_data)
+angle <- 90 - 360 * (label_data$id-0.5) /number_of_bar     # I substract 0.5 because the letter must have the angle of the center of the bars. Not extreme right(1) or extreme left (0)
+label_data$hjust <- ifelse( angle < -90, 1, 0)
+label_data$angle <- ifelse(angle < -90, angle+180, angle)
+
+# Make the plot
+p <- ggplot(data, aes(x=as.factor(id), y=Coef, fill=group)) +       # Note that id is a factor. If x is numeric, there is some space between the first bar
+  geom_bar(stat="identity", alpha=0.5) +
+  # ylim(-100,120) +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    axis.text = element_blank(),
+    axis.title = element_blank(),
+    panel.grid = element_blank(),
+    plot.margin = unit(rep(-1,4), "cm") 
+  ) +
+  coord_polar() +  # Add text showing the value of each 100/75/50/25 lines
+  ggplot2::annotate("text", x = rep(max(data$id),5), y = c(0, .50, 1.00, 1.50, 2.00), label = c("0", "0.5", "1.0", "1.5", "2.0") , color="grey", size=6 , angle=0, fontface="bold", hjust=1) +
+  geom_text(data=label_data, aes(x=id, y=Coef+0.1, label=Feature, hjust=hjust), color="black", fontface="bold",alpha=0.6, size=2.5, angle= label_data$angle, inherit.aes = FALSE ) 
+p
+
+# Explaining individual machine learning predictions with Shapley values(https://cran.r-project.org/web/packages/shapr/vignettes/understanding_shapr.html)
+library(xgboost)
+library(shapr)
+data("Boston", package = "MASS")
+
+x_var <- c("lstat", "rm", "dis", "indus")
+y_var <- "medv"
+
+x_train <- as.matrix(Boston[-1:-6, x_var])
+y_train <- Boston[-1:-6, y_var]
+x_test <- as.matrix(Boston[1:6, x_var])
+
+# Fitting a basic xgboost model to the training data
+model <- xgboost(
+  data = x_train,
+  label = y_train,
+  nround = 20,
+  verbose = FALSE
+)
+
+# Prepare the data for explanation
+explainer <- shapr(x_train, model)
+#> The specified model provides feature classes that are NA. The classes of data are taken as the truth.
+
+# Specifying the phi_0, i.e. the expected prediction without any features
+p <- mean(y_train)
+
+# Computing the actual Shapley values with kernelSHAP accounting for feature dependence using
+# the empirical (conditional) distribution approach with bandwidth parameter sigma = 0.1 (default)
+explanation <- explain(
+  x_test,
+  approach = "empirical",
+  explainer = explainer,
+  prediction_zero = p
+)
+
+# Printing the Shapley values for the test data.
+# For more information about the interpretation of the values in the table, see ?shapr::explain.
+print(explanation$dt)
+
+# Plot the resulting explanations for observations 1 and 6
+plot(explanation, plot_phi0 = FALSE, index_x_test = c(1, 6))
+
+# Use the combined approach
+explanation_combined <- explain(
+  x_test,
+  approach = c("empirical", "copula", "gaussian", "gaussian"),
+  explainer = explainer,
+  prediction_zero = p
+)
+
+# Plot the resulting explanations for observations 1 and 6, excluding
+# the no-covariate effect
+plot(explanation_combined, plot_phi0 = FALSE, index_x_test = c(1, 6))
+
+library(gbm)
+#> Loaded gbm 2.1.5
+
+xy_train <- data.frame(x_train,medv = y_train)
+
+form <- as.formula(paste0(y_var,"~",paste0(x_var,collapse="+")))
+
+# Fitting a gbm model
+set.seed(825)
+model <- gbm::gbm(
+  form,
+  data = xy_train,
+  distribution = "gaussian"
+)
+
+#### Full feature versions of the three required model functions ####
+
+predict_model.gbm <- function(x, newdata) {
+  
+  if (!requireNamespace('gbm', quietly = TRUE)) {
+    stop('The gbm package is required for predicting train models')
+  }
+  
+  model_type <- ifelse(
+    x$distribution$name %in% c("bernoulli","adaboost"),
+    "classification",
+    "regression"
+  )
+  if (model_type == "classification") {
+    
+    predict(x, as.data.frame(newdata), type = "response",n.trees = x$n.trees)
+  } else {
+    
+    predict(x, as.data.frame(newdata),n.trees = x$n.trees)
+  }
+}
+
+get_model_specs.gbm <- function(x){
+  feature_list = list()
+  feature_list$labels <- labels(x$Terms)
+  m <- length(feature_list$labels)
+  
+  feature_list$classes <- attr(x$Terms,"dataClasses")[-1]
+  feature_list$factor_levels <- setNames(vector("list", m), feature_list$labels)
+  feature_list$factor_levels[feature_list$classes=="factor"] <- NA # the model object doesn't contain factor levels info
+  
+  return(feature_list)
+}
+
+# Prepare the data for explanation
+set.seed(123)
+explainer <- shapr(xy_train, model)
+#> The columns(s) medv is not used by the model and thus removed from the data.
+p0 <- mean(xy_train[,y_var])
+explanation <- explain(x_test, explainer, approach = "empirical", prediction_zero = p0)
+# Plot results
+plot(explanation)
+
+#### Minimal version of the three required model functions ####      
+# Note: Working only for this exact version of the model class 
+# Avoiding to define get_model_specs skips all feature         
+# consistency checking between your data and model             
+
+# Removing the previously defined functions to simulate a fresh start
+rm(predict_model.gbm)
+rm(get_model_specs.gbm)
+
+predict_model.gbm <- function(x, newdata) {
+  predict(x, as.data.frame(newdata),n.trees = x$n.trees)
+}
+
+# Prepare the data for explanation
+set.seed(123)
+explainer <- shapr(x_train, model)
+#> get_model_specs is not available for your custom model. All feature consistency checking between model and data is disabled.
+#> See the 'Advanced usage' section of the vignette:
+#> vignette('understanding_shapr', package = 'shapr')
+#> for more information.
+#> The specified model provides feature labels that are NA. The labels of data are taken as the truth.
+p0 <- mean(xy_train[,y_var])
+explanation <- explain(x_test, explainer, approach = "empirical", prediction_zero = p0)
+# Plot results
+plot(explanation)
+
 # Principal Component Analysis with Biplot Analysis in R(https://medium.com/@RaharditoDP/principal-component-analysis-with-biplot-analysis-in-r-ee39d17096a1)
 # create coloumn branch become row names
 dataset <- read.csv('/home/wane/Desktop/EP/sci/cph/XML/TLE234group_2019.csv')
@@ -173,7 +340,74 @@ fviz_pca_ind(res.pca, geom.ind = "point",
              legend.title = "Groups"
 )
 
+# umap(https://datavizpyr.com/how-to-make-umap-plot-in-r/)
+# 使用umap包进行UMAP降维可视化分析
+library(umap)
+data.labels = dataset$oneyr
+# 使用umap函数进行UMAP降维分析
+data.umap = umap::umap(datasetnew)
+data.umap
+## umap embedding of 150 items in 2 dimensions
+## object components: layout, data, knn, config
 
+# 查看降维后的结果
+head(data.umap$layout)
+
+# 使用plot函数可视化UMAP的结果
+plot(data.umap$layout,col=data.labels,pch=16,asp = 1,
+     xlab = "UMAP_1",ylab = "UMAP_2",
+     main = "A UMAP visualization of the iris dataset")
+# 添加分隔线
+abline(h=0,v=0,lty=2,col="gray")
+# 添加图例
+legend("topright",title = "Species",inset = 0.01,
+       legend = unique(data.labels),pch=16,
+       col = unique(data.labels))
+
+# 使用uwot包进行UMAP降维可视化分析
+library(uwot)
+
+head(iris)
+
+# 使用umap函数进行UMAP降维分析
+iris_umap <- uwot::umap(dataset)
+head(iris_umap)
+
+
+# 使用plot函数可视化UMAP降维的结果
+plot(iris_umap,col=dataset$oneyr,pch=16,asp = 1,
+     xlab = "UMAP_1",ylab = "UMAP_2",
+     main = "A UMAP visualization of the iris dataset")
+# 添加分隔线
+abline(h=0,v=0,lty=2,col="gray")
+# 添加图例
+legend("topright",title = "Species",inset = 0.01,
+       legend = unique(dataset$oneyr),pch=16,
+       col = unique(dataset$oneyr))
+
+# Supervised dimension reduction using the 'Species' factor column
+data_sumap <- uwot::umap(dataset, n_neighbors = 15, min_dist = 0.001,
+                         y = dataset$oneyr, target_weight = 0.5)
+head(data_sumap)
+
+
+data_sumap_res <- data.frame(data_sumap,Oneyr=dataset$oneyr)
+head(data_sumap_res)
+
+
+# 使用ggplot2包可视化UMAP降维的结果
+library(ggplot2)
+
+ggplot(data_sumap_res,aes(X1,X2,color=Oneyr)) + 
+  geom_point() + theme_bw() + 
+  geom_hline(yintercept = 0,lty=2,col="red") + 
+  geom_vline(xintercept = 0,lty=2,col="blue",lwd=1) +
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  labs(x="UMAP_1",y="UMAP_2",
+       title = "A UMAP visualization of the TLE dataset")
+
+
+##############################################
 # [mlr3book.pdf](https://mlr3book.mlr-org.com/interpretation.html)
 # Model Interpretation/or more in omnixai(python)
 data("penguins", package = "palmerpenguins")

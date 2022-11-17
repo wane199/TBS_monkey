@@ -515,7 +515,8 @@ circos.trackPlotRegion(
 library(eoffice)
 topptx(filename = "和弦图.pptx")
 
-
+##########################################
+# 模型自带的feature importance, 环状柱状图展示；SHAP技术验证，PCA探究SHAP分析中top变量
 # Circular barplot with groups，SHAP plot，biplot(https://mp.weixin.qq.com/s?__biz=MjM5NDM3NjczOA==&mid=2247486488&idx=1&sn=dfa1716520a4651d7de5c1c729f9c295&chksm=a689f15591fe7843c866711a72eb15adcdf7be2e19389c9521e2c3ce03bcbcfba765aef6d146&mpshare=1&scene=1&srcid=1114axjBUfHqmSUluMnmq6um&sharer_sharetime=1668438220853&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
 # library(https://r-graph-gallery.com/297-circular-barplot-with-groups.html)
 library(tidyverse)
