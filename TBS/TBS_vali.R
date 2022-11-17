@@ -1,16 +1,22 @@
 # https://www.bilibili.com/video/BV1b44y127qs?from=search&seid=7396103782018758758&spm_id_from=333.337.0.0
 # https://zhuanlan.zhihu.com/p/369191132(组间分析—T检验、R语言绘图)
 rm(list = ls())
-setwd("C:\\Users\\wane\\Desktop\\R&Py\\RDocu")
+# setwd("C:\\Users\\wane\\Desktop\\R&Py\\RDocu")
 getwd()
 list.files() # 查看当前工作目录下的文件
 library(dplyr)
+library(readxl)
+data <- read.csv("/Users/mac/Desktop/Nomo-TBS/TBS-old/TBS/BMD/merge_data/data.csv",  encoding = 'UTF-8') # fileEncoding = 'utf-8')
+summary(data)
+
 dt <- read.csv("/home/wane/Documents/RDocu/M_1018.csv")
 dt1 <- read.csv("/home/wane/Documents/RDocu/F_3061.csv")
 dt <- read.csv("/Users/mac/Desktop/Nomo-TBS/RDocu/M_1018.csv")
 dt1 <- read.csv("/Users/mac/Desktop/Nomo-TBS/RDocu/F_3061.csv")
 data <- rbind(dt,dt1)
 write.csv(data,"/Users/mac/Desktop/Nomo-TBS/RDocu/total_4079.csv",row.names = F)
+data <- read.csv("/Users/mac/Desktop/Nomo-TBS/RDocu/total_4079.csv")
+
 data1 <- data1[complete.cases(data1[, c(1, 2)]), ]
 
 data <- data[data$Age >= 50 & data$Age < 75, ]
@@ -423,5 +429,66 @@ n_cols <- c(cols[length(cols)],cols[1:(length(cols)-1)])
 d2 <- d1[,n_cols]
 write.csv(d2,'./data/M_1018.csv',row.names = F)
 
+##################################################
+##################################################
+library(ggpmisc)
+library(ggpubr)
+library(scales) # 构建一个 squash_axis 函数来实现坐标轴压缩功能，这个函数需要使用scales包(https://zhuanlan.zhihu.com/p/358781655)
+theme_set(theme_classic() + theme(legend.position = "bottom"))
+
+squash_axis <- function(from, to, factor) {
+  # Args:
+  #   from: left end of the axis
+  #   to: right end of the axis
+  #   factor: the compression factor of the range [from, to]
+  trans <- function(x) {
+    # get indices for the relevant regions
+    isq <- x > from & x < to
+    ito <- x >= to
+    # apply transformation
+    x[isq] <- from + (x[isq] - from) / factor
+    x[ito] <- from + (to - from) / factor + (x[ito] - to)
+    return(x)
+  }
+  inv <- function(x) {
+    # get indices for the relevant regions
+    isq <- x > from & x < from + (to - from) / factor
+    ito <- x >= from + (to - from) / factor
+    # apply transformation
+    x[isq] <- from + (x[isq] - from) * factor
+    x[ito] <- to + (x[ito] - (from + (to - from) / factor))
+    return(x)
+  }
+  # return the transformation
+  return(trans_new("squash_axis", trans, inv))
+}
+
+my.formula <- y ~ s(x, k = 5, bs = "cs")
+ggplot(data, aes(Age, Weight)) +
+  geom_point() +
+  stat_cor(aes(), label.x = 3) + 
+  scale_x_continuous(expand = c(0, 0), breaks = c(0, 1, 3, 5, 18, 30, 50, 60, 70, 80)) + # seq(0, 32, 1)
+  scale_y_continuous(expand = c(0, 0)) + # scale_x_log10() +
+  stat_smooth(method = mgcv::gam, se = TRUE, formula = my.formula) +
+  coord_trans(x = squash_axis(0, 18, 0.70)) + geom_vline(aes(xintercept=18),colour="#990000",linetype="dashed") +
+  theme(
+    axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"), legend.position = "bottom",
+    axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
+    axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
+  )
+####################################
+# 分类gam曲线拟合
+ggplot(data, aes(Age, Weight, colour = Sex)) +
+  geom_point() +
+  stat_cor(aes(), label.x = 3) + 
+  scale_x_continuous(expand = c(0, 0), breaks = c(0, 1, 3, 5, 18, 30, 50, 60, 70, 80)) + # seq(0, 32, 1)
+  scale_y_continuous(expand = c(0, 0)) + # scale_x_log10() +
+  stat_smooth(method = mgcv::gam, se = TRUE, formula = my.formula) +
+  coord_trans(x = squash_axis(0, 18, 0.40)) + geom_vline(aes(xintercept=18),colour="#990000",linetype="dashed") +
+  theme(
+    axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"), legend.position = "bottom",
+    axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
+    axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
+  )
 
 
