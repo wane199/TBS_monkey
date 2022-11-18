@@ -55,7 +55,8 @@ eda_pLM_L3d_report(TLM,
 TLM <- TLM[, 10:15]
 create_report(TLM)
 
-# 异常值检测
+# 异常值检测, Draws Overview of Outliers (O3) Plots
+library(OutliersO3)
 boxplot(TLM$volume)
 d <- as.data.frame(TLM[c(3,6:7)])
 car::outlierTest(TLM$volume)
@@ -67,7 +68,9 @@ c2$gpcp
 c2$gO3
 c2$outsTable
 
-a2 <- O3prep(d, method="PCS", tols=c(0.1, 0.05, 0.01), boxplotLimits=c(3, 6, 10))
+a2 <- O3prep(d, method="PCS", tols=c(0.05), boxplotLimits=c(3)) # Identify outliers for different combinations of variables
+a2 <- O3prep(d, k1=1, K=ncol(d), method="HDo", tols=0.05, boxplotLimits=c(6, 10, 12),
+       tolHDo=0.05, tolPCS=0.01, tolBAC=0.001, toladj=0.05, tolDDC=0.01, tolMCD=0.000001)
 a3 <- O3plotT(a2)
 a3$nOut
 a3$gpcp
