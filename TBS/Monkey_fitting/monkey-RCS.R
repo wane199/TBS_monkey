@@ -15,7 +15,7 @@ library(DataExplorer)
 
 # 读取数据
 TLM <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/CAI/1028/mus.csv")
-TLM <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/QIANG/PartⅡ猴脑代谢发育数据分析/PET_refWhole_SUVr.csv")
+TLM <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\T1_hemi.csv", fileEncoding = "GBK")
 library(gt)
 library(dplyr)
 TLM %>%
@@ -54,6 +54,25 @@ eda_pLM_L3d_report(TLM,
 )
 TLM <- TLM[, 10:15]
 create_report(TLM)
+
+# 异常值检测
+boxplot(TLM$volume)
+d <- as.data.frame(TLM[c(3,6:7)])
+car::outlierTest(TLM$volume)
+c1 <- O3prep(d, method=c("HDo", "BAC", "DDC"), tolHDo=0.025, tolBAC=0.01, tolDDC=0.05)
+pPa <- O3prep(d, method=c("PCS", "adjOut"), tolPCS=0.01, toladj=0.01, boxplotLimits=10)
+c2 <- O3plotM(c1)
+c2$nOut
+c2$gpcp
+c2$gO3
+c2$outsTable
+
+a2 <- O3prep(d, method="PCS", tols=c(0.1, 0.05, 0.01), boxplotLimits=c(3, 6, 10))
+a3 <- O3plotT(a2)
+a3$nOut
+a3$gpcp
+a3$gO3
+a3$outsTable
 
 # 雨云图(Raincloud)
 library(ggdist)
