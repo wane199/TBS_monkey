@@ -154,6 +154,20 @@ head(pol)
 
 
 
+##########################################
+# Estimation and comparison of dynamic treatment regimes (DTRs) from sequentially randomized clinical trials
+data("PHdata")
+contrasts(factor(PHdata$Z))
+f <- PHfit(data=PHdata, covar="V")
+summary(f)
+plot(f)
+
+est <- WRSEestimate(data=PHdata)
+plot(est)
+
+
+
+
 
 
 
