@@ -356,7 +356,7 @@ head(data.umap$layout)
 # 使用plot函数可视化UMAP的结果
 plot(data.umap$layout,col=data.labels,pch=16,asp = 1,
      xlab = "UMAP_1",ylab = "UMAP_2",
-     main = "A UMAP visualization of the iris dataset")
+     main = "A UMAP visualization of the TLE dataset")
 # 添加分隔线
 abline(h=0,v=0,lty=2,col="gray")
 # 添加图例
