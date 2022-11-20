@@ -13,7 +13,7 @@ theme_set(theme_classic() + theme(legend.position = "bottom"))
 
 # dt <- read.csv("jixian.csv")
 dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\T1_TBV_1120.csv")
-dt <- read.csv("/Users/mac/Desktop/Nomo-TBS/TBS&Mon/Monkey/QIANG/1030/T1_TBV.csv", fileEncoding = "GBK")
+dt <- read.csv("/Users/mac/Desktop/Nomo-TBS/TBS&Mon/Monkey/QIANG/1030/FDG_1120.csv", fileEncoding = "GBK")
 # TLM <- read_excel("/home/wane/Desktop/TBS/TLMey/BMC.xlsx")
 # 数据探索EDA
 dt <- dt[c(-1, -2)]
@@ -128,7 +128,7 @@ squash_axis <- function(from, to, factor) {
 }
 
 my.formula <- y ~ s(x, k = 6, bs = "cs")
-ggplot(dt, aes(Age, TBV)) +
+ggplot(dt, aes(Age, SUVr_whole_refPons)) +
   geom_point() +
   stat_cor(aes(), label.x = 3) + 
   scale_x_continuous(expand = c(0, 0), breaks = c(0, 1, 3, 5, 13, 20)) + # seq(0, 32, 1)

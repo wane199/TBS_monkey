@@ -101,12 +101,12 @@ options(datadist = "dd")
 ggplot(TLM, aes(LM_L3, TLM)) +
   geom_point() # 绘制散点图
 p <- ggplot() +
-  geom_point(data = dt, mapping = aes(x = Age, y = TBV)) +
+  geom_point(data = dt, mapping = aes(x = Age, y = SUVr_whole_refPons)) +
   theme_classic()
 p
 
 # 建立线性回归模型
-model.lm <- lm(TBV ~ Age, data = dt) # 构建线性回归模型
+model.lm <- lm(SUVr_whole_refPons ~ Age, data = dt) # 构建线性回归模型
 summary(model.lm) # 查看回归模型结果
 p1 <- ggplot(dt, aes(Age, TBV)) +
   geom_point() +
@@ -141,8 +141,8 @@ plot(model.segmented, col = "blue", lwd = 2.5, add = T)
 
 p3 <- p + theme_classic() +
   geom_smooth(
-    data = dt, mapping = aes(x = Age, y = TBV),
-    method = "gam", formula = y ~ x + I((x - 5.5) * (x > 5.5))
+    data = dt, mapping = aes(x = Age, y = SUVr_whole_refPons),
+    method = "gam", formula = y ~ x + I((x - 5.0) * (x > 5.0))
   ) + 
   scale_x_continuous(expand = c(0, 0), breaks = c(0, 1, 3, 5, 13, 20)) + # seq(0, 32, 1)
   scale_y_continuous(expand = c(0, 0)) + # scale_x_log10() + scale_x_continuous(expand = c(0, 0)) + scale_y_continuous(expand = c(0, 0)) +
