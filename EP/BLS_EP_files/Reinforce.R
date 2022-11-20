@@ -155,18 +155,22 @@ head(pol)
 
 
 ##########################################
-# Estimation and comparison of dynamic treatment regimes (DTRs) from sequentially randomized clinical trials
+# Estimation and comparison of dynamic treatment regimes(DTRs) from sequentially randomized clinical trials
+library(DTR)
 data("PHdata")
 contrasts(factor(PHdata$Z))
-f <- PHfit(data=PHdata, covar="V")
+f <- PHfit(data=PHdata, covar="V") # Function for fitting a generalized proportional hazards model
 summary(f)
 plot(f)
 
-est <- WRSEestimate(data=PHdata)
+est <- WRSEestimate(data=PHdata) # computes the weighted risk set estimates (WRSE) of the survival functions and their estimated standard errors for dynamic treatment regimes(DTRs)
 plot(est)
 
 
-
+data("CHRdata")
+est <- CHRestimate(data=CHRdata) # calculating cumulative hazard ratio(CHR) estimates
+plot(est, confidence.interval=TRUE)
+plot(est, log.CHR=TRUE, confidence.interval=FALSE)
 
 
 
