@@ -92,7 +92,7 @@ summary(con)
 summary(sub)
 psych::describe(sub)
 
-# 分层分析
+# 分层分析, 预测模型公平性评价
 F <- subset(TLM, TLM$Sex == 0)
 M <- subset(TLM, TLM$Sex == 1)
 
@@ -101,14 +101,14 @@ options(datadist = "dd")
 ggplot(TLM, aes(LM_L3, TLM)) +
   geom_point() # 绘制散点图
 p <- ggplot() +
-  geom_point(data = TLM, mapping = aes(x = Age, y = L2_4)) +
+  geom_point(data = dt, mapping = aes(x = Age, y = TBV)) +
   theme_classic()
 p
 
 # 建立线性回归模型
 model.lm <- lm(TBV ~ Age, data = dt) # 构建线性回归模型
 summary(model.lm) # 查看回归模型结果
-p1 <- ggplot(TLM, aes(LM_L3, TLM)) +
+p1 <- ggplot(dt, aes(Age, TBV)) +
   geom_point() +
   theme_classic() +
   stat_smooth(method = lm, formula = y ~ x)
@@ -131,19 +131,28 @@ ggplot(TLM, aes(LM_L3, TLM)) +
 
 # 建立分段回归模型
 # https://blog.csdn.net/weixin_40575651/article/details/107575012
+library(segmented)
 model.segmented <- segmented(model.lm) # 构建分段回归模型
 summary(model.segmented) # 查看模型概况
 # 查看拟合效果
-plot(TLM$LM_L3, TLM$TLM, pch = 1, cex = 1.5)
+plot(dt$Age, dt$TBV, pch = 1, cex = 1.5)
 abline(a = coef(model.lm)[1], b = coef(model.lm)[2], col = "red", lwd = 2.5)
 plot(model.segmented, col = "blue", lwd = 2.5, add = T)
 
 p3 <- p + theme_classic() +
   geom_smooth(
-    data = TLM, mapping = aes(x = Age, y = L2_4),
-    method = "gam", formula = y ~ x + I((x - 11.3) * (x > 11.3))
-  ) + scale_x_continuous(expand = c(0, 0)) + scale_y_continuous(expand = c(0, 0)) +
-  geom_vline(xintercept = 11.3, linetype = 2, color = "red")
+    data = dt, mapping = aes(x = Age, y = TBV),
+    method = "gam", formula = y ~ x + I((x - 5.5) * (x > 5.5))
+  ) + 
+  scale_x_continuous(expand = c(0, 0), breaks = c(0, 1, 3, 5, 13, 20)) + # seq(0, 32, 1)
+  scale_y_continuous(expand = c(0, 0)) + # scale_x_log10() + scale_x_continuous(expand = c(0, 0)) + scale_y_continuous(expand = c(0, 0)) +
+  geom_vline(xintercept = 5.0, linetype = 2, color = "red") + 
+  coord_trans(x = squash_axis(0, 5, 0.40)) + geom_vline(aes(xintercept=5),colour="#990000",linetype="dashed") +
+  theme(
+    axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"), legend.position = "bottom",
+    axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
+    axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
+  )
 p3
 
 # 手动设置拐点，分三段回归
