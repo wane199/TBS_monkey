@@ -12,7 +12,7 @@ library(dplyr)
 theme_set(theme_classic() + theme(legend.position = "bottom"))
 
 # dt <- read.csv("jixian.csv")
-dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\T1_TBV_1120.csv")
+dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\FDG_1120.csv")
 dt <- read.csv("/Users/mac/Desktop/Nomo-TBS/TBS&Mon/Monkey/QIANG/1030/FDG_1120.csv", fileEncoding = "GBK")
 # TLM <- read_excel("/home/wane/Desktop/TBS/TLMey/BMC.xlsx")
 # 数据探索EDA
@@ -140,9 +140,10 @@ ggplot(dt, aes(Age, SUVr_whole_refPons)) +
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
+
 ####################################
 # 分类gam曲线拟合
-ggplot(dt, aes(Age, TBV, colour = Sex)) +
+ggplot(dt, aes(Age, SUVr_whole_refPons, colour = Sex)) +
   geom_point() +
   stat_cor(aes(), label.x = 3) + 
   scale_x_continuous(expand = c(0, 0), breaks = c(0, 1, 3, 5, 13, 20)) + # seq(0, 32, 1)

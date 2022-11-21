@@ -58,19 +58,21 @@ create_report(TLM)
 # 异常值检测, Draws Overview of Outliers (O3) Plots
 library(OutliersO3)
 boxplot(TLM$volume)
-d <- as.data.frame(TLM[c(3,6:7)])
+d <- as.data.frame(TLM[c(3, 6:7)])
 car::outlierTest(TLM$volume)
-c1 <- O3prep(d, method=c("HDo", "BAC", "DDC"), tolHDo=0.025, tolBAC=0.01, tolDDC=0.05)
-pPa <- O3prep(d, method=c("PCS", "adjOut"), tolPCS=0.01, toladj=0.01, boxplotLimits=10)
+c1 <- O3prep(d, method = c("HDo", "BAC", "DDC"), tolHDo = 0.025, tolBAC = 0.01, tolDDC = 0.05)
+pPa <- O3prep(d, method = c("PCS", "adjOut"), tolPCS = 0.01, toladj = 0.01, boxplotLimits = 10)
 c2 <- O3plotM(c1)
 c2$nOut
 c2$gpcp
 c2$gO3
 c2$outsTable
 
-a2 <- O3prep(d, method="PCS", tols=c(0.05), boxplotLimits=c(3)) # Identify outliers for different combinations of variables
-a2 <- O3prep(d, k1=1, K=ncol(d), method="HDo", tols=0.05, boxplotLimits=c(6, 10, 12),
-       tolHDo=0.05, tolPCS=0.01, tolBAC=0.001, toladj=0.05, tolDDC=0.01, tolMCD=0.000001)
+a2 <- O3prep(d, method = "PCS", tols = c(0.05), boxplotLimits = c(3)) # Identify outliers for different combinations of variables
+a2 <- O3prep(d,
+  k1 = 1, K = ncol(d), method = "HDo", tols = 0.05, boxplotLimits = c(6, 10, 12),
+  tolHDo = 0.05, tolPCS = 0.01, tolBAC = 0.001, toladj = 0.05, tolDDC = 0.01, tolMCD = 0.000001
+)
 a3 <- O3plotT(a2)
 a3$nOut
 a3$gpcp
@@ -101,12 +103,12 @@ options(datadist = "dd")
 ggplot(TLM, aes(LM_L3, TLM)) +
   geom_point() # 绘制散点图
 p <- ggplot() +
-  geom_point(data = dt, mapping = aes(x = Age, y = SUVr_whole_refPons)) +
+  geom_point(data = dt, mapping = aes(x = Age, y = SUVr_whole_refPons, color = Sex)) + # , colour = Sex
   theme_classic()
 p
 
 # 建立线性回归模型
-model.lm <- lm(SUVr_whole_refPons ~ Age, data = dt) # 构建线性回归模型
+model.lm <- lm(SUVr_whole_refPons ~ Age, data = dt) # 构建线性回归模型 SUVr_whole_refPons
 summary(model.lm) # 查看回归模型结果
 p1 <- ggplot(dt, aes(Age, TBV)) +
   geom_point() +
@@ -141,13 +143,13 @@ plot(model.segmented, col = "blue", lwd = 2.5, add = T)
 
 p3 <- p + theme_classic() +
   geom_smooth(
-    data = dt, mapping = aes(x = Age, y = SUVr_whole_refPons),
+    data = dt, mapping = aes(x = Age, y = SUVr_whole_refPons, color = Sex), # , color = Sex
     method = "gam", formula = y ~ x + I((x - 5.0) * (x > 5.0))
-  ) + 
+  ) +
   scale_x_continuous(expand = c(0, 0), breaks = c(0, 1, 3, 5, 13, 20)) + # seq(0, 32, 1)
   scale_y_continuous(expand = c(0, 0)) + # scale_x_log10() + scale_x_continuous(expand = c(0, 0)) + scale_y_continuous(expand = c(0, 0)) +
-  geom_vline(xintercept = 5.0, linetype = 2, color = "red") + 
-  coord_trans(x = squash_axis(0, 5, 0.40)) + geom_vline(aes(xintercept=5),colour="#990000",linetype="dashed") +
+  geom_vline(xintercept = 5.0, linetype = 2, color = "red") +
+  coord_trans(x = squash_axis(0, 5, 0.40)) + geom_vline(aes(xintercept = c(5.0)), colour = "#990000", linetype = "dashed") +
   theme(
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"), legend.position = "bottom",
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
