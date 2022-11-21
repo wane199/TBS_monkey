@@ -12,7 +12,7 @@ library(dplyr)
 theme_set(theme_classic() + theme(legend.position = "bottom"))
 
 # dt <- read.csv("jixian.csv")
-dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\FDG_1120.csv")
+dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\T1_TBV_Sex_1121.csv")
 dt <- read.csv("/Users/mac/Desktop/Nomo-TBS/TBS&Mon/Monkey/QIANG/1030/FDG_1120.csv", fileEncoding = "GBK")
 # TLM <- read_excel("/home/wane/Desktop/TBS/TLMey/BMC.xlsx")
 # 数据探索EDA
@@ -128,12 +128,12 @@ squash_axis <- function(from, to, factor) {
 }
 
 my.formula <- y ~ s(x, k = 6, bs = "cs")
-ggplot(dt, aes(Age, SUVr_whole_refPons)) +
+ggplot(dt, aes(Age, TBV)) + # SUVr_whole_refPons
   geom_point() +
   stat_cor(aes(), label.x = 3) + 
+  stat_smooth(method = mgcv::gam, se = TRUE, formula = my.formula) +
   scale_x_continuous(expand = c(0, 0), breaks = c(0, 1, 3, 5, 13, 20)) + # seq(0, 32, 1)
   scale_y_continuous(expand = c(0, 0)) + # scale_x_log10() +
-  stat_smooth(method = mgcv::gam, se = TRUE, formula = my.formula) +
   coord_trans(x = squash_axis(0, 5, 0.40)) + geom_vline(aes(xintercept=5),colour="#990000",linetype="dashed") +
   theme(
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"), legend.position = "bottom",
@@ -143,7 +143,7 @@ ggplot(dt, aes(Age, SUVr_whole_refPons)) +
 
 ####################################
 # 分类gam曲线拟合
-ggplot(dt, aes(Age, SUVr_whole_refPons, colour = Sex)) +
+ggplot(dt, aes(Age, TBV, colour = Sex)) +
   geom_point() +
   stat_cor(aes(), label.x = 3) + 
   scale_x_continuous(expand = c(0, 0), breaks = c(0, 1, 3, 5, 13, 20)) + # seq(0, 32, 1)
