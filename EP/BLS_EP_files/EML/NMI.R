@@ -273,5 +273,37 @@ plot <- forest(dt[, c(1, 8, 9)],
                footnote = "Accuracy (95%CI)")
 plot
 
+# [在表格中添加森林图，直方图，箱形图](https://mp.weixin.qq.com/s?__biz=Mzk0MzE5OTAxMg==&mid=2247505783&idx=1&sn=f0ad82a4ed80beda9f96e358e6152ebf&chksm=c335113cf442982a5658ff5986d06f9a96b8bf11c2b58db64529b3b11b0bde4f75961bd84b0a&mpshare=1&scene=1&srcid=1122zyXik46HLHS4daICtUFv&sharer_sharetime=1669124178184&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
+install.packages("devtools")
+devtools::install_github("ddsjoberg/bstfun")
+install.packages("gtsummary")
+install.packages("svglite")
+install.packages("gtExtras")
+install.packages("kableExtra")
 
+library(bstfun)
+library(gtsummary)
 
+summary(mtcars)
+mtcars |>
+  subset(select = c(mpg, hp, drat, wt)) |>
+  tbl_summary()
+
+mtcars |>
+  subset(select = c(mpg, hp, drat, wt)) |>
+  tbl_summary() |>
+  add_sparkline("histogram")
+
+mtcars |>
+  subset(select = c(mpg, hp, drat, wt)) |>
+  tbl_summary() |>
+  add_sparkline("boxplot")
+
+mtcars |>
+  subset(select = c(mpg, hp, drat, wt)) |>
+  tbl_summary() |>
+  add_sparkline("sparkline")
+
+mymodel <- lm(mpg ~ am + drat + wt, data = mtcars)
+tbl_regression(mymodel) |>
+  add_inline_forest_plot()
