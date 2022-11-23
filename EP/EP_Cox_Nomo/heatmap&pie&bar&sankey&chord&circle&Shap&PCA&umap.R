@@ -520,7 +520,7 @@ topptx(filename = "和弦图.pptx")
 # Circular barplot with groups，SHAP plot，biplot(https://mp.weixin.qq.com/s?__biz=MjM5NDM3NjczOA==&mid=2247486488&idx=1&sn=dfa1716520a4651d7de5c1c729f9c295&chksm=a689f15591fe7843c866711a72eb15adcdf7be2e19389c9521e2c3ce03bcbcfba765aef6d146&mpshare=1&scene=1&srcid=1114axjBUfHqmSUluMnmq6um&sharer_sharetime=1668438220853&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
 # library(https://r-graph-gallery.com/297-circular-barplot-with-groups.html)
 library(tidyverse)
-data <- read.csv("/home/wane/Desktop/EP/Structured_Data/process_PT_nor_cn+epcoef_min22_bar.csv")
+data <- read.csv("/home/wane/Desktop/EP/REFER/BLS/KAI/coef.minPTcox_lat_14_bar.csv")
 data <- data %>% arrange(group)
 summary(data)
 # Get the name and the y position of each label
@@ -543,7 +543,7 @@ p <- ggplot(data, aes(x=as.factor(id), y=Coef, fill=group)) +       # Note that 
     plot.margin = unit(rep(-1,4), "cm") 
   ) +
   coord_polar() +  # Add text showing the value of each 100/75/50/25 lines
-  ggplot2::annotate("text", x = rep(max(data$id),5), y = c(0, .50, 1.00, 1.50, 2.00), label = c("0", "0.5", "1.0", "1.5", "2.0") , color="grey", size=6 , angle=0, fontface="bold", hjust=1) +
+  ggplot2::annotate("text", x = rep(max(data$id), 7), y = c(seq(-0.2,1.0,0.2)), label = c("-0.2", "0", "0.2", "0.4", "0.6", "0.8", "1.0"),  color="grey", size=6 , angle=0, fontface="bold", hjust=1) + # , label = c("0", "0.5", "1.0", "1.5", "2.0")
   geom_text(data=label_data, aes(x=id, y=Coef+0.1, label=Feature, hjust=hjust), color="black", fontface="bold",alpha=0.6, size=2.5, angle= label_data$angle, inherit.aes = FALSE ) 
 p
 

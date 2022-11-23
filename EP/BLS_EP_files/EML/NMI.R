@@ -4,8 +4,12 @@ rm(list = ls())
 library(treeheatr)
 
 dt <- read.csv("C:\\Users\\wane199\\Desktop\\EP\\Structured_Data\\process_PT-22.csv")
+dt <- read.csv("/media/wane/Data/CN_PET_csv/CN_PET_dataset.csv")
 str(dt) ## 查看每个变量结构
-summary(dt)
+summary(con)
+con <- subset(dt, dt$Group == "sub")
+psych::describe(con$Age)
+table(con$Sex)
 
 dt <- read.csv("/home/wane/Desktop/EP/sci/cph/XML/TLE234group_2019_factor.csv")
 dt <- dt[c(7:23)]

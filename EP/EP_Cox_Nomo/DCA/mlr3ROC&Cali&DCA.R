@@ -26,11 +26,14 @@ source("./EP/EP_Cox_Nomo/DCA/dca.r") # 执行DCA的脚本
 dt1 <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/TLE234group.csv")
 dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/PT_radiomic_features_temporal_ind2.csv")
 dt0 <- read.csv("C:/Users/wane199/Desktop/EP/Structured_Data/PET-TLE234-radscore-RCS2.csv")
-dt0 <- dt0[c(-1, -2)]
+dt0 <- read.csv("/home/wane/Desktop/EP/REFER/BLS/KAI/process_group_TLE_con_nor_radiomics.csv")
+dt0 <- dt0[c(-1)]
 # dt1 <- read_excel("/home/wane/Desktop/EP/Structured_Data/Task2/TLE234group.xlsx")
 
 train <- subset(dt0, dt0$Group == "Training")
+train <- train[-1]
 test <- subset(dt0, dt0$Group == "Test")
+
 normal_para <- preProcess(x = train[, 3:16], method = c("center", "scale")) # 提取训练集的标准化参数
 train_normal <- predict(object = normal_para, newdata = train[, 3:16])
 test_normal <- predict(object = normal_para, newdata = test[, 3:16])
@@ -44,7 +47,7 @@ colnames(train)[1] <- "oneyr"
 colnames(test)[1] <- "oneyr"
 
 # 利用Boruta函数进行特征选取
-Boruta(oneyr ~ ., data = train, doTrace = 2) -> Bor.train
+Boruta(Y ~ ., data = train, doTrace = 2) -> Bor.train
 # random forest with selected variables
 getConfirmedFormula(Bor.train) # 确认为重要的变量（绿色）
 getNonRejectedFormula(Bor.train) # 没有被拒绝的变量（绿色+黄色）

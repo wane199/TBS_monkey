@@ -260,9 +260,7 @@ ggplot(lasso_coef, aes(x = reorder(Feature, Coef), y = Coef, fill = Coef)) +
   coord_flip() +
   geom_bar(stat = "identity", colour = "black", width = 0.78, size = 0.25, position = position_dodge(0.7)) +
   # ylim(-0.30, 0.20) +
-  geom_text(aes(label = Coef), vjust = -0.2) +
-  theme_bw() +
-  theme(panel.grid.major.y = element_blank(), panel.grid.minor = element_blank()) +
+  geom_text(aes(label = Coef), vjust = -0.2) +theme(panel.grid.major.y = element_blank(), panel.grid.minor = element_blank()) +
   theme(axis.ticks.y = element_blank()) +
   theme(panel.border = element_blank()) +
   theme(axis.title.x = element_text(face = "bold")) +

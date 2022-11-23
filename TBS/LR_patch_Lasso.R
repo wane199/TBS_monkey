@@ -1,10 +1,12 @@
 # https://blog.csdn.net/qq_42696043/article/details/125134962?spm=1001.2014.3001.5502
 rm(list = ls())
+library(dplyr)
 library(ggplot2)
 library(readxl)
 library(scorecard) # 利用scorecard R包开发评分卡
 dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\BIAO\\PTH1\\CKD2.csv", header = T)
 dt <- read.csv("/home/wane/Desktop/TBS&Mon/BIAO/PTH1/CKD2.csv", header = T)
+dt <- read.csv("/home/wane/Desktop/EP/REFER/BLS/KAI/PT_radiomic_features_temporal_L_nor_cn+ep.csv", row.names = 2)
 dt <- dt[-1]
 str(dt)
 summary(dt)
@@ -29,11 +31,109 @@ test <- dt[ind == 2, ] # the test data set
 # 看一下，不要让临床信息差的太多，输出table1
 prop.table(table(train$Y))
 prop.table(table(test$Y))
+train[1]
 # 待筛选特征标准化(防止数据泄漏，先分组后标化)
+normal_para <- preProcess(x = train[, 2:1133], method = c("center", "scale")) # 提取训练集的标准化参数
+train_normal <- predict(object = normal_para, newdata = train[, 2:1133])
+test_normal <- predict(object = normal_para, newdata = test[, 2:1133])
+train_normal <- mutate(train[1], train_normal)
+test_normal <- mutate(test[1], test_normal)
+train1 <- transform(train_normal, Group = "Training")
+test1 <- transform(test_normal, Group = "Test")
+nor <- rbind(train1, test1)
+# 列名数组
+cols <- colnames(nor)
+# 最后一列移到第二列
+n_cols <- c(cols[1], cols[length(cols)], cols[2:(length(cols) - 1)])
+# 最后一列移到第一列
+n_cols <- c(cols[length(cols)], cols[1:(length(cols) - 1)])
+# dataframe排序
+nor1 <- nor[, n_cols]
+write.csv(nor1, "/home/wane/Desktop/EP/REFER/BLS/KAI/process_group_TLE_con_nor_radiomics.csv", row.names = T)
+dt <- nor1
+train <- subset(dt, dt$Group == "Training")
+test <- subset(dt, dt$Group == "Test")
 dtx <- scale(dt[, c(3:20)])
 dtx <- as.data.frame(dtx)
 dt <- dplyr::mutate(dt[1], dtx)
 dt2 <- cbind(dt[1], dtx)
+
+## 生成解释变量和结局变量的矩阵格式，glmnet数据格式是矩阵
+Xtrain <- as.matrix(train[, 3:1134])
+Ytrain <- as.matrix(train[, 2])
+Xtest <- as.matrix(test[, 3:1134])
+Ytest <- as.matrix(test[, 2])
+# Lasso回归筛选变量与模型评估
+library(glmnet)
+library(Matrix)
+## lasso回归
+lsofit <- glmnet(Xtrain, Ytrain, family = "binomial", alpha = 1)
+# 解释变量须是矩阵形式；family=c("gaussian", "binomial", "poisson", "multinomial", "cox", "mgaussian")，gaussian适用于连续型因变量, mgaussian适用于连续型的多元因变量，poisson适用于计数因变量,binomial适用于二分类因变量, multinomial适用于多分类的因变量, cox适用于生存资料；弹性网络alpha取值在0和1之间，0≤alpha≤1，取值1时拟合lasso回归，取值0时拟合领回归；nlambda为λ值的数量，默认等于100；dfmax和pmax可以分别限定模型中的变量的数量；relax=TRUE表示将进行Relaxed lasso
+print(lsofit)
+# 结果会产生三列结果，分别是Df (非0系数的变量数量), %dev (模型解释的偏差的百分数) 和 Lambda (相应的λ值)。偏差（deviance）即-2倍的Log-likelihood
+## lasso回归系数
+coef.apprx <- coef(lsofit, s = 0.2)
+# 参数s指定具体的λ值。上述命令是提取λ=0.2时的lasso回归系数，此时模型会有4个非0系数变量。精确系数估算可用coef.exact<-coef(lsofit, s=0.2,exact=TRUE, x=Xtrain, y=Ytrain)
+coef.apprx
+predict(lsofit, type = "coefficients", s = 0.2)
+# predict也可以用来提取λ某一个取值时的lasso回归系数
+# type=c("link","response","coeffificients","nonzero");当想用新的取值做预测时，可用参数newx来指定预测变量的矩阵，可用于type=c("link","response")时；exact参数同可参见coef函数。link给出的是线性预测值，即进行logit变化前的值；response给出的是概率预测值，即进行logit变换之后的值；coefficients给出的是指定λ值的模型系数；nonzero给出指定的定λ值时系数不为零的模型变量
+## 系数路径图
+plot(lsofit, xvar = "lambda", label = TRUE)
+# 参数xvar=c("norm", "lambda", "dev")，用于指定X轴的变量，norm表示横坐标使用系数的L1范数，lambda表示横坐标使用lnλ，而 "dev"表示横坐标采用解释偏差的百分比
+
+set.seed(123) # 设置随机种子，保证K折验证的可重复性
+lsocv1 <- cv.glmnet(Xtrain, Ytrain, family = "binomial", nfolds = 1000)
+lsocv <- cv.glmnet(Xtrain, Ytrain,
+                   alpha = 1, family = "binomial",
+                   nfolds = 10, type.measure = "deviance"
+)
+# family同glmnet函数的family；type.measure用来指定交叉验证选取模型的标准，可取值"default", "mse", "deviance", "class", "auc", "mae", "C"。type.measure的默认值是"deviance"，线性模型是squared-error for gaussian models (type.measure="mse" ), logistic和poisson回归是deviance， Cox模型则是偏似然值（partial-likelihood）。deviance即-2倍的对数似然值，mse是实际值与拟合值的mean squred error，mae即mean absolute error，class是模型分类的错误率(missclassification error)，auc即area under the ROC curve。nfolds表示进行几折验证，默认是10
+print(lsocv1) 
+lsocv1 ## print(lsocv) ，glmnet模型交叉验证的结果
+lsocv1$lambda.min
+lsocv1$lambda.1se
+
+plot(lsocv1) # 绘制交叉验证曲线
+
+coef(lsocv1, s = "lambda.min") # 获取使模型偏差最小时λ值的模型系数
+coef(lsocv1, s = "lambda.1se") # 获取使模型偏差最小时λ值+一个标准误时的模型系数
+cbind2(coef(lsocv1, s = "lambda.min"), coef(lsocv1, s = "lambda.1se")) # 合并显示
+
+coefPara <- coef(object = lsocv1, s = "lambda.1se")
+lasso_values <- as.data.frame(which(coefPara != 0, arr.ind = T))
+lasso_names <- rownames(lsocv1[-1])
+lasso_coef <- data.frame(
+  Feature = rownames(lasso_values),
+  Coef = round(coefPara[which(coefPara != 0, arr.ind = T)], 4)
+)
+lasso_coef
+ggplot(lasso_coef, aes(x = reorder(Feature, Coef), y = Coef, fill = Coef)) +
+  xlab("") +
+  ylab("Coefficients") +
+  coord_flip() +
+  geom_bar(stat = "identity", colour = "black", width = 0.78, size = 0.25, position = position_dodge(0.7)) +
+  # ylim(-0.30, 0.20) +
+  geom_text(aes(label = Coef), vjust = -0.2) +theme(panel.grid.major.y = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.ticks.y = element_blank()) +
+  theme(panel.border = element_blank()) +
+  theme(axis.title.x = element_text(face = "bold")) +
+  theme(axis.text.y = element_blank()) + # hjust=1调整横轴距离
+  geom_text(aes(y = ifelse(Coef > 0, -0.01, 0.01), label = Feature, fontface = 4, hjust = ifelse(Coef > 0, 1, 0))) +
+  scale_fill_gradient2(low = "#366488", high = "red", mid = "white", midpoint = 0)
+write.csv(lasso_coef, file = "/home/wane/Desktop/EP/REFER/BLS/KAI/coef.minPTcox_lat_14.csv", quote = T, row.names = F)
+# coef <- read_csv("/media/wane/wade/EP/EPTLE_PET/TLE_pet_ind/coef.minPTcox9.csv", show_col_types = FALSE)
+# 提取特征名
+var <- unlist(lasso_coef[, 1])
+# vars <- paste0(coef[,1],collapse = '+')
+var1 <- var[-1]
+train_lasso <- data.frame(Xtrain)[var1]
+test_lasso <- test[names(train_lasso)]
+train1 <- mutate(train[1:2], train_lasso)
+test1 <- mutate(test[1:2], test_lasso)
+Data_all <- rbind(train1, test1)
+write.csv(Data_all, file = "/home/wane/Desktop/EP/REFER/BLS/KAI/process_rad_lat_14.csv", quote = T, row.names = F)
+
 
 dt <- read_excel("/home/wane/Desktop/EP/Structured_Data/Physician.xlsx")
 table(dt$Phy1)
@@ -102,7 +202,7 @@ plot(performance(pred2, "tpr", "fpr"), add = T, colorize = T, lwd = 3)
 plot(performance(pred3, "tpr", "fpr"), add = T, colorize = T, lwd = 3)
 abline(a = 0, b = 1, lty = 2, lwd = 3, col = "black")
 
-varsU <- names(trainingset[, 2:21]) # 自变量
+varsU <- names(train[, 2:21]) # 自变量
 Result <- c()
 for (i in 1:length(varsU)) {
   fit <- glm(substitute(Y ~ x, list(x = as.name(varsU[i]))), data = dt, family = binomial())
@@ -133,7 +233,7 @@ Uni_glm_model <-
     # 拟合结局和变量
     FML <- as.formula(paste0("Y==1~", x))
     # glm()逻辑回归
-    glm1 <- glm(FML, data = trainingset, family = binomial)
+    glm1 <- glm(FML, data = train, family = binomial)
     # 提取所有回归结果放入glm2中
     glm2 <- summary(glm1)
     # 1-计算OR值保留两位小数
@@ -158,7 +258,7 @@ Uni_glm_model <-
   }
 
 # 把它们放入variable.names中
-variable.names <- colnames(trainingset)[c(2:21)]
+variable.names <- colnames(train)[c(2:21)]
 variable.names
 
 # 变量带入循环函数
@@ -173,7 +273,7 @@ paste0(variable.names, collapse = "+")
 
 names <- glm(Y == 1 ~ sex + age + Cre + eGFR + Urea + CysC + ALP + VD + PTH + Ca + P + BMI + BMD +
   TBS + TscoreL1L4 + Dialysis_duration + Smoking + Drinking + DM + Drugs,
-data = trainingset,
+data = train,
 family = binomial
 )
 name <- data.frame(summary(names)$aliased)
@@ -189,7 +289,7 @@ write.csv(Uni_glm, "./TBS/单因素回归三线表结果.csv")
 
 # 多因素logistic回归
 varsMul <- c("age", "sex", "P", "Ca", "eGFR", "ALP", "TBS") # 需要进行多因素分析的变量，随机生成的数据单因素无意义，故强制纳入
-dataAM <- data.frame(subset(trainingset, select = c("Y", varsMul[1:length(varsMul)]))) # 将因变量和要分析的自变量单独建库
+dataAM <- data.frame(subset(train, select = c("Y", varsMul[1:length(varsMul)]))) # 将因变量和要分析的自变量单独建库
 fitMul <- glm(Y ~ ., data = dataAM, family = binomial()) # 行多因素logistic回归分析
 fitSum <- summary(fitMul)
 ResultMul <- c() # 准备空向量，用来储存结果
@@ -247,12 +347,12 @@ dt$TBS <- factor(dt$TBS)
 dt$BMI <- factor(dt$BMI)
 dt$Dialysis_duration <- factor(dt$Dialysis_duration)
 
-a <- caret::dummyVars(~., trainingset)
-b <- predict(a, trainingset)
+a <- caret::dummyVars(~., train)
+b <- predict(a, train)
 head(b)
 library(cattonum)
 dt.BMIc.onehot <- catto_onehot(dt, c(10, 22)) # 独热编码，相当于在x2的基础上增加参照水平的0/1赋值。cattonum包中的函数catto_dummy也可以进行哑变量编码
-trainingset.onehot <- catto_onehot(trainingset)
+train.onehot <- catto_onehot(train)
 dt$Y <- ifelse(dt$Y == "0", "No Fracture", "Fracture")
 # dt$Y <- as.factor(as.character(dt$Y))
 # dt$Y <- as.factor(dt$Y,levels = c(0, 1),
@@ -263,19 +363,19 @@ for (i in names(dt)[c(1:2, 4:13, 15, 17:19)]) {
 }
 set.seed(123)
 ss <- sample(nrow(dt), nrow(dt) * 0.7)
-trainingset <- dt[ss, ]
-testingset <- dt[-ss, ]
+train <- dt[ss, ]
+test <- dt[-ss, ]
 # library(caTools)
 # set.seed(123)
 # split<-sample.split(biopsy$class, SplitRatio = 0.70)
-# trainingset<-subset(biopsy, split==TRUE)
-# testingset<-subset(biopsy, split == FALSE)
+# train<-subset(biopsy, split==TRUE)
+# test<-subset(biopsy, split == FALSE)
 # library(caret)
 # library(ggplot2);library(lattice)
 # set.seed(123)
 # split<-createDataPartition(biopsy$class,p=0.7,list=FALSE)
-# trainingset3<-biopsy[split,]
-# testingset3<-biopsy[-split,]
+# train3<-biopsy[split,]
+# test3<-biopsy[-split,]
 
 # Deep EDA(https://yuzar-blog.netlify.app/posts/2021-01-09-exploratory-data-analysis-and-beyond-in-r-in-progress/)
 # Explore numeric variables with descriptive statistics
@@ -289,7 +389,7 @@ dt[c(-1, -2, -4)] %>%
   univar_numeric() %>%
   knitr::kable(format = "pipe")
 
-trainingset %>%
+train %>%
   diagnose_numeric() %>%
   flextable()
 
@@ -308,11 +408,11 @@ describeBy(
 
 # Summary tools
 library(gtsummary)
-tra <- trainingset %>%
+tra <- train %>%
   # select(mpg, hp, am, gear, cyl) %>%
   tbl_summary(by = Y) %>%
   add_p()
-tes <- testingset %>%
+tes <- test %>%
   # select(mpg, hp, am, gear, cyl) %>%
   tbl_summary(by = Y) %>%
   add_p()
@@ -347,11 +447,11 @@ table2pptx(ft) # Exported table as Report.pptx
 table2docx(ft) # Exported table as Report.docx
 table2docx(tra, title = "Train", append = TRUE, vanilla = TRUE)
 # 二元LR回归，多分类变量必须处理成factor
-trainingset$Y <- factor(trainingset$Y, labels = c("No Fracture", "Fracture"))
+train$Y <- factor(train$Y, labels = c("No Fracture", "Fracture"))
 ## setLabel()函数给变量名添加标签
-trainingset$Y <- setLabel(trainingset$Y, "Fracture Risk")
+train$Y <- setLabel(train$Y, "Fracture Risk")
 fit <- glm(Y ~ age + eGFR + Ca + P + TBS + sex,
-  data = trainingset, family = "binomial"
+  data = train, family = "binomial"
 )
 summary(fit)
 autoReg(fit) %>% myft()
@@ -373,22 +473,22 @@ library(ggplot2)
 plot_bar(dt)
 # Plot bar charts by `cut`
 plot_bar(dt, by = "Y")
-plot_histogram(trainingset, ggtheme = theme_classic())
+plot_histogram(train, ggtheme = theme_classic())
 plot_density(dt)
 
 library(SmartEDA)
 ExpCatViz(dt[c(-1, -2, -4)], Page = c(3, 5))
 library(tidyverse)
 ExpCatViz(
-  trainingset %>%
+  train %>%
     select(Y, TBS),
   target = "Y"
 )
 
 op <- par(mfrow = c(4, 5))
-hist(trainingset, col = "lightblue", border = "pink")
-utils::str(hist(trainingset, col = "gray", labels = TRUE))
-r <- hist(sqrt(trainingset), breaks = 12, col = "lightblue", border = "pink")
+hist(train, col = "lightblue", border = "pink")
+utils::str(hist(train, col = "gray", labels = TRUE))
+r <- hist(sqrt(train), breaks = 12, col = "lightblue", border = "pink")
 text(r$mids, r$density, r$counts, adj = c(.5, -.5), col = "blue3")
 sapply(r[2:3], sum)
 sum(r$density * diff(r$breaks)) # == 1
@@ -403,76 +503,33 @@ for (i in 2:21) {
 # Explore categorical and numeric variables with Box-Plots
 library(ggstatsplot)
 ggbetweenstats(
-  data = trainingset,
+  data = train,
   x    = Y,
   y    = TBS,
   type = "np"
 )
 
-ExpNumViz(trainingset, target = "Y", Page = c(1, 3))
-
-## 生成解释变量和结局变量的矩阵格式，glmnet数据格式是矩阵
-Xtrain <- as.matrix(trainingset[, 2:21])
-Ytrain <- as.matrix(trainingset[, 1])
-Xtest <- as.matrix(testingset[, 2:21])
-Ytest <- as.matrix(testingset[, 1])
-# Lasso回归筛选变量与模型评估
-library(glmnet)
-library(Matrix)
-## lasso回归
-lsofit <- glmnet(Xtrain, Ytrain, family = "binomial", alpha = 1)
-# 解释变量须是矩阵形式；family=c("gaussian", "binomial", "poisson", "multinomial", "cox", "mgaussian")，gaussian适用于连续型因变量, mgaussian适用于连续型的多元因变量，poisson适用于计数因变量,binomial适用于二分类因变量, multinomial适用于多分类的因变量, cox适用于生存资料；弹性网络alpha取值在0和1之间，0≤alpha≤1，取值1时拟合lasso回归，取值0时拟合领回归；nlambda为λ值的数量，默认等于100；dfmax和pmax可以分别限定模型中的变量的数量；relax=TRUE表示将进行Relaxed lasso
-print(lsofit)
-# 结果会产生三列结果，分别是Df (非0系数的变量数量), %dev (模型解释的偏差的百分数) 和 Lambda (相应的λ值)。偏差（deviance）即-2倍的Log-likelihood
-## lasso回归系数
-coef.apprx <- coef(lsofit, s = 0.2)
-# 参数s指定具体的λ值。上述命令是提取λ=0.2时的lasso回归系数，此时模型会有4个非0系数变量。精确系数估算可用coef.exact<-coef(lsofit, s=0.2,exact=TRUE, x=Xtrain, y=Ytrain)
-coef.apprx
-predict(lsofit, type = "coefficients", s = 0.2)
-# predict也可以用来提取λ某一个取值时的lasso回归系数
-# type=c("link","response","coeffificients","nonzero");当想用新的取值做预测时，可用参数newx来指定预测变量的矩阵，可用于type=c("link","response")时；exact参数同可参见coef函数。link给出的是线性预测值，即进行logit变化前的值；response给出的是概率预测值，即进行logit变换之后的值；coefficients给出的是指定λ值的模型系数；nonzero给出指定的定λ值时系数不为零的模型变量
-## 系数路径图
-plot(lsofit, xvar = "lambda", label = TRUE)
-# 参数xvar=c("norm", "lambda", "dev")，用于指定X轴的变量，norm表示横坐标使用系数的L1范数，lambda表示横坐标使用lnλ，而 "dev"表示横坐标采用解释偏差的百分比
-
-set.seed(123) # 设置随机种子，保证K折验证的可重复性
-lsocv1 <- cv.glmnet(Xtrain, Ytrain, family = "binomial", nfolds = 100)
-lsocv <- cv.glmnet(Xtrain, Ytrain,
-  alpha = 1, family = "binomial",
-  nfolds = 10, type.measure = "deviance"
-)
-# family同glmnet函数的family；type.measure用来指定交叉验证选取模型的标准，可取值"default", "mse", "deviance", "class", "auc", "mae", "C"。type.measure的默认值是"deviance"，线性模型是squared-error for gaussian models (type.measure="mse" ), logistic和poisson回归是deviance， Cox模型则是偏似然值（partial-likelihood）。deviance即-2倍的对数似然值，mse是实际值与拟合值的mean squred error，mae即mean absolute error，class是模型分类的错误率(missclassification error)，auc即area under the ROC curve。nfolds表示进行几折验证，默认是10
-lsocv ## print(lsocv) ，glmnet模型交叉验证的结果
-
-lsocv$lambda.min
-lsocv$lambda.1se
-
-plot(lsocv) # 绘制交叉验证曲线
-
-coef(lsocv, s = "lambda.min") # 获取使模型偏差最小时λ值的模型系数
-coef(lsocv, s = "lambda.1se") # 获取使模型偏差最小时λ值+一个标准误时的模型系数
-cbind2(coef(lsocv, s = "lambda.min"), coef(lsocv, s = "lambda.1se")) # 合并显示
-
+ExpNumViz(train, target = "Y", Page = c(1, 3))
 
 ## 构建响应变量和解释变量矩阵
-y <- as.matrix(trainingset[, 1])
-x1 <- as.matrix(trainingset[, c("age", "sex", "P", "DM", "Ca", "TBS", "Dialysis_duration")])
+y <- as.matrix(train[, 1])
+x1 <- as.matrix(train[, c("age", "sex", "P", "DM", "Ca", "TBS", "Dialysis_duration")])
 # 解释变量全部为连续变量的多因素矩阵
 head(x1)
 
 x2 <- model.matrix(~ age + sex + P + DM + Ca + TBS + Dialysis_duration,
-  data = trainingset
+  data = train
 )[, -1]
 # 哑变量编码。构建多因素矩阵，model.matrix(~A+B+…)[,-1] 将为因子编码生成变量0/1哑变量，并保持连续变量不变。最后的[,-1]从 model.matrix 的输出中删除常数项
 head(x2)
 
 library(rms)
-dd <- datadist(trainingset) ## 设置数据环境
+dd <- datadist(train) ## 设置数据环境
 options(datadist = "dd")
 
 # 拟合模型
 fit1 <- glm(Y ~ age + P + Ca + TBS + sex + eGFR,
-  data = trainingset, family = "binomial"
+  data = train, family = "binomial"
 )
 fit2 <- step(fit1)
 summary(fit2)
@@ -482,11 +539,11 @@ pred.logit2 <- predict(fit2)
 # 预测概率P
 P2 <- predict(fit2, type = "response")
 
-m <- NROW(trainingset) / 5
-val.prob(P2, trainingset$Y, m = m, cex = 0.8) # 预测概率与真实值进行矫正
+m <- NROW(train) / 5
+val.prob(P2, train$Y, m = m, cex = 0.8) # 预测概率与真实值进行矫正
 
 fit <- lrm(Y ~ age + P + Ca + TBS + sex + eGFR,
-  data = trainingset
+  data = train
 )
 fit
 fit$stats # Brier score
@@ -502,13 +559,13 @@ nomogram <- nomogram(fit, # 模型名称
 # 绘制列线图
 plot(nomogram)
 # 设置因子的水平标签
-trainingset$sex <- factor(trainingset$sex,
+train$sex <- factor(train$sex,
   levels = c(1, 0),
   labels = c("Male", "Female")
 )
 # 设置变量的名称
-label(trainingset$sex) <- "Gender"
-label(trainingset$age) <- "Age"
+label(train$sex) <- "Gender"
+label(train$age) <- "Age"
 label(Affairs$religiousness) <- "宗教信仰"
 label(Affairs$rating) <- "婚姻自我评分"
 
@@ -529,7 +586,7 @@ library(regplot)
 regplot(fit, # 模型名称
   odds = T, # 设置OR显示
   title = "Nomogram for Fracture Risk at CKD",
-  observation = trainingset[1, ], # 指定观测值
+  observation = train[1, ], # 指定观测值
   interval = "confidence", points = TRUE
 ) # 最大刻度100
 
@@ -539,14 +596,14 @@ regplot(fit, # 模型名称
 pre <- predict(fit1, type = "response") # 预测概率，预测分类(class)
 pre
 library(pROC)
-plot.roc(trainingset$Y, pre,
+plot.roc(train$Y, pre,
   main = "ROC curve in Training set", percent = TRUE,
   print.auc = TRUE,
   ci = TRUE, of = "thresholds",
   thresholds = "best",
   print.thres = "best"
 )
-rocplot1 <- roc(trainingset$Y, pre)
+rocplot1 <- roc(train$Y, pre)
 auc(rocplot1)
 ci.auc(rocplot1)
 # ROC详细结果
@@ -554,15 +611,15 @@ roc.result <- coords(rocplot1, "best", ret = "all", transpose = F)
 as.matrix(roc.result)
 # PR curve
 library(modEvA)
-aupr <- AUC(obs = trainingset$Y, pred = pre, interval = 0.001,
+aupr <- AUC(obs = train$Y, pred = pre, interval = 0.001,
   curve = "PR", method = "trapezoid", simplif = F, main = "PR curve")
 
 # 混淆矩阵绘制
 require(caret)
 # 训练集预测概率
-trainpredprob <- predict(fit1, newdata = trainingset, type = "response")
+trainpredprob <- predict(fit1, newdata = train, type = "response")
 # 训练集ROC
-trainroc <- roc(response = trainingset$Y, predict = trainpredprob)
+trainroc <- roc(response = train$Y, predict = trainpredprob)
 # 训练集ROC曲线
 plot(smooth(trainroc), col = "red")
 plot(trainroc, col = "red", legacy.axes = T) ## 更改Y轴格式
@@ -584,12 +641,12 @@ bestp <- trainroc$thresholds[
 bestp
 # 训练集预测分类
 trainpredlab <- as.factor(ifelse(trainpredprob > bestp, 1, 0))
-Actual <- factor(trainingset$Y, levels = c(1, 0), labels = c("True", "False"))
+Actual <- factor(train$Y, levels = c(1, 0), labels = c("True", "False"))
 
 # 训练集混淆矩阵
 confusionMatrix(
   data = trainpredlab, # 预测类别
-  reference = factor(trainingset$Y), # 实际类别
+  reference = factor(train$Y), # 实际类别
   positive = "1",
   mode = "everything"
 )
@@ -597,7 +654,7 @@ confusionMatrix(
 formula1 <- as.formula(Y ~ age + P + Ca + TBS + sex + eGFR)
 formula2 <- as.formula(Y ~ age + P + Ca + sex + eGFR)
 fitcal <- lrm(formula1,
-  data = trainingset, x = TRUE, y = TRUE
+  data = train, x = TRUE, y = TRUE
 )
 cal <- calibrate(fitcal, method = "boot", B = 1000)
 plot(cal,
@@ -613,7 +670,7 @@ orig_Dxy <- v[rownames(v) == "Dxy", colnames(v) == "index.orig"]
 bias_corrected_c_index <- abs(Dxy) / 2 + 0.5
 orig_c_index <- abs(orig_Dxy) / 2 + 0.5
 
-c <- rcorrcens(Y ~ predict(fitcal), data = trainingset)
+c <- rcorrcens(Y ~ predict(fitcal), data = train)
 lower <- c[1, 1] - 1.96 * c[1, 4] / 2
 upper <- c[1, 1] + 1.96 * c[1, 4] / 2
 cindex <- rbind(orig_c_index, lower, upper, bias_corrected_c_index)
@@ -622,33 +679,33 @@ cindex
 # Hosmer-Lemeshow Goodness of Fit(GOF) Test/H-L拟合优度检验
 library(ResourceSelection)
 model <- glm(formula1,
-  data = trainingset, family = binomial(link = "logit")
+  data = train, family = binomial(link = "logit")
 )
 hl <- hoslem.test(model$y, fitted(model), g = 4)
 hl
 
 # 内部验证集Internal validation Discrimination/Test set
-ddist <- datadist(testingset)
+ddist <- datadist(test)
 options(datadist = "ddist")
-testingset$Y <- as.numeric(as.character(testingset$Y))
-pre1 <- predict(fit, newdata = testingset)
-plot.roc(testingset$Y, pre1,
+test$Y <- as.numeric(as.character(test$Y))
+pre1 <- predict(fit, newdata = test)
+plot.roc(test$Y, pre1,
   main = "ROC curve in Test set", percent = TRUE,
   print.auc = TRUE,
   ci = TRUE, of = "thresholds",
   thresholds = "best",
   print.thres = "best"
 )
-rocplot2 <- roc(testingset$Y, pre1)
+rocplot2 <- roc(test$Y, pre1)
 auc(rocplot2)
 ci.auc(rocplot2)
 
 # 混淆矩阵绘制
 require(caret)
 # 测试集预测概率
-testpredprob <- predict(fit1, newdata = testingset, type = "response")
+testpredprob <- predict(fit1, newdata = test, type = "response")
 # 测试集ROC
-testroc <- roc(response = testingset$Y, predict = testpredprob)
+testroc <- roc(response = test$Y, predict = testpredprob)
 plot(trainroc, col = "red", legacy.axes = T)
 plot(testroc, add = TRUE, col = "blue")
 legend("bottomright", legend = c("Training set", "Test set"), col = c("red", "blue"), lty = 2)
@@ -676,13 +733,13 @@ testpredlab <- as.factor(ifelse(testpredprob > bestp, 1, 0))
 # 测试集混淆矩阵
 confusionMatrix(
   data = testpredlab, # 预测类别
-  reference = factor(testingset$Y), # 实际类别
+  reference = factor(test$Y), # 实际类别
   positive = "1",
   mode = "everything"
 )
 # Calibration curve
 fitcal2 <- lrm(Y ~ age + P + Ca + TBS + sex + eGFR,
-  data = testingset, x = TRUE, y = TRUE
+  data = test, x = TRUE, y = TRUE
 )
 cal2 <- calibrate(fitcal2, method = "boot", B = 1000)
 plot(cal2,
@@ -699,8 +756,8 @@ BIC(fit1)
 # 分类变量不处理成factor类型，多分类变量需要处理成哑变量(stats::model.matrix())
 stats::model.matrix()
 library(nricens)
-mnew <- glm(formula1, family = binomial(), data = trainingset, x = T)
-mstd <- glm(formula2, family = binomial(), data = trainingset, x = T)
+mnew <- glm(formula1, family = binomial(), data = train, x = T)
+mstd <- glm(formula2, family = binomial(), data = train, x = T)
 # 截断值的选择
 set.seed(123)
 nribin(mdl.std = mstd, mdl.new = mnew, cut = c(0.4, 0, 6), niter = 1000, updown = "category")
@@ -714,13 +771,13 @@ pvalue
 library(PredictABEL)
 pnew <- mnew$fitted.values
 pstd <- mstd$fitted.values
-demo <- as.matrix(trainingset)
-reclassification(data = trainingset, cOutcome = 1, predrisk1 = pstd, predrisk2 = pnew, cutoff = c(0, 0.2, 0.4, 1))
+demo <- as.matrix(train)
+reclassification(data = train, cOutcome = 1, predrisk1 = pstd, predrisk2 = pnew, cutoff = c(0, 0.2, 0.4, 1))
 
 # DCA&CIC
 library(rmda)
 full.model <- decision_curve(formula1,
-  data = trainingset, family = binomial(link = "logit"),
+  data = train, family = binomial(link = "logit"),
   thresholds = seq(0, .4, by = .001), confidence.intervals = 0.95,
   bootstraps = 100
 ) # should use more bootstrap replicates in practice!
@@ -751,17 +808,17 @@ names(getModelInfo())
 # 交叉验证LGOCV
 train.Control_1 <- trainControl(method = "LGOCV", p = 0.7, number = 50)
 set.seed(123)
-my_model_1 <- train(formula1, data = trainingset, trControl = train.Control_1, method = "glm")
+my_model_1 <- train(formula1, data = train, trControl = train.Control_1, method = "glm")
 my_model_1
 # 10折交叉验证
 train.Control_2 <- trainControl(method = "CV", number = 10)
 set.seed(123)
-my_model_2 <- train(formula1, data = trainingset, trControl = train.Control_2, method = "glm")
+my_model_2 <- train(formula1, data = train, trControl = train.Control_2, method = "glm")
 my_model_2
 # 留一法LOOCV
 train.Control_3 <- trainControl(method = "LOOCV")
 set.seed(123)
-my_model_3 <- train(formula1, data = trainingset, trControl = train.Control_3, method = "glm")
+my_model_3 <- train(formula1, data = train, trControl = train.Control_3, method = "glm")
 my_model_3
 # Boot
 train.Control_4 <- caret::trainControl(method = "repeatedcv", number = 10, repeats = 100)
@@ -770,7 +827,7 @@ train.Control_5 <- trainControl(
   classProbs = T, summaryFunction = twoClassSummary
 )
 set.seed(123)
-my_model_4 <- train(formula1, data = trainingset, trControl = train.Control_4, method = "glm")
+my_model_4 <- train(formula1, data = train, trControl = train.Control_4, method = "glm")
 my_model_4
 my_model_5 <- train(formula1, data = dt, trControl = train.Control_5, method = "glm")
 as.matrix(my_model_5$results[2])
