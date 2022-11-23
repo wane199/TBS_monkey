@@ -5,6 +5,8 @@ library(treeheatr)
 
 dt <- read.csv("C:\\Users\\wane199\\Desktop\\EP\\Structured_Data\\process_PT-22.csv")
 dt <- read.csv("/media/wane/Data/CN_PET_csv/CN_PET_dataset.csv")
+dt <- read.csv("/home/wane/Desktop/BLS-ep-pre/EP/REFER/BLS/KAI/process_rad_lat_14.csv")
+
 str(dt) ## 查看每个变量结构
 summary(con)
 con <- subset(dt, dt$Group == "sub")
@@ -16,16 +18,16 @@ dt <- dt[c(7:23)]
 dtx <- as.data.frame(scale(dt[4:17]))
 dt <- mutate(dt[, 1:3], dtx) 
 table(dt$oneyr)
-train <- subset(dt, dt$Group1 == "Training")
-test <- subset(dt, dt$Group1 == "Test")
-
-heat_tree(dt, target_lab = "oneyr", task = 'classification')
+train <- subset(dt, dt$Group == "Training")
+test <- subset(dt, dt$Group == "Test")
+train <- train[c(-1:-2,-4)]
+heat_tree(train, target_lab = "Label", task = 'classification')
 
 # 任意修改图片颜色
-heat_tree(dt, target_lab = "oneyr",
+heat_tree(train, target_lab = "Label",
           target_cols = c("royalblue1", "palegreen3")) # 修改颜色
 # 选择将变量全部在热图中展示
-heat_tree(dt, target_lab = "oneyr",
+heat_tree(train, target_lab = "Label",
           show_all_feats = TRUE)
 # 各个分类组别之间的距离加宽一些
 heat_tree(dt, target_lab = "Y",
@@ -36,12 +38,15 @@ heat_tree(dt, target_lab = "oneyr",show_all_feats = TRUE,
 
 # change-in-estimate(https://mp.weixin.qq.com/s?__biz=MzIzMzc1ODc4OA==&mid=2247485666&idx=1&sn=f28aff82d66af79d099f237e8e302f89&chksm=e88181c9dff608df3a55a831f6d7dbcce32a29cb1f52ae16bf994c4585b06a52d1013084af29&mpshare=1&scene=24&srcid=1108Gz1ANkBpbNLK03j9kR93&sharer_sharetime=1667838586772&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
 library(chest)
-
+var <- paste0(colnames(train[3:15]), collapse = " "," ")
+var
 results <- chest_speedglm(
-  crude = "Endpoint ~ Diabetes",
-  xlist = c("Age", "Sex", "Married", "Smoke", 
-            "Cancer", "CVD","Education", "Income"),
-  data = diab_df)
+  crude = "Label ~ original_firstorder_Mean",
+  xlist = c("original_gldm_DependenceEntropy", "log.sigma.5.0.mm.3D_firstorder_10Percentile",  "log.sigma.5.0.mm.3D_firstorder_Energy",  
+            "log.sigma.5.0.mm.3D_firstorder_Mean", "log.sigma.5.0.mm.3D_firstorder_TotalEnergy",  "wavelet.LLH_firstorder_Median",  "wavelet.LLH_gldm_DependenceNonUniformityNormalized",  
+            "wavelet.LHL_firstorder_90Percentile",  "wavelet.LHL_glrlm_GrayLevelNonUniformity",  "wavelet.LHH_gldm_GrayLevelNonUniformity",  "wavelet.HLH_firstorder_Mean",  "wavelet.HLH_firstorder_Median", 
+            "wavelet.HHL_glrlm_GrayLevelNonUniformity"),
+  data = train)
 chest_plot(results)
 chest_forest(results)  
 
@@ -243,12 +248,13 @@ predict_ <- predict.glm(logit.clinic, type = "response", newdata = test)
 predict <- ifelse(predict_ > 0.5, 1, 0)
 test$predict <- predict
 library(reportROC) # Confusion Matrix
+df <- read.csv('/home/wane/Desktop/BLS-ep-pre/EP/REFER/BLS/KAI/lr_score.csv')
 reportROC(
-  gold = test$oneyr, predictor = test$predict,
+  gold = df$Y, predictor = df$Score,
   plot = T, important = "se", exact = FALSE
 )
 reportROC(
-  gold = test$oneyr, predictor.binary = test$predict,
+  gold = df$Y, predictor.binary = df$Label,
   plot = T, important = "se", exact = FALSE
 )
 
@@ -289,12 +295,16 @@ library(bstfun)
 library(gtsummary)
 
 summary(mtcars)
-mtcars |>
-  subset(select = c(mpg, hp, drat, wt)) |>
+var <- paste0(unlist(colnames(train)), collapse = "+")
+var
+train_lasso <- data.frame(train)[var]
+
+train |>
+  subset(select = c(original_firstorder_Mean, original_gldm_DependenceEntropy, log.sigma.5.0.mm.3D_firstorder_10Percentile, log.sigma.5.0.mm.3D_firstorder_Energy, log.sigma.5.0.mm.3D_firstorder_Mean, log.sigma.5.0.mm.3D_firstorder_TotalEnergy, wavelet.LLH_firstorder_Median, wavelet.LLH_gldm_DependenceNonUniformityNormalized, wavelet.LHL_firstorder_90Percentile, wavelet.LHL_glrlm_GrayLevelNonUniformity, wavelet.LHH_gldm_GrayLevelNonUniformity, wavelet.HLH_firstorder_Mean, wavelet.HLH_firstorder_Median, wavelet.HHL_glrlm_GrayLevelNonUniformity)) |>
   tbl_summary()
 
-mtcars |>
-  subset(select = c(mpg, hp, drat, wt)) |>
+train |>
+  subset(select = c(original_firstorder_Mean, original_gldm_DependenceEntropy, log.sigma.5.0.mm.3D_firstorder_10Percentile, log.sigma.5.0.mm.3D_firstorder_Energy, log.sigma.5.0.mm.3D_firstorder_Mean, log.sigma.5.0.mm.3D_firstorder_TotalEnergy, wavelet.LLH_firstorder_Median, wavelet.LLH_gldm_DependenceNonUniformityNormalized, wavelet.LHL_firstorder_90Percentile, wavelet.LHL_glrlm_GrayLevelNonUniformity, wavelet.LHH_gldm_GrayLevelNonUniformity, wavelet.HLH_firstorder_Mean, wavelet.HLH_firstorder_Median, wavelet.HHL_glrlm_GrayLevelNonUniformity)) |>
   tbl_summary() |>
   add_sparkline("histogram")
 
@@ -308,6 +318,10 @@ mtcars |>
   tbl_summary() |>
   add_sparkline("sparkline")
 
-mymodel <- lm(mpg ~ am + drat + wt, data = mtcars)
+train$Label <- ifelse(train$Label=="CN",0,1)
+table(train$Label)
+mymodel <- lm(Label ~ original_firstorder_Mean+original_gldm_DependenceEntropy+log.sigma.5.0.mm.3D_firstorder_10Percentile+log.sigma.5.0.mm.3D_firstorder_Energy+log.sigma.5.0.mm.3D_firstorder_Mean+log.sigma.5.0.mm.3D_firstorder_TotalEnergy+wavelet.LLH_firstorder_Median+wavelet.LLH_gldm_DependenceNonUniformityNormalized+wavelet.LHL_firstorder_90Percentile+wavelet.LHL_glrlm_GrayLevelNonUniformity+wavelet.LHH_gldm_GrayLevelNonUniformity+wavelet.HLH_firstorder_Mean+wavelet.HLH_firstorder_Median+wavelet.HHL_glrlm_GrayLevelNonUniformity, data = train)
 tbl_regression(mymodel) |>
   add_inline_forest_plot()
+
+
