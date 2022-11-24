@@ -21,13 +21,13 @@ table(dt$oneyr)
 train <- subset(dt, dt$Group == "Training")
 test <- subset(dt, dt$Group == "Test")
 train <- train[c(-1:-2,-4)]
-heat_tree(train, target_lab = "Label", task = 'classification')
+heat_tree(train, target_lab = "Y", task = 'classification')
 
 # 任意修改图片颜色
-heat_tree(train, target_lab = "Label",
+heat_tree(train, target_lab = "Y",
           target_cols = c("royalblue1", "palegreen3")) # 修改颜色
 # 选择将变量全部在热图中展示
-heat_tree(train, target_lab = "Label",
+heat_tree(train, target_lab = "Y",
           show_all_feats = TRUE)
 # 各个分类组别之间的距离加宽一些
 heat_tree(dt, target_lab = "Y",
@@ -38,14 +38,12 @@ heat_tree(dt, target_lab = "oneyr",show_all_feats = TRUE,
 
 # change-in-estimate(https://mp.weixin.qq.com/s?__biz=MzIzMzc1ODc4OA==&mid=2247485666&idx=1&sn=f28aff82d66af79d099f237e8e302f89&chksm=e88181c9dff608df3a55a831f6d7dbcce32a29cb1f52ae16bf994c4585b06a52d1013084af29&mpshare=1&scene=24&srcid=1108Gz1ANkBpbNLK03j9kR93&sharer_sharetime=1667838586772&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
 library(chest)
-var <- paste0(colnames(train[3:15]), collapse = " "," ")
+var <- paste0(colnames(train[1:8]), collapse = " "," ")
 var
 results <- chest_speedglm(
-  crude = "Label ~ original_firstorder_Mean",
-  xlist = c("original_gldm_DependenceEntropy", "log.sigma.5.0.mm.3D_firstorder_10Percentile",  "log.sigma.5.0.mm.3D_firstorder_Energy",  
-            "log.sigma.5.0.mm.3D_firstorder_Mean", "log.sigma.5.0.mm.3D_firstorder_TotalEnergy",  "wavelet.LLH_firstorder_Median",  "wavelet.LLH_gldm_DependenceNonUniformityNormalized",  
-            "wavelet.LHL_firstorder_90Percentile",  "wavelet.LHL_glrlm_GrayLevelNonUniformity",  "wavelet.LHH_gldm_GrayLevelNonUniformity",  "wavelet.HLH_firstorder_Mean",  "wavelet.HLH_firstorder_Median", 
-            "wavelet.HHL_glrlm_GrayLevelNonUniformity"),
+  crude = "Y ~ original_firstorder_Mean", 
+  xlist = c("original_gldm_DependenceEntropy",  "log.sigma.5.0.mm.3D_firstorder_Energy",  "log.sigma.5.0.mm.3D_firstorder_Mean", "log.sigma.5.0.mm.3D_firstorder_TotalEnergy",  
+            "wavelet.LHL_glrlm_GrayLevelNonUniformity",  "wavelet.LHH_gldm_GrayLevelNonUniformity"),
   data = train)
 chest_plot(results)
 chest_forest(results)  

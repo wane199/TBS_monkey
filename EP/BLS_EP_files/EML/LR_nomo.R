@@ -66,7 +66,7 @@ dt$wavelet.LHL_glrlm_GrayLevelNonUniformity <- cut(dt$wavelet.LHL_glrlm_GrayLeve
 dt$wavelet.LHH_gldm_GrayLevelNonUniformity <- cut(dt$wavelet.LHH_gldm_GrayLevelNonUniformity, breaks = c(-Inf, 0.08, Inf), labels = c("1", "2"), right = FALSE)
 write.csv(dt, "C:/Users/wane199/Desktop/EP/REFER/BLS/KAI/process_rad_lat_7_factor.csv", row.names = FALSE)
 
-fit <- lrm(Y ~ ., data = train)
+fit <- rms::lrm(Y ~ ., data = train, x=T, y=T)
 fit
 fit$stats # Brier score: 衡量了预测概率与实际概率之间的差异，取值范围在0-1之间，数值越小表示校准度越好。
 
