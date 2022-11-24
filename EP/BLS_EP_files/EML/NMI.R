@@ -41,9 +41,10 @@ library(chest)
 var <- paste0(colnames(train[1:8]), collapse = " "," ")
 var
 results <- chest_speedglm(
-  crude = "Y ~ original_firstorder_Mean", 
-  xlist = c("original_gldm_DependenceEntropy",  "log.sigma.5.0.mm.3D_firstorder_Energy",  "log.sigma.5.0.mm.3D_firstorder_Mean", "log.sigma.5.0.mm.3D_firstorder_TotalEnergy",  
-            "wavelet.LHL_glrlm_GrayLevelNonUniformity",  "wavelet.LHH_gldm_GrayLevelNonUniformity"),
+  crude = "Y ~ original_gldm_DependenceEntropy", 
+  xlist = c("log.sigma.5.0.mm.3D_firstorder_Energy", "wavelet.LHL_glrlm_GrayLevelNonUniformity"),
+  # xlist = c("original_gldm_DependenceEntropy",  "log.sigma.5.0.mm.3D_firstorder_Energy",  "log.sigma.5.0.mm.3D_firstorder_Mean", "log.sigma.5.0.mm.3D_firstorder_TotalEnergy",  
+            # "wavelet.LHL_glrlm_GrayLevelNonUniformity",  "wavelet.LHH_gldm_GrayLevelNonUniformity"),
   data = train)
 chest_plot(results)
 chest_forest(results)  
@@ -306,19 +307,20 @@ train |>
   tbl_summary() |>
   add_sparkline("histogram")
 
-mtcars |>
+train |>
   subset(select = c(mpg, hp, drat, wt)) |>
   tbl_summary() |>
   add_sparkline("boxplot")
 
-mtcars |>
-  subset(select = c(mpg, hp, drat, wt)) |>
+train |>
+  subset(select = c(original_gldm_DependenceEntropy,log.sigma.5.0.mm.3D_firstorder_Energy,wavelet.LHL_glrlm_GrayLevelNonUniformity)) |>
   tbl_summary() |>
   add_sparkline("sparkline")
 
 train$Label <- ifelse(train$Label=="CN",0,1)
-table(train$Label)
-mymodel <- lm(Label ~ original_firstorder_Mean+original_gldm_DependenceEntropy+log.sigma.5.0.mm.3D_firstorder_10Percentile+log.sigma.5.0.mm.3D_firstorder_Energy+log.sigma.5.0.mm.3D_firstorder_Mean+log.sigma.5.0.mm.3D_firstorder_TotalEnergy+wavelet.LLH_firstorder_Median+wavelet.LLH_gldm_DependenceNonUniformityNormalized+wavelet.LHL_firstorder_90Percentile+wavelet.LHL_glrlm_GrayLevelNonUniformity+wavelet.LHH_gldm_GrayLevelNonUniformity+wavelet.HLH_firstorder_Mean+wavelet.HLH_firstorder_Median+wavelet.HHL_glrlm_GrayLevelNonUniformity, data = train)
+table(train$Y)
+mymodel <- lm(factor(Y) ~ .,
+              data = train)
 tbl_regression(mymodel) |>
   add_inline_forest_plot()
 

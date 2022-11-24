@@ -2,6 +2,7 @@
 rm(list = ls())
 options(digits=3) # 限定输出小数点后数字的位数为3位
 dt <- read.csv("C:/Users/wane199/Desktop/EP/REFER/BLS/KAI/process_rad_lat_7.csv")
+dt <- read.csv("/home/wane/Desktop/EP/REFER/BLS/KAI/process_rad_lat_7.csv")
 str(dt) ## 查看每个变量结构
 summary(dt)
 colnames(dt)
@@ -21,9 +22,10 @@ test <- test[c(-1:-2,-3)]
 library(rms)
 dd <- datadist(train) ## 设置数据环境
 options(datadist = "dd")
-
+train$Y <- factor(train$Y)
 # 拟合模型
-fit1 <- glm(Y ~ .,  data = train, family = "binomial")
+fit1 <- glm(Y ~ original_gldm_DependenceEntropy+log.sigma.5.0.mm.3D_firstorder_Energy+wavelet.LHL_glrlm_GrayLevelNonUniformity,
+            data = train, family = "binomial")
 fit2 <- step(fit1)
 summary(fit2)
 1 / exp(coef(fit2))
@@ -33,6 +35,7 @@ pred.logit2 <- predict(fit2)
 P2 <- predict(fit2, type = "response")
 
 m <- NROW(train) / 5
+m
 Ca1 <- val.prob(P2, train$Y, m = m, cex = 0.8) # 预测概率与真实值进行矫正
 
 # 验证集
@@ -46,7 +49,6 @@ Ca1 <- val.prob(P3, test$Y, m = m, cex = 0.8)
 
 paste0(colnames(train),collapse = "+")
 str(train)
-train$Y <- factor(train$Y)
 library(cutoff)
 logit(data=train,
       y='Y',
@@ -66,7 +68,8 @@ dt$wavelet.LHL_glrlm_GrayLevelNonUniformity <- cut(dt$wavelet.LHL_glrlm_GrayLeve
 dt$wavelet.LHH_gldm_GrayLevelNonUniformity <- cut(dt$wavelet.LHH_gldm_GrayLevelNonUniformity, breaks = c(-Inf, 0.08, Inf), labels = c("1", "2"), right = FALSE)
 write.csv(dt, "C:/Users/wane199/Desktop/EP/REFER/BLS/KAI/process_rad_lat_7_factor.csv", row.names = FALSE)
 
-fit <- rms::lrm(Y ~ ., data = train, x=T, y=T)
+fit <- rms::lrm(Y ~ original_gldm_DependenceEntropy+log.sigma.5.0.mm.3D_firstorder_Energy+wavelet.LHL_glrlm_GrayLevelNonUniformity, 
+                data = train) # , x=T, y=T
 fit
 fit$stats # Brier score: 衡量了预测概率与实际概率之间的差异，取值范围在0-1之间，数值越小表示校准度越好。
 
