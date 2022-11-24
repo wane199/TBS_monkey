@@ -1,7 +1,7 @@
 # binomial classification nomogram-LR
 rm(list = ls())
 options(digits=3) # 限定输出小数点后数字的位数为3位
-dt <- read.csv("C:/Users/wane199/Desktop/EP/REFER/BLS/KAI/process_rad_lat_7_factor.csv")
+dt <- read.csv("C:/Users/wane199/Desktop/EP/REFER/BLS/KAI/process_rad_lat_7.csv")
 str(dt) ## 查看每个变量结构
 summary(dt)
 colnames(dt)
