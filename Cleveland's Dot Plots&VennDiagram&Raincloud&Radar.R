@@ -89,74 +89,39 @@ ggdotchart(df2,
   ggtheme = theme_pubclean()
 )
 
-
+# VennDiagram的韦恩图绘制及交集元素的提取(https://www.jianshu.com/p/b5a4c40c3a33)
+# VennDiagram包中的函数venn.diagram()，可以直接基于原始数据自动统计并绘制Venn图
 # Load library
 library(VennDiagram)
 # Generate 3 sets of 200 words
-set1 <- paste(rep("word_", 200), sample(c(1:1000), 200, replace = F), sep = "")
-set2 <- paste(rep("word_", 200), sample(c(1:1000), 200, replace = F), sep = "")
-set3 <- paste(rep("word_", 200), sample(c(1:1000), 200, replace = F), sep = "")
+#读入作图文件，all.txt即上述提到的记录group1-4的元素名称的文件
+dat <- read.table("C:\\Users\\wane199\\Desktop\\EP\\REFER\\BLS\\KAI\\coef.venn.csv", header = TRUE, sep = ',', stringsAsFactors = FALSE, check.names = FALSE)
 
-# Chart
-venn.diagram(
-  x = list(set1, set2, set3),
-  category.names = c("Set 1", "Set 2 ", "Set 3"),
-  filename = "#14_venn_diagramm.png",
-  output = TRUE
-)
+#以2个分组为例
+#指定统计的分组列，并设置作图颜色、字体样式等
+venn_list <- list(group1 = dat$Lasso, group2 = dat$Boruta)
 
-# Load library
-# Generate 3 sets of 200 words
-set1 <- paste(rep("word_", 200), sample(c(1:1000), 200, replace = F), sep = "")
-set2 <- paste(rep("word_", 200), sample(c(1:1000), 200, replace = F), sep = "")
-set3 <- paste(rep("word_", 200), sample(c(1:1000), 200, replace = F), sep = "")
+venn.diagram(venn_list, filename = 'venn7.png', imagetype = 'png', category.names = c("Lasso", "Boruta"),
+             fill = c('grey', 'pink'), alpha = 0.50, cat.col = rep('black', 2), 
+             col = 'black', cex = 1.0, fontfamily = 'serif',lwd = 0.3,
+             cat.cex = 1.0, cat.fontfamily = 'serif')
+#继续以上述分组为例，组间交集元素获得
+inter <- get.venn.partitions(venn_list)
+for (i in 1:nrow(inter)) inter[i,'values'] <- paste(inter[[i,'..values..']], collapse = ', ')
+write.csv(inter[-c(3, 4)], 'C:\\Users\\wane199\\Desktop\\EP\\REFER\\BLS\\KAI\\venn_inter.csv', row.names = FALSE)
 
-# Prepare a palette of 3 colors with R colorbrewer:
-library(RColorBrewer)
-myCol <- brewer.pal(3, "Pastel2")
-
-# Chart
-venn.diagram(
-  x = list(set1, set2, set3),
-  category.names = c("Set 1", "Set 2 ", "Set 3"),
-  filename = "venn_diagramm.png",
-  output = TRUE,
-
-  # Output features
-  imagetype = "png",
-  height = 480,
-  width = 480,
-  resolution = 300,
-  compression = "lzw",
-
-  # Circles
-  lwd = 2,
-  lty = "blank",
-  fill = myCol,
-
-  # Numbers
-  cex = .6,
-  fontface = "bold",
-  fontfamily = "sans",
-
-  # Set names
-  cat.cex = 0.6,
-  cat.fontface = "bold",
-  cat.default.pos = "outer",
-  cat.pos = c(-27, 27, 135),
-  cat.dist = c(0.055, 0.055, 0.085),
-  cat.fontfamily = "sans",
-  rotation = 1
-)
 
 # https://blog.csdn.net/weixin_41929524/article/details/86436232
 library(eulerr)
-
 v <- euler(c(
   TLE = 220, MRIneg = 98,
   "TLE&MRIneg" = 20
 ))
 
+v <- euler(c(
+  Boruta = 52,  Lasso = 14,
+  "Boruta&Lasso" = 7
+))
 par(cex.axis = 5.0)
 plot(v,
   fills = list(fill = c("#b3cde3", "#fbb4ae", "#ccebc5"), alpha = 0.8),

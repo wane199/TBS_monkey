@@ -26,7 +26,7 @@ source("./EP/EP_Cox_Nomo/DCA/dca.r") # 执行DCA的脚本
 dt1 <- read.csv("/home/wane/Desktop/EP/Structured_Data/Task2/TLE234group.csv")
 dt <- read.csv("/home/wane/Desktop/EP/Structured_Data/PT_radiomic_features_temporal_ind2.csv")
 dt0 <- read.csv("C:/Users/wane199/Desktop/EP/Structured_Data/PET-TLE234-radscore-RCS2.csv")
-dt0 <- read.csv("/home/wane/Desktop/EP/REFER/BLS/KAI/process_group_TLE_con_nor_radiomics.csv")
+dt0 <- read.csv("C:\\Users\\wane199\\Desktop\\EP\\REFER\\BLS\\KAI\\process_group_TLE_con_nor_radiomics.csv")
 dt0 <- dt0[c(-1)]
 # dt1 <- read_excel("/home/wane/Desktop/EP/Structured_Data/Task2/TLE234group.xlsx")
 
@@ -46,15 +46,36 @@ test <- cbind(test[, 2], test_normal)
 colnames(train)[1] <- "oneyr"
 colnames(test)[1] <- "oneyr"
 
-# 利用Boruta函数进行特征选取
+# 利用Boruta函数进行特征选取(https://www.bilibili.com/read/cv16113254)
 Boruta(Y ~ ., data = train, doTrace = 2) -> Bor.train
 # random forest with selected variables
 getConfirmedFormula(Bor.train) # 确认为重要的变量（绿色）
 getNonRejectedFormula(Bor.train) # 没有被拒绝的变量（绿色+黄色）
 print(Bor.train)
-plot(Bor.train) # Shows important bands
+boruta.df <- attStats(Bor.train)
+class(boruta.df)
+print(boruta.df)
+write.csv(boruta.df,'C:\\Users\\wane199\\Desktop\\EP\\REFER\\BLS\\KAI\\boruta_import.csv')
+
+plot(Bor.train, xlab = "", xaxt = "n") # Shows important bands
+lz<-lapply(1:ncol(Bor.train$ImpHistory),function(i)
+          Bor.train$ImpHistory[is.finite(Bor.train$ImpHistory[,i]),i])
+names(lz) <- colnames(Bor.train$ImpHistory)
+Labels <- sort(sapply(lz,median))
+axis(side = 1,las=2,labels = names(Labels),
+     at = 1:ncol(Bor.train$ImpHistory), cex.axis = 0.7)
+
 plot(Bor.train, sort = FALSE)
 plotImpHistory(Bor.train)
+
+# Rough fix of Tentative attributes
+final.boruta <- TentativeRoughFix(Bor.train)
+print(final.boruta)
+getSelectedAttributes(final.boruta, withTentative = F)
+boruta.df <- attStats(final.boruta)
+class(boruta.df)
+print(boruta.df)
+
 
 ## Prediction & Confusion Matrix,模型验证
 # 运用训练集构建随机森林模型
