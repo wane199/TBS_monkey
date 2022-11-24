@@ -1,7 +1,7 @@
 # binomial classification nomogram-LR
 rm(list = ls())
 options(digits=3) # 限定输出小数点后数字的位数为3位
-dt <- read.csv("C:/Users/wane199/Desktop/EP/Structured_Data/process_PT-22.csv")
+dt <- read.csv("C:/Users/wane199/Desktop/EP/REFER/BLS/KAI/process_rad_lat_7_factor.csv")
 str(dt) ## 查看每个变量结构
 summary(dt)
 colnames(dt)
@@ -12,6 +12,11 @@ ind <- sample(2, nrow(dt), replace = TRUE, prob = c(0.7, 0.3))
 train <- dt[ind == 1, ] # the training data set
 # 测试集
 test <- dt[ind == 2, ] # the test data set
+
+train <- subset(dt, dt$Group == "Training")
+test <- subset(dt, dt$Group == "Test")
+train <- train[c(-1:-2,-3)]
+test <- test[c(-1:-2,-3)]
 
 library(rms)
 dd <- datadist(train) ## 设置数据环境
@@ -30,7 +35,38 @@ P2 <- predict(fit2, type = "response")
 m <- NROW(train) / 5
 Ca1 <- val.prob(P2, train$Y, m = m, cex = 0.8) # 预测概率与真实值进行矫正
 
-fit <- lrm(Y ~ .,  data = train)
+# 验证集
+# logit P 计算
+pred.logit3 <- predict(fit2, newdata = test)
+# 预测概率P
+P3 <- predict(fit1, type = "response", newdata = test)
+m <- NROW(test) / 5
+Ca1 <- val.prob(P3, test$Y, m = m, cex = 0.8) 
+# 预测概率与真实值进行矫正
+
+paste0(colnames(train),collapse = "+")
+str(train)
+train$Y <- factor(train$Y)
+library(cutoff)
+logit(data=train,
+      y='Y',
+      x='.',
+      cut.numb=1,
+      n.per=0.25,
+      y.per=0.25)
+
+# 采用cut函数, 连续变量处理成分类变量(训练集的cutoff应用于全数据(验证集))
+str(dt)
+dt$original_firstorder_Mean <- cut(dt$original_firstorder_Mean, breaks = c(-Inf, -0.037, Inf), labels = c("1", "2"), right = FALSE)
+dt$original_gldm_DependenceEntropy <- cut(dt$original_gldm_DependenceEntropy, breaks = c(-Inf, -0.079, Inf), labels = c("1", "2"), right = FALSE)
+dt$log.sigma.5.0.mm.3D_firstorder_Energy <- cut(dt$log.sigma.5.0.mm.3D_firstorder_Energy, breaks = c(-Inf, -0.373, Inf), labels = c("1", "2"), right = FALSE)
+dt$log.sigma.5.0.mm.3D_firstorder_Mean <- cut(dt$log.sigma.5.0.mm.3D_firstorder_Mean, breaks = c(-Inf, 0.01, Inf), labels = c("1", "2"), right = FALSE)
+dt$log.sigma.5.0.mm.3D_firstorder_TotalEnergy <- cut(dt$log.sigma.5.0.mm.3D_firstorder_TotalEnergy, breaks = c(-Inf, -0.373, Inf), labels = c("1", "2"), right = FALSE)
+dt$wavelet.LHL_glrlm_GrayLevelNonUniformity <- cut(dt$wavelet.LHL_glrlm_GrayLevelNonUniformity, breaks = c(-Inf, -0.06, Inf), labels = c("1", "2"), right = FALSE)
+dt$wavelet.LHH_gldm_GrayLevelNonUniformity <- cut(dt$wavelet.LHH_gldm_GrayLevelNonUniformity, breaks = c(-Inf, 0.08, Inf), labels = c("1", "2"), right = FALSE)
+write.csv(dt, "C:/Users/wane199/Desktop/EP/REFER/BLS/KAI/process_rad_lat_7_factor.csv", row.names = FALSE)
+
+fit <- lrm(Y ~ ., data = train)
 fit
 fit$stats # Brier score: 衡量了预测概率与实际概率之间的差异，取值范围在0-1之间，数值越小表示校准度越好。
 
@@ -123,7 +159,6 @@ as.matrix(roc.result)
 library(modEvA)
 aupr <- AUC(obs = trainingset$Y, pred = pre, interval = 0.001,
   curve = "PR", method = "trapezoid", simplif = F, main = "PR curve")
-
 
 # DCA & CIC
 library(rmda)
