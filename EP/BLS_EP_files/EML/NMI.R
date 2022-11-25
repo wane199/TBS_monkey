@@ -1,11 +1,12 @@
 # An interpretable mortality prediction model for COVID-19 patients(nature machine intelligence)
 # install.packages("treeheatr")
 rm(list = ls())
+options(digits=3) # 限定输出小数点后数字的位数为3位
 library(treeheatr)
 
 dt <- read.csv("C:\\Users\\wane199\\Desktop\\EP\\Structured_Data\\process_PT-22.csv")
 dt <- read.csv("/media/wane/Data/CN_PET_csv/CN_PET_dataset.csv")
-dt <- read.csv("/home/wane/Desktop/BLS-ep-pre/EP/REFER/BLS/KAI/process_rad_lat_14.csv")
+dt <- read.csv("/home/wane/Desktop/EP/REFER/BLS/KAI/process_rad_lat_7.csv")
 
 str(dt) ## 查看每个变量结构
 summary(con)
@@ -20,21 +21,65 @@ dt <- mutate(dt[, 1:3], dtx)
 table(dt$oneyr)
 train <- subset(dt, dt$Group == "Training")
 test <- subset(dt, dt$Group == "Test")
-train <- train[c(-1:-2,-4)]
-heat_tree(train, target_lab = "Y", task = 'classification')
+train <- train[c(-1:-2,-3)]
+heat_tree(train, target_lab = "Y", task = 'classification', label_map = c(`1` = 'TLE', `0` = 'CN'),
+          terminal_vars = NULL, tree_space_bottom = 0)
 
 # 任意修改图片颜色
-heat_tree(train, target_lab = "Y",
+heat_tree(train, target_lab = "Y", label_map = c(`1` = 'TLE', `0` = 'CN'),
           target_cols = c("royalblue1", "palegreen3")) # 修改颜色
 # 选择将变量全部在热图中展示
 heat_tree(train, target_lab = "Y",
           show_all_feats = TRUE)
 # 各个分类组别之间的距离加宽一些
-heat_tree(dt, target_lab = "Y",
+heat_tree(train, target_lab = "Y",
           panel_space = 0.03)   # 调整组别间的距离
 # 只想要决策树，也可以去掉热图部分图片： 
 heat_tree(dt, target_lab = "oneyr",show_all_feats = TRUE,
           show = "heat-only")  # 只显示决策树/热图show = "heat-tree",
+# Explore treeheatr
+heat_tree(
+  train, target_lab = 'Y', label_map = c(`1` = 'TLE', `0` = 'CN'),
+  target_cols = c('#E69F00', '#56B4E9', '#009E73'),
+  # moving node 3 a bit to the left:
+  # custom_layout = data.frame(id = 3, x = 0.1, y = 0.5), 
+  show_all_feats = TRUE,
+  panel_space = 0.01, target_space = 0.02, tree_space_bottom = 0.03, heat_rel_height = 0.3)
+
+heat_tree(
+  train, target_lab = 'Y', label_map = c(`1` = 'TLE', `0` = 'CN'),
+  par_node_vars = list(
+    label.size = 0.2,
+    label.padding = ggplot2::unit(0.1, 'lines'),
+    line_list = list(
+      ggplot2::aes(label = paste('Node', id)),
+      ggplot2::aes(label = splitvar),
+      ggplot2::aes(label = paste('p =', formatC(p.value, format = 'e', digits = 2)))),
+    line_gpar = list(
+      list(size = 8),
+      list(size = 8),
+      list(size = 6)),
+    id = 'inner'),
+  terminal_vars = list(size = 0),
+  cont_legend = TRUE, cate_legend = TRUE,
+  edge_vars = list(size = 1, color = 'grey'))
+
+heat_tree(train, target_lab = 'Y', feats = NA, label_map = c(`1` = 'TLE', `0` = 'CN'),
+          heat_rel_height = 0.1)
+
+# Pre-train your tree
+# build tree using rpart:
+train$Y <- factor(train$Y)
+x <- partykit::as.party(rpart::rpart(Y ~ ., data = train))
+x <- partykit::ctree(Y ~ ., data = train)
+heat_tree(x = x, label_map = c(`1` = 'TLE', `0` = 'CN'))
+# Apply the learned tree on external/holdout/test/validation dataset
+heat_tree(
+  x = x,
+  data_test = test,
+  target_lab = 'Y',
+  label_map = c(`1` = 'TLE', `0` = 'CN'),
+  lev_fac = 3)
 
 # change-in-estimate(https://mp.weixin.qq.com/s?__biz=MzIzMzc1ODc4OA==&mid=2247485666&idx=1&sn=f28aff82d66af79d099f237e8e302f89&chksm=e88181c9dff608df3a55a831f6d7dbcce32a29cb1f52ae16bf994c4585b06a52d1013084af29&mpshare=1&scene=24&srcid=1108Gz1ANkBpbNLK03j9kR93&sharer_sharetime=1667838586772&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
 library(chest)

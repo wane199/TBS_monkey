@@ -24,7 +24,7 @@ dd <- datadist(train) ## 设置数据环境
 options(datadist = "dd")
 train$Y <- factor(train$Y)
 # 拟合模型
-fit1 <- glm(Y ~ original_gldm_DependenceEntropy+log.sigma.5.0.mm.3D_firstorder_Energy+wavelet.LHL_glrlm_GrayLevelNonUniformity,
+fit1 <- glm(Y ~ original_gldm_DependenceEntropy+log.sigma.5.0.mm.3D_firstorder_Energy+wavelet.LHL_glrlm_GrayLevelNonUniformity, # original_gldm_DependenceEntropy+log.sigma.5.0.mm.3D_firstorder_Energy+log.sigma.5.0.mm.3D_firstorder_Mean+wavelet.LHL_glrlm_GrayLevelNonUniformity
             data = train, family = "binomial")
 fit2 <- step(fit1)
 summary(fit2)
@@ -68,7 +68,7 @@ dt$wavelet.LHL_glrlm_GrayLevelNonUniformity <- cut(dt$wavelet.LHL_glrlm_GrayLeve
 dt$wavelet.LHH_gldm_GrayLevelNonUniformity <- cut(dt$wavelet.LHH_gldm_GrayLevelNonUniformity, breaks = c(-Inf, 0.08, Inf), labels = c("1", "2"), right = FALSE)
 write.csv(dt, "C:/Users/wane199/Desktop/EP/REFER/BLS/KAI/process_rad_lat_7_factor.csv", row.names = FALSE)
 
-fit <- rms::lrm(Y ~ original_gldm_DependenceEntropy+log.sigma.5.0.mm.3D_firstorder_Energy+wavelet.LHL_glrlm_GrayLevelNonUniformity, 
+fit <- rms::lrm(Y ~ original_gldm_DependenceEntropy+log.sigma.5.0.mm.3D_firstorder_Energy+wavelet.LHL_glrlm_GrayLevelNonUniformity, # original_gldm_DependenceEntropy+log.sigma.5.0.mm.3D_firstorder_Energy+wavelet.LHL_glrlm_GrayLevelNonUniformity 
                 data = train) # , x=T, y=T
 fit
 fit$stats # Brier score: 衡量了预测概率与实际概率之间的差异，取值范围在0-1之间，数值越小表示校准度越好。
@@ -87,6 +87,10 @@ plot(nomogram)
 train$sex <- factor(train$sex,
                           levels = c(1, 0),
                           labels = c("Male", "Female")
+)
+train$sex <- factor(train$sex,
+                    levels = c(1, 0),
+                    labels = c("Male", "Female")
 )
 # 设置变量的名称
 label(trainingset$sex) <- "Gender"
@@ -107,8 +111,6 @@ plot(nom,
      conf.space = c(0.1, 0.5) # 设置置信区间条位置
 )
 
-library(regplot)
-regplot(fit, observation = train[10,], interval = "confidence")
 # 彩色条带式静态诺莫图
 library(VRPM)
 col <- glm(Y ~ .,  data = train, family = "binomial")
@@ -118,7 +120,6 @@ outnames=colnames(fitted(col))
 labels=c(paste("Linear predictor for",outnames[-1]),paste
          ("Predicted chance of being",outnames))
 colplot(col,coloroptions=3,risklabel=labels,filename="div")
-
 
 library(shinyPredict)
 getwd()
@@ -130,11 +131,12 @@ shinyPredict(
   shinytheme = "journal"
 )
 
+# 示例展示nomogram
 library(regplot)
 regplot(fit, # 模型名称
         odds = T, # 设置OR显示
-        title = "Nomogram for Fracture Risk at CKD",
-        observation = trainingset[1, ], # 指定观测值
+        title = "Nomogram for TLE Classification",
+        observation = train[1, ], # 指定观测值
         interval = "confidence", points = TRUE
 ) # 最大刻度100
 
@@ -142,7 +144,7 @@ regplot(fit, # 模型名称
 # https://mp.weixin.qq.com/s?__biz=MzU4OTc0OTg2MA==&mid=2247497910&idx=1&sn=350a4d6c689462d7337e04455912c8ce&chksm=fdca73bdcabdfaab401fab2a00a9a24a60e7e706675b774bd3d866f6c884cfc80c7a478e7403&mpshare=1&scene=1&srcid=0607mDKXD346ABXXHRc5Sn6I&sharer_sharetime=1654698032379&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd
 # ROC曲线及PR曲线
 pre <- predict(fit1, type = "response") # 预测概率，预测分类(class)
-pro <- predict(fit1, type = "prob") # 预测概率，预测分类(class)
+pro <- predict(fit1, type = "terms") # 预测概率，预测分类(class)
 pre
 library(pROC)
 plot.roc(train$Y, pre,
@@ -152,15 +154,26 @@ plot.roc(train$Y, pre,
          thresholds = "best",
          print.thres = "best"
 )
-rocplot1 <- roc(trainingset$Y, pre)
+rocplot1 <- roc(train$Y, pre)
 auc(rocplot1)
 ci.auc(rocplot1)
 # ROC详细结果
 roc.result <- coords(rocplot1, "best", ret = "all", transpose = F)
 as.matrix(roc.result)
+
+# ROC曲线及PR曲线
+pre1 <- predict(fit1, type = "response", newdata = test) # 预测概率，预测分类(class)
+plot.roc(test$Y, pre1,
+         main = "ROC curve in Test set", percent = TRUE,
+         print.auc = TRUE,
+         ci = TRUE, of = "thresholds",
+         thresholds = "best",
+         print.thres = "best"
+)
+
 # PR curve
 library(modEvA)
-aupr <- AUC(obs = trainingset$Y, pred = pre, interval = 0.001,
+aupr <- AUC(obs = train$Y, pred = pre, interval = 0.001,
   curve = "PR", method = "trapezoid", simplif = F, main = "PR curve")
 
 # DCA & CIC
@@ -178,7 +191,7 @@ range(d) # Ranges for net benefit
 
 library(rmda)
 set.seed(123)
-baseline.model <- decision_curve(outcome ~ branches + thin + stay,  data = dt,
+baseline.model <- decision_curve(Y ~ .,  data = train,
                                  thresholds = seq(0, .4, by = .001),
                                  bootstraps = 25) #should use more bootstrap replicates in practice!
 
