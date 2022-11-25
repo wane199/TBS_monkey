@@ -1,22 +1,22 @@
-# R语言|平滑曲线与阈值效应分析(一)
 # R语言绘图|2.基于GAMM：分层的平滑曲线怎么画？https://zhuanlan.zhihu.com/p/489149912
 # https://www.bilibili.com/read/cv16417407?spm_id_from=333.999.0.0
 rm(list = ls()) ## 清空当前环境
 options(digits = 3) # 限定输出小数点后数字的位数为3位
 library(mgcv) ## GAMM
+library(writexl)
+library(dplyr)
 library(gamm4)
 library(ggplot2) # 画图
 library(ggthemes) ## ggplot主题
-library(writexl)
-library(dplyr)
+
 theme_set(theme_classic() + theme(legend.position = "bottom"))
 
 # dt <- read.csv("jixian.csv")
-dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\T1_TBV_Sex_1121.csv")
+dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\T1_TBV_1125.csv")
 dt <- read.csv("/Users/mac/Desktop/Nomo-TBS/TBS&Mon/Monkey/QIANG/1030/FDG_1120.csv", fileEncoding = "GBK")
 # TLM <- read_excel("/home/wane/Desktop/TBS/TLMey/BMC.xlsx")
 # 数据探索EDA
-dt <- dt[c(-1, -2)]
+dt <- dt[c(-1, -2, -3)]
 dt$Sex <- as.factor(dt$Sex)
 dt$Side <- as.factor(dt$Side)
 summary(dt)
@@ -25,10 +25,9 @@ str(dt)
 # rcssci(linear models with RCS splines were performed to explore the shape linear or nonlinear(U, inverted U,J,S,L,log,-log,temporary plateau shape)
 library(rcssci)
 rcssci_linear(
-  data = dt, y = "TBV_mm3", x = "Age", covs = c("Sex"), ref.zero = F,
+  data = dt, y = "TBV", x = "Age", covs = c("Sex"), ref.zero = F,
   prob = 0.1, filepath = "C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\"
-) + # 默认prob = 0.5
-  ggplot2::theme_classic()
+) # 默认prob = 0.5   ggplot2::theme_classic()
 
 fml <- "SUVr_whole_refPons ~ s(Age,k=4,fx=FALSE)+factor(Sex)"
 gam1 <- mgcv::gam(formula(fml), weights = dt$weights, data = dt, family = gaussian(link = "identity"))
@@ -56,29 +55,6 @@ plot(gam1, scale = 0, page = 1, shade = TRUE, las = 1, all.terms = TRUE, cex.axi
 AIC(gam1)
 abline(v = 0, col = "blue")
 
-### predict
-pred <- predict.gam(gam1, type = "terms", se.fit = TRUE)
-mfit <- pred$fit[, "s(Age)"]
-sfit <- pred$se.fit[, "s(Age)"]
-mfit <- mfit + (mean(gam1$fitted.values) - mean(mfit)) ### 考虑是随机截距
-dt <- cbind(dt, mfit, sfit)
-
-### 95%CI
-y.low <- dt$mfit - 1.96 * dt$sfit
-y.upp <- dt$mfit + 1.96 * dt$sfit
-dt <- cbind(dt, y.low, y.upp)
-
-### order
-dt <- arrange(dt, Age)
-co <- c(0, 25, 0.2, 0.8) ## 定义坐标
-col <- c("blue", "purple")
-
-plot(dt$mfit ~ dt$Age, ylim = c(co[3], co[4]), xlim = c(co[1], co[2]), col = col[1], type = "l", lty = 1, lwd = 2, ylab = "", xlab = "")
-par(new = TRUE)
-plot(dt$y.low ~ dt$Age, ylim = c(co[3], co[4]), xlim = c(co[1], co[2]), col = col[2], type = "l", lty = 3, lwd = 1, ylab = "", xlab = "")
-par(new = TRUE)
-plot(dt$y.upp ~ dt$Age, ylim = c(co[3], co[4]), xlim = c(co[1], co[2]), col = col[2], type = "l", lty = 3, lwd = 1, ylab = "HB", xlab = "AGE")
-rug(dt$AGE, col = "blue")
 # 广义可加模型gam**
 # https://mp.weixin.qq.com/mp/appmsgalbum?__biz=MzI1NjM3NTE1NQ==&action=getalbum&album_id=2077935014574374912&scene=173&from_msgid=2247485011&from_itemidx=1&count=3&nolastread=1#wechat_redirect
 pr.gam <- predict(gam1, dt) # 生成预测值
@@ -90,12 +66,26 @@ data.frame(
 )
 # 查看模型拟合情况
 ggplot(dt, aes(Age, TBV)) +
-  scale_x_continuous(breaks = seq(0, 30, 2)) +
+  scale_x_continuous(breaks = seq(0, 30, 1)) +
   geom_point() +
-  geom_vline(aes(xintercept = 8.0), linetype = 4, col = "red") +
+  geom_vline(aes(xintercept = 5.0), linetype = 4, col = "red") +
   theme_classic() +
   stat_smooth(method = mgcv::gam, formula = y ~ s(x, k = 5))
 
+dt.summary <- dt %>%
+  group_by(Age,Sex) %>%
+  summarise(
+    sd = sd(TBV),
+    len = mean(TBV)
+  )
+ggplot(dt,aes(x=Age, y=TBV, fill=Sex, colour = Sex, group = Sex, shape = Sex)) + 
+  stat_summary(fun=mean,geom="point",color="black",alpha=1.5,size=3.5,position=position_dodge(0.3)) +
+  geom_jitter(alpha = 0.5, size = 3.0) + 
+  geom_line(aes(x=Age, y=len, group = Sex, linetype = Sex), size = 1.0, data = dt.summary, position=position_dodge(0.3)) + 
+  theme_classic() + theme(plot.title = element_text(size=11)) + # ylim(0.4,1.6) + 
+  xlab('') + ylab(expression(TBV(cm^3))) + theme(plot.title = element_text(hjust = 0.5)) +
+  # rotate_x_text(30) + ylab(expression(BMD(g/cm^2)))
+  theme(axis.text = element_text(size = 8, face = "bold"))
 
 library(ggpmisc)
 library(ggpubr)
@@ -129,7 +119,7 @@ squash_axis <- function(from, to, factor) {
 
 my.formula <- y ~ s(x, k = 6, bs = "cs")
 ggplot(dt, aes(Age, TBV)) + # SUVr_whole_refPons
-  geom_point() +
+  geom_point(alpha = 0.1) +
   stat_cor(aes(), label.x = 3) + 
   stat_smooth(method = mgcv::gam, se = TRUE, formula = my.formula) +
   scale_x_continuous(expand = c(0, 0), breaks = c(0, 1, 3, 5, 13, 20)) + # seq(0, 32, 1)
@@ -144,7 +134,7 @@ ggplot(dt, aes(Age, TBV)) + # SUVr_whole_refPons
 ####################################
 # 分类gam曲线拟合
 ggplot(dt, aes(Age, TBV, colour = Sex)) +
-  geom_point() +
+  geom_point(alpha = 0.1) +
   stat_cor(aes(), label.x = 3) + 
   scale_x_continuous(expand = c(0, 0), breaks = c(0, 1, 3, 5, 13, 20)) + # seq(0, 32, 1)
   scale_y_continuous(expand = c(0, 0)) + # scale_x_log10() +
@@ -346,19 +336,48 @@ cowplot::plot_grid(p1, p2, p3, p4, p5, p6,
   ncol = 3, labels = "AUTO"
 )
 
+##################################################
+# 平滑曲线与阈值效应分析(https://zhuanlan.zhihu.com/p/400169105)
 #### 阈值效应分析
 ## model I 一条直线效应
-fit1 <- lm(Frontal_Cortex ~ Age, data = dt)
+fit1 <- lm(TBV ~ Age, data = dt)
 summary(fit1)
 
 ## model II 分段模型
-fml <- "Age ~ TBV"
-my.formula <- y ~ s(x, k = 3)
-my.formula <- y ~ x + I(x^2) + I(x^3)
-dt$SUVr_whole_refPons
-source("/home/wane/Documents/EP_code/git/Presentation/TBS/Monkey_fitting/get_cutoff_lm.R")
-cut_off <- get_cutoff_lm("Age", dt, fml)
-cut_off
+fml <- TBV ~ s(Age, k = 6, bs = "cs")
+# my.formula <- y ~ x + I(x^2) + I(x^3)
+fml<- "TBV ~ s(Age,fx=FALSE) + Sex"
+gam1<-mgcv::gam(formula(fml),weights=dt$weights,data=dt, family=gaussian(link="identity"))
+
+# 2.3.2 计算拟合值
+pred<-predict.gam(gam1,type="terms",se.fit=TRUE)
+pred$fit
+mfit <- pred$fit[, "s(Age)"]
+sfit <- pred$se.fit[, "s(Age)"]
+mfit <- mfit + (mean(gam1$fitted.values) - mean(mfit)) ### 考虑是随机截距
+dt<-cbind(dt,mfit,sfit)
+
+# 2.3.3 计算95%CI
+y.low <- dt$mfit-1.96*dt$sfit; y.upp<-dt$mfit+1.96*dt$sfit
+dt <- cbind(dt,y.low,y.upp)
+
+# 2.3.4 绘制曲线
+dt <- arrange(dt,Age)
+summary(dt)
+co <- c(0,30,55,75)  ## 定义坐标
+col <- c('blue','purple')
+plot(dt$mfit~dt$Age,ylim=c(co[3],co[4]),xlim=c(co[1],co[2]),col=col[1],las = 1, type="l", lty=1, lwd=2, ylab="", xlab="")
+par(new=TRUE); 
+plot(dt$y.low~dt$Age,ylim=c(co[3],co[4]),xlim=c(co[1],co[2]),col=col[2],las = 1, type="l", lty=3, lwd=1, ylab="", xlab="")
+par(new=TRUE); 
+plot(dt$y.upp~dt$Age,ylim=c(co[3],co[4]),xlim=c(co[1],co[2]),col=col[2],las = 1, type="l", lty=3, lwd=1, ylab='TBV', xlab='Age')
+rug(dt$Age,col='blue')
+
+# 2.4.1 计算拐点
+getwd()
+source("./TBS/Monkey_fitting/get_cutoff_lm.R")
+cut_off <- get_cutoff_lm('Age',dt,fml)
+print(cut_off )
 
 x <- dt[, "Age"]
 X1 <- (x <= cut_off) * (x - cut_off)
@@ -382,7 +401,7 @@ summary(mdl0)
 round(1 - pchisq(2 * (logLik(mdl0)[1] - logLik(mdl2)[1]), 1), 3)
 
 #### 折点作图到图上
-plot(dt$mfit ~ dt$Age, ylim = c(co[3], co[4]), xlim = c(co[1], co[2]), col = col[1], type = "l", lty = 1, lwd = 2, ylab = "", xlab = "")
+plot(dt$mfit ~ dt$Age, ylim = c(co[3], co[4]), xlim = c(co[1], co[2]), col = col[1], type = "l", lty = 1, lwd = 2, las = 1, ylab = "", xlab = "")
 par(new = TRUE)
 plot(dt$y.low ~ dt$Age, ylim = c(co[3], co[4]), xlim = c(co[1], co[2]), col = col[2], type = "l", lty = 3, lwd = 1, ylab = "", xlab = "")
 par(new = TRUE)
@@ -445,3 +464,16 @@ ggplot(Pre1) +
 View(Pre1)
 
 # [非线性拟合及寻找数据拐点](https://www.jianshu.com/p/e8f8f7ec10d2)
+library(ggrcs)
+library(rms)
+library(ggplot2)
+library(scales)
+dt<-smoke
+dd<-datadist(dt)
+options(datadist='dd')
+fit<- cph(Surv(time,status==1) ~ rcs(age,4)+gender, x=TRUE, y=TRUE,data=dt)
+###single group
+ggrcs(data=dt,fit=fit,x="age")
+##two groups
+ggrcs(data=dt,fit=fit,x="age",group="gender")
+
