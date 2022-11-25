@@ -19,9 +19,6 @@ test <- subset(dt, dt$Group == "Test")
 train <- train[c(-1:-2,-3)]
 test <- test[c(-1:-2,-3)]
 
-library(rms)
-dd <- datadist(train) ## 设置数据环境
-options(datadist = "dd")
 train$Y <- factor(train$Y)
 # 拟合模型
 fit1 <- glm(Y ~ original_gldm_DependenceEntropy+log.sigma.5.0.mm.3D_firstorder_Energy+wavelet.LHL_glrlm_GrayLevelNonUniformity, # original_gldm_DependenceEntropy+log.sigma.5.0.mm.3D_firstorder_Energy+log.sigma.5.0.mm.3D_firstorder_Mean+wavelet.LHL_glrlm_GrayLevelNonUniformity
@@ -68,8 +65,11 @@ dt$wavelet.LHL_glrlm_GrayLevelNonUniformity <- cut(dt$wavelet.LHL_glrlm_GrayLeve
 dt$wavelet.LHH_gldm_GrayLevelNonUniformity <- cut(dt$wavelet.LHH_gldm_GrayLevelNonUniformity, breaks = c(-Inf, 0.08, Inf), labels = c("1", "2"), right = FALSE)
 write.csv(dt, "C:/Users/wane199/Desktop/EP/REFER/BLS/KAI/process_rad_lat_7_factor.csv", row.names = FALSE)
 
-fit <- rms::lrm(Y ~ original_gldm_DependenceEntropy+log.sigma.5.0.mm.3D_firstorder_Energy+wavelet.LHL_glrlm_GrayLevelNonUniformity, # original_gldm_DependenceEntropy+log.sigma.5.0.mm.3D_firstorder_Energy+wavelet.LHL_glrlm_GrayLevelNonUniformity 
-                data = train) # , x=T, y=T
+library(rms)
+dd <- datadist(train) ## 设置数据环境
+options(datadist = "dd")
+fit <- lrm(Y ~ original_gldm_DependenceEntropy+log.sigma.5.0.mm.3D_firstorder_Energy+wavelet.LHL_glrlm_GrayLevelNonUniformity, # original_gldm_DependenceEntropy+log.sigma.5.0.mm.3D_firstorder_Energy+wavelet.LHL_glrlm_GrayLevelNonUniformity 
+                data = train, x=T, y=T) # , x=T, y=T
 fit
 fit$stats # Brier score: 衡量了预测概率与实际概率之间的差异，取值范围在0-1之间，数值越小表示校准度越好。
 
@@ -84,13 +84,18 @@ nomogram <- nomogram(fit, # 模型名称
 # 绘制列线图
 plot(nomogram)
 # 设置因子的水平标签
-train$sex <- factor(train$sex,
-                          levels = c(1, 0),
-                          labels = c("Male", "Female")
+str(train)
+train$original_gldm_DependenceEntropy <- factor(train$original_gldm_DependenceEntropy,
+                          levels = c('1', '2'),
+                          labels = c("Low", "High")
 )
-train$sex <- factor(train$sex,
-                    levels = c(1, 0),
-                    labels = c("Male", "Female")
+train$log.sigma.5.0.mm.3D_firstorder_Energy <- factor(train$log.sigma.5.0.mm.3D_firstorder_Energy,
+                                                levels = c('1', '2'),
+                                                labels = c("Low", "High")
+)
+train$wavelet.LHL_glrlm_GrayLevelNonUniformity <- factor(train$wavelet.LHL_glrlm_GrayLevelNonUniformity,
+                                                      levels = c('1', '2'),
+                                                      labels = c("Low", "High")
 )
 # 设置变量的名称
 label(trainingset$sex) <- "Gender"
@@ -101,7 +106,7 @@ label(Affairs$rating) <- "婚姻自我评分"
 nom <- nomogram(fit,
                 fun = plogis, conf.int = c(0.1, 0.7),
                 fun.at = c(.001, .01, .05, seq(.1, .9, by = .1), .95, .99, .999),
-                lp = F, funlabel = "Risk of Fracture"
+                lp = F, funlabel = "Probability of TLE"
 )
 plot(nom,
      lplabel = "Linear Predictor", # 设置线性概率坐标轴名称
@@ -124,20 +129,30 @@ colplot(col,coloroptions=3,risklabel=labels,filename="div")
 library(shinyPredict)
 getwd()
 shinyPredict(
-  models = list("model" = fit1),
+  models = list("model" = fit),
   path = "./EP/BLS_EP_files/EML/shinyapp/", # 需更改为自己的工作路经
-  data = train,
+  data = train[c(1,3,4,7)],
   title = "Predicting TLE probability",
-  shinytheme = "journal"
+  shinytheme = "cerulean"
 )
+
+library(DynNom)
+fit2 <- glm(Y ~ original_gldm_DependenceEntropy+log.sigma.5.0.mm.3D_firstorder_Energy+wavelet.LHL_glrlm_GrayLevelNonUniformity,
+            data = train, family = binomial("probit"))
+DynNom(fit2, DNtitle="Dynamic TLE Prediction App from JNU", DNxlab = "Probability of TLE")
+# covariate = c("slider", "numeric")
+# 设置参数covariate = "numeric"，可以将动态列线图中变量的调整方式从滑块改为输入
+# 生成本地DynNomapp脚本文件
+setwd("./EP/BLS_EP_files/EML/")
+DNbuilder(fit2) ## 生成下图文件于工作目录处
 
 # 示例展示nomogram
 library(regplot)
 regplot(fit, # 模型名称
         odds = T, # 设置OR显示
         title = "Nomogram for TLE Classification",
-        observation = train[1, ], # 指定观测值
-        interval = "confidence", points = TRUE
+        observation = train[10, ], # 指定观测值
+        interval = "confidence", points = TRUE, xfrac=3.95
 ) # 最大刻度100
 
 # 常见列线图的绘制及自定义美化详细教程

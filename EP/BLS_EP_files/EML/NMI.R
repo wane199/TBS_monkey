@@ -4,7 +4,7 @@ rm(list = ls())
 options(digits=3) # 限定输出小数点后数字的位数为3位
 library(treeheatr)
 
-dt <- read.csv("C:\\Users\\wane199\\Desktop\\EP\\Structured_Data\\process_PT-22.csv")
+dt <- read.csv("C:\\Users\\wane199\\Desktop\\EP\\REFER\\BLS\\KAI\\process_rad_lat_7.csv")
 dt <- read.csv("/media/wane/Data/CN_PET_csv/CN_PET_dataset.csv")
 dt <- read.csv("/home/wane/Desktop/EP/REFER/BLS/KAI/process_rad_lat_7.csv")
 
