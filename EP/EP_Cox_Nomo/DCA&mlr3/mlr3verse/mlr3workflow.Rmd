@@ -1,12 +1,9 @@
 ---
 title: "R机器学习：mlr3verse核心工作流"
-subtitle: "第15届 &nbsp; 中国R会（北京）"
 author: "张敬信 &nbsp; 博士，副教授"
-institute: "哈尔滨商业大学 &nbsp; 数学与应用数学系"
 date: "2022年11月23日"
-fontsize: 11pt
-output: 
-  beamer_presentation: 
+output:
+  beamer_presentation:
     citation_package: natbib
     theme: metropolis
     fonttheme: structurebold
@@ -17,20 +14,25 @@ output:
     latex_engine: xelatex
     slide_level: 2
     toc: no
-section-titles: true
-indent: true
+  ioslides_presentation:
+    incremental: no
+subtitle: 第15届 &nbsp; 中国R会（北京）
+fontsize: 11pt
+institute: 哈尔滨商业大学 &nbsp; 数学与应用数学系
+section-titles: yes
+indent: yes
 header-includes:
-    - \usepackage[fontset = windows]{ctex}
-    - \usepackage{wrapfig}
-    - # \usepackage[default]{sourcesanspro}
-    - # \usepackage[scale=.9]{sourcecodepro}
-keywords: "mlr3verse, machine learning, R"    
+- \usepackage[fontset = windows]{ctex}
+- \usepackage{wrapfig}
+- ~
+- ~
+keywords: mlr3verse, machine learning, R
 bibliography: refer.bib
 biblio-style: apalike
 link-citations: yes
 colorlinks: yes
 linkcolor: ForestGreen
-classoption: "dvipsnames,UTF8"
+classoption: dvipsnames,UTF8
 ---
 
 ```{r setup, include=FALSE}
