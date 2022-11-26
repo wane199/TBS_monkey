@@ -124,7 +124,7 @@ ggplot(dt, aes(Age, TBV)) + # SUVr_whole_refPons
   stat_smooth(method = mgcv::gam, se = TRUE, formula = my.formula) +
   scale_x_continuous(expand = c(0, 0), breaks = c(0, 1, 3, 5, 13, 20)) + # seq(0, 32, 1)
   scale_y_continuous(expand = c(0, 0)) + # scale_x_log10() +
-  coord_trans(x = squash_axis(0, 5, 0.40)) + geom_vline(aes(xintercept=5),colour="#990000",linetype="dashed") +
+  coord_trans(x = squash_axis(0, 5, 0.40)) + geom_vline(xintercept=5,colour="lightgrey",linetype="dashed") + geom_vline(xintercept=7.5,colour="#990000",linetype="dashed") + 
   theme(
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"), legend.position = "bottom",
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
@@ -371,12 +371,15 @@ par(new=TRUE);
 plot(dt$y.low~dt$Age,ylim=c(co[3],co[4]),xlim=c(co[1],co[2]),col=col[2],las = 1, type="l", lty=3, lwd=1, ylab="", xlab="")
 par(new=TRUE); 
 plot(dt$y.upp~dt$Age,ylim=c(co[3],co[4]),xlim=c(co[1],co[2]),col=col[2],las = 1, type="l", lty=3, lwd=1, ylab='TBV', xlab='Age')
+## 绘制一条水平线和垂直线，并指定颜色
+abline(v = 7.5, col = "lightgray", lty = 3) # col = "gray60"
 rug(dt$Age,col='blue')
 
 # 2.4.1 计算拐点
 getwd()
 source("./TBS/Monkey_fitting/get_cutoff_lm.R")
 cut_off <- get_cutoff_lm('Age',dt,fml)
+cut_off = 7.5
 print(cut_off )
 
 x <- dt[, "Age"]
@@ -384,9 +387,9 @@ X1 <- (x <= cut_off) * (x - cut_off)
 X2 <- (x > cut_off) * (x - cut_off)
 dt1 <- cbind(dt, x, X1, X2)
 
-mdl0 <- glm(Frontal_Cortex ~ x + X2, family = "gaussian", data = dt1)
-mdl1 <- glm(Frontal_Cortex ~ X1 + X2, family = "gaussian", data = dt1)
-mdl2 <- glm(Frontal_Cortex ~ x, family = "gaussian", data = dt1)
+mdl0 <- glm(TBV ~ x + X2, family = "gaussian", data = dt1)
+mdl1 <- glm(TBV ~ X1 + X2, family = "gaussian", data = dt1)
+mdl2 <- glm(TBV ~ x, family = "gaussian", data = dt1)
 #### model I 一条直线效应(线性回归)
 summary(mdl2)
 #### 折点
@@ -403,10 +406,10 @@ round(1 - pchisq(2 * (logLik(mdl0)[1] - logLik(mdl2)[1]), 1), 3)
 #### 折点作图到图上
 plot(dt$mfit ~ dt$Age, ylim = c(co[3], co[4]), xlim = c(co[1], co[2]), col = col[1], type = "l", lty = 1, lwd = 2, las = 1, ylab = "", xlab = "")
 par(new = TRUE)
-plot(dt$y.low ~ dt$Age, ylim = c(co[3], co[4]), xlim = c(co[1], co[2]), col = col[2], type = "l", lty = 3, lwd = 1, ylab = "", xlab = "")
+plot(dt$y.low ~ dt$Age, ylim = c(co[3], co[4]), xlim = c(co[1], co[2]), col = col[2], type = "l", lty = 3, lwd = 1, las = 1, ylab = "", xlab = "")
 par(new = TRUE)
-plot(dt$y.upp ~ dt$Age, ylim = c(co[3], co[4]), xlim = c(co[1], co[2]), col = col[2], type = "l", lty = 3, lwd = 1, ylab = "Frontal_Cortex", xlab = "Age")
-rug(dt$AGE, col = "blue")
+plot(dt$y.upp ~ dt$Age, ylim = c(co[3], co[4]), xlim = c(co[1], co[2]), col = col[2], type = "l", lty = 3, lwd = 1, las = 1, ylab = "TBV", xlab = "Age")
+rug(dt$Age, col = "blue")
 abline(v = cut_off, col = "black", lty = 2)
 
 #######################################
