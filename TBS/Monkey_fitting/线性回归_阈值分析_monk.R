@@ -12,7 +12,7 @@ library(ggthemes) ## ggplot主题
 theme_set(theme_classic() + theme(legend.position = "bottom"))
 
 # dt <- read.csv("jixian.csv")
-dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\T1_TBV_1125.csv")
+dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\T1_TBV_1127.csv")
 dt <- read.csv("/Users/mac/Desktop/Nomo-TBS/TBS&Mon/Monkey/QIANG/1030/FDG_1120.csv", fileEncoding = "GBK")
 # TLM <- read_excel("/home/wane/Desktop/TBS/TLMey/BMC.xlsx")
 # 数据探索EDA
@@ -139,7 +139,7 @@ ggplot(dt, aes(Age, TBV, colour = Sex)) +
   scale_x_continuous(expand = c(0, 0), breaks = c(0, 1, 3, 5, 13, 20)) + # seq(0, 32, 1)
   scale_y_continuous(expand = c(0, 0)) + # scale_x_log10() +
   stat_smooth(method = mgcv::gam, se = TRUE, formula = my.formula) +
-  coord_trans(x = squash_axis(0, 5, 0.40)) + geom_vline(aes(xintercept=5),colour="#990000",linetype="dashed") +
+  coord_trans(x = squash_axis(0, 5, 0.40)) + geom_vline(aes(xintercept=5),colour="lightgrey",linetype="dashed") + geom_vline(xintercept=7.5,colour="#990000",linetype="dashed") + 
   theme(
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"), legend.position = "bottom",
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
@@ -344,7 +344,7 @@ fit1 <- lm(TBV ~ Age, data = dt)
 summary(fit1)
 
 ## model II 分段模型
-fml <- TBV ~ s(Age, k = 6, bs = "cs")
+fml <- TBV ~ s(Age, k = 15, bs = "cs")
 # my.formula <- y ~ x + I(x^2) + I(x^3)
 fml<- "TBV ~ s(Age,fx=FALSE) + Sex"
 gam1<-mgcv::gam(formula(fml),weights=dt$weights,data=dt, family=gaussian(link="identity"))

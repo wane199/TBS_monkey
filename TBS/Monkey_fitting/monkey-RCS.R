@@ -18,14 +18,14 @@ TLM <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/CAI/1028/mus.csv")
 TLM <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\T1_hemi.csv", fileEncoding = "GBK")
 library(gt)
 library(dplyr)
-TLM %>%
+dt %>%
   slice_head(n = 4) %>%
   gt() # print output using gt
-glimpse(TLM)
+glimpse(dt)
 library(visdat)
-vis_dat(TLM, palette = "qual") # cb_safe
+vis_dat(dt, palette = "qual") # cb_safe
 
-TLM %>%
+dt %>%
   count(Age,
     sort = TRUE
   )
@@ -116,18 +116,18 @@ p1 <- ggplot(dt, aes(Age, TBV)) +
   stat_smooth(method = lm, formula = y ~ x)
 p1
 # 建立曲线方程(log,exp)
-model.log <- lm(TLM ~ log(LM_L3), data = TLM) # 建立对数曲线方程
+model.log <- lm(TBV ~ log(Age), data = dt) # 建立对数曲线方程
 summary(model.log) # 查看模型概况
 # 拟合曲线
-p2 <- ggplot(TLM, aes(LM_L3, TLM)) +
+p2 <- ggplot(dt, aes(Age, TBV)) +
   geom_point() +
   theme_classic() +
   stat_smooth(method = lm, formula = y ~ log(x))
 p2
-model.log10 <- lm(TLM ~ log10(LM_L3), data = TLM) # 建立指数曲线方程
+model.log10 <- lm(TBV ~ log2(Age), data = dt) # 建立指数曲线方程
 summary(model.log10) # 查看模型概况
 # 拟合曲线
-ggplot(TLM, aes(LM_L3, TLM)) +
+ggplot(dt, aes(Age, TBV)) +
   geom_point() +
   stat_smooth(method = lm, formula = y ~ log10(x))
 
@@ -136,6 +136,7 @@ ggplot(TLM, aes(LM_L3, TLM)) +
 library(segmented)
 model.segmented <- segmented(model.lm) # 构建分段回归模型
 summary(model.segmented) # 查看模型概况
+slope(model.segmented) #the slopes of the segmented relationship
 # 查看拟合效果
 plot(dt$Age, dt$TBV, pch = 1, cex = 1.5)
 abline(a = coef(model.lm)[1], b = coef(model.lm)[2], col = "red", lwd = 2.5)
@@ -158,15 +159,17 @@ p3 <- p + theme_classic() +
 p3
 
 # 手动设置拐点，分三段回归
-model.segmented2 <- segmented(model.lm, psi = c(4, 12)) # 构建分段回归模型
+model.segmented2 <- segmented(model.lm, seg.Z=~Age) # 构建分段回归模型
 summary(model.segmented2) # 查看模型概况
+model.segmented3 <- segmented(model.lm, psi = c(5, 24.5)) # 构建分段回归模型
+summary(model.segmented3) # 查看模型概况
 # 查看拟合效果
 plot(TLM$LM_L3, TLM$TLM, pch = 1, cex = 1.5)
 abline(a = coef(model.lm)[1], b = coef(model.lm)[2], col = "red", lwd = 2.5)
 plot(model.segmented2, col = "blue", lwd = 2.5, add = T)
 
 # 样条回归
-model.spline <- lm(TLM$TLM ~ rcs(TLM$LM_L3, 3)) # 建立样条回归，设置3个节点
+model.spline <- lm(dt$TBV ~ rcs(dt$Age, 5)) # 建立样条回归，设置3个节点
 summary(model.spline) # 查看模型概况
 # 样条回归拟合效果
 p4 <- ggplot(TLM, aes(LM_L3, TLM)) +
@@ -175,7 +178,7 @@ p4 <- ggplot(TLM, aes(LM_L3, TLM)) +
   stat_smooth(method = lm, formula = y ~ rcs(x, 3))
 p4
 # Lowess函数建立局部加权回归
-model.lowess <- lowess(TLM$TLM ~ TLM$LM_L3) # 建立局部加权回归
+model.lowess <- lowess(dt$TBV ~ dt$Age) # 建立局部加权回归
 summary(model.lowess) # 查看概况
 # 查看拟合
 p5 <- ggplot(TLM, aes(LM_L3, TLM)) +
@@ -193,7 +196,7 @@ rcssci_linear(
   ggplot2::theme_classic()
 # 广义可加模型gam**
 # https://mp.weixin.qq.com/mp/appmsgalbum?__biz=MzI1NjM3NTE1NQ==&action=getalbum&album_id=2077935014574374912&scene=173&from_msgid=2247485011&from_itemidx=1&count=3&nolastread=1#wechat_redirect
-model.gam <- gam(TBV ~ s(Age), data = dt) # 建立gam模型
+model.gam <- gam(TBV ~ s(Age, k = 7, bs = "cs"), data = dt) # 建立gam模型
 summary(model.gam) # 查看模型概况
 pr.gam <- predict(model.gam, dt) # 生成预测值
 # 计算RSME和R方
@@ -204,13 +207,13 @@ data.frame(
 # 查看模型拟合情况
 library(ggpmisc)
 library(ggpubr)
-my.formula <- y ~ s(x, bs = "cs")
+my.formula <- y ~ s(x, k = 7, bs = "cs")
 p0 <- ggplot(dt, aes(Age, TBV)) +
   geom_point() +
   stat_cor(aes(), label.x = 6) +
   theme_classic() +
   scale_x_continuous(expand = c(0, 0), breaks = seq(0, 27, 1)) +
-  scale_y_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) + geom_vline(xintercept=7.5,colour="#990000",linetype="dashed") + 
   stat_smooth(method = mgcv::gam, se = TRUE, formula = my.formula) +
   theme(
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
