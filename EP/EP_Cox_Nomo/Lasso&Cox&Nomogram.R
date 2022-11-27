@@ -23,7 +23,7 @@ library(My.stepwise)
 # write.csv(dt,"/home/wane/Desktop/EP/结构化数据/TableS1-2.csv", row.names = FALSE)
 dt <- read.csv("/home/wane/Desktop/EP/sci/cph/cph2/Test_MRIneg-78_CSB.csv")
 dt <- read.csv("/Users/mac/Desktop/BLS-ep-pre/EP/sci/cph/TLE234group_factor.csv")
-dt <- read.csv("/media/wane/UNTITLED/sci/cph/TLE234group_factor.csv")
+dt <- read.csv("E:/sci/cph/TLE234group_factor.csv")
 
 table(dt$Freq)
 dt <- dt[c(-1:-3)]
@@ -755,12 +755,31 @@ train <- within(train, {
 })
 model1 <- coxph(Surv(Follow_up_timemon, Rel._in_5yrs == 1) ~ AI_radscore + Lat_radscore + SGS + Durmon, data = train) # SGS + Durmon,
 print(model1, data = train)
-p <- ggforest(model1,
+p <- ggforest(model1, main = "Hazard ratio", refLabel = "reference",
   noDigits = 3, # 保留HR值以及95%CI的小数位数
   data = train
 ) # https://cache.one/read/16896085
 p
 topptx(figure = p, filename = "/home/wane/Desktop/EP/sci/cph/forest.pptx")
+# https://mp.weixin.qq.com/s?__biz=MzkxOTM5MzQwNQ==&mid=2247487676&idx=1&sn=a2e234e965848fb556836ef4743543fe&chksm=c1a395aef6d41cb80528a7e3e9e62801dfe60e5a4e8643e600885aa3c7ed4738e20ce85283f1&mpshare=1&scene=1&srcid=1126sRlXXAsRLniUBTJhn5lp&sharer_sharetime=1669517702780&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd
+library(forplo)
+DT::datatable(train)
+library(autoReg)
+autoReg(model1, uni = T, threshold = 0.1, 
+        final = T) %>% myft()
+forplo(model1,
+       font='Arial',
+       sort = T,
+       # flipbelow1=T,
+       left.align=T,
+       ci.edge= T,
+       scaledot.by=abs(coef(model1)),
+       col = '#BAD1C2',
+       char = 20,
+       shade.every = 1,
+       shade.col = '#FDF0E0',
+       shade.alpha = 0.8
+)
 
 ### 开始cox-nomo graph
 # 设置因子的水平标签(常见列线图的绘制及自定义美化详细教程)

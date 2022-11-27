@@ -464,12 +464,17 @@ class: center, middle
 ![Topic](./images/Circles.png)
 ---
 class: center, middle
-```{r echo=FALSE,out.width="90%"}
+```{r echo=FALSE,out.width="90%",fig.align="center", fig.cap="Multimodal imaging 生态"}
 knitr::include_graphics("./images/MLFan.png")
 ```
 ---
-class: center, middle
+## Rabbit Holes/Pitfalls
 
+---
+class: center, middle
+background-image: url("images/AI_brain.png")
+<!-- background-size: 80% -->
+background-size: 600px
 # THANKS!
 
 Data Source Provided by [Guangdong 999 Brain Hospital](https://www.999brain.com/Default.aspx).
