@@ -12,9 +12,10 @@ library(caret)
 library(readxl)
 library(dlookr)
 library(DataExplorer)
-
+options(digits = 3) # 限定输出小数点后数字的位数为3位
+theme_set(theme_classic() + theme(legend.position = "bottom"))
 # 读取数据
-TLM <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/CAI/1028/mus.csv")
+dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\T1_TBV_1127_summary.csv")
 TLM <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\T1_hemi.csv", fileEncoding = "GBK")
 library(gt)
 library(dplyr)
@@ -26,8 +27,8 @@ library(visdat)
 vis_dat(dt, palette = "qual") # cb_safe
 
 dt %>%
-  count(Age,
-    sort = TRUE
+  count(Age,Sex,
+    sort = F
   )
 # TLM <- read_excel("/home/wane/Desktop/TBS/TLMey/BMC.xlsx")
 # 数据探索
@@ -103,26 +104,50 @@ options(datadist = "dd")
 ggplot(TLM, aes(LM_L3, TLM)) +
   geom_point() # 绘制散点图
 p <- ggplot() +
-  geom_point(data = dt, mapping = aes(x = Age, y = TBV, color = Sex)) + # , colour = Sex
+  geom_point(data = dt, mapping = aes(x = Age, y = TBV)) + # , colour = Sex
   theme_classic()
 p
-
+ggplot(dt, aes(Age, TBV, group = Age > 5.0)) + geom_smooth()
+ggplot(data = dt, x = Age, y = TBV, group = Age > 5.0) + # , colour = Sex
+  theme_classic() + geom_smooth()
 # 建立线性回归模型
 model.lm <- lm(TBV ~ Age, data = dt) # 构建线性回归模型 SUVr_whole_refPons
 summary(model.lm) # 查看回归模型结果
-p1 <- ggplot(dt, aes(Age, TBV)) +
+p1 <- ggplot(dt, aes(Age, TBV)) + # , colour = Sex
   geom_point() +
   theme_classic() +
-  stat_smooth(method = lm, formula = y ~ x)
+  stat_smooth(method = lm, formula = y ~ x) +
+  scale_x_continuous(breaks = seq(0, 30, 1)) +  # expand = c(0, 0),
+  scale_y_continuous(breaks = seq(45, 85, 5)) +  # expand = c(0, 0), 
+  stat_poly_eq(
+    aes(label = paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
+    formula = y ~ x, parse = TRUE
+  ) + 
+  theme(
+    axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
+    axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
+    axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
+  )
 p1
 # 建立曲线方程(log,exp)
 model.log <- lm(TBV ~ log(Age), data = dt) # 建立对数曲线方程
 summary(model.log) # 查看模型概况
 # 拟合曲线
-p2 <- ggplot(dt, aes(Age, TBV)) +
+p2 <- ggplot(dt, aes(Age, TBV)) + # , colour = Sex
   geom_point() +
   theme_classic() +
-  stat_smooth(method = lm, formula = y ~ log(x))
+  stat_smooth(method = lm, formula = y ~ log(x)) +
+  scale_x_continuous(breaks = seq(0, 30, 1)) +  # expand = c(0, 0),
+  scale_y_continuous(breaks = seq(45, 85, 5)) +  # expand = c(0, 0),   
+  stat_poly_eq(
+    aes(label = paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
+    formula = y ~ log(x), parse = TRUE
+  ) + 
+ theme(
+    axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
+    axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
+    axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
+  )
 p2
 model.log10 <- lm(TBV ~ log2(Age), data = dt) # 建立指数曲线方程
 summary(model.log10) # 查看模型概况
@@ -134,34 +159,42 @@ ggplot(dt, aes(Age, TBV)) +
 # 建立分段回归模型
 # https://blog.csdn.net/weixin_40575651/article/details/107575012
 library(segmented)
-model.segmented <- segmented(model.lm) # 构建分段回归模型
+model.segmented <- segmented(model.lm,seg.Z=~Age,psi = 9) # 构建分段回归模型
 summary(model.segmented) # 查看模型概况
-slope(model.segmented) #the slopes of the segmented relationship
+slope(model.segmented) # the slopes of the segmented relationship
 # 查看拟合效果
 plot(dt$Age, dt$TBV, pch = 1, cex = 1.5)
 abline(a = coef(model.lm)[1], b = coef(model.lm)[2], col = "red", lwd = 2.5)
 plot(model.segmented, col = "blue", lwd = 2.5, add = T)
 
-p3 <- p + theme_classic() +
+p4 <- ggplot(dt, aes(Age, TBV)) + # , colour = Sex
+  geom_point() +
   geom_smooth(
-    data = dt, mapping = aes(x = Age, y = TBV, color = Sex), # , color = Sex
-    method = "gam", formula = y ~ x + I((x - 5.0) * (x > 5.0))
-  ) +
-  scale_x_continuous(expand = c(0, 0), breaks = c(0, 1, 3, 5, 13, 20)) + # seq(0, 32, 1)
-  scale_y_continuous(expand = c(0, 0)) + # scale_x_log10() + scale_x_continuous(expand = c(0, 0)) + scale_y_continuous(expand = c(0, 0)) +
+    data = dt, mapping = aes(x = Age, y = TBV), # , color = Sex
+    method = "gam", formula = y ~ x + I((x - 5.6) * (x > 5.6)) + I((x - 26.2) * (x > 26.2))
+  ) + scale_x_continuous(breaks = seq(0, 30, 1)) +  # expand = c(0, 0),
+  scale_y_continuous(breaks = seq(45, 85, 5)) +  # expand = c(0, 0),  
+  # scale_x_continuous(expand = c(0, 0), breaks = c(0, 1, 3, 5, 13, 20)) + # seq(0, 32, 1)
+  # scale_y_continuous(expand = c(0, 0)) + scale_x_log10() +
+  # coord_trans(x = squash_axis(0, 5, 0.40)) +
   geom_vline(xintercept = 5.0, linetype = 2, color = "red") +
-  coord_trans(x = squash_axis(0, 5, 0.40)) + geom_vline(aes(xintercept = c(5.0)), colour = "#990000", linetype = "dashed") +
+  geom_vline(aes(xintercept = c(5.6)), colour = "#990000", linetype = "dashed") +
+  geom_vline(aes(xintercept = c(26.2)), colour = "#990000", linetype = "dashed") +
+  stat_poly_eq(
+    aes(label = paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
+    formula = y ~ x + I((x - 5.6) * (x > 5.6)) + + I((x - 26.2) * (x > 26.2)), parse = TRUE
+  ) + 
   theme(
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"), legend.position = "bottom",
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
-p3
+p4
 
 # 手动设置拐点，分三段回归
-model.segmented2 <- segmented(model.lm, seg.Z=~Age) # 构建分段回归模型
+model.segmented2 <- segmented(model.lm, seg.Z = ~Age) # 构建分段回归模型
 summary(model.segmented2) # 查看模型概况
-model.segmented3 <- segmented(model.lm, psi = c(5, 24.5)) # 构建分段回归模型
+model.segmented3 <- segmented(model.lm, psi = c(5, 20)) # 构建分段回归模型
 summary(model.segmented3) # 查看模型概况
 # 查看拟合效果
 plot(TLM$LM_L3, TLM$TLM, pch = 1, cex = 1.5)
@@ -172,20 +205,44 @@ plot(model.segmented2, col = "blue", lwd = 2.5, add = T)
 model.spline <- lm(dt$TBV ~ rcs(dt$Age, 5)) # 建立样条回归，设置3个节点
 summary(model.spline) # 查看模型概况
 # 样条回归拟合效果
-p4 <- ggplot(TLM, aes(LM_L3, TLM)) +
-  geom_point() +
+p7 <- ggplot(dt, aes(Age, TBV)) +
+  geom_point() + 
+  # geom_errorbar(aes(ymin = TBV - sd, ymax = TBV + sd), width = 0.1) + 
   theme_classic() +
-  stat_smooth(method = lm, formula = y ~ rcs(x, 3))
-p4
+  stat_smooth(method = lm, formula = y ~ rcs(x, 5)) +
+  scale_x_continuous(breaks = seq(0, 30, 1)) +  # expand = c(0, 0),
+  scale_y_continuous(breaks = seq(45, 85, 5)) +  # expand = c(0, 0), 
+  stat_poly_eq(
+    aes(label = paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
+    formula = y ~ rcs(x, 5), parse = TRUE
+  ) + 
+  theme(
+    axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
+    axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
+    axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
+  )
+p7
 # Lowess函数建立局部加权回归
 model.lowess <- lowess(dt$TBV ~ dt$Age) # 建立局部加权回归
 summary(model.lowess) # 查看概况
 # 查看拟合
-p5 <- ggplot(TLM, aes(LM_L3, TLM)) +
-  geom_point() +
+p8 <- ggplot(dt, aes(Age, TBV)) +
+  geom_point() + 
+  geom_errorbar(aes(ymin = TBV - sd, ymax = TBV + sd), width = 0.1) + 
   theme_classic() +
-  stat_smooth(method = loess, formula = y ~ x)
-p5
+  stat_smooth(method = loess, formula = y ~ x) +
+  scale_x_continuous(breaks = seq(0, 30, 1)) +  # expand = c(0, 0),
+  scale_y_continuous(breaks = seq(45, 85, 5)) +  # expand = c(0, 0), 
+  # stat_poly_eq(
+  #   aes(label = paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
+  #   formula = y ~ x, parse = TRUE
+  # ) + 
+  theme(
+    axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
+    axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
+    axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
+  )
+p8
 # rcssci(linear models with RCS splines were performed to explore the shape linear or nonlinear(U, inverted U,J,S,L,log,-log,temporary plateau shape)
 library(rcssci)
 data <- sbpdata
@@ -196,7 +253,7 @@ rcssci_linear(
   ggplot2::theme_classic()
 # 广义可加模型gam**
 # https://mp.weixin.qq.com/mp/appmsgalbum?__biz=MzI1NjM3NTE1NQ==&action=getalbum&album_id=2077935014574374912&scene=173&from_msgid=2247485011&from_itemidx=1&count=3&nolastread=1#wechat_redirect
-model.gam <- gam(TBV ~ s(Age, k = 7, bs = "cs"), data = dt) # 建立gam模型
+model.gam <- gam(TBV ~ s(Age, k = 8, bs = "cs"), data = dt) # 建立gam模型 k = 4, 
 summary(model.gam) # 查看模型概况
 pr.gam <- predict(model.gam, dt) # 生成预测值
 # 计算RSME和R方
@@ -207,20 +264,26 @@ data.frame(
 # 查看模型拟合情况
 library(ggpmisc)
 library(ggpubr)
-my.formula <- y ~ s(x, k = 7, bs = "cs")
-p0 <- ggplot(dt, aes(Age, TBV)) +
-  geom_point() +
-  stat_cor(aes(), label.x = 6) +
+my.formula <- y ~ s(x, k = 8, bs = "cs")
+p9 <- ggplot(dt, aes(Age, TBV)) +
+  geom_point() +  
+  geom_errorbar(aes(ymin = TBV - sd, ymax = TBV + sd), fatten = 2.5, width = 0.2) + 
+  # stat_cor(aes(), label.x = 6) +
+  stat_poly_eq(
+    aes(label = paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
+    formula = y ~ s(x, k = 8, bs = "cs"), parse = TRUE
+  ) +
   theme_classic() +
-  scale_x_continuous(expand = c(0, 0), breaks = seq(0, 27, 1)) +
-  scale_y_continuous(expand = c(0, 0)) + geom_vline(xintercept=7.5,colour="#990000",linetype="dashed") + 
+  scale_x_continuous(breaks = seq(0, 30, 1)) +  # expand = c(0, 0),
+  scale_y_continuous(breaks = seq(45, 85, 5)) +  # expand = c(0, 0), 
+  geom_vline(xintercept = 6.5, colour = "#990000", linetype = "dashed") +
   stat_smooth(method = mgcv::gam, se = TRUE, formula = my.formula) +
   theme(
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
-p0
+p9
 # 构建一个 squash_axis 函数来实现坐标轴压缩功能，这个函数需要使用scales包(https://zhuanlan.zhihu.com/p/358781655)
 library(scales)
 squash_axis <- function(from, to, factor) {
@@ -270,15 +333,16 @@ anova(model.log, model.gam)
 # https://cloud.tencent.com/developer/article/1972411
 library(patchwork)
 p4 + p1 + p6 + plot_layout(nrow = 2, byrow = FALSE) #  从上到下
-p0 + p1 + p2 + p3 + p4 + p5 + p6 + plot_annotation(tag_levels = "A") +
+label <- c("LM", "LOG", "SEGMENTED", "SEGMENTED2", "RCS3", "RCS4", "RCS5", "LOWESS", "GAM")
+p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9 + plot_annotation(tag_levels = list(label)) +
   plot_layout(ncol = 3, guides = "collect") # 从左到右
 p4 / p5 | (p6)
 # https://zhuanlan.zhihu.com/p/384189537
 library(cowplot)
-plot_grid(p1, p2, p3, p4, p5, p6,
+plot_grid(p1, p2, p3, p4, p5, p6, p7, p8, p9,
   label_size = 12,
   hjust = -0.2, vjust = 1.4,
-  labels = c("LM", "LOG", "SEGMENTED", "RCS", "LOWESS", "GAM")
+  labels = c("LM", "LOG", "SEGMENTED","SEGMENTED2", "RCS3", "RCS4", "RCS5", "LOWESS", "GAM")
 )
 cowplot::plot_grid(p0, p1, p2, p3, p4, p5, p6,
   ncol = 3, labels = "AUTO"

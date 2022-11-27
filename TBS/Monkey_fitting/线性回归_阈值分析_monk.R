@@ -8,7 +8,6 @@ library(dplyr)
 library(gamm4)
 library(ggplot2) # 画图
 library(ggthemes) ## ggplot主题
-
 theme_set(theme_classic() + theme(legend.position = "bottom"))
 
 # dt <- read.csv("jixian.csv")
@@ -72,15 +71,31 @@ ggplot(dt, aes(Age, TBV)) +
   theme_classic() +
   stat_smooth(method = mgcv::gam, formula = y ~ s(x, k = 5))
 
+# 年龄段分组汇总
 dt.summary <- dt %>%
-  group_by(Age,Sex) %>%
+  group_by(Age) %>%  # Sex
   summarise(
     sd = sd(TBV),
-    len = mean(TBV)
+    TBV = mean(TBV)
   )
+write.csv(dt.summary,'C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\T1_TBV_1127_summary.csv')
+my.formula <- y ~ s(x, k = 7, bs = "cs")
+ggplot(dt.summary, aes(Age, len)) +
+  geom_point() +
+  stat_cor(aes(), label.x = 6) +
+  theme_classic() +
+  scale_x_continuous(breaks = seq(0, 30, 1)) +  # expand = c(0, 0),
+  scale_y_continuous(breaks = seq(45, 85, 5)) +  # expand = c(0, 0), 
+  stat_smooth(method = mgcv::gam, se = TRUE, formula = my.formula) +
+  theme(
+    axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
+    axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
+    axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
+  )
+
 ggplot(dt,aes(x=Age, y=TBV, fill=Sex, colour = Sex, group = Sex, shape = Sex)) + 
   stat_summary(fun=mean,geom="point",color="black",alpha=1.5,size=3.5,position=position_dodge(0.3)) +
-  geom_jitter(alpha = 0.5, size = 3.0) + 
+  # geom_jitter(alpha = 0.5, size = 3.0) + 
   geom_line(aes(x=Age, y=len, group = Sex, linetype = Sex), size = 1.0, data = dt.summary, position=position_dodge(0.3)) + 
   theme_classic() + theme(plot.title = element_text(size=11)) + # ylim(0.4,1.6) + 
   xlab('') + ylab(expression(TBV(cm^3))) + theme(plot.title = element_text(hjust = 0.5)) +
@@ -117,9 +132,9 @@ squash_axis <- function(from, to, factor) {
   return(trans_new("squash_axis", trans, inv))
 }
 
-my.formula <- y ~ s(x, k = 6, bs = "cs")
+my.formula <- y ~ s(x, k = 7, bs = "cs")
 ggplot(dt, aes(Age, TBV)) + # SUVr_whole_refPons
-  geom_point(alpha = 0.1) +
+  geom_point(alpha = 1) +
   stat_cor(aes(), label.x = 3) + 
   stat_smooth(method = mgcv::gam, se = TRUE, formula = my.formula) +
   scale_x_continuous(expand = c(0, 0), breaks = c(0, 1, 3, 5, 13, 20)) + # seq(0, 32, 1)
@@ -160,9 +175,7 @@ library(ggsci)
 library(ggpmisc)
 library(ggpubr)
 theme_set(theme_classic() + theme(legend.position = "bottom"))
-my.formula <- y ~ s(x, bs = "cs")
-my.formula <- y ~ s(x, k = 4)
-
+my.formula <- y ~ s(x, k = 7, bs = "cs")
 my.formula <- y ~ x + I(x^2)
 # 散点图
 ggplot(data = dt, mapping = aes(x = Age, y = TBV, color = Sex, shape = Sex)) +
@@ -177,8 +190,8 @@ ggplot(data = dt, mapping = aes(x = Age, y = TBV, color = Sex, shape = Sex)) +
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
 # 置信区间虚线
-ggplot(data = dt, mapping = aes(x = Age, y = SUVr_whole_refPons, colour = Sex)) +
-  scale_colour_nejm() +
+ggplot(data = dt, mapping = aes(x = Age, y = TBV, colour = Sex)) +
+  # scale_colour_nejm() +
   # geom_point(size = 2) + stat_cor(aes(), label.x = 6) # 显示p值和R值
   theme_classic() +
   scale_x_continuous(expand = c(0, 0), breaks = seq(0, 30, 1)) +
@@ -203,7 +216,7 @@ ggplot(data = dt, mapping = aes(x = Age, y = SUVr_whole_refPons, colour = Sex)) 
     formula = my.formula, parse = TRUE
   )
 # 置信区间带
-p2 <- ggplot(dt, mapping = aes(x = Age, y = volume_ratio, colour = Side, fill = Side, linetype = Side)) +
+p2 <- ggplot(dt, mapping = aes(x = Age, y = TBV, colour = Side, fill = Side, linetype = Side)) +
   # ylab(bquote(TBV/BW(cm^3/kg)))  + # 上下标 xlab("") + scale_fill_nejm() + scale_colour_nejm() +
   scale_x_continuous(expand = c(0, 0), breaks = seq(0, 30, 1)) + # scale_y_continuous(expand = c(0,0)) +
   # stat_cor(aes(), label.x = 3) + geom_vline(aes(xintercept=8.0),linetype=4,col="red") +
@@ -344,9 +357,9 @@ fit1 <- lm(TBV ~ Age, data = dt)
 summary(fit1)
 
 ## model II 分段模型
-fml <- TBV ~ s(Age, k = 15, bs = "cs")
+fml <- TBV ~ s(Age, k = 8, bs = "cs")
 # my.formula <- y ~ x + I(x^2) + I(x^3)
-fml<- "TBV ~ s(Age,fx=FALSE) + Sex"
+# fml<- "TBV ~ s(Age,fx=FALSE) + Sex"
 gam1<-mgcv::gam(formula(fml),weights=dt$weights,data=dt, family=gaussian(link="identity"))
 
 # 2.3.2 计算拟合值
