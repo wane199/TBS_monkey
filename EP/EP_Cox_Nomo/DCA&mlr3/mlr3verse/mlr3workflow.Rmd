@@ -1,24 +1,24 @@
 ---
 title: "基于$^{18}$F-FDG PET/CT影像组学的可解释性机器学习模型预测颞叶癫痫患者术后早期复发"
-author: "汇报人： 吴环华 &nbsp;  导师： 徐浩$^{*}$ &nbsp; 教授"
+author: "汇报人:吴环华 &nbsp;  导师:徐浩$^{*}$&nbsp;教授"
 date: "2022年12月03日"
 output:
   beamer_presentation:
     citation_package: natbib
-    theme: "Madrid"
-    colortheme: "dolphin"
+    theme: Singapore
+    colortheme: lily
     fonttheme: "structurebold"
     fig_caption: yes
     incremental: no
     keep_tex: no
     latex_engine: xelatex
     slide_level: 2
-    toc: no
+    toc: yes
   ioslides_presentation:
     incremental: no
 subtitle: 2022年广东省医学会核医学学术年会
 fontsize: 11pt
-institute: 暨南大学;
+institute: 暨南大学 &nbsp; 第一临床医学院
 section-titles: yes
 indent: yes
 header-includes:
@@ -44,8 +44,8 @@ knitr::opts_chunk$set(
   warning = FALSE,
   collapse = TRUE,
   out.width = "78%",
-  fig.align = 'center',
-  fig.asp = 0.618,  # 1 / phi
+  fig.align = "center",
+  fig.asp = 0.618, # 1 / phi
   fig.show = "hold"
 )
 ```
@@ -58,6 +58,7 @@ lgr::get_logger("mlr3")$set_threshold("warn")
 lgr::get_logger("bbotk")$set_threshold("warn")
 ```
 
+# Introduction
 ## 我的R书
 
 ```{r echo=FALSE, out.width=c("40%","25%")}
@@ -67,7 +68,7 @@ knitr::include_graphics(c("images/myRbook.png", "images/QR_code.png"))
 - 电子抢读版今天上线（人邮）[异步社区](https://www.epubit.com/bookDetails?id=UB7db2c0db9f537&tabName=%E6%8A%A2%E8%AF%BB%E7%89%88&floorName=%E7%B2%BE%E9%80%89%E7%BA%B8%E4%B9%A6)
 - 纸质版预计2022年12月10日上市（受北京疫情影响可能会晚约半个月）
 
-
+# Methods
 ## 6. 基准测试
 
 **基准测试**（`benchmark`），用来比较不同学习器（算法）、在多个任务（数据）和/或不同重抽样策略（多个数据副本）上的平均性能表现。
@@ -109,7 +110,8 @@ knitr::include_graphics(c("images/myRbook.png", "images/QR_code.png"))
 - 多个特征工程步通过管道符`%>>%`连接；
 - 很多`PipeOp`都支持`affect_columns`参数（接受`Selector`选择器）
 
-##
+# Results 
+## 
 
 ```{r echo=FALSE, out.width="75%", fig.align="center", fig.cap="特征工程管道示意图"}
 knitr::include_graphics("images/feature_engineering.png")
@@ -135,6 +137,7 @@ knitr::include_graphics("images/feature_engineering.png")
 
 过滤法给每个特征计算一个重要度指标值，基于此可以对特征进行排序，然后就可以选出特征子集。
 
+# Conclusions
 ##
 
 (2) 基于学习器的变量重要度
@@ -156,16 +159,6 @@ knitr::include_graphics("images/feature_engineering.png")
 - 自动特征选择器：`auto_fselector()`, 封装成学习器，可用于重抽样或基准测试
 - 嵌套重抽样特征选择：`fselect_nested()`
 
-
-##
-
-- 查看具体结果
-
-```{r eval=FALSE}
-rr$score()       # 外层5次特征选择的结果
-extract_inner_fselect_results(rr)   # 内层特征选择的结果
-extract_inner_fselect_archives(rr)  # 内层特征选择档案
-```
 
 另外，有些学习器内部提供了选择有助于做预测的特征子集的方法，称为**嵌入法**。
 
