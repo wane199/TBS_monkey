@@ -1,5 +1,6 @@
 # https://zhuanlan.zhihu.com/p/441806989
 library(mlr3verse)
+library(doParallel)
 
 dt0 <- read.csv("C:\\Users\\wane199\\Desktop\\EP\\REFER\\BLS\\KAI\\process_rad_lat_7.csv")
 dt0 <- read.csv("/home/wane/Desktop/EP/sci/cph/XML/TLE234group_2019.csv")
@@ -363,7 +364,7 @@ extract_inner_fselect_archives(rr) # 内层特征选择档案
 # 7 模型解释
 # dat=tsk("penguins")$data()|>na.omit()
 # task=as_task_classif(dat,target="species")
-learner <- lrn("classif.glmboost", predict_type = "prob") # classif.ranger
+learner <- lrn("classif.ranger", predict_type = "prob") # classif.ranger
 learner$train(tasks)
 learner$model
 
