@@ -21,10 +21,11 @@ output:
 subtitle: 2022年广东省医学会核医学学术年会
 fontsize: 11pt
 institute: 暨南大学 &nbsp; 第一临床医学院
+# background-image: "images/GDMA.png"
 section-titles: yes
 indent: yes
 header-includes:
-# - \logo{\includegraphics[width=0.7in,height=0.4in]{"images/JNU.jpg"}}
+- \logo{\includegraphics[width=0.6in,height=0.2in]{"images/JNU1.jpg"}}
 - \usepackage[fontset = windows]{ctex}
 - \usepackage{wrapfig}
 - ~
@@ -175,7 +176,7 @@ knitr::include_graphics("images/feature_engineering.png")
 更多机器学习模型解释理论方法，请参阅[Interpretable Machine Learning: A Guide for Making Black Box Models Explainable](https://christophm.github.io/interpretable-ml-book/)
 
 ##
-
+<!-- ![Caption for the picture.](images/GDMA.png) -->
 研究主要参阅[@rajpurkar2021deep], [@mlr3book], [@molnar2022]。感谢在`Github`提供的`R markdown`模板。
 
 《`R`机器学习：基于`mlr3verse`》，预计2024年上半年上市，我也有计划在寒假期间开设R机器学习培训班，敬请期待！
@@ -185,5 +186,5 @@ knitr::include_graphics("images/feature_engineering.png")
 ##
 
 ```{r echo=FALSE, out.width="100%"}
-knitr::include_graphics(path = "images/hrbcu.png")
+knitr::include_graphics(path = "images/GDMA.png")
 ```
