@@ -1,7 +1,8 @@
 ---
 title: "基于$^{18}$F-FDG PET/CT影像组学的可解释性机器学习模型预测颞叶癫痫患者术后早期复发"
-author: "汇报人:吴环华 &nbsp;  导师:徐浩$^{*}$&nbsp;教授"
-date: "2022年12月03日"
+author: 
+  - "汇报人：吴环华  \t\n 导师：徐浩$^{*}$ &nbsp;教授"
+date: "`r Sys.Date()`"
 output:
   beamer_presentation:
     citation_package: natbib
@@ -14,6 +15,7 @@ output:
     latex_engine: xelatex
     slide_level: 2
     toc: yes
+    # logo: /image/GDMA.png
   ioslides_presentation:
     incremental: no
 subtitle: 2022年广东省医学会核医学学术年会
@@ -22,6 +24,7 @@ institute: 暨南大学 &nbsp; 第一临床医学院
 section-titles: yes
 indent: yes
 header-includes:
+# - \logo{\includegraphics[width=0.7in,height=0.4in]{"images/JNU.jpg"}}
 - \usepackage[fontset = windows]{ctex}
 - \usepackage{wrapfig}
 - ~
