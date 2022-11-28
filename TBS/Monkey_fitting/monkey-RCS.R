@@ -15,7 +15,7 @@ library(DataExplorer)
 options(digits = 3) # 限定输出小数点后数字的位数为3位
 theme_set(theme_classic() + theme(legend.position = "bottom"))
 # 读取数据
-dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\T1_TBV_1127_summary.csv")
+dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\T1_TBV_1127.csv")
 TLM <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\T1_hemi.csv", fileEncoding = "GBK")
 library(gt)
 library(dplyr)
@@ -107,12 +107,14 @@ p <- ggplot() +
   geom_point(data = dt, mapping = aes(x = Age, y = TBV)) + # , colour = Sex
   theme_classic()
 p
-ggplot(dt, aes(Age, TBV, group = Age > 5.0)) + geom_smooth()
+ggplot(dt, aes(Age, TBV, group = Age > 5.0, colour = Sex)) + geom_smooth() +
+  geom_point(data = dt, mapping = aes(x = Age, y = TBV)) 
 ggplot(data = dt, x = Age, y = TBV, group = Age > 5.0) + # , colour = Sex
   theme_classic() + geom_smooth()
+
 # 建立线性回归模型
 model.lm <- lm(TBV ~ Age, data = dt) # 构建线性回归模型 SUVr_whole_refPons
-summary(model.lm) # 查看回归模型结果
+summary(model.lm) # 查看回归模型结果，
 p1 <- ggplot(dt, aes(Age, TBV)) + # , colour = Sex
   geom_point() +
   theme_classic() +
@@ -264,10 +266,10 @@ data.frame(
 # 查看模型拟合情况
 library(ggpmisc)
 library(ggpubr)
-my.formula <- y ~ s(x, k = 8, bs = "cs")
+my.formula <- y ~ s(x, k = 4, bs = "cs")
 p9 <- ggplot(dt, aes(Age, TBV)) +
   geom_point() +  
-  geom_errorbar(aes(ymin = TBV - sd, ymax = TBV + sd), fatten = 2.5, width = 0.2) + 
+  # geom_errorbar(aes(ymin = TBV - sd, ymax = TBV + sd), fatten = 2.5, width = 0.2) + 
   # stat_cor(aes(), label.x = 6) +
   stat_poly_eq(
     aes(label = paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
@@ -284,6 +286,24 @@ p9 <- ggplot(dt, aes(Age, TBV)) +
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
 p9
+# triple in one
+my.formula <- y ~ bs(x, knots = 1, degree = 4)
+ggplot(dt, aes(Age, TBV)) +
+  geom_point(alpha = 0.1) +  
+  theme_classic() +
+  scale_x_continuous(breaks = seq(0, 30, 1)) +  # expand = c(0, 0),
+  scale_y_continuous(breaks = seq(45, 85, 5)) +  # expand = c(0, 0), 
+  geom_vline(xintercept = 6.5, colour = "#990000", linetype = "dashed") +
+  stat_smooth(method = mgcv::gam, se = TRUE, colour="black", formula = my.formula) +
+  # stat_smooth(method = mgcv::gam, se = TRUE, formula = y ~ s(x, bs = "cs")) +
+  geom_smooth(data = dt, mapping = aes(x = Age, y = TBV, colour = Sex), 
+              method = "gam", formula = my.formula)
+  theme(
+    axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
+    axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
+    axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
+  )
+
 # 构建一个 squash_axis 函数来实现坐标轴压缩功能，这个函数需要使用scales包(https://zhuanlan.zhihu.com/p/358781655)
 library(scales)
 squash_axis <- function(from, to, factor) {
