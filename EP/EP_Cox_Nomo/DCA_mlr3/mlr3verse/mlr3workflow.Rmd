@@ -6,7 +6,7 @@ output:
   beamer_presentation:
     citation_package: natbib
     theme: Singapore
-    colortheme: lily
+    colortheme: dove
     fonttheme: "structurebold"
     fig_caption: yes
     incremental: no
@@ -26,7 +26,8 @@ header-includes:
 - \usepackage{wrapfig}
 - ~
 - ~
-keywords: mlr3verse, machine learning, R
+keywords: Epilepsy, PET/CT, Radiomics, Explainable Machine Learning
+
 bibliography: refer.bib
 biblio-style: apalike
 link-citations: yes
@@ -172,19 +173,11 @@ knitr::include_graphics("images/feature_engineering.png")
 
 ##
 
-本讲主要参阅[@mlr3book], [@mlr3gallery], [@mlr3talk], [@mlr3pipelines]。感谢[@huang]在`Github`提供的`R markdown`[@xie]模板。
+研究主要参阅[@rajpurkar2021deep], [@mlr3book], [@molnar2022]。感谢在`Github`提供的`R markdown`模板。
 
 《`R`机器学习：基于`mlr3verse`》，预计2024年上半年上市，我也有计划在寒假期间开设R机器学习培训班，敬请期待！
 
-**我的知乎专栏**：\url{https://www.zhihu.com/people/huc_zhangjingxin/columns}
-
-**我的Github**：\url{https://github.com/zhjx19}
-
-**我的R书QQ读者2群：**222427909
-
-**我的微信公众号：**`R`语言与数学建模
-
-**Email:** zhjx_19@hrbcu.edu.cn
+**Email:** wane199@outlook.com
 
 ##
 
