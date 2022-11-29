@@ -6,7 +6,7 @@ date: "`r Sys.Date()`"
 output:
   beamer_presentation:
     citation_package: natbib
-    theme: Singapore
+    theme: Singapore # https://mpetroff.net/files/beamer-theme-matrix/
     colortheme: dove
     fonttheme: "structurebold"
     fig_caption: yes
@@ -67,7 +67,9 @@ lgr::get_logger("bbotk")$set_threshold("warn")
 ```
 
 # Introduction
+
 ## Background
+
 Epilepsy epidemiology
 
 
@@ -83,8 +85,17 @@ knitr::include_graphics(c("images/QR_code.png"))
 - 纸质版预计2022年12月10日上市（受北京疫情影响可能会晚约半个月）
 
 # The Data
+
 ## Dinner{.flexbox .vcenter}
 
+
+##
+
+- **依赖关系**
+
+## **依赖关系**
+
+- **依赖关系**
 
 # The Model
 ## Benchmark

@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999994 (TeX Live 2022) (preloaded format=xelatex 2022.11.26)  29 NOV 2022 12:42
+This is XeTeX, Version 3.141592653-2.6-0.999994 (TeX Live 2022) (preloaded format=xelatex 2022.11.26)  29 NOV 2022 13:17
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1256,16 +1256,28 @@ File: images/JNU1.jpg Graphic file (type bmp)
 [7
 
 ]
+LaTeX Font Info:    Font shape `TU/MicrosoftYaHei(0)/b/n' will be
+(Font)              scaled to size 9.00262pt on input line 157.
 File: images/JNU1.jpg Graphic file (type bmp)
 <images/JNU1.jpg>
 [8
 
 ]
+LaTeX Font Info:    Font shape `TU/MicrosoftYaHei(0)/b/n' will be
+(Font)              scaled to size 11.83908pt on input line 166.
+File: images/JNU1.jpg Graphic file (type bmp)
+<images/JNU1.jpg>
+[9
+
+]
+File: images/JNU1.jpg Graphic file (type bmp)
+<images/JNU1.jpg>
+[10
+
+]
 \openout4 = `mlr3workflow.vrb'.
 
 (./mlr3workflow.vrb
-LaTeX Font Info:    Font shape `TU/MicrosoftYaHei(0)/b/n' will be
-(Font)              scaled to size 9.00262pt on input line 5.
 
 Package fontspec Info: FangSong scale = 1.005875073398956.
 
@@ -1298,46 +1310,44 @@ Package fontspec Info: Font family 'FangSong(0)' created for font 'FangSong'
 )
 File: images/JNU1.jpg Graphic file (type bmp)
 <images/JNU1.jpg>
-[9
-
-]
-File: images/JNU1.jpg Graphic file (type bmp)
-<images/JNU1.jpg>
-[10
-
-]
-\openout4 = `mlr3workflow.vrb'.
-
-(./mlr3workflow.vrb)
-LaTeX Font Info:    Font shape `TU/MicrosoftYaHei(0)/b/n' will be
-(Font)              scaled to size 11.83908pt on input line 210.
-File: images/JNU1.jpg Graphic file (type bmp)
-<images/JNU1.jpg>
 [11
 
 ]
-\openout4 = `mlr3workflow.vrb'.
-
-(./mlr3workflow.vrb)
 File: images/JNU1.jpg Graphic file (type bmp)
 <images/JNU1.jpg>
 [12
 
 ]
+\openout4 = `mlr3workflow.vrb'.
+
+(./mlr3workflow.vrb)
 File: images/JNU1.jpg Graphic file (type bmp)
 <images/JNU1.jpg>
 [13
 
 ]
-File: images/feature_engineering.png Graphic file (type bmp)
-<images/feature_engineering.png>
-LaTeX Font Info:    Font shape `TU/MicrosoftYaHei(0)/b/n' will be
-(Font)              scaled to size 8.22159pt on input line 240.
-LaTeX Font Info:    Font shape `TU/MicrosoftYaHei(0)/m/n' will be
-(Font)              scaled to size 8.22159pt on input line 240.
+\openout4 = `mlr3workflow.vrb'.
+
+(./mlr3workflow.vrb)
 File: images/JNU1.jpg Graphic file (type bmp)
 <images/JNU1.jpg>
 [14
+
+]
+File: images/JNU1.jpg Graphic file (type bmp)
+<images/JNU1.jpg>
+[15
+
+]
+File: images/feature_engineering.png Graphic file (type bmp)
+<images/feature_engineering.png>
+LaTeX Font Info:    Font shape `TU/MicrosoftYaHei(0)/b/n' will be
+(Font)              scaled to size 8.22159pt on input line 258.
+LaTeX Font Info:    Font shape `TU/MicrosoftYaHei(0)/m/n' will be
+(Font)              scaled to size 8.22159pt on input line 258.
+File: images/JNU1.jpg Graphic file (type bmp)
+<images/JNU1.jpg>
+[16
 
 ]
 \openout4 = `mlr3workflow.vrb'.
@@ -1346,19 +1356,6 @@ File: images/JNU1.jpg Graphic file (type bmp)
 LaTeX Font Info:    Font shape `TU/FangSong(0)/m/n' will be
 (Font)              scaled to size 11.01431pt on input line 5.
 )
-File: images/JNU1.jpg Graphic file (type bmp)
-<images/JNU1.jpg>
-[15
-
-]
-\openout4 = `mlr3workflow.vrb'.
-
-(./mlr3workflow.vrb)
-File: images/JNU1.jpg Graphic file (type bmp)
-<images/JNU1.jpg>
-[16
-
-]
 File: images/JNU1.jpg Graphic file (type bmp)
 <images/JNU1.jpg>
 [17
@@ -1372,9 +1369,6 @@ File: images/JNU1.jpg Graphic file (type bmp)
 [18
 
 ]
-\openout4 = `mlr3workflow.vrb'.
-
-(./mlr3workflow.vrb)
 File: images/JNU1.jpg Graphic file (type bmp)
 <images/JNU1.jpg>
 [19
@@ -1388,24 +1382,40 @@ File: images/JNU1.jpg Graphic file (type bmp)
 [20
 
 ]
+\openout4 = `mlr3workflow.vrb'.
 
-Package natbib Warning: Citation `mlr3manual' on page 21 undefined on input line 316.
-
+(./mlr3workflow.vrb)
 File: images/JNU1.jpg Graphic file (type bmp)
 <images/JNU1.jpg>
 [21
 
 ]
+\openout4 = `mlr3workflow.vrb'.
+
+(./mlr3workflow.vrb)
 File: images/JNU1.jpg Graphic file (type bmp)
 <images/JNU1.jpg>
 [22
+
+]
+
+Package natbib Warning: Citation `mlr3manual' on page 23 undefined on input line 334.
+
+File: images/JNU1.jpg Graphic file (type bmp)
+<images/JNU1.jpg>
+[23
+
+]
+File: images/JNU1.jpg Graphic file (type bmp)
+<images/JNU1.jpg>
+[24
 
 ]
 File: images/GDMA.png Graphic file (type bmp)
 <images/GDMA.png>
 File: images/JNU1.jpg Graphic file (type bmp)
 <images/JNU1.jpg>
-[23
+[25
 
 ] (./mlr3workflow.bbl
 LaTeX Font Info:    Font shape `TU/lmss/m/it' in size <10.95> not available
@@ -1413,7 +1423,7 @@ LaTeX Font Info:    Font shape `TU/lmss/m/it' in size <10.95> not available
 )
 File: images/JNU1.jpg Graphic file (type bmp)
 <images/JNU1.jpg>
-[24
+[26
 
 ]
 \tf@nav=\write6
@@ -1433,12 +1443,12 @@ Package rerunfilecheck Info: File `mlr3workflow.out' has not changed.
 (rerunfilecheck)             Checksum: DD37CAE9E0AF3CF5673874BC8B5ACFC0;569.
  ) 
 Here is how much of TeX's memory you used:
- 32311 strings out of 477643
- 699019 string characters out of 5839480
- 1145359 words of memory out of 5000000
- 52787 multiletter control sequences out of 15000+600000
+ 32315 strings out of 477643
+ 699051 string characters out of 5839480
+ 1149014 words of memory out of 5000000
+ 52791 multiletter control sequences out of 15000+600000
  475358 words of font info for 93 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  99i,19n,137p,446b,822s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on mlr3workflow.pdf (24 pages).
+Output written on mlr3workflow.pdf (26 pages).
