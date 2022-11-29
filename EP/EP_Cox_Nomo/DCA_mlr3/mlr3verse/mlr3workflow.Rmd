@@ -1,7 +1,7 @@
 ---
-title: "基于$^{18}$F-FDG PET/CT影像组学的可解释性机器学习模型预测颞叶癫痫患者术后早期复发"
+title: "An Explainable Machine Learning Approach of PET Imaging for Individualized Predictions of Seizure Outcomes after Temporal Lobe Epilepsy Surgery" # $^{18}$F-FDG 
 author: 
-  - "汇报人：吴环华  \t\n 导师：徐浩$^{*}$ &nbsp;教授"
+  - "Huanhua Wu  \t\n Prof. Hao Xu$^{*}$ &nbsp;"
 date: "`r Sys.Date()`"
 output:
   beamer_presentation:
@@ -18,18 +18,20 @@ output:
     # logo: /image/GDMA.png
   ioslides_presentation:
     incremental: no
-subtitle: 2022年广东省医学会核医学学术年会
+subtitle: 2022 GDMA Nuclear Medicine Annual Conference
 fontsize: 11pt
-institute: 暨南大学 &nbsp; 第一临床医学院
+institute:  The First Affiliated Hospital of Jinan University &nbsp;
 # background-image: "images/GDMA.png"
 section-titles: yes
 indent: yes
 header-includes:
 - \logo{\includegraphics[width=0.6in,height=0.2in]{"images/JNU1.jpg"}}
-- \usepackage[fontset = windows]{ctex}
+- \usepackage[fontset = windows]{ctex} # ctex显示中文
 - \usepackage{wrapfig}
-- ~
-- ~
+- \usepackage{pifont}
+- \usepackage{iitem}
+- \setbeamertemplate{itemize item}{\ding{47}}
+- \setbeamertemplate{itemize subitem}{\ding{46}}
 keywords: Epilepsy, PET/CT, Radiomics, Explainable Machine Learning
 
 bibliography: refer.bib
@@ -37,7 +39,8 @@ biblio-style: apalike
 link-citations: yes
 colorlinks: yes
 linkcolor: ForestGreen
-classoption: dvipsnames,UTF8
+classoption: "fontset=fandol"  #dvipsnames, UTF8
+biblio-title: References
 ---
 
 ```{r setup, include=FALSE}
@@ -64,17 +67,31 @@ lgr::get_logger("bbotk")$set_threshold("warn")
 ```
 
 # Introduction
-## 我的R书
+## Background
+Epilepsy epidemiology
+
+
+## Aims
+
+- 本实验基于真实的心脏病患者体侧数据，介绍如何通过数据挖掘算法构建心脏病预测模型。然而，本案例的目标不仅限于此——
+本案例着重分析机器学习模型的可解释性。
 
 ```{r echo=FALSE, out.width=c("40%","25%")}
-knitr::include_graphics(c("images/myRbook.png", "images/QR_code.png"))
+knitr::include_graphics(c("images/QR_code.png"))
 ```
 
-- 电子抢读版今天上线（人邮）[异步社区](https://www.epubit.com/bookDetails?id=UB7db2c0db9f537&tabName=%E6%8A%A2%E8%AF%BB%E7%89%88&floorName=%E7%B2%BE%E9%80%89%E7%BA%B8%E4%B9%A6)
 - 纸质版预计2022年12月10日上市（受北京疫情影响可能会晚约半个月）
 
-# Methods
-## 6. 基准测试
+# The Data
+## Dinner{.flexbox .vcenter}
+
+
+# The Model
+## Benchmark
+
+<div class="centered">
+This text is centered.
+</div>
 
 **基准测试**（`benchmark`），用来比较不同学习器（算法）、在多个任务（数据）和/或不同重抽样策略（多个数据副本）上的平均性能表现。
 
@@ -115,7 +132,7 @@ knitr::include_graphics(c("images/myRbook.png", "images/QR_code.png"))
 - 多个特征工程步通过管道符`%>>%`连接；
 - 很多`PipeOp`都支持`affect_columns`参数（接受`Selector`选择器）
 
-# Results 
+# The Explanation 
 ## 
 
 ```{r echo=FALSE, out.width="75%", fig.align="center", fig.cap="特征工程管道示意图"}
@@ -142,13 +159,12 @@ knitr::include_graphics("images/feature_engineering.png")
 
 过滤法给每个特征计算一个重要度指标值，基于此可以对特征进行排序，然后就可以选出特征子集。
 
-# Conclusions
+# Conclusion
 ##
 
 (2) 基于学习器的变量重要度
 
 有些学习器可以计算变量重要度，特别是基于树的模型。有些学习器需要在创建时"激活"其变量重要性度量。例如，通过`ranger`包来使用随机森林的"impurity"度量：
-
 
 ##
 
@@ -169,17 +185,11 @@ knitr::include_graphics("images/feature_engineering.png")
 
 ## 七. 模型解释
 
-机器学习模型预测性能强大，但天生不好解释。`R`有两个通用框架致力于机器学习模型的解释（支持但不属于`mlr3verse`）：`iml` 包和`DALEX`包。
-
 可以从特征层面（特征效应、夏普利值、特征重要度）、观测层面（探索模型在单个观测上的表现）给出指标和可视化的模型解释，具体请参阅[《R机器学习：mlr3verse技术手册》](https://gitee.com/zhjx19/rconf15)[@mlr3manual]。
-
-更多机器学习模型解释理论方法，请参阅[Interpretable Machine Learning: A Guide for Making Black Box Models Explainable](https://christophm.github.io/interpretable-ml-book/)
 
 ##
 <!-- ![Caption for the picture.](images/GDMA.png) -->
-研究主要参阅[@rajpurkar2021deep], [@mlr3book], [@molnar2022]。感谢在`Github`提供的`R markdown`模板。
-
-《`R`机器学习：基于`mlr3verse`》，预计2024年上半年上市，我也有计划在寒假期间开设R机器学习培训班，敬请期待！
+For more theoretical approaches to machine learning model explanation, see [Interpretable Machine Learning: A Guide for Making Black Box Models Explainable](https://christophm.github.io/interpretable-ml-book/),[What Causes Heart Disease? Explaining the Model](https://www.kaggle.com/code/tentotheminus9/what-causes-heart-disease-explaining-the-model/notebook), refer to[@rajpurkar2021deep], [@mlr3book], [@molnar2022]。
 
 **Email:** wane199@outlook.com
 
