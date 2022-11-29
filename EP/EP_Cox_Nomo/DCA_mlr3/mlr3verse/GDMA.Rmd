@@ -23,6 +23,8 @@ header-includes:
 - \logo{\includegraphics[width=0.6in,height=0.2in]{"images/JNU1.jpg"}}
 - \usepackage[fontset = windows]{} # ctex显示中文
 - \usepackage{wrapfig}
+- \usepackage{tikz}
+- \usepackage{wallpaper} # %使用wallpaper宏包
 - # \usepackage[default]{sourcesanspro}
 - # \usepackage[scale=.9]{sourcecodepro}
 keywords: Epilepsy, PET/CT, Radiomics, Explainable Machine Learning
@@ -34,8 +36,15 @@ colorlinks: yes
 linkcolor: ForestGreen
 classoption: fontset=fandol #dvipsnames, UTF8
 biblio-title: References
-
 ---
+
+\newcommand\Background{%
+\begin{tikzpicture}[remember picture,overlay]
+\node[inner sep = 0pt, outer sep = 0pt,opacity=0.85]
+  at (current page.center)
+  {\includegraphics[width=\paperwidth,height=\paperheight]{images/GDMA.png}};
+\end{tikzpicture}%
+}
 
 ```{r setup, include=FALSE}
 options(digits = 3)
@@ -75,6 +84,7 @@ Epilepsy epidemiology
 
 ## Aims
 
+Explainable machine learning/AI techniques(aka XAI):
 - 本实验基于真实的心脏病患者体侧数据，介绍如何通过数据挖掘算法构建心脏病预测模型。然而，本案例的目标不仅限于此——
 本案例着重分析机器学习模型的可解释性。
 
@@ -86,7 +96,9 @@ knitr::include_graphics(c("images/QR_code.png"))
 
 # The Data
 
-## Dinner{.flexbox .vcenter}
+## Dinner {.flexbox .vcenter}
+
+\Background
 
 
 ## **依赖关系**
@@ -205,12 +217,16 @@ For more theoretical approaches to machine learning model explanation, see [Inte
 ```{r echo=FALSE, out.width="100%"}
 knitr::include_graphics(path = "images/GDMA.png")
 ```
-\begin{center}
-\huge THANKS!
-\end{center}
 
 ## 
 
-![cross](images/GDMA.png){.flexbox .vcenter}
+\Background
+  \begin{center}
+    \Huge THANKS !
+  \end{center}
+
+
+
+
 
 
