@@ -80,7 +80,10 @@ lgr::get_logger("bbotk")$set_threshold("warn")
 ## Background
 
 Epilepsy epidemiology
-
+```{r echo=FALSE, out.width=c("100%")}
+knitr::include_graphics(c("images/global_epi.png"))
+```
+Prevalence per 100000 of idiopathic epilepsy, 2016[@beghi2019global]
 
 ## Aims
 
@@ -99,7 +102,6 @@ knitr::include_graphics(c("images/QR_code.png"))
 ## Dinner {.flexbox .vcenter}
 
 \Background
-
 
 ## **依赖关系**
 
@@ -215,8 +217,9 @@ For more theoretical approaches to machine learning model explanation, see [Inte
 ##
 
 ```{r echo=FALSE, out.width="100%"}
-knitr::include_graphics(path = "images/GDMA.png")
+knitr::include_graphics(path = "images/xai.png")
 ```
+Learning Performance Versus Explainability Trade-Off for Several Categories of Learning Techniques[@gunning2019darpa]
 
 ## 
 

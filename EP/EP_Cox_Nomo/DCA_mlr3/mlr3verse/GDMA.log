@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999994 (TeX Live 2022) (preloaded format=xelatex 2022.11.26)  29 NOV 2022 22:20
+This is XeTeX, Version 3.141592653-2.6-0.999994 (TeX Live 2022) (preloaded format=xelatex 2022.11.26)  30 NOV 2022 00:28
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1095,6 +1095,12 @@ File: images/JNU1.jpg Graphic file (type bmp)
 [4
 
 ]
+File: images/global_epi.png Graphic file (type bmp)
+<images/global_epi.png>
+
+Overfull \vbox (4.96442pt too high) detected at line 141
+ []
+
 File: images/JNU1.jpg Graphic file (type bmp)
 <images/JNU1.jpg>
 [5
@@ -2493,7 +2499,7 @@ Missing character: There is no 手 (U+624B) in font [lmsans10-regular]:mapping=t
 Missing character: There is no 册 (U+518C) in font [lmsans10-regular]:mapping=tex-text;!
 Missing character: There is no 》 (U+300B) in font [lmsans10-regular]:mapping=tex-text;!
 
-Package natbib Warning: Citation `mlr3manual' on page 23 undefined on input line 344.
+Package natbib Warning: Citation `mlr3manual' on page 23 undefined on input line 346.
 
 Missing character: There is no 。 (U+3002) in font [lmsans10-regular]:mapping=tex-text;!
 Missing character: There is no 七 (U+4E03) in font [lmsans10-bold]:mapping=tex-text;!
@@ -2512,8 +2518,8 @@ File: images/JNU1.jpg Graphic file (type bmp)
 [24
 
 ]
-File: images/GDMA.png Graphic file (type bmp)
-<images/GDMA.png>
+File: images/xai.png Graphic file (type bmp)
+<images/xai.png>
 File: images/JNU1.jpg Graphic file (type bmp)
 <images/JNU1.jpg>
 [25
@@ -2531,7 +2537,7 @@ Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 (hyperref)                removing `\translate ' on input line 1.
 
 LaTeX Font Info:    Font shape `TU/lmss/m/it' in size <10.95> not available
-(Font)              Font shape `TU/lmss/m/sl' tried instead on input line 5.
+(Font)              Font shape `TU/lmss/m/sl' tried instead on input line 8.
 )
 File: images/JNU1.jpg Graphic file (type bmp)
 <images/JNU1.jpg>
@@ -2555,10 +2561,10 @@ Package rerunfilecheck Info: File `GDMA.out' has not changed.
 (rerunfilecheck)             Checksum: B8C3BCACEED9D5560B2FA3D6FECA09F0;587.
  ) 
 Here is how much of TeX's memory you used:
- 32163 strings out of 477643
- 672469 string characters out of 5839480
- 1138916 words of memory out of 5000000
- 52697 multiletter control sequences out of 15000+600000
+ 32195 strings out of 477643
+ 673194 string characters out of 5839480
+ 1138979 words of memory out of 5000000
+ 52727 multiletter control sequences out of 15000+600000
  472826 words of font info for 64 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  99i,19n,121p,438b,799s stack positions out of 10000i,1000n,20000p,200000b,200000s
