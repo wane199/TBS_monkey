@@ -96,15 +96,22 @@ knitr::include_graphics(c("images/xai.png"))
 
 Learning Performance Versus Explainability Trade-Off[@gunning2019darpa]
 
+## Scheme
+
+```{r echo=FALSE, out.width=c("100%")}
+knitr::include_graphics(c("images/XML_IML.png"))
+```
+
 # The Data
 
-## Dinner {.flexbox .vcenter}
+## EDA {.flexbox .vcenter}
 
 \Background
 
-## **依赖关系**
+## **SHAP**
 
-- **依赖关系**
+- **Shapley**
+
 
 # The Model
 ## Benchmark
