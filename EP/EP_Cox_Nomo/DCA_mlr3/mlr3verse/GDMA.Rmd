@@ -102,6 +102,8 @@ Learning Performance Versus Explainability Trade-Off[@gunning2019darpa]
 knitr::include_graphics(c("images/XML_IML.png"))
 ```
 
+The flowchart of interpretable machine learning[@]
+
 # The Data
 
 ## EDA {.flexbox .vcenter}
