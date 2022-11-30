@@ -1,5 +1,5 @@
 ---
-title: "An Explainable Machine Learning Approach of PET Imaging for Individualized Predictions of Seizure Outcomes after Temporal Lobe Epilepsy Surgery" # $^{18}$F-FDG 
+title: "Interpretable Machine Learning of PET Imaging for Individualized Predictions of Seizure Outcomes after Temporal Lobe Epilepsy Surgery" # $^{18}$F-FDG 
 subtitle: "*2022 GDMA Nuclear Medicine Annual Conference*"
 author: 
   - "Huanhua Wu  \t\n Prof. Hao Xu$^{*}$ &nbsp;"
@@ -89,7 +89,7 @@ Prevalence per 100000 of idiopathic epilepsy, 2016[@beghi2019global]
 
 ## Aims
 
-- Focuses on examining the interpretability of machine learning models rather than just building a short-term recurrence prediction model (aka XAI).
+- Focuses on examining the interpretability of machine learning models rather than just building a short-term recurrence prediction model (IML, aka XAI).
 ```{r echo=FALSE, out.width=c("100%")}
 knitr::include_graphics(c("images/xai.png"))
 ```
