@@ -1,6 +1,6 @@
 ---
 title: "An Explainable Machine Learning Approach of PET Imaging for Individualized Predictions of Seizure Outcomes after Temporal Lobe Epilepsy Surgery" # $^{18}$F-FDG 
-subtitle: 2022 GDMA Nuclear Medicine Annual Conference
+subtitle: "*2022 GDMA Nuclear Medicine Annual Conference*"
 author: 
   - "Huanhua Wu  \t\n Prof. Hao Xu$^{*}$ &nbsp;"
 institute:  The First Affiliated Hospital of Jinan University &nbsp;
@@ -37,6 +37,8 @@ linkcolor: ForestGreen
 classoption: fontset=fandol #dvipsnames, UTF8
 biblio-title: References
 ---
+
+\setbeamercolor{titlelike}{bg=black,fg=white}
 
 \newcommand\Background{%
 \begin{tikzpicture}[remember picture,overlay]
@@ -87,15 +89,12 @@ Prevalence per 100000 of idiopathic epilepsy, 2016[@beghi2019global]
 
 ## Aims
 
-Explainable machine learning/AI techniques(aka XAI):
-- 本实验基于真实的心脏病患者体侧数据，介绍如何通过数据挖掘算法构建心脏病预测模型。然而，本案例的目标不仅限于此——
-本案例着重分析机器学习模型的可解释性。
-
-```{r echo=FALSE, out.width=c("40%","25%")}
-knitr::include_graphics(c("images/QR_code.png"))
+- Focuses on examining the interpretability of machine learning models rather than just building a short-term recurrence prediction model (aka XAI).
+```{r echo=FALSE, out.width=c("100%")}
+knitr::include_graphics(c("images/xai.png"))
 ```
 
-- 纸质版预计2022年12月10日上市（受北京疫情影响可能会晚约半个月）
+Learning Performance Versus Explainability Trade-Off[@gunning2019darpa]
 
 # The Data
 
@@ -212,14 +211,9 @@ knitr::include_graphics("images/feature_engineering.png")
 <!-- ![Caption for the picture.](images/GDMA.png) -->
 For more theoretical approaches to machine learning model explanation, see [Interpretable Machine Learning: A Guide for Making Black Box Models Explainable](https://christophm.github.io/interpretable-ml-book/),[What Causes Heart Disease? Explaining the Model](https://www.kaggle.com/code/tentotheminus9/what-causes-heart-disease-explaining-the-model/notebook), refer to[@rajpurkar2021deep], [@mlr3book], [@molnar2022]。
 
+\bigskip
+
 **Email:** wane199@outlook.com
-
-##
-
-```{r echo=FALSE, out.width="100%"}
-knitr::include_graphics(path = "images/xai.png")
-```
-Learning Performance Versus Explainability Trade-Off for Several Categories of Learning Techniques[@gunning2019darpa]
 
 ## 
 
@@ -227,9 +221,5 @@ Learning Performance Versus Explainability Trade-Off for Several Categories of L
   \begin{center}
     \Huge THANKS !
   \end{center}
-
-
-
-
 
 

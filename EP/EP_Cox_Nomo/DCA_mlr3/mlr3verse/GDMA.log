@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999994 (TeX Live 2022) (preloaded format=xelatex 2022.11.26)  30 NOV 2022 00:28
+This is XeTeX, Version 3.141592653-2.6-0.999994 (TeX Live 2022) (preloaded format=xelatex 2022.11.26)  30 NOV 2022 11:46
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1047,6 +1047,8 @@ LaTeX Font Info:    Encoding `OMX' has changed to `TU' for symbol font
 LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `bold'
 (Font)                  OMX/lmex/m/n --> TU/latinmodern-math.otf(3)/b/n on input line 109.
 (./GDMA.nav)
+LaTeX Font Info:    Font shape `TU/lmss/bx/it' in size <10.95> not available
+(Font)              Font shape `TU/lmss/bx/sl' tried instead on input line 110.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
 (Font)              scaled to size 7.8961pt on input line 110.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
@@ -1098,7 +1100,7 @@ File: images/JNU1.jpg Graphic file (type bmp)
 File: images/global_epi.png Graphic file (type bmp)
 <images/global_epi.png>
 
-Overfull \vbox (4.96442pt too high) detected at line 141
+Overfull \vbox (4.96442pt too high) detected at line 143
  []
 
 File: images/JNU1.jpg Graphic file (type bmp)
@@ -1106,108 +1108,12 @@ File: images/JNU1.jpg Graphic file (type bmp)
 [5
 
 ]
-Missing character: There is no 本 (U+672C) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 实 (U+5B9E) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 验 (U+9A8C) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 基 (U+57FA) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 于 (U+4E8E) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 真 (U+771F) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 实 (U+5B9E) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 的 (U+7684) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 心 (U+5FC3) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 脏 (U+810F) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 病 (U+75C5) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 患 (U+60A3) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 者 (U+8005) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 体 (U+4F53) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 侧 (U+4FA7) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 数 (U+6570) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 据 (U+636E) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no ， (U+FF0C) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 介 (U+4ECB) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 绍 (U+7ECD) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 如 (U+5982) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 何 (U+4F55) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 通 (U+901A) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 过 (U+8FC7) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 数 (U+6570) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 据 (U+636E) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 挖 (U+6316) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 掘 (U+6398) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 算 (U+7B97) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 法 (U+6CD5) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 构 (U+6784) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 建 (U+5EFA) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 心 (U+5FC3) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 脏 (U+810F) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 病 (U+75C5) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 预 (U+9884) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 测 (U+6D4B) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 模 (U+6A21) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 型 (U+578B) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 。 (U+3002) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 然 (U+7136) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 而 (U+800C) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no ， (U+FF0C) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 本 (U+672C) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 案 (U+6848) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 例 (U+4F8B) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 的 (U+7684) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 目 (U+76EE) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 标 (U+6807) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 不 (U+4E0D) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 仅 (U+4EC5) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 限 (U+9650) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 于 (U+4E8E) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 此 (U+6B64) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 本 (U+672C) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 案 (U+6848) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 例 (U+4F8B) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 着 (U+7740) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 重 (U+91CD) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 分 (U+5206) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 析 (U+6790) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 机 (U+673A) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 器 (U+5668) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 学 (U+5B66) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 习 (U+4E60) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 模 (U+6A21) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 型 (U+578B) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 的 (U+7684) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 可 (U+53EF) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 解 (U+89E3) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 释 (U+91CA) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 性 (U+6027) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 。 (U+3002) in font [lmsans10-regular]:mapping=tex-text;!
-File: images/QR_code.png Graphic file (type bmp)
-<images/QR_code.png>
-Missing character: There is no 纸 (U+7EB8) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 质 (U+8D28) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 版 (U+7248) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 预 (U+9884) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 计 (U+8BA1) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 年 (U+5E74) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 月 (U+6708) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 日 (U+65E5) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 上 (U+4E0A) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 市 (U+5E02) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no （ (U+FF08) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 受 (U+53D7) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 北 (U+5317) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 京 (U+4EAC) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 疫 (U+75AB) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 情 (U+60C5) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 影 (U+5F71) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 响 (U+54CD) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 可 (U+53EF) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 能 (U+80FD) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 会 (U+4F1A) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 晚 (U+665A) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 约 (U+7EA6) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 半 (U+534A) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 个 (U+4E2A) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no 月 (U+6708) in font [lmsans10-regular]:mapping=tex-text;!
-Missing character: There is no ） (U+FF09) in font [lmsans10-regular]:mapping=tex-text;!
+File: images/xai.png Graphic file (type bmp)
+<images/xai.png>
+
+Overfull \vbox (4.01414pt too high) detected at line 159
+ []
+
 File: images/JNU1.jpg Graphic file (type bmp)
 <images/JNU1.jpg>
 [6
@@ -2499,7 +2405,7 @@ Missing character: There is no 手 (U+624B) in font [lmsans10-regular]:mapping=t
 Missing character: There is no 册 (U+518C) in font [lmsans10-regular]:mapping=tex-text;!
 Missing character: There is no 》 (U+300B) in font [lmsans10-regular]:mapping=tex-text;!
 
-Package natbib Warning: Citation `mlr3manual' on page 23 undefined on input line 346.
+Package natbib Warning: Citation `mlr3manual' on page 23 undefined on input line 349.
 
 Missing character: There is no 。 (U+3002) in font [lmsans10-regular]:mapping=tex-text;!
 Missing character: There is no 七 (U+4E03) in font [lmsans10-bold]:mapping=tex-text;!
@@ -2518,18 +2424,11 @@ File: images/JNU1.jpg Graphic file (type bmp)
 [24
 
 ]
-File: images/xai.png Graphic file (type bmp)
-<images/xai.png>
-File: images/JNU1.jpg Graphic file (type bmp)
-<images/JNU1.jpg>
-[25
-
-]
 File: images/GDMA.png Graphic file (type bmp)
 <images/GDMA.png>
 File: images/JNU1.jpg Graphic file (type bmp)
 <images/JNU1.jpg>
-[26
+[25
 
 ] (./GDMA.bbl
 
@@ -2541,7 +2440,7 @@ LaTeX Font Info:    Font shape `TU/lmss/m/it' in size <10.95> not available
 )
 File: images/JNU1.jpg Graphic file (type bmp)
 <images/JNU1.jpg>
-[27
+[26
 
 ]
 \tf@nav=\write6
@@ -2561,12 +2460,12 @@ Package rerunfilecheck Info: File `GDMA.out' has not changed.
 (rerunfilecheck)             Checksum: B8C3BCACEED9D5560B2FA3D6FECA09F0;587.
  ) 
 Here is how much of TeX's memory you used:
- 32195 strings out of 477643
- 673194 string characters out of 5839480
- 1138979 words of memory out of 5000000
- 52727 multiletter control sequences out of 15000+600000
- 472826 words of font info for 64 fonts, out of 8000000 for 9000
+ 32179 strings out of 477643
+ 672896 string characters out of 5839480
+ 1137643 words of memory out of 5000000
+ 52710 multiletter control sequences out of 15000+600000
+ 472834 words of font info for 65 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  99i,19n,121p,438b,799s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on GDMA.pdf (27 pages).
+Output written on GDMA.pdf (26 pages).
