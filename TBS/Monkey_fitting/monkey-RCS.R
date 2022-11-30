@@ -15,7 +15,7 @@ library(DataExplorer)
 options(digits = 3) # 限定输出小数点后数字的位数为3位
 theme_set(theme_classic() + theme(legend.position = "bottom"))
 # 读取数据
-dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\T1_TBV_1127.csv")
+dt <- read.csv("/Users/mac/Desktop/Nomo-TBS/TBS&Mon/Monkey/QIANG/1030/T1_TBV_1127.csv")
 TLM <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\T1_hemi.csv", fileEncoding = "GBK")
 library(gt)
 library(dplyr)
@@ -288,8 +288,9 @@ p9 <- ggplot(dt, aes(Age, TBV)) +
 p9
 # triple in one
 my.formula <- y ~ bs(x, knots = 1, degree = 4)
+my.formula <- y ~ s(x, k = 4, bs = "cs")
 ggplot(dt, aes(Age, TBV)) +
-  geom_point(alpha = 0.1) +  
+  geom_point(aes(colour = factor(Sex)),alpha = 0.8) +  
   theme_classic() +
   scale_x_continuous(breaks = seq(0, 30, 1)) +  # expand = c(0, 0),
   scale_y_continuous(breaks = seq(45, 85, 5)) +  # expand = c(0, 0), 
@@ -297,7 +298,7 @@ ggplot(dt, aes(Age, TBV)) +
   stat_smooth(method = mgcv::gam, se = TRUE, colour="black", formula = my.formula) +
   # stat_smooth(method = mgcv::gam, se = TRUE, formula = y ~ s(x, bs = "cs")) +
   geom_smooth(data = dt, mapping = aes(x = Age, y = TBV, colour = Sex), 
-              method = "gam", formula = my.formula)
+              method = "gam", formula = my.formula) +  
   theme(
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
