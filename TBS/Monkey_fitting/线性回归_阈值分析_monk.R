@@ -484,10 +484,16 @@ library(ggrcs)
 library(rms)
 library(ggplot2)
 library(scales)
-dt<-smoke
+# dt<-smoke
+dt <- read.csv("/home/wane/Desktop/TBS&Mon/Monkey/QIANG/1030/T1_TBV_1127.csv")
 dd<-datadist(dt)
 options(datadist='dd')
-fit<- cph(Surv(time,status==1) ~ rcs(age,4)+gender, x=TRUE, y=TRUE,data=dt)
+dt$logage <- log(dt$Age)
+summary(dt)
+# fit<- cph(Surv(time,status==1) ~ rcs(age,4)+gender, x=TRUE, y=TRUE,data=dt)
+fit <- ols(TBV ~ rcs(Age,3) + Sex, data = dt)
+ggrcs(data = dt, fit = fit, x = "Age", group="Sex", histbinwidth = 1, histcol = "blue")
+
 ###single group
 ggrcs(data=dt,fit=fit,x="age")
 ##two groups
