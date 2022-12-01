@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 This is XeTeX, Version 3.141592653-2.6-0.999994 (TeX Live 2022) (preloaded format=xelatex 2022.11.30)  30 NOV 2022 23:12
+=======
+This is XeTeX, Version 3.141592653-2.6-0.999994 (TeX Live 2022) (preloaded format=xelatex 2022.11.26)  1 DEC 2022 11:45
+>>>>>>> 31a2d6f59ce2fe218959d7f04bd85bea9612e00f
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -2459,10 +2463,17 @@ Package rerunfilecheck Info: File `GDMA.out' has not changed.
 (rerunfilecheck)             Checksum: B8C3BCACEED9D5560B2FA3D6FECA09F0;587.
  ) 
 Here is how much of TeX's memory you used:
+<<<<<<< HEAD
  32199 strings out of 477643
  664198 string characters out of 5841181
  1138853 words of memory out of 5000000
  52729 multiletter control sequences out of 15000+600000
+=======
+ 32199 strings out of 477618
+ 664198 string characters out of 5840184
+ 1139011 words of memory out of 5000000
+ 52742 multiletter control sequences out of 15000+600000
+>>>>>>> 31a2d6f59ce2fe218959d7f04bd85bea9612e00f
  472834 words of font info for 65 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  99i,19n,121p,438b,799s stack positions out of 10000i,1000n,20000p,200000b,200000s

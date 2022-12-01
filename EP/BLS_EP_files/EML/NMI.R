@@ -3,9 +3,10 @@
 rm(list = ls())
 options(digits=3) # 限定输出小数点后数字的位数为3位
 library(treeheatr)
+library(dplyr)
 
 dt <- read.csv("C:\\Users\\wane199\\Desktop\\EP\\REFER\\BLS\\KAI\\process_rad_lat_7.csv")
-dt <- read.csv("/media/wane/Data/CN_PET_csv/CN_PET_dataset.csv")
+dt <- read.csv("/home/wane/Desktop/EP/sci/cph/XML/TLE234group_2019.csv")
 dt <- read.csv("/home/wane/Desktop/EP/REFER/BLS/KAI/process_rad_lat_7.csv")
 
 str(dt) ## 查看每个变量结构
@@ -15,18 +16,18 @@ psych::describe(con$Age)
 table(con$Sex)
 
 dt <- read.csv("/home/wane/Desktop/EP/sci/cph/XML/TLE234group_2019_factor.csv")
-dt <- dt[c(7:23)]
-dtx <- as.data.frame(scale(dt[4:17]))
-dt <- mutate(dt[, 1:3], dtx) 
+dt <- dt[c(3,7:24)]
 table(dt$oneyr)
 train <- subset(dt, dt$Group == "Training")
 test <- subset(dt, dt$Group == "Test")
 train <- train[c(-1:-2,-3)]
-heat_tree(train, target_lab = "Y", task = 'classification', label_map = c(`1` = 'TLE', `0` = 'CN'),
+tx <- as.data.frame(scale(train[3:19]))
+train <- mutate(train[2], tx) 
+heat_tree(train, target_lab = "oneyr", task = 'classification', label_map = c(`1` = 'TLE', `0` = 'CN'),
           terminal_vars = NULL, tree_space_bottom = 0)
 
 # 任意修改图片颜色
-heat_tree(train, target_lab = "Y", label_map = c(`1` = 'TLE', `0` = 'CN'),
+heat_tree(train, target_lab = "oneyr", label_map = c(`1` = 'TLE', `0` = 'CN'),
           target_cols = c("royalblue1", "palegreen3")) # 修改颜色
 # 选择将变量全部在热图中展示
 heat_tree(train, target_lab = "Y",
