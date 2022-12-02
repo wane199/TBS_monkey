@@ -19,7 +19,6 @@ output:
     toc: yes
 section-titles: true
 indent: yes
-
 header-includes:
 - \logo{\includegraphics[width=0.6in,height=0.2in]{"images/JNU1.jpg"}}
 - \usepackage[fontset = windows]{} # ctex显示中文
@@ -28,7 +27,6 @@ header-includes:
 - \usepackage{wallpaper} # %使用wallpaper宏包
 - \usepackage[default]{sourcesanspro}
 - \usepackage[scale=.9]{sourcecodepro}
-
 keywords: Epilepsy, PET/CT, Radiomics, Explainable Machine Learning # https://www.kaggle.com/code/tentotheminus9/what-causes-heart-disease-explaining-the-model
 bibliography: refer.bib
 biblio-style: apalike
@@ -39,15 +37,18 @@ classoption: fontset=fandol #dvipsnames, UTF8
 biblio-title: References
 ---
 \setbeamercolor{titlelike}{bg=black,fg=white}
-
 \newcommand\Background{%
 \begin{tikzpicture}[remember picture,overlay]
-\node[inner sep = 0pt, outer sep = 0pt,opacity=0.85]
+\node[inner sep = 0pt, outer sep = 0pt,opacity=0.95]
   at (current page.center)
   {\includegraphics[width=\paperwidth,height=\paperheight]{images/GDMA.png}};
 \end{tikzpicture}%
 }
-
+<!-- % Two-Column Layouts -->
+\def\begincols{\begin{columns}}
+\def\begincol{\begin{column}}
+\def\endcol{\end{column}}
+\def\endcols{\end{columns}}
 ```{r setup, include=FALSE}
 options(digits = 3)
 knitr::opts_chunk$set(
@@ -70,46 +71,33 @@ showtext_auto()
 lgr::get_logger("mlr3")$set_threshold("warn")
 lgr::get_logger("bbotk")$set_threshold("warn")
 ```
-
-<!-- % Two-Column Layouts -->
-\def\begincols{\begin{columns}}
-\def\begincol{\begin{column}}
-\def\endcol{\end{column}}
-\def\endcols{\end{columns}}
----
-
 # Introduction 
 
 ## Background
 
-Epilepsy epidemiology
-```{r echo=FALSE, out.width=c("100%")}
+```{r echo=FALSE, out.width=c("100%"), fig.cap="Epilepsy epidemiology"}
 knitr::include_graphics(c("images/global_epi.png"))
 ```
-Prevalence per 100000 of idiopathic epilepsy, 2016[@beghi2019global]
 
 ## Aims
 
-- Focuses on examining the interpretability of machine learning models rather than just building a short-term recurrence prediction model (IML, aka XAI).
-```{r echo=FALSE, out.width=c("20%", "50%")}
+```{r echo=FALSE, out.width=c("65%", "75%"),fig.cap="Focuses on interpretability of ML"}
 knitr::include_graphics(c("images/Black-box.png", "images/xai.png"))
 ```
 
-Learning Performance Versus Explainability Trade-Off[@gunning2019darpa]
-
 ## Scheme
 
-```{r echo=FALSE, out.width=c("100%")}
+```{r echo=FALSE, out.width=c("90%"),fig.align="center", fig.cap="Flowchart"}
 knitr::include_graphics(c("images/TLE_EML_Flow.png"))
 ```
 
-The flowchart of interpretable machine learning[@lundberg]
-
 # The Data
 
-TLE_EML_Flow.png
-
 ## EDA
+
+It's a clean, easy to understand set of data. However, the meaning of some of the column headers are not obvious. Here's what they mean,
+
+- age: The person's age in years
 
 ## **SHAP**
 
@@ -117,113 +105,40 @@ TLE_EML_Flow.png
 
 
 # The Model
+
 ## Benchmark
+The next part fits a random forest model to the data,
 
-<div class="centered">
-This text is centered.
-</div>
 
-**基准测试**（`benchmark`），
-
-例如，
-
-- 选取一个自带的二分类任务
-- 选取多个学习器：决策树、`KNN`、随机森林、支持向量机
-- 创建基准测试“设计”（每个学习器不能只凭一次结果，采用$5$折交叉验证的平均结果）
-- 查看性能指标：准确率、`AUC`值
-- 箱线图展示`AUC`值的对比结果
-
-## 三. 图学习器
-
-一个管道运算（`PipeOp`），表示机器学习管道中的一个计算步骤。一系列的`PipeOps`通过边连接（`%>>%`）构成图（`Graph`），图可以是简单的线性图，也可以是复杂的非线性图。
-
-这让我们可以像搭建积木一样，搭建出复杂的图，数据将沿着搭建好的图流动，完成从预处理到机器学习算法构成的整个过程：
-
-- 选取`PipeOp`, 通过`%>>%`、`gunion()`、`ppl()`等搭建图
-- `Graph$plot()`绘制图的结构关系；
-- `as_learner(Graph)`将图转化为学习器，即可跟普通学习器一样使用
-
-管道、图学习器主要用于：
-
-- 特征工程：缺失值插补、特征变换、特征选择、处理不均衡数据……
-
-## 1. 特征工程
-
-机器学习中的数据预处理，也统称为**特征工程**，主要包括：缺失值插补、特征变换，目的是提升模型性能。
-
-- 选择特征工程步相应的`PipeOp`；
-- 多个特征工程步通过管道符`%>>%`连接；
-- 很多`PipeOp`都支持`affect_columns`参数（接受`Selector`选择器）
 
 # The Explanation 
 
 ## 
 
-```{r echo=FALSE, out.width="75%", fig.align="center", fig.cap="特征工程管道示意图"}
+```{r echo=FALSE, out.width="75%", fig.align="center", fig.cap=""}
 knitr::include_graphics("images/feature_engineering.png")
 ``` 
 
-##
-
-- 选择3个学习器：`KNN、SVM、Ranger`作为三分支分别拟合模型，再合并分支：
-
-
-
-- `method`: 调参方法，支持"grid_search"（网格搜索）、"random_search"（随机搜索）、gensa（广义模拟退火）、"nloptr"（非线性优化）。
-
-## 六. 特征选择
-
-当数据集包含很多特征时，只提取最重要的部分特征来建模，称为特征选择。特征选择可以增强模型的解释性、加速学习过程、改进学习器性能。
-
-### 1. 过滤法
-
-**过滤法**，基于某种衡量特征重要度的指标（如相关系数），用外部算法计算变量的排名，只选用排名靠前的若干特征，用`mlr3filters`包实现。
-
-(1) 基于[重要度指标](https://mlr3filters.mlr-org.com/#implemented-filters)
-
-过滤法给每个特征计算一个重要度指标值，基于此可以对特征进行排序，然后就可以选出特征子集。
-
 # Conclusion
+
 ## con
 
-(2) 基于学习器的变量重要度
-
-有些学习器可以计算变量重要度，特别是基于树的模型。有些学习器需要在创建时"激活"其变量重要性度量。例如，通过`ranger`包来使用随机森林的"impurity"度量：
-
-##
-
-使用上述特征选择可以对特征得分可视化，根据肘法确定保留特征数，然后用`task$select()`选择特征；也可以直接通过管道连接学习器构建图学习器：
-
-## 2. 包装法
-
-**包装法**，随机选择部分特征拟合模型并评估模型性能，通过交叉验证找到最佳的特征子集，用`mlr3fselect`包实现。
-
-包装法特征选择，与超参数调参道理完全一样，支持：
-
-- 独立特征选择过程：`fselect()`
-- 自动特征选择器：`auto_fselector()`, 封装成学习器，可用于重抽样或基准测试
-- 嵌套重抽样特征选择：`fselect_nested()`
 
 
-另外，有些学习器内部提供了选择有助于做预测的特征子集的方法，称为**嵌入法**。
 
-## 七. 模型解释
+## 
 
-阅[《R机器学习：mlr3verse技术手册》](https://gitee.com/zhjx19/rconf15)[@mlr3manual]。
-
-##
-<!-- ![Caption for the picture.](images/GDMA.png) -->
 For more theoretical approaches to machine learning model explanation, see [Interpretable Machine Learning: A Guide for Making Black Box Models Explainable](https://christophm.github.io/interpretable-ml-book/),[What Causes Heart Disease? Explaining the Model](https://www.kaggle.com/code/tentotheminus9/what-causes-heart-disease-explaining-the-model/notebook), refer to[@rajpurkar2021deep], [@mlr3book], [@molnar2022]。
 
 \bigskip
 
 **Email:** wane199@outlook.com
 
+
 ## 
 
+\begin{center}
+  \emph{\textbf{\Huge{{THANKS !}}}}
+\end{center}
 \Background
-  \begin{center}
-    \Huge THANKS !
-  \end{center}
-
 
