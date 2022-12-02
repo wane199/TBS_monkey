@@ -19,16 +19,17 @@ output:
     toc: yes
 section-titles: true
 indent: yes
+
 header-includes:
 - \logo{\includegraphics[width=0.6in,height=0.2in]{"images/JNU1.jpg"}}
 - \usepackage[fontset = windows]{} # ctex显示中文
 - \usepackage{wrapfig}
 - \usepackage{tikz}
 - \usepackage{wallpaper} # %使用wallpaper宏包
-- # \usepackage[default]{sourcesanspro}
-- # \usepackage[scale=.9]{sourcecodepro}
-keywords: Epilepsy, PET/CT, Radiomics, Explainable Machine Learning
+- \usepackage[default]{sourcesanspro}
+- \usepackage[scale=.9]{sourcecodepro}
 
+keywords: Epilepsy, PET/CT, Radiomics, Explainable Machine Learning # https://www.kaggle.com/code/tentotheminus9/what-causes-heart-disease-explaining-the-model
 bibliography: refer.bib
 biblio-style: apalike
 link-citations: yes
@@ -75,6 +76,7 @@ lgr::get_logger("bbotk")$set_threshold("warn")
 \def\begincol{\begin{column}}
 \def\endcol{\end{column}}
 \def\endcols{\end{columns}}
+---
 
 # Introduction 
 
@@ -107,8 +109,7 @@ The flowchart of interpretable machine learning[@lundberg]
 
 TLE_EML_Flow.png
 
-## EDA {.flexbox .vcenter}
-
+## EDA
 
 ## **SHAP**
 
