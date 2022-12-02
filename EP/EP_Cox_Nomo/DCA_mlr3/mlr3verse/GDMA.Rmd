@@ -71,6 +71,7 @@ showtext_auto()
 lgr::get_logger("mlr3")$set_threshold("warn")
 lgr::get_logger("bbotk")$set_threshold("warn")
 ```
+
 # Introduction 
 
 ## Background
@@ -81,33 +82,37 @@ knitr::include_graphics(c("images/global_epi.png"))
 
 ## Aims
 
-```{r echo=FALSE, out.width=c("65%", "75%"),fig.cap="Focuses on interpretability of ML"}
+```{r echo=FALSE, out.width=c("75%", "85%"),fig.cap="Focuses on interpretability of ML"}
 knitr::include_graphics(c("images/Black-box.png", "images/xai.png"))
 ```
 
 ## Scheme
 
-```{r echo=FALSE, out.width=c("90%"),fig.align="center", fig.cap="Flowchart"}
+```{r echo=FALSE, out.width=c("95%"),fig.align="center", fig.cap="Flowchart of TLE postsurgical IML"}
 knitr::include_graphics(c("images/TLE_EML_Flow.png"))
 ```
 
 # The Data
 
-## EDA
+## Combined of PET Radiomics and Clinical Features
 
-It's a clean, easy to understand set of data. However, the meaning of some of the column headers are not obvious. Here's what they mean,
+```{r echo=FALSE, out.width=c("110%"),fig.align="center", fig.cap="PET radiomics  score and clinical-PET features"}
+knitr::include_graphics(c("images/PET_radiomics.png"))
+```
 
-- age: The person's age in years
+## Exploratory Data Analysis
 
-## **SHAP**
-
-- **Shapley**
+```{r echo=FALSE, out.width=c("100%"),fig.align="center", fig.cap="Heatmap of clinical-PET features"}
+knitr::include_graphics(c("images/heatplot.png"))
+```
 
 
 # The Model
 
 ## Benchmark
-The next part fits a random forest model to the data,
+
+
+
 
 
 
