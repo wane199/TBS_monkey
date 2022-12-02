@@ -102,10 +102,11 @@ knitr::include_graphics(c("images/PET_radiomics.png"))
 
 ## Exploratory Data Analysis
 
-```{r echo=FALSE, out.width=c("100%"),fig.align="center", fig.cap="Heatmap of clinical-PET features"}
+- Heatmap of Clinical-PET Features
+
+```{r echo=FALSE, out.width=c("70%"),fig.align="center", fig.cap=""}
 knitr::include_graphics(c("images/heatplot.png"))
 ```
-
 
 # The Model
 
