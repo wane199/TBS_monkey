@@ -37,7 +37,6 @@ linkcolor: ForestGreen
 classoption: fontset=fandol #dvipsnames, UTF8
 biblio-title: References
 ---
-
 \setbeamercolor{titlelike}{bg=black,fg=white}
 
 \newcommand\Background{%
@@ -77,7 +76,7 @@ lgr::get_logger("bbotk")$set_threshold("warn")
 \def\endcol{\end{column}}
 \def\endcols{\end{columns}}
 
-# Introduction
+# Introduction 
 
 ## Background
 
@@ -90,8 +89,8 @@ Prevalence per 100000 of idiopathic epilepsy, 2016[@beghi2019global]
 ## Aims
 
 - Focuses on examining the interpretability of machine learning models rather than just building a short-term recurrence prediction model (IML, aka XAI).
-```{r echo=FALSE, out.width=c("100%")}
-knitr::include_graphics(c("images/xai.png"))
+```{r echo=FALSE, out.width=c("20%", "50%")}
+knitr::include_graphics(c("images/Black-box.png", "images/xai.png"))
 ```
 
 Learning Performance Versus Explainability Trade-Off[@gunning2019darpa]
@@ -99,16 +98,17 @@ Learning Performance Versus Explainability Trade-Off[@gunning2019darpa]
 ## Scheme
 
 ```{r echo=FALSE, out.width=c("100%")}
-knitr::include_graphics(c("images/XML_IML.png"))
+knitr::include_graphics(c("images/TLE_EML_Flow.png"))
 ```
 
-The flowchart of interpretable machine learning[@]
+The flowchart of interpretable machine learning[@lundberg]
 
 # The Data
 
+TLE_EML_Flow.png
+
 ## EDA {.flexbox .vcenter}
 
-\Background
 
 ## **SHAP**
 
@@ -122,9 +122,7 @@ The flowchart of interpretable machine learning[@]
 This text is centered.
 </div>
 
-**基准测试**（`benchmark`），用来比较不同学习器（算法）、在多个任务（数据）和/或不同重抽样策略（多个数据副本）上的平均性能表现。
-
-基准测试时有一个关键问题是，测试的公平性，即每个算法的每次测试必须在相同的重抽样训练集拟合模型，在相同的重抽样测试集评估性能。
+**基准测试**（`benchmark`），
 
 例如，
 
@@ -133,9 +131,6 @@ This text is centered.
 - 创建基准测试“设计”（每个学习器不能只凭一次结果，采用$5$折交叉验证的平均结果）
 - 查看性能指标：准确率、`AUC`值
 - 箱线图展示`AUC`值的对比结果
-
-##
-
 
 ## 三. 图学习器
 
@@ -150,8 +145,6 @@ This text is centered.
 管道、图学习器主要用于：
 
 - 特征工程：缺失值插补、特征变换、特征选择、处理不均衡数据……
-- 集成学习：装袋法、堆叠法
-- 分支训练、分块训练
 
 ## 1. 特征工程
 
@@ -162,6 +155,7 @@ This text is centered.
 - 很多`PipeOp`都支持`affect_columns`参数（接受`Selector`选择器）
 
 # The Explanation 
+
 ## 
 
 ```{r echo=FALSE, out.width="75%", fig.align="center", fig.cap="特征工程管道示意图"}
@@ -214,7 +208,7 @@ knitr::include_graphics("images/feature_engineering.png")
 
 ## 七. 模型解释
 
-可以从特征层面（特征效应、夏普利值、特征重要度）、观测层面（探索模型在单个观测上的表现）给出指标和可视化的模型解释，具体请参阅[《R机器学习：mlr3verse技术手册》](https://gitee.com/zhjx19/rconf15)[@mlr3manual]。
+阅[《R机器学习：mlr3verse技术手册》](https://gitee.com/zhjx19/rconf15)[@mlr3manual]。
 
 ##
 <!-- ![Caption for the picture.](images/GDMA.png) -->
