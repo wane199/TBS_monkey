@@ -44,12 +44,14 @@ biblio-title: References
   {\includegraphics[width=\paperwidth,height=\paperheight]{images/GDMA.png}};
 \end{tikzpicture}%
 }
-<!-- % Two-Column Layouts -->
+
 \def\begincols{\begin{columns}}
 \def\begincol{\begin{column}}
 \def\endcol{\end{column}}
 \def\endcols{\end{columns}}
+
 ```{r setup, include=FALSE}
+
 options(digits = 3)
 knitr::opts_chunk$set(
   comment = "#>",
@@ -82,13 +84,13 @@ knitr::include_graphics(c("images/global_epi.png"))
 
 ## Aims
 
-```{r echo=FALSE, out.width=c("75%", "85%"),fig.cap="Focuses on interpretability of ML"}
+```{r echo=FALSE, out.width=c("70%", "80%"),fig.cap="Focuses on interpretability of ML"}
 knitr::include_graphics(c("images/Black-box.png", "images/xai.png"))
 ```
 
 ## Scheme
 
-```{r echo=FALSE, out.width=c("95%"),fig.align="center", fig.cap="Flowchart of TLE postsurgical IML"}
+```{r echo=FALSE, out.width=c("85%"),fig.align="center", fig.cap="Flowchart of TLE postsurgical IML"}
 knitr::include_graphics(c("images/TLE_EML_Flow.png"))
 ```
 
@@ -102,9 +104,7 @@ knitr::include_graphics(c("images/PET_radiomics.png"))
 
 ## Exploratory Data Analysis
 
-- Heatmap of Clinical-PET Features
-
-```{r echo=FALSE, out.width=c("70%"),fig.align="center", fig.cap=""}
+```{r echo=FALSE, out.width=c("60%"),fig.align="center", fig.cap="Heatmap of Clinical-PET Features"}
 knitr::include_graphics(c("images/heatplot.png"))
 ```
 
@@ -112,34 +112,67 @@ knitr::include_graphics(c("images/heatplot.png"))
 
 ## Benchmark
 
+**Table 1:** Performance Comparison Eleven ML algorithms and K-folds Cross-validation of the Selected AdaBoost
+\begin{columns}
+\column{.4\textwidth}
+\begin{figure}
+\centering
+% Requires \usepackage{graphicx}
+\includegraphics[width=6cm]{images/caret.png}
+\end{figure}
+\column{.5\textwidth}
+\begin{figure}
+\centering
+% Requires \usepackage{graphicx}
+\includegraphics[width=6cm]{images/k_fold_tuned_Ada.png}
+\end{figure}
+\end{columns}
 
+## AdaBoost Algorithm
 
-
-
+```{r echo=FALSE, out.width=c("80%"),fig.align="center", fig.cap="Illustration of AdaBoost Algorithm"}
+knitr::include_graphics(c("images/AdaBoost.png"))
+```
+- `AdaBoostClassifier(algorithm='SAMME', base_estimator=None, learning_rate=0.2,
+                   n_estimators=230, random_state=123)` 
 
 # The Explanation 
 
-## 
+## Permutation Importance
 
-```{r echo=FALSE, out.width="75%", fig.align="center", fig.cap=""}
-knitr::include_graphics("images/feature_engineering.png")
+```{r echo=FALSE, out.width="60%", fig.align="center", fig.cap="Permutation Importance of AdaBoost"}
+knitr::include_graphics("images/eli5.png")
+``` 
+
+## Partial Dependence Plot
+
+```{r echo=FALSE, out.width=c("80%"),fig.align="center", fig.cap="PDP plot of AI_radscore"}
+knitr::include_graphics("images/PDP_ai.png")
 ``` 
 
 # Conclusion
 
-## con
+## Key Points
 
+- Metabolic radiomics are helpful to predict the post-surgical seizure outcomes;
+- Combination of PET Radiomics and Clinical Features are more robust;
+- IML technique can further deepen the understanding of the principle of machine learning model and the decision-making process for professional and intuitive interpretation
+
+## Limitations
+
+- More data, especially external validation cohort;
+- Fusion of PET/MRI multimodal imaging;
+- Other subtypes of drug-resistant epilepsy
 
 
 
 ## 
 
-For more theoretical approaches to machine learning model explanation, see [Interpretable Machine Learning: A Guide for Making Black Box Models Explainable](https://christophm.github.io/interpretable-ml-book/),[What Causes Heart Disease? Explaining the Model](https://www.kaggle.com/code/tentotheminus9/what-causes-heart-disease-explaining-the-model/notebook), refer to[@rajpurkar2021deep], [@mlr3book], [@molnar2022]。
+For more theoretical approaches to machine learning model explanation, see [Interpretable Machine Learning: A Guide for Making Black Box Models Explainable](https://christophm.github.io/interpretable-ml-book/),refer to[@beghi2019global],[@rajpurkar2021deep],[@mlr3book],[@molnar2022].
 
 \bigskip
 
 **Email:** wane199@outlook.com
-
 
 ## 
 
