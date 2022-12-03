@@ -5,7 +5,7 @@ author:
   - "Huanhua Wu  \t\n Prof. Hao Xu$^{*}$ &nbsp;"
 institute:  The First Affiliated Hospital of Jinan University &nbsp;
 date: "`r Sys.Date()`"
-fontsize: 9pt
+fontsize: 10pt
 output:
   beamer_presentation:
     citation_package: natbib
@@ -26,6 +26,7 @@ header-includes:
 - \usepackage{wrapfig}
 - \usepackage{tikz}
 - \usepackage{wallpaper} # %使用wallpaper宏包
+- \usepackage{xcolor}
 - \usepackage[default]{sourcesanspro}
 - \usepackage[scale=.9]{sourcecodepro}
 keywords: Epilepsy, PET/CT, Radiomics, Explainable Machine Learning # https://www.kaggle.com/code/tentotheminus9/what-causes-heart-disease-explaining-the-model
@@ -85,10 +86,28 @@ knitr::include_graphics(c("images/global_epi.png"))
 
 ## Aims
 
-```{r echo=FALSE, out.width=c("70%", "80%"),fig.cap="Focus on Interpretability of ML"}
-knitr::include_graphics(c("images/Black-box.png", "images/xai.png"))
-```
+\begin{columns}
+\column{.45\textwidth}
+\begin{figure}
+\centering
+% Requires \usepackage{graphicx}
+\includegraphics[width=5.5cm]{images/Black-box.png}
+\caption{Black-box of AI}
+\end{figure}
+\column{.65\textwidth}
+\begin{figure}
+\centering
+% Requires \usepackage{graphicx}
+\includegraphics[width=6.3cm]{images/xai.png}
+\caption{Learning Performance Versus Explainability Trade-Off of AI}
+\end{figure}
+\end{columns}
 
+<!-- ##  -->
+
+<!-- ```{r echo=FALSE, out.width=c("70%", "80%"),fig.cap="Focus on Interpretability of ML"} -->
+<!-- knitr::include_graphics(c("images/Black-box.png", "images/xai.png")) -->
+<!-- ``` -->
 ## Scheme
 
 ```{r echo=FALSE, out.width=c("85%"),fig.align="center", fig.cap="Flowchart of TLE Postsurgical IML"}
@@ -113,8 +132,73 @@ knitr::include_graphics(c("images/heatplot.png"))
 
 ## Benchmark
 
-**Table 1:** Performance Comparison Eleven ML algorithms and K-folds Cross-validation of the Selected AdaBoost
-\begin{columns}
+**Table 1:** Performance Comparison Eleven ML algorithms
+\centering
+\tiny
+\begin{table}[]
+\begin{tabular}{lllllllll} \hline
+Model                           & Accuracy & AUC   & Recall & Prec. & F1    & Kappa & MCC   & APC   \\ \hline
+Ada Boost Classifier            & 0.883    & 0.789 & 0.4    & 0.433 & 0.393 & 0.345 & 0.357 & 0.59  \\ 
+Extreme Gradient Boosting       & 0.884    & 0.777 & 0.3    & 0.4   & 0.333 & 0.287 & 0.295 & 0.607 \\
+Random Forest Classifier        & 0.884    & 0.763 & 0.2    & 0.35  & 0.25  & 0.217 & 0.23  & 0.612 \\
+Gradient Boosting Classifier    & 0.89     & 0.762 & 0.35   & 0.483 & 0.39  & 0.346 & 0.36  & 0.591 \\
+Light Gradient Boosting Machine & 0.859    & 0.749 & 0.25   & 0.325 & 0.267 & 0.211 & 0.221 & 0.512 \\
+Logistic Regression             & 0.878    & 0.669 & 0.05   & 0.1   & 0.067 & 0.055 & 0.059 & 0.448 \\
+Extra Trees Classifier          & 0.884    & 0.662 & 0.1    & 0.2   & 0.133 & 0.118 & 0.127 & 0.443 \\
+K Neighbors Classifier          & 0.865    & 0.646 & 0.2    & 0.2   & 0.183 & 0.14  & 0.149 & 0.283 \\
+Linear Discriminant Analysis    & 0.884    & 0.642 & 0.1    & 0.2   & 0.133 & 0.119 & 0.128 & 0.418 \\
+Naive Bayes                     & 0.251    & 0.586 & 0.9    & 0.129 & 0.226 & 0.014 & 0.072 & 0.332 \\
+Decision Tree Classifier        & 0.798    & 0.584 & 0.3    & 0.264 & 0.259 & 0.158 & 0.167 & 0.218 \\
+Std                             & 0.047    & 0.172 & 0.320  & 0.490 & 0.367 & 0.368 & 0.384 & 0.200 \\ \hline
+\end{tabular}
+\end{table}
+
+## AdaBoost Algorithm
+
+```{r echo=FALSE, out.width=c("80%"),fig.align="center", fig.cap="Illustration of AdaBoost Algorithm"}
+knitr::include_graphics(c("images/AdaBoost.png"))
+```
+- `AdaBoostClassifier(algorithm='SAMME', base_estimator=None, learning_rate=0.2,
+                   n_estimators=230, random_state=123)` 
+
+## Tuned AdaBoost
+
+**Table 2:** K-folds Cross-validation of the Selected AdaBoost
+\centering
+\tiny
+\begin{table}[]
+\begin{tabular}{lllllllll}
+\hline
+\multicolumn{1}{c}{Tuned\_Ada} & \multicolumn{1}{c}{Accuracy} & \multicolumn{1}{c}{AUC} & \multicolumn{1}{c}{Recall} & \multicolumn{1}{c}{Prec.} & \multicolumn{1}{c}{F1} & \multicolumn{1}{c}{Kappa} & \multicolumn{1}{c}{MCC} & \multicolumn{1}{c}{APC} \\ \hline
+1                              & 0.882                        & 0.733                   & 0.000                      & 0.000                     & 0.000                  & 0.000                     & 0.000                   & 0.361                   \\ 
+2                              & 1.000                        & 1.000                   & 1.000                      & 1.000                     & 1.000                  & 1.000                     & 1.000                   & 1.000                   \\
+3                              & 0.824                        & 0.550                   & 0.000                      & 0.000                     & 0.000                  & -0.085                    & -0.091                  & 0.183                   \\
+4                              & 0.875                        & 0.893                   & 0.000                      & 0.000                     & 0.000                  & 0.000                     & 0.000                   & 0.500                   \\
+5                              & 0.938                        & 0.929                   & 0.500                      & 1.000                     & 0.667                  & 0.636                     & 0.683                   & 0.750                   \\
+6                              & 0.938                        & 0.964                   & 0.500                      & 1.000                     & 0.667                  & 0.636                     & 0.683                   & 0.833                   \\
+7                              & 0.875                        & 0.554                   & 0.000                      & 0.000                     & 0.000                  & 0.000                     & 0.000                   & 0.321                   \\
+8                              & 0.938                        & 0.964                   & 0.500                      & 1.000                     & 0.667                  & 0.636                     & 0.683                   & 0.833                   \\
+9                              & 0.938                        & 1.000                   & 0.500                      & 1.000                     & 0.667                  & 0.636                     & 0.683                   & 1.000                   \\
+10                             & 0.938                        & 0.679                   & 0.500                      & 1.000                     & 0.667                  & 0.636                     & 0.683                   & 0.591                   \\
+Mean                           & 0.914                        & 0.827                   & 0.350                      & 0.600                     & 0.433                  & 0.410                     & 0.432                   & 0.637                   \\
+Std                            & 0.047                        & 0.172                   & 0.320                      & 0.490                     & 0.367                  & 0.368                     & 0.384                   & 0.200       \\ \hline           
+\end{tabular}
+\end{table}
+
+
+# The Explanation 
+
+## Permutation Importance
+
+```{r echo=FALSE, out.width="60%", fig.align="center", fig.cap="Permutation Importance of AdaBoost"}
+knitr::include_graphics("images/eli5.png")
+``` 
+
+## Partial Dependence Plot
+PDP plots:
+
+\begin{itemize}[<+->]
+\item \begin{columns}
 \column{.4\textwidth}
 \begin{figure}
 \centering
@@ -128,53 +212,6 @@ knitr::include_graphics(c("images/heatplot.png"))
 \includegraphics[width=6cm]{images/k_fold_tuned_Ada.png}
 \end{figure}
 \end{columns}
-
-## 
-
-**Table 1:** Performance Comparison Eleven ML algorithms
-\centering
-\begin{table}[]
-\begin{tabular}{|l|l|l|l|l|l|l|l|l|}
-\hline
-Model                           & Accuracy & AUC   & Recall & Prec. & F1    & Kappa & MCC   & APC   \\ \hline
-Ada Boost Classifier            & 0.883    & 0.789 & 0.4    & 0.433 & 0.393 & 0.345 & 0.357 & 0.59  \\ \hline
-Extreme Gradient Boosting       & 0.884    & 0.777 & 0.3    & 0.4   & 0.333 & 0.287 & 0.295 & 0.607 \\ \hline
-Random Forest Classifier        & 0.884    & 0.763 & 0.2    & 0.35  & 0.25  & 0.217 & 0.23  & 0.612 \\ \hline
-Gradient Boosting Classifier    & 0.89     & 0.762 & 0.35   & 0.483 & 0.39  & 0.346 & 0.36  & 0.591 \\ \hline
-Light Gradient Boosting Machine & 0.859    & 0.749 & 0.25   & 0.325 & 0.267 & 0.211 & 0.221 & 0.512 \\ \hline
-Logistic Regression             & 0.878    & 0.669 & 0.05   & 0.1   & 0.067 & 0.055 & 0.059 & 0.448 \\ \hline
-Extra Trees Classifier          & 0.884    & 0.662 & 0.1    & 0.2   & 0.133 & 0.118 & 0.127 & 0.443 \\ \hline
-K Neighbors Classifier          & 0.865    & 0.646 & 0.2    & 0.2   & 0.183 & 0.14  & 0.149 & 0.283 \\ \hline
-Linear Discriminant Analysis    & 0.884    & 0.642 & 0.1    & 0.2   & 0.133 & 0.119 & 0.128 & 0.418 \\ \hline
-Naive Bayes                     & 0.251    & 0.586 & 0.9    & 0.129 & 0.226 & 0.014 & 0.072 & 0.332 \\ \hline
-Decision Tree Classifier        & 0.798    & 0.584 & 0.3    & 0.264 & 0.259 & 0.158 & 0.167 & 0.218 \\ \hline
-\end{tabular}
-\end{table}
-
-
-## AdaBoost Algorithm
-
-```{r echo=FALSE, out.width=c("80%"),fig.align="center", fig.cap="Illustration of AdaBoost Algorithm"}
-knitr::include_graphics(c("images/AdaBoost.png"))
-```
-- `AdaBoostClassifier(algorithm='SAMME', base_estimator=None, learning_rate=0.2,
-                   n_estimators=230, random_state=123)` 
-
-# The Explanation 
-
-## Permutation Importance
-
-```{r echo=FALSE, out.width="60%", fig.align="center", fig.cap="Permutation Importance of AdaBoost"}
-knitr::include_graphics("images/eli5.png")
-``` 
-
-## Partial Dependence Plot
-\begin{itemize}[<+->]
-\item PDP plot:
-\item
-```{r echo=FALSE, out.width=c("35%","35%","35%")}
-knitr::include_graphics(c("images/pdp_ai.png","images/pdp_Lat.png","images/pdp_surgmon.png"))
-``` 
 \end{itemize}
 
 # Conclusion
@@ -213,4 +250,3 @@ For more theoretical approaches to machine learning model explanation, see [Inte
   \emph{\textbf{\Huge{{THANKS !}}}}
 \end{center}
 \Background
-
