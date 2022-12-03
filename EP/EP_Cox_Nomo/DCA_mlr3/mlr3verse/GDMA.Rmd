@@ -20,7 +20,8 @@ output:
 section-titles: true
 indent: yes
 header-includes:
-- \logo{\includegraphics[width=0.6in,height=0.2in]{"images/JNU1.jpg"}}
+- \titlegraphic{\includegraphics[height=1.5cm]{images/First.jpg}}
+- \logo{\includegraphics[width=0.6in,height=0.2in]{images/JNU1.jpg}}
 - \usepackage[fontset = windows]{} # ctex显示中文
 - \usepackage{wrapfig}
 - \usepackage{tikz}
@@ -128,6 +129,18 @@ knitr::include_graphics(c("images/heatplot.png"))
 \end{figure}
 \end{columns}
 
+## 
+
+\centering
+\begin{tabular}{}
+\hline
+\rowcolor{LightBlue}
+    The variables & \multicolumn{4}{c}{The data}\\ \hline
+    var 1 & 1 & 2 & 3 & 4 \\ \hline
+    var 2 & 1 & 2 & 3 & 4 \\ \hline
+    var 3 & 1 & 2 & 3 & 4 \\ \hline
+\end{tabular}
+
 ## AdaBoost Algorithm
 
 ```{r echo=FALSE, out.width=c("80%"),fig.align="center", fig.cap="Illustration of AdaBoost Algorithm"}
@@ -145,30 +158,35 @@ knitr::include_graphics("images/eli5.png")
 ``` 
 
 ## Partial Dependence Plot
-
+\begin{itemize}[<+->]
+\item PDP plot:
+\item
 ```{r echo=FALSE, out.width=c("35%","35%","35%")}
 knitr::include_graphics(c("images/pdp_ai.png","images/pdp_Lat.png","images/pdp_surgmon.png"))
 ``` 
+\end{itemize}
 
 # Conclusion
 
 ## Key Points
 
-- Metabolic radiomics are helpful to predict the postsurgical seizure outcomes;
-
-- Combination of PET Radiomics and Clinical Features are more robust;
-
-- IML technique can further deepen the understanding of the principle of ML models and the decision-making process for professional and intuitive interpretation
+\begin{itemize}[<+->]
+\item Metabolic radiomics are helpful to predict the postsurgical seizure outcomes;
+\bigskip
+\item Combination of PET Radiomics and Clinical Features are more robust;
+\bigskip
+\item IML technique can further deepen the understanding of the principle of ML models and the decision-making process for professional and intuitive interpretation
+\end{itemize}
 
 ## Limitations
 
-- More data, especially external validation cohort;
-
-- Fusion of PET/MRI multimodal imaging;
-
-- Other subtypes of drug-resistant epilepsy
-
-
+\begin{itemize}[<+->]
+\item More data, especially external validation cohort;
+\bigskip
+\item Fusion of PET/MRI multimodal imaging;
+\bigskip
+\item Other subtypes of drug-resistant epilepsy
+\end{itemize}
 
 ## 
 
