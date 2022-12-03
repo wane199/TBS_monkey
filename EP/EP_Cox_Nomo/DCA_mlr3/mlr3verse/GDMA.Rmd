@@ -5,7 +5,7 @@ author:
   - "Huanhua Wu  \t\n Prof. Hao Xu$^{*}$ &nbsp;"
 institute:  The First Affiliated Hospital of Jinan University &nbsp;
 date: "`r Sys.Date()`"
-fontsize: 11pt
+fontsize: 9pt
 output:
   beamer_presentation:
     citation_package: natbib
@@ -131,15 +131,26 @@ knitr::include_graphics(c("images/heatplot.png"))
 
 ## 
 
+**Table 1:** Performance Comparison Eleven ML algorithms
 \centering
-\begin{tabular}{}
+\begin{table}[]
+\begin{tabular}{|l|l|l|l|l|l|l|l|l|}
 \hline
-\rowcolor{LightBlue}
-    The variables & \multicolumn{4}{c}{The data}\\ \hline
-    var 1 & 1 & 2 & 3 & 4 \\ \hline
-    var 2 & 1 & 2 & 3 & 4 \\ \hline
-    var 3 & 1 & 2 & 3 & 4 \\ \hline
+Model                           & Accuracy & AUC   & Recall & Prec. & F1    & Kappa & MCC   & APC   \\ \hline
+Ada Boost Classifier            & 0.883    & 0.789 & 0.4    & 0.433 & 0.393 & 0.345 & 0.357 & 0.59  \\ \hline
+Extreme Gradient Boosting       & 0.884    & 0.777 & 0.3    & 0.4   & 0.333 & 0.287 & 0.295 & 0.607 \\ \hline
+Random Forest Classifier        & 0.884    & 0.763 & 0.2    & 0.35  & 0.25  & 0.217 & 0.23  & 0.612 \\ \hline
+Gradient Boosting Classifier    & 0.89     & 0.762 & 0.35   & 0.483 & 0.39  & 0.346 & 0.36  & 0.591 \\ \hline
+Light Gradient Boosting Machine & 0.859    & 0.749 & 0.25   & 0.325 & 0.267 & 0.211 & 0.221 & 0.512 \\ \hline
+Logistic Regression             & 0.878    & 0.669 & 0.05   & 0.1   & 0.067 & 0.055 & 0.059 & 0.448 \\ \hline
+Extra Trees Classifier          & 0.884    & 0.662 & 0.1    & 0.2   & 0.133 & 0.118 & 0.127 & 0.443 \\ \hline
+K Neighbors Classifier          & 0.865    & 0.646 & 0.2    & 0.2   & 0.183 & 0.14  & 0.149 & 0.283 \\ \hline
+Linear Discriminant Analysis    & 0.884    & 0.642 & 0.1    & 0.2   & 0.133 & 0.119 & 0.128 & 0.418 \\ \hline
+Naive Bayes                     & 0.251    & 0.586 & 0.9    & 0.129 & 0.226 & 0.014 & 0.072 & 0.332 \\ \hline
+Decision Tree Classifier        & 0.798    & 0.584 & 0.3    & 0.264 & 0.259 & 0.158 & 0.167 & 0.218 \\ \hline
 \end{tabular}
+\end{table}
+
 
 ## AdaBoost Algorithm
 
