@@ -78,19 +78,19 @@ lgr::get_logger("bbotk")$set_threshold("warn")
 
 ## Background
 
-```{r echo=FALSE, out.width=c("100%"), fig.cap="Epilepsy epidemiology"}
+```{r echo=FALSE, out.width=c("100%"), fig.cap="Epilepsy Epidemiology"}
 knitr::include_graphics(c("images/global_epi.png"))
 ```
 
 ## Aims
 
-```{r echo=FALSE, out.width=c("70%", "80%"),fig.cap="Focuses on interpretability of ML"}
+```{r echo=FALSE, out.width=c("70%", "80%"),fig.cap="Focus on Interpretability of ML"}
 knitr::include_graphics(c("images/Black-box.png", "images/xai.png"))
 ```
 
 ## Scheme
 
-```{r echo=FALSE, out.width=c("85%"),fig.align="center", fig.cap="Flowchart of TLE postsurgical IML"}
+```{r echo=FALSE, out.width=c("85%"),fig.align="center", fig.cap="Flowchart of TLE Postsurgical IML"}
 knitr::include_graphics(c("images/TLE_EML_Flow.png"))
 ```
 
@@ -98,7 +98,7 @@ knitr::include_graphics(c("images/TLE_EML_Flow.png"))
 
 ## Combined of PET Radiomics and Clinical Features
 
-```{r echo=FALSE, out.width=c("110%"),fig.align="center", fig.cap="PET radiomics  score and clinical-PET features"}
+```{r echo=FALSE, out.width=c("110%"),fig.align="center", fig.cap="PET Radiomics  Score and Clinical-PET Features"}
 knitr::include_graphics(c("images/PET_radiomics.png"))
 ```
 
@@ -146,22 +146,26 @@ knitr::include_graphics("images/eli5.png")
 
 ## Partial Dependence Plot
 
-```{r echo=FALSE, out.width=c("80%"),fig.align="center", fig.cap="PDP plot of AI_radscore"}
-knitr::include_graphics("images/PDP_ai.png")
+```{r echo=FALSE, out.width=c("35%","35%","35%")}
+knitr::include_graphics(c("images/pdp_ai.png","images/pdp_Lat.png","images/pdp_surgmon.png"))
 ``` 
 
 # Conclusion
 
 ## Key Points
 
-- Metabolic radiomics are helpful to predict the post-surgical seizure outcomes;
+- Metabolic radiomics are helpful to predict the postsurgical seizure outcomes;
+
 - Combination of PET Radiomics and Clinical Features are more robust;
-- IML technique can further deepen the understanding of the principle of machine learning model and the decision-making process for professional and intuitive interpretation
+
+- IML technique can further deepen the understanding of the principle of ML models and the decision-making process for professional and intuitive interpretation
 
 ## Limitations
 
 - More data, especially external validation cohort;
+
 - Fusion of PET/MRI multimodal imaging;
+
 - Other subtypes of drug-resistant epilepsy
 
 
