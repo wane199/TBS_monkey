@@ -196,20 +196,19 @@ knitr::include_graphics("images/eli5.png")
 
 ## Partial Dependence Plot
 PDP plots:
-
 \begin{itemize}[<+->]
 \item \begin{columns}
 \column{.4\textwidth}
 \begin{figure}
 \centering
 % Requires \usepackage{graphicx}
-\includegraphics[width=6cm]{images/caret.png}
+\includegraphics[width=6cm]{images/pdp_1.png}
 \end{figure}
 \column{.5\textwidth}
 \begin{figure}
 \centering
 % Requires \usepackage{graphicx}
-\includegraphics[width=6cm]{images/k_fold_tuned_Ada.png}
+\includegraphics[width=6cm]{images/pdp_2.png}
 \end{figure}
 \end{columns}
 \end{itemize}

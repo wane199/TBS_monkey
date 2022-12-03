@@ -2,7 +2,7 @@
 library(mlr3verse)
 library(doParallel)
 
-dt0 <- read.csv("C:\\Users\\wane199\\Desktop\\EP\\REFER\\BLS\\KAI\\process_rad_lat_7.csv")
+dt0 <- read.csv("C:\\Users\\wane199\\Desktop\\sci\\cph\\XML\\TLE234group_2019.csv")
 dt0 <- read.csv("/home/wane/Desktop/EP/sci/cph/XML/TLE234group_2019.csv")
 dat <- dt0[c(-1:-3, -4:-6)]
 dat$oneyr <- factor(dat$oneyr)
@@ -38,7 +38,7 @@ pred$output$data() # 部分
 # 构建管道就是取出相应的PipeOps，用%>>%操作符连接成管道。
 linear_pipeline <- po("scale") %>>%
   po("pca") %>>%
-  po("learner", learner = lrn("classif.rpart"))
+  po("learner", learner = lrn("classif.AdaBoostM1"))
 linear_pipeline
 
 linear_pipeline$plot(html = FALSE)
@@ -139,7 +139,7 @@ rr$score(msr("classif.auc")) # 各个重抽样的AUC
 # 基准测试（benchmark）
 # tasks=tsk("sonar")#可以是多个任务
 learners <- lrns(
-  c(
+  c("classif.AdaBoostM1",
     "classif.rpart", "classif.kknn", "classif.cforest", "classif.ctree", "classif.cv_glmnet",
     "classif.ranger", "classif.svm"
   ),
