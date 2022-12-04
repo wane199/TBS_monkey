@@ -345,7 +345,8 @@ myLabel = as.vector(df$group)   ## 转成向量，否则图例的标签可能与
 df1 <-  df %>% group_by(group) %>%
   mutate(per = n() / nrow(df) * 100) %>%
   arrange(desc(per))
-
+str(df1)
+summary(df1)
 p <- df %>% group_by(group) %>%
   summarise(per = n() / nrow(df)) %>%
   ggplot(aes(x="",y=per,fill=group))+
@@ -358,17 +359,42 @@ p <- df %>% group_by(group) %>%
   theme(legend.position = "non")
 p
 # 绘制环状条图
-p2 <- df %>% group_by(group) %>%
-  summarise(per = n() / nrow(df)) %>%
-  ggplot(aes(df1)) +
+p3 <- ggplot(
+  df1,
+  aes(Feature, Coef, fill = Feature)
+) + geom_col() +  theme_bw() +
+  geom_text(
+    aes(label = Coef, y = Coef + 0.05),
+    position = position_dodge(0.9), size = 3,
+    vjust = 0
+  ) + 
+  theme(
+    panel.border = element_blank(),
+    legend.position = "none",
+    axis.text.x = element_text(size = 6.5, vjust = 0.5)
+  ) + coord_curvedpolar()
+
+ggplot(df1) +
+  geom_col(aes(x = Feature, y = per, fill = group),position = "dodge", width=0.6) + 
+  coord_polar()+
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    plot.background =element_blank(),
+    panel.background = element_blank(),
+    panel.grid = element_blank(),
+    axis.text.y = element_blank(),
+    axis.title = element_blank(),
+    axis.text.x = element_blank())
+p2 <- ggplot(df1) +
   # 设置刻度线
   annotate("segment", x = -Inf, xend = Inf, y = seq(0,10,1), yend = seq(0,10,1),
            size = rep(c(0.25, 0.1),length.out =11), alpha = 0.5)+
   # 添加标签 
-  annotate("label", x = 0, y = seq(0,10,1), label = seq(0,10,1),color="black",
-           size = 3, fill = "#FEF8FA",label.padding = unit(0.1,"lines"),
-           label.size = 0)+
-  geom_col(aes(x = df1$Feature, y = per, fill = group),position = "dodge", width=0.6)+
+  # annotate("label", x = 0, y = seq(0,10,1), label = seq(0,10,1),color="black",
+  #          size = 3, fill = "#FEF8FA",label.padding = unit(0.1,"lines"),
+  #          label.size = 0)+
+  geom_col(aes(x = Feature, y = per, fill = group),position = "dodge", width=0.6)+
   scale_y_continuous(limits = c(-4,10)) +
   scale_x_continuous(limits = c(-0.5,38.5), breaks = 1:38.5) +
   scale_fill_manual(values=c("#709AE1FF","#8A9197FF","#D2AF81FF","#FD7446FF",
@@ -387,15 +413,13 @@ p2 <- df %>% group_by(group) %>%
 p2
 
 # 拼图
-ggdraw(p2)+
-  draw_plot(p,scale=0.23,x=0,y=0)
+ggdraw(p3)+
+  draw_plot(p,scale=0.13,x=0,y=0)
 
-
-
-
+# geomtextpath | 成功让你的ggplot注释拥有傲人曲线！
 library(geomtextpath)
 df <- read.csv("C:\\Users\\wane199\\Desktop\\EP\\REFER\\BLS\\KAI\\coef.minPTcox_lat_14_bar.csv")
-pie <- ggplot(df, aes(x = factor(1), fill = factor(Feature))) +
+pie <- ggplot(df, aes(x = factor(Coef), fill = factor(Feature))) +
   geom_bar(width = 1)
 pie + coord_curvedpolar(theta = "y")
 # Demonstrating curved category labels
