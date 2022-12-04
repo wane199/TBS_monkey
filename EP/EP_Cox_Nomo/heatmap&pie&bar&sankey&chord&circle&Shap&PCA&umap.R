@@ -146,11 +146,13 @@ x.melt <- melt(x, id.vars = "sub")
 # [环状热图](https://mp.weixin.qq.com/s?__biz=MzkyODIyOTY5Ng==&mid=2247485815&idx=1&sn=1769b481c233d258b545d4b54bd08ae7&chksm=c21ab958f56d304ecc9724ffd440850e7616aa05fd50ea33fe8ae25f29ce568927d6fa3f8434&mpshare=1&scene=1&srcid=10211vFAPELgSVA6Rt3zrapA&sharer_sharetime=1666615221816&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
 # 基础版
 ggplot(x.melt, aes(x = sub, y = variable)) +
-  geom_tile(aes(fill = value),color = 'black') +
-  scale_fill_gradient2(midpoint = 7, # 需要修改的参数
-                       low = '#3C8DAD',
-                       mid="white",
-                       high = '#FF6767')
+  geom_tile(aes(fill = value), color = "black") +
+  scale_fill_gradient2(
+    midpoint = 7, # 需要修改的参数
+    low = "#3C8DAD",
+    mid = "white",
+    high = "#FF6767"
+  )
 
 ggplot(x.melt, aes(x = variable, y = sub, fill = value)) +
   geom_tile(colour = "white", size = 0.25) + # 繪製熱圖
@@ -170,21 +172,27 @@ ggplot(x.melt, aes(x = variable, y = sub, fill = value)) +
 
 # 绘制普通分类变量环状热图：
 # X、Y轴为分类变量
-ggplot(x.melt,aes(x = sub, y = variable)) +
-  geom_tile(aes(fill = value),color = 'white') +
-  scale_fill_gradient2(midpoint = 7,# 需要修改的参数
-                       low = '#3C8DAD',
-                       mid="white",
-                       high = '#FF6767') +
-  scale_y_discrete(expand = expansion(mult = c(2,0))) +
-  scale_x_discrete(expand = expansion(mult = c(0,0.05))) +
-  coord_polar(theta = 'x') +
+ggplot(x.melt, aes(x = sub, y = variable)) +
+  geom_tile(aes(fill = value), color = "white") +
+  scale_fill_gradient2(
+    midpoint = 7, # 需要修改的参数
+    low = "#3C8DAD",
+    mid = "white",
+    high = "#FF6767"
+  ) +
+  scale_y_discrete(expand = expansion(mult = c(2, 0))) +
+  scale_x_discrete(expand = expansion(mult = c(0, 0.05))) +
+  coord_polar(theta = "x") +
   theme_void() +
-  geom_text(data = res,
-            aes(x = as.numeric(rownames(res)),
-                y = 13,# 需要修改的参数
-                label = sub, angle = ang, hjust = hjust),
-            size = 2)
+  geom_text(
+    data = res,
+    aes(
+      x = as.numeric(rownames(res)),
+      y = 13, # 需要修改的参数
+      label = sub, angle = ang, hjust = hjust
+    ),
+    size = 2
+  )
 # 绘制聚类封闭环状热图：
 # 基因聚类
 
@@ -195,43 +203,56 @@ library(ggh4x)
 library(ggdendro)
 
 # 封闭型
-ggplot(x.melt,aes(x = sub, y = variable)) +
-  geom_tile(aes(fill = value),color = 'white') +
+ggplot(x.melt, aes(x = sub, y = variable)) +
+  geom_tile(aes(fill = value), color = "white") +
   # 关键函数，聚类作用
-  scale_x_dendrogram(hclust = xclust) + scale_fill_gradientn(colours = cm.colors(10)) +
+  scale_x_dendrogram(hclust = xclust) +
+  scale_fill_gradientn(colours = cm.colors(10)) +
   # scale_fill_gradient2(midpoint = 7,# 需要修改的参数
   #                      low = '#3C8DAD',
   #                      mid="white",
   #                      high = '#FF6767') +
-  scale_y_discrete(expand = expansion(mult = c(2,0))) +
+  scale_y_discrete(expand = expansion(mult = c(2, 0))) +
   theme(axis.text.x = element_blank()) +
-  coord_polar(theta = 'x') +
+  coord_polar(theta = "x") +
   theme_void() +
-  geom_text(data = res,
-            aes(x = as.numeric(rownames(res)),
-                y = 17,# 需要修改的参数
-                label = sub, angle = ang, hjust = hjust),
-            size = 2.0)
+  geom_text(
+    data = res,
+    aes(
+      x = as.numeric(rownames(res)),
+      y = 17, # 需要修改的参数
+      label = sub, angle = ang, hjust = hjust
+    ),
+    size = 2.0
+  )
 
 # 开口型
-ggplot(x.melt,aes(x = sub, y = variable)) +
-  geom_tile(aes(fill = value),color = 'white') +
+ggplot(x.melt, aes(x = sub, y = variable)) +
+  geom_tile(aes(fill = value), color = "white") +
   # 关键函数，聚类作用
-  scale_x_dendrogram(hclust = xclust,
-                     expand = expansion(mult = c(0,0.05))) + scale_fill_gradientn(colours = cm.colors(10)) +
+  scale_x_dendrogram(
+    hclust = xclust,
+    expand = expansion(mult = c(0, 0.05))
+  ) +
+  scale_fill_gradientn(colours = cm.colors(10)) +
   # scale_fill_gradient2(midpoint = 10,# 需要修改的参数
   #                      low = '#3C8DAD',
   #                      mid="white",
   #                      high = '#FF6767') +
-  scale_y_discrete(expand = expansion(mult = c(2,0))) +
+  scale_y_discrete(expand = expansion(mult = c(2, 0))) +
   theme(axis.text.x = element_blank()) +
-  coord_polar(theta = 'x') +
-  theme_void() +  theme(legend.position = c(0.5,0.5)) + 
-  geom_text(data = res,
-            aes(x = as.numeric(rownames(res)),
-                y = 16,# 需要修改的参数
-                label = sub, angle = ang, hjust = hjust),
-            size = 2)
+  coord_polar(theta = "x") +
+  theme_void() +
+  theme(legend.position = c(0.5, 0.5)) +
+  geom_text(
+    data = res,
+    aes(
+      x = as.numeric(rownames(res)),
+      y = 16, # 需要修改的参数
+      label = sub, angle = ang, hjust = hjust
+    ),
+    size = 2
+  )
 # library(maftools)
 # plotVaf(maf = maf)
 
@@ -291,13 +312,62 @@ df <- group_by(train, oneyr) %>%
 pie(df$percent, labels = df$oneyr)
 
 # You can also call the palette using a name.
-ggplot(train, aes(y=oneyr, x=radscore)) +
+ggplot(train, aes(y = oneyr, x = radscore)) +
   geom_bin2d(bins = 170) +
   scale_fill_continuous(type = "viridis") +
   theme_bw()
 
-ggplot(data = train, mapping = aes(x = factor(oneyr), fill = factor(oneyr))) + geom_bar(stat = 'count', fill = 'steelblue', colour = 'darkred')
+ggplot(data = train, mapping = aes(x = factor(oneyr), fill = factor(oneyr))) +
+  geom_bar(stat = "count", fill = "steelblue", colour = "darkred")
 # + geom_text(mapping = aes(label = 'count'))
+
+# [跟着nature学绘图之绘制组合版环饼图](https://mp.weixin.qq.com/s?__biz=Mzg3MzQzNTYzMw==&mid=2247500203&idx=1&sn=1558e1f6c010e48b847d6ec094cd3ce2&chksm=cee29935f9951023867f9f58ba9a4ed81d4fbf17ff59fd45a8d44316374908ec12fb7e7cca5a&mpshare=1&scene=1&srcid=12045fVHEBZHTr16CgFuLiiT&sharer_sharetime=1670124218403&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
+library(tidyverse)
+library(readxl)
+library(camcorder)
+library(ggtext)
+library(ggsci)
+library(cowplot)
+# 数据清洗
+df <- read.csv("C:\\Users\\wane199\\Desktop\\EP\\REFER\\BLS\\KAI\\coef.minPTcox_lat_14_bar.csv") %>%
+  select(1, 2, 3, 4) %>%
+  rownames_to_column(var = "id") %>%
+  mutate_at(vars(c(S1)), ~ str_split(., " ", simplify = T)[, 1]) %>%
+  mutate(group_3 = rep(LETTERS[1:4], times = c(5, 12, 10, 11))) %>%
+  mutate(S1 = as.numeric(S1), ID = as.numeric(ID)) %>%
+  group_by(group_2) %>%
+  mutate(per = S1 / sum(S1) * 10) %>%
+  arrange(desc(per)) %>%
+  ungroup()
+
+
+
+library(geomtextpath)
+df <- read.csv("C:\\Users\\wane199\\Desktop\\EP\\REFER\\BLS\\KAI\\coef.minPTcox_lat_14_bar.csv")
+pie <- ggplot(df, aes(x = factor(1), fill = factor(Feature))) +
+  geom_bar(width = 1)
+pie + coord_curvedpolar(theta = "y")
+# Demonstrating curved category labels
+p <- ggplot(
+  df,
+  aes(Feature, Coef, fill = Feature)
+) + geom_col() +  theme_bw() +
+  geom_text(
+    aes(label = Coef, y = Coef + 0.05),
+    position = position_dodge(0.9), size = 3,
+    vjust = 0
+  ) + 
+  theme(
+    panel.border = element_blank(),
+    legend.position = "none",
+    axis.text.x = element_text(size = 6.5, vjust = 0.5)
+  )
+# Standard bar chart in Cartesian Co-ordinates
+p
+# Standard coord_polar axis labels
+p + coord_polar()
+# Curved polar co-ordinate labels
+p + coord_curvedpolar()
 
 # [堆积条形图](https://mp.weixin.qq.com/s?__biz=MzI1NjUwMjQxMQ==&mid=2247512387&idx=1&sn=1633a49972f6d7cd39c162995b16067e&chksm=ea274ea7dd50c7b1a6d5af8e5ccd31ee27f8accaf0ae2619444a13d6142b6ce782c21c32b560&mpshare=1&scene=1&srcid=0922dn68ZyKRpn3sak6k8GUD&sharer_sharetime=1663855775145&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
 library(ggplot2)
@@ -526,13 +596,13 @@ summary(data)
 # Get the name and the y position of each label
 label_data <- data
 number_of_bar <- nrow(label_data)
-angle <- 90 - 360 * (label_data$id-0.5) /number_of_bar     # I substract 0.5 because the letter must have the angle of the center of the bars. Not extreme right(1) or extreme left (0)
-label_data$hjust <- ifelse( angle < -90, 1, 0)
-label_data$angle <- ifelse(angle < -90, angle+180, angle)
+angle <- 90 - 360 * (label_data$id - 0.5) / number_of_bar # I substract 0.5 because the letter must have the angle of the center of the bars. Not extreme right(1) or extreme left (0)
+label_data$hjust <- ifelse(angle < -90, 1, 0)
+label_data$angle <- ifelse(angle < -90, angle + 180, angle)
 
 # Make the plot
-p <- ggplot(data, aes(x=as.factor(id), y=Coef, fill=group)) +       # Note that id is a factor. If x is numeric, there is some space between the first bar
-  geom_bar(stat="identity", alpha=0.5) +
+p <- ggplot(data, aes(x = as.factor(id), y = Coef, fill = group)) + # Note that id is a factor. If x is numeric, there is some space between the first bar
+  geom_bar(stat = "identity", alpha = 0.5) +
   # ylim(-100,120) +
   theme_minimal() +
   theme(
@@ -540,11 +610,11 @@ p <- ggplot(data, aes(x=as.factor(id), y=Coef, fill=group)) +       # Note that 
     axis.text = element_blank(),
     axis.title = element_blank(),
     panel.grid = element_blank(),
-    plot.margin = unit(rep(-1,4), "cm") 
+    plot.margin = unit(rep(-1, 4), "cm")
   ) +
-  coord_polar() +  # Add text showing the value of each 100/75/50/25 lines
-  ggplot2::annotate("text", x = rep(max(data$id), 7), y = c(seq(-0.2,1.0,0.2)), label = c("-0.2", "0", "0.2", "0.4", "0.6", "0.8", "1.0"),  color="grey", size=6 , angle=0, fontface="bold", hjust=1) + # , label = c("0", "0.5", "1.0", "1.5", "2.0")
-  geom_text(data=label_data, aes(x=id, y=Coef+0.1, label=Feature, hjust=hjust), color="black", fontface="bold",alpha=0.6, size=2.5, angle= label_data$angle, inherit.aes = FALSE ) 
+  coord_polar() + # Add text showing the value of each 100/75/50/25 lines
+  ggplot2::annotate("text", x = rep(max(data$id), 7), y = c(seq(-0.2, 1.0, 0.2)), label = c("-0.2", "0", "0.2", "0.4", "0.6", "0.8", "1.0"), color = "grey", size = 6, angle = 0, fontface = "bold", hjust = 1) + # , label = c("0", "0.5", "1.0", "1.5", "2.0")
+  geom_text(data = label_data, aes(x = id, y = Coef + 0.1, label = Feature, hjust = hjust), color = "black", fontface = "bold", alpha = 0.6, size = 2.5, angle = label_data$angle, inherit.aes = FALSE)
 p
 
 # Explaining individual machine learning predictions with Shapley values(https://cran.r-project.org/web/packages/shapr/vignettes/understanding_shapr.html)
@@ -605,9 +675,9 @@ plot(explanation_combined, plot_phi0 = FALSE, index_x_test = c(1, 6))
 library(gbm)
 #> Loaded gbm 2.1.5
 
-xy_train <- data.frame(x_train,medv = y_train)
+xy_train <- data.frame(x_train, medv = y_train)
 
-form <- as.formula(paste0(y_var,"~",paste0(x_var,collapse="+")))
+form <- as.formula(paste0(y_var, "~", paste0(x_var, collapse = "+")))
 
 # Fitting a gbm model
 set.seed(825)
@@ -620,34 +690,31 @@ model <- gbm::gbm(
 #### Full feature versions of the three required model functions ####
 
 predict_model.gbm <- function(x, newdata) {
-  
-  if (!requireNamespace('gbm', quietly = TRUE)) {
-    stop('The gbm package is required for predicting train models')
+  if (!requireNamespace("gbm", quietly = TRUE)) {
+    stop("The gbm package is required for predicting train models")
   }
-  
+
   model_type <- ifelse(
-    x$distribution$name %in% c("bernoulli","adaboost"),
+    x$distribution$name %in% c("bernoulli", "adaboost"),
     "classification",
     "regression"
   )
   if (model_type == "classification") {
-    
-    predict(x, as.data.frame(newdata), type = "response",n.trees = x$n.trees)
+    predict(x, as.data.frame(newdata), type = "response", n.trees = x$n.trees)
   } else {
-    
-    predict(x, as.data.frame(newdata),n.trees = x$n.trees)
+    predict(x, as.data.frame(newdata), n.trees = x$n.trees)
   }
 }
 
-get_model_specs.gbm <- function(x){
-  feature_list = list()
+get_model_specs.gbm <- function(x) {
+  feature_list <- list()
   feature_list$labels <- labels(x$Terms)
   m <- length(feature_list$labels)
-  
-  feature_list$classes <- attr(x$Terms,"dataClasses")[-1]
+
+  feature_list$classes <- attr(x$Terms, "dataClasses")[-1]
   feature_list$factor_levels <- setNames(vector("list", m), feature_list$labels)
-  feature_list$factor_levels[feature_list$classes=="factor"] <- NA # the model object doesn't contain factor levels info
-  
+  feature_list$factor_levels[feature_list$classes == "factor"] <- NA # the model object doesn't contain factor levels info
+
   return(feature_list)
 }
 
@@ -655,22 +722,22 @@ get_model_specs.gbm <- function(x){
 set.seed(123)
 explainer <- shapr(xy_train, model)
 #> The columns(s) medv is not used by the model and thus removed from the data.
-p0 <- mean(xy_train[,y_var])
+p0 <- mean(xy_train[, y_var])
 explanation <- explain(x_test, explainer, approach = "empirical", prediction_zero = p0)
 # Plot results
 plot(explanation)
 
-#### Minimal version of the three required model functions ####      
-# Note: Working only for this exact version of the model class 
-# Avoiding to define get_model_specs skips all feature         
-# consistency checking between your data and model             
+#### Minimal version of the three required model functions ####
+# Note: Working only for this exact version of the model class
+# Avoiding to define get_model_specs skips all feature
+# consistency checking between your data and model
 
 # Removing the previously defined functions to simulate a fresh start
 rm(predict_model.gbm)
 rm(get_model_specs.gbm)
 
 predict_model.gbm <- function(x, newdata) {
-  predict(x, as.data.frame(newdata),n.trees = x$n.trees)
+  predict(x, as.data.frame(newdata), n.trees = x$n.trees)
 }
 
 # Prepare the data for explanation
@@ -681,24 +748,24 @@ explainer <- shapr(x_train, model)
 #> vignette('understanding_shapr', package = 'shapr')
 #> for more information.
 #> The specified model provides feature labels that are NA. The labels of data are taken as the truth.
-p0 <- mean(xy_train[,y_var])
+p0 <- mean(xy_train[, y_var])
 explanation <- explain(x_test, explainer, approach = "empirical", prediction_zero = p0)
 # Plot results
 plot(explanation)
 
 # Principal Component Analysis with Biplot Analysis in R(https://medium.com/@RaharditoDP/principal-component-analysis-with-biplot-analysis-in-r-ee39d17096a1)
 # create coloumn branch become row names
-dataset <- read.csv('/home/wane/Desktop/EP/sci/cph/XML/TLE234group_2019.csv')
+dataset <- read.csv("/home/wane/Desktop/EP/sci/cph/XML/TLE234group_2019.csv")
 str(dataset)
-datasetnew <- dataset[,c(-1:-7)]
-rownames(datasetnew) <- dataset[,4]
+datasetnew <- dataset[, c(-1:-7)]
+rownames(datasetnew) <- dataset[, 4]
 View(datasetnew)
 
 # show eigen value score of PCA
 library(factoextra)
 library(FactoMineR)
 
-res.pca <- PCA(datasetnew,  graph = FALSE)
+res.pca <- PCA(datasetnew, graph = FALSE)
 res.pca$eig
 # show scree plot of PCA
 fviz_screeplot(res.pca, addlabels = TRUE)
@@ -711,9 +778,11 @@ fviz_pca_biplot(res.pca, repel = TRUE, ggtheme = theme_minimal())
 
 fviz_pca_var(res.pca, col.var = "steelblue")
 # Control variable colors using their contributions
-fviz_pca_var(res.pca, col.var = "contrib", 
-             gradient.cols = c("white", "blue", "red"),
-             ggtheme = theme_minimal())
+fviz_pca_var(res.pca,
+  col.var = "contrib",
+  gradient.cols = c("white", "blue", "red"),
+  ggtheme = theme_minimal()
+)
 # Graph of variables(https://f0nzie.github.io/machine_learning_compilation/detailed-study-of-principal-component-analysis.html)
 var <- get_pca_var(res.pca)
 var
@@ -724,37 +793,41 @@ head(var$cos2)
 head(var$contrib)
 # Correlation circle
 library(corrplot)
-corrplot(var$cos2, is.corr=FALSE)
+corrplot(var$cos2, is.corr = FALSE)
 # Total cos2 of variables on Dim.1 and Dim.2
 fviz_cos2(res.pca, choice = "var", axes = 1:2)
 
 # Color by cos2 values: quality on the factor map
-fviz_pca_var(res.pca, col.var = "cos2",
-             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
-             repel = TRUE # Avoid text overlapping
+fviz_pca_var(res.pca,
+  col.var = "cos2",
+  gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+  repel = TRUE # Avoid text overlapping
 )
 # Change the transparency by cos2 values
 fviz_pca_var(res.pca, alpha.var = "cos2")
 
 fviz_pca_ind(res.pca,
-             label = "none", # hide individual labels
-             habillage = dataset$oneyr, # color by groups
-             addEllipses = TRUE, # Concentration ellipses
-             palette = "jco"
+  label = "none", # hide individual labels
+  habillage = dataset$oneyr, # color by groups
+  addEllipses = TRUE, # Concentration ellipses
+  palette = "jco"
 )
-fviz_pca_ind(res.pca, col.ind = "cos2", 
-             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
-             repel = TRUE # Avoid text overlapping (slow if many points)
+fviz_pca_ind(res.pca,
+  col.ind = "cos2",
+  gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+  repel = TRUE # Avoid text overlapping (slow if many points)
 )
 
-fviz_pca_ind(res.pca, pointsize = "cos2", 
-             pointshape = 21, fill = "#E7B800",
-             repel = TRUE # Avoid text overlapping (slow if many points)
+fviz_pca_ind(res.pca,
+  pointsize = "cos2",
+  pointshape = 21, fill = "#E7B800",
+  repel = TRUE # Avoid text overlapping (slow if many points)
 )
-  
-fviz_pca_ind(res.pca, col.ind = "cos2", pointsize = "cos2",
-             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
-             repel = TRUE # Avoid text overlapping (slow if many points)
+
+fviz_pca_ind(res.pca,
+  col.ind = "cos2", pointsize = "cos2",
+  gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+  repel = TRUE # Avoid text overlapping (slow if many points)
 )
 
 
@@ -763,48 +836,51 @@ fviz_cos2(res.pca, choice = "ind")
 fviz_contrib(res.pca, choice = "ind", axes = 1:2)
 
 fviz_pca_ind(res.pca,
-             geom.ind = "point", # show points only (nbut not "text")
-             col.ind = factor(dataset$oneyr), # color by groups
-             palette = c("#00AFBB", "#E7B800", "#FC4E07"),
-             addEllipses = TRUE, # Concentration ellipses
-             legend.title = "Groups"
+  geom.ind = "point", # show points only (nbut not "text")
+  col.ind = factor(dataset$oneyr), # color by groups
+  palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+  addEllipses = TRUE, # Concentration ellipses
+  legend.title = "Groups"
 )
 
 # Add confidence ellipses
-fviz_pca_ind(res.pca, geom.ind = "point", col.ind = factor(dataset$oneyr), 
-             palette = c("#00AFBB", "#E7B800", "#FC4E07"),
-             addEllipses = TRUE, ellipse.type = "confidence",
-             legend.title = "Groups"
+fviz_pca_ind(res.pca,
+  geom.ind = "point", col.ind = factor(dataset$oneyr),
+  palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+  addEllipses = TRUE, ellipse.type = "confidence",
+  legend.title = "Groups"
 )
 
 fviz_pca_ind(res.pca,
-             label = "none", # hide individual labels
-             habillage = factor(dataset$oneyr), # color by groups
-             addEllipses = TRUE, # Concentration ellipses
-             palette = "jco"
+  label = "none", # hide individual labels
+  habillage = factor(dataset$oneyr), # color by groups
+  addEllipses = TRUE, # Concentration ellipses
+  palette = "jco"
 )
 
 # Add confidence ellipses
-fviz_pca_ind(res.pca, geom.ind = "point", 
-             col.ind = factor(dataset$oneyr), # color by groups
-             palette = c("#00AFBB", "#E7B800", "#FC4E07"),
-             addEllipses = TRUE, ellipse.type = "confidence",
-             legend.title = "Groups"
+fviz_pca_ind(res.pca,
+  geom.ind = "point",
+  col.ind = factor(dataset$oneyr), # color by groups
+  palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+  addEllipses = TRUE, ellipse.type = "confidence",
+  legend.title = "Groups"
 )
 # Convex hull
-fviz_pca_ind(res.pca, geom.ind = "point",
-             col.ind = factor(dataset$oneyr), # color by groups
-             palette = c("#00AFBB", "#E7B800", "#FC4E07"),
-             addEllipses = TRUE, ellipse.type = "convex",
-             legend.title = "Groups"
+fviz_pca_ind(res.pca,
+  geom.ind = "point",
+  col.ind = factor(dataset$oneyr), # color by groups
+  palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+  addEllipses = TRUE, ellipse.type = "convex",
+  legend.title = "Groups"
 )
 
 # umap(https://datavizpyr.com/how-to-make-umap-plot-in-r/)
 # 使用umap包进行UMAP降维可视化分析
 library(umap)
-data.labels = dataset$oneyr
+data.labels <- dataset$oneyr
 # 使用umap函数进行UMAP降维分析
-data.umap = umap::umap(datasetnew)
+data.umap <- umap::umap(datasetnew)
 data.umap
 ## umap embedding of 150 items in 2 dimensions
 ## object components: layout, data, knn, config
@@ -813,15 +889,19 @@ data.umap
 head(data.umap$layout)
 
 # 使用plot函数可视化UMAP的结果
-plot(data.umap$layout,col=data.labels,pch=16,asp = 1,
-     xlab = "UMAP_1",ylab = "UMAP_2",
-     main = "A UMAP visualization of the TLE dataset")
+plot(data.umap$layout,
+  col = data.labels, pch = 16, asp = 1,
+  xlab = "UMAP_1", ylab = "UMAP_2",
+  main = "A UMAP visualization of the TLE dataset"
+)
 # 添加分隔线
-abline(h=0,v=0,lty=2,col="gray")
+abline(h = 0, v = 0, lty = 2, col = "gray")
 # 添加图例
-legend("topright",title = "Species",inset = 0.01,
-       legend = unique(data.labels),pch=16,
-       col = unique(data.labels))
+legend("topright",
+  title = "Species", inset = 0.01,
+  legend = unique(data.labels), pch = 16,
+  col = unique(data.labels)
+)
 
 # 使用uwot包进行UMAP降维可视化分析
 library(uwot)
@@ -834,34 +914,42 @@ head(iris_umap)
 
 
 # 使用plot函数可视化UMAP降维的结果
-plot(iris_umap,col=dataset$oneyr,pch=16,asp = 1,
-     xlab = "UMAP_1",ylab = "UMAP_2",
-     main = "A UMAP visualization of the iris dataset")
+plot(iris_umap,
+  col = dataset$oneyr, pch = 16, asp = 1,
+  xlab = "UMAP_1", ylab = "UMAP_2",
+  main = "A UMAP visualization of the iris dataset"
+)
 # 添加分隔线
-abline(h=0,v=0,lty=2,col="gray")
+abline(h = 0, v = 0, lty = 2, col = "gray")
 # 添加图例
-legend("topright",title = "Species",inset = 0.01,
-       legend = unique(dataset$oneyr),pch=16,
-       col = unique(dataset$oneyr))
+legend("topright",
+  title = "Species", inset = 0.01,
+  legend = unique(dataset$oneyr), pch = 16,
+  col = unique(dataset$oneyr)
+)
 
 # Supervised dimension reduction using the 'Species' factor column
-data_sumap <- uwot::umap(dataset, n_neighbors = 15, min_dist = 0.001,
-                         y = dataset$oneyr, target_weight = 0.5)
+data_sumap <- uwot::umap(dataset,
+  n_neighbors = 15, min_dist = 0.001,
+  y = dataset$oneyr, target_weight = 0.5
+)
 head(data_sumap)
 
 
-data_sumap_res <- data.frame(data_sumap,Oneyr=dataset$oneyr)
+data_sumap_res <- data.frame(data_sumap, Oneyr = dataset$oneyr)
 head(data_sumap_res)
 
 
 # 使用ggplot2包可视化UMAP降维的结果
 library(ggplot2)
 
-ggplot(data_sumap_res,aes(X1,X2,color=Oneyr)) + 
-  geom_point() + theme_bw() + 
-  geom_hline(yintercept = 0,lty=2,col="red") + 
-  geom_vline(xintercept = 0,lty=2,col="blue",lwd=1) +
-  theme(plot.title = element_text(hjust = 0.5)) + 
-  labs(x="UMAP_1",y="UMAP_2",
-       title = "A UMAP visualization of the TLE dataset")
-
+ggplot(data_sumap_res, aes(X1, X2, color = Oneyr)) +
+  geom_point() +
+  theme_bw() +
+  geom_hline(yintercept = 0, lty = 2, col = "red") +
+  geom_vline(xintercept = 0, lty = 2, col = "blue", lwd = 1) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(
+    x = "UMAP_1", y = "UMAP_2",
+    title = "A UMAP visualization of the TLE dataset"
+  )
