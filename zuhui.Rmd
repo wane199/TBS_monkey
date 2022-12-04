@@ -1,5 +1,5 @@
 ---
-pagetitle: "Team Seminar Weekly"
+pagetitle: "Weekly Seminar"
 output:
   xaringan::moon_reader:
     css: ["default", "gds.css", "gds-fonts.css"]
@@ -48,26 +48,44 @@ xaringanExtra::use_clipboard()
 ```{r share-again, echo=FALSE}
 xaringanExtra::use_share_again()
 ```
-
-.bold[## Team Seminar Weekly]
-
+.bold[## Weekly Seminar]
 .black[Reporter: Huanhua Wu<br>]
 
-.bold[Supervisor: Hao Xu]
+.bold[Supervisor: Prof. Hao Xu* &nbsp;]
 
-PET/CT-MRI, JNU
+The First Affiliated Hospital of Jinan University &nbsp;
 
 `r Sys.Date()`
-
 ???
 https://huhuaping.com/2021/02/01/css-base-xaringan/
 https://mpetroff.net/files/beamer-theme-matrix/
+https://wallpaperaccess.com/artificial-intelligence-brain
+---
+# 吴环华工作汇报1205
+
+--
+.pull-left[
+## First
+Task 1.1 投稿;
+## Second
+Task 2.0 & task 2.2 初稿; 
+]
+
+--
+.pull-right[
+```{r echo=FALSE,out.width="125%",fig.cap="Task 1.0: ML Models for TLE"}
+knitr::include_graphics("./images/scientific_poster_HHW&KL.png")
+```
+]
+
+
+---
 ---
 # 吴环华工作汇报1107-1024
-
 ## First
 Gam & Gamlss package;
 
+--
 ## Second
 CPH & EML in TLE dataset(234); 
 

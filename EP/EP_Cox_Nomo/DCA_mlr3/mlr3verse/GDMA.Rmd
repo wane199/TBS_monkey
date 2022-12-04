@@ -41,9 +41,9 @@ biblio-title: References
 \setbeamercolor{titlelike}{bg=black,fg=white}
 \newcommand\Background{%
 \begin{tikzpicture}[remember picture,overlay]
-\node[inner sep = 0pt, outer sep = 0pt,opacity=0.95]
+\node[inner sep = 0pt, outer sep = 0pt,opacity=0.65]
   at (current page.center)
-  {\includegraphics[width=\paperwidth,height=\paperheight]{images/GDMA.png}};
+  {\includegraphics[width=\paperwidth,height=\paperheight]{images/AI.jpg}};
 \end{tikzpicture}%
 }
 
