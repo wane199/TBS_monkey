@@ -68,7 +68,9 @@ https://wallpaperaccess.com/artificial-intelligence-brain
 ## First
 Task 1.1 投稿;
 ## Second
-Task 2.0 & task 2.2 初稿; 
+Task 2.0 & task 2.2 初稿;
+
+[IML for TLE Prognostic Prediction](EP/EP_Cox_Nomo/DCA_mlr3/mlr3verse/GDMA.pdf)
 ]
 
 --
