@@ -132,7 +132,7 @@ knitr::include_graphics(c("images/heatplot.png"))
 
 ## Benchmark
 
-**Table 1:** Performance Comparison Eleven ML algorithms
+**Table 1:** Performance Comparison Eleven ML Algorithms
 \centering
 \tiny
 \begin{table}[]
