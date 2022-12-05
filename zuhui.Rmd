@@ -75,7 +75,7 @@ Task 2.0 & task 2.2 初稿;
 
 --
 .pull-right[
-```{r echo=FALSE,out.width="125%",fig.cap="Task 1.0: ML Models for TLE"}
+```{r echo=FALSE,out.width="120%",fig.cap="Task 1.0: ML Models for TLE"}
 knitr::include_graphics("./images/scientific_poster_HHW&KL.png")
 ```
 ]
