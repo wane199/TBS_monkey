@@ -30,6 +30,15 @@ dt %>%
   count(Age,Sex,
     sort = F
   )
+
+# 年龄段分组汇总
+dt.summary <- dt %>%
+  group_by(Age,Sex) %>%  # Sex
+  summarise(
+    sd = sd(SUVr_whole_refPons),
+    SUVr_whole_refPons = mean(SUVr_whole_refPons)
+  )
+
 # TLM <- read_excel("/home/wane/Desktop/TBS/TLMey/BMC.xlsx")
 # 数据探索
 TLM <- TLM[c(-1, -2, -5)]
@@ -207,16 +216,16 @@ plot(model.segmented2, col = "blue", lwd = 2.5, add = T)
 model.spline <- lm(dt$TBV ~ rcs(dt$Age, 5)) # 建立样条回归，设置3个节点
 summary(model.spline) # 查看模型概况
 # 样条回归拟合效果
-p7 <- ggplot(dt, aes(Age, TBV)) +
+p7 <- ggplot(dt, aes(Age, SUVr_whole_refPons, colour = Sex)) +
   geom_point() + 
   # geom_errorbar(aes(ymin = TBV - sd, ymax = TBV + sd), width = 0.1) + 
   theme_classic() +
-  stat_smooth(method = lm, formula = y ~ rcs(x, 5)) +
+  stat_smooth(method = lm, formula = y ~ rcs(x, 3)) +
   scale_x_continuous(breaks = seq(0, 30, 1)) +  # expand = c(0, 0),
-  scale_y_continuous(breaks = seq(45, 85, 5)) +  # expand = c(0, 0), 
+  # scale_y_continuous(breaks = seq(45, 85, 5)) +  # expand = c(0, 0), 
   stat_poly_eq(
     aes(label = paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
-    formula = y ~ rcs(x, 5), parse = TRUE
+    formula = y ~ rcs(x, 3), parse = TRUE
   ) + 
   theme(
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
@@ -228,9 +237,9 @@ p7
 model.lowess <- lowess(dt$TBV ~ dt$Age) # 建立局部加权回归
 summary(model.lowess) # 查看概况
 # 查看拟合
-p8 <- ggplot(dt, aes(Age, TBV)) +
+p8 <- ggplot(dt, aes(Age, SUVr_whole_refPons, colour = Sex)) +
   geom_point() + 
-  geom_errorbar(aes(ymin = TBV - sd, ymax = TBV + sd), width = 0.1) + 
+  # geom_errorbar(aes(ymin = SUVr_whole_refPons - sd, ymax = SUVr_whole_refPons + sd), width = 0.1) + 
   theme_classic() +
   stat_smooth(method = loess, formula = y ~ x) +
   scale_x_continuous(breaks = seq(0, 30, 1)) +  # expand = c(0, 0),
@@ -266,8 +275,8 @@ data.frame(
 # 查看模型拟合情况
 library(ggpmisc)
 library(ggpubr)
-my.formula <- y ~ s(x, k = 4, bs = "cs")
-p9 <- ggplot(dt, aes(Age, TBV)) +
+my.formula <- y ~ s(x, bs = "cs")
+p9 <- ggplot(dt.summary, aes(Age, SUVr_whole_refPons, colour = Sex)) +
   geom_point() +  
   # geom_errorbar(aes(ymin = TBV - sd, ymax = TBV + sd), fatten = 2.5, width = 0.2) + 
   # stat_cor(aes(), label.x = 6) +
@@ -288,17 +297,18 @@ p9 <- ggplot(dt, aes(Age, TBV)) +
 p9
 # triple in one
 summary(dt)
-my.formula <- y ~ bs(x, knots = 1, degree = 4)
-my.formula <- y ~ s(x, k = 7, bs = "cs")
-ggplot(dt, aes(Age, whole)) +
+summary(dt.summary)
+my.formula <- y ~ bs(x, knots = 1, degree = 4, bs = "cs")
+my.formula <- y ~ s(x, k = 4, bs = "cs")
+ggplot(dt, aes(Age, SUVr_whole_refPons)) +
   geom_point(aes(colour = Sex),alpha = 0.5) +  
-  theme_classic() + ylab(bquote(SUVr_whole)) +
+  theme_classic() + ylab(bquote(SUVr_whole_refPons)) +
   scale_x_continuous(breaks = seq(0, 30, 1)) +  # expand = c(0, 0),
-  scale_y_continuous(breaks = seq(4.0, 160, 10)) +  # expand = c(0, 0), 
+  scale_y_continuous(breaks = seq(0.0, 2.3, 0.10)) +  # expand = c(0, 0), 
   geom_vline(xintercept = 5.0, colour = "#990000", linetype = "dashed") +
   stat_smooth(method = mgcv::gam, se = TRUE, colour="black", formula = my.formula) +
   # stat_smooth(method = mgcv::gam, se = TRUE, formula = y ~ s(x, bs = "cs")) +
-  geom_smooth(data = dt, mapping = aes(x = Age, y = whole, colour = Sex), 
+  geom_smooth(data = dt, mapping = aes(x = Age, y = SUVr_whole_refPons, colour = Sex), 
               method = "gam", formula = my.formula) +  
   theme(legend.position = "bottom",
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
