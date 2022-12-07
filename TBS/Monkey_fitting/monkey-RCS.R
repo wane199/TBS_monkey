@@ -306,18 +306,18 @@ p9
 summary(dt)
 summary(dt.summary)
 my.formula <- y ~ bs(x, knots = 1, degree = 4, bs = "cs")
-my.formula <- y ~ s(x, k = 5, bs = "cs")
-ggplot(dt.summary, aes(Age, TBV.BW)) +
-  geom_point(aes(colour = Sex), alpha = 0.0) +
+my.formula <- y ~ s(x, k = 9, bs = "cs")
+ggplot(dt.summary, aes(Age, SUVr_whole_refPons)) +
+  geom_point(aes(colour = Sex), alpha = 1.0, size = 1.5) +
   theme_classic() +
-  ylab(bquote(TBV.BW(cm^3/kg))) + # TBV(cm^3)
+  ylab(bquote(SUVr_whole_refPons)) + # TBV(cm^3) TBV.BW(cm^3/kg)
   scale_x_continuous(breaks = seq(0, 30, 1), expand = c(0, 0)) + # expand = c(0, 0),
-  scale_y_continuous(breaks = seq(0.0, 45.0, 5.0), expand = c(0, 0)) + # expand = c(0, 0),
+  scale_y_continuous(breaks = seq(0.0, 2.0, 0.2), expand = c(0, 0)) + # expand = c(0, 0),
   geom_vline(xintercept = 5.0, colour = "#990000", linetype = "dashed") +
   stat_smooth(method = mgcv::gam, se = TRUE, colour = "black", formula = my.formula) +
   # stat_smooth(method = mgcv::gam, se = TRUE, formula = y ~ s(x, bs = "cs")) +
   geom_smooth(
-    data = dt, mapping = aes(x = Age, y = TBV.BW, colour = Sex),
+    data = dt, mapping = aes(x = Age, y = SUVr_whole_refPons, colour = Sex),
     method = "gam", formula = my.formula
   ) +
   theme(
