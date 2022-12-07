@@ -168,3 +168,47 @@ ggplot(data2, aes(Age, TBSL1L4)) +
   scale_x_continuous(breaks = c(10, 20, 30, 40, 50, 60, 70, 80, 90, 100)) +
   geom_point(size = 0.05)
 # 从图形可以看出，广义可加模型的曲线拟合效果非常好。虽然模型在本数据集中表现良好，但仍需要注意过拟合的情况。
+
+#########################################
+# 进行nls模型分析(https://mp.weixin.qq.com/s?__biz=Mzg3MzQzNTYzMw==&mid=2247500276&idx=1&sn=7ecc432b5bc3c9d0f22651618f816d1b&chksm=cee2996af995107ce08d0b4cc0b6ed72fb5500a92cdd08c9a8bd8c0c83624b35546ee21c80a7&mpshare=1&scene=1&srcid=12070XF4be44p0nkerDGMFWP&sharer_sharetime=1670430178629&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
+# 加载R包
+library(tidyverse)
+library(ggpmisc)
+library(gginnards)
+library(ggtext)
+str(dt)
+
+# nls分析即可视化
+args <- list(formula = y ~ k * e ^ x,
+             start = list(k = 1, e = 3))
+
+ggplot(dt,aes(Age,SUVr_whole_refPons)) +
+  geom_point() +
+  stat_fit_augment(method = "nls",method.args = args) +
+  stat_fit_tidy(method = "nls",method.args = args,label.x = "right",
+                label.y = "top",
+                aes(label = sprintf("\"y\"~`=`~%.3g %%*%% %.3g^{\"x\"}",
+                                    after_stat(k_estimate),
+                                    after_stat(e_estimate))),parse = TRUE )
+# 分步进行nls分析
+nlsFit <- nls(formula=`SUVr_whole_refPons` ~ k*e^`Age`,
+              start = list(k=1,e=1),
+              data=dt,
+              control=nls.control(maxiter=200))
+# 构建标签
+nlsParams <- nlsFit$m$getAllPars()
+
+nlsEqn <- substitute(italic(y) == k %.% e^ italic(x),
+                     list(k=format(nlsParams['k'],digits=3),
+                          e=format(nlsParams["e"],digits=3)))
+dlabel <- tibble(label="y = 49.7*0.746<sup>x</sup>",x=4,y=35)
+
+# 自定义添加标签
+ggplot(dt,aes(Age,SUVr_whole_refPons)) +
+  geom_point()+
+  stat_smooth(method = 'nls',
+              method.args = list(start = c(a=1, b=1)), 
+              formula = y~a*exp(b*x), se = FALSE)+
+  geom_richtext(data=dlabel,aes(x=x,y=y,label=label),
+                fill=NA,label.color=NA,show.legend = F)+
+  theme_bw()
