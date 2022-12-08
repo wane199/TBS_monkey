@@ -171,7 +171,7 @@ ggplot(data2, aes(Age, TBSL1L4)) +
 
 #########################################
 # 进行nls模型分析(https://mp.weixin.qq.com/s?__biz=Mzg3MzQzNTYzMw==&mid=2247500276&idx=1&sn=7ecc432b5bc3c9d0f22651618f816d1b&chksm=cee2996af995107ce08d0b4cc0b6ed72fb5500a92cdd08c9a8bd8c0c83624b35546ee21c80a7&mpshare=1&scene=1&srcid=12070XF4be44p0nkerDGMFWP&sharer_sharetime=1670430178629&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
-# 加载R包
+# 指数拟合，加载R包
 library(tidyverse)
 library(ggpmisc)
 library(gginnards)
@@ -180,7 +180,7 @@ str(dt)
 
 # nls分析即可视化
 args <- list(formula = y ~ k * e ^ x,
-             start = list(k = 1, e = 3))
+             start = list(k = 1, e = 2))
 
 ggplot(dt,aes(Age,SUVr_whole_refPons)) +
   geom_point() +
@@ -192,9 +192,10 @@ ggplot(dt,aes(Age,SUVr_whole_refPons)) +
                                     after_stat(e_estimate))),parse = TRUE )
 # 分步进行nls分析
 nlsFit <- nls(formula=`SUVr_whole_refPons` ~ k*e^`Age`,
-              start = list(k=1,e=1),
+              start = list(k=1.67,e=0.998),
               data=dt,
               control=nls.control(maxiter=200))
+summary(nlsFit)
 # 构建标签
 nlsParams <- nlsFit$m$getAllPars()
 
@@ -212,3 +213,53 @@ ggplot(dt,aes(Age,SUVr_whole_refPons)) +
   geom_richtext(data=dlabel,aes(x=x,y=y,label=label),
                 fill=NA,label.color=NA,show.legend = F)+
   theme_bw()
+
+## [基于R语言的指数拟合和密度图组合复现](https://mp.weixin.qq.com/s?__biz=Mzg5MTc0NTAyNg==&mid=2247484144&idx=1&sn=4caecf65588379600f0b3daea114d312&chksm=cfc9e49df8be6d8b4ca10b91288ff9f75989e10c9f3dc4081988fa98e593624006971e2e1263&mpshare=1&scene=1&srcid=1208qyuV2yIIUqp13bt7po1f&sharer_sharetime=1670464975013&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
+library(tidyverse)
+library(readxl)
+# dt <- read_xlsx('相关性曲线图.xlsx', sheet = 'Sheet1')
+dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\SUVr_1204.csv", fileEncoding = "GBK")
+dt <- dt[c(-1, -2, -3)]
+dt$Sex <- as.factor(dt$Sex)
+dt$Side <- as.factor(dt$Side)
+str(dt)
+
+# 构建指数函数 
+# 注意a和b的取值尽可能地接近结果，有时候会报错
+modle <- nls(SUVr_whole_refPons ~ a*exp(b*Age), data = dt, start = list(a=1, b=0))
+# 查看模型结果
+summary(modle)
+
+ggplot(dt, aes(Age, SUVr_whole_refPons, size = SUVr_whole_refPons)) +
+  geom_point(shape = 21, alpha = 0.5, 
+             color = 'black', fill = 'blue') +
+  labs(y =expression('Spikelets number ('~panicle^-1~')'), 
+       x = expression('Panicle number ('~m^-2~')'), title = "")+
+  annotate('text', x= 400, y= 10, parse = TRUE, size =6, family = 'serif', label = 'y == 377.8*e^{-0.00397*x}') +
+  geom_line(aes(SUVr_whole_refPons = 1.67*exp(-0.01*Age)), size = 2) 
+  
+p <- ggplot(dt, aes(Age, SUVr_whole_refPons, size= SUVr_whole_refPons)) +
+  geom_point(shape = 21, alpha = 0.5, 
+             color = 'black', fill = 'blue') +
+  labs(y =expression('Spikelets number ('~panicle^-1~')'), 
+       x = expression('Panicle number ('~m^-2~')'), title = "")+
+  annotate('text', x= 400, y= 10, parse = TRUE, size =6, family = 'serif', label = 'y == 377.8*e^{-0.00397*x}') +
+  geom_line(aes(SUVr_whole_refPons = a*exp(b*Age)), size = 2) +
+  guides(size = guide_legend(title = 'Spikelets number ('~panicle^-1~')'), direction = 'horizontal') +
+  theme_test() +
+  theme(#legend.position = c(0.6, 0.85),
+        #legend.justification = c(0.0, 0.7),
+        legend.background = element_blank()) +
+  theme(panel.border = element_rect(color = 'black', size=1),
+        axis.ticks = element_line(color = 'black', size= 1),
+        axis.text = element_text(color = 'black', size= 10))
+
+# 边缘图的包
+library(ggExtra)
+ggMarginal(p, type="density",  yparams = list(fill = "#0855C9", size = 1), xparams = list(fill ="#EB4E11", size = 1))
+ggsave(filename = 'Fig2.jpg',
+       dpi = 300,
+       width = 8,
+       height = 8)
+
+
