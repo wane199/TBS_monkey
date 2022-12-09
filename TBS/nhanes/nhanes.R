@@ -158,6 +158,73 @@ imp <- mice(dat, m = 1, seed = 1, printFlag = FALSE)
 # visualize the imputed data
 ggmice(imp, aes(age, bmi)) + geom_point() 
 
+##################
+# [nhanes数据库挖掘教程3--对数据进行多重插补](https://mp.weixin.qq.com/s?__biz=MzI1NjM3NTE1NQ==&mid=2247487020&idx=1&sn=9d504788a6909af3f797e86bbfdba8f7&chksm=ea26ee30dd516726ec22d640de1c0ef07fed8aa1c897918413b06a84a81a5b4cde311d389709&mpshare=1&scene=1&srcid=1209ZZUWTDh4pyjNkbKHLWbW&sharer_sharetime=1670587658361&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
+library(mi)
+
+# 列出缺失值列表，提前处理好分类变量
+mdf <- missing_data.frame(bc)
+show(mdf)
+
+# 更改变量类型
+mdf <- change(mdf, y = c("RIDRETH1"), what = "type",
+              to = c("unorder"))
+mdf <- change(mdf, y = c("RIAGENDR"), what = "type",
+              to = c("binary"))
+summary(mdf)
+hist(mdf)
+image(mdf)
+# {naniar}:让NA（缺失值）可见的多种图～
+library(naniar)
+library(ggplot2)
+# 大致查看一下包含缺失值的变量
+n_var_miss(mdf);gg_miss_which(mdf)
+# 再查看所有变量的缺失值个数：
+gg_miss_var(mdf)
+# 缺失值所占百分比：
+gg_miss_var(mdf,
+            show_pct = TRUE)
+vis_miss(bc)
+
+gg_miss_span(bc, LBDINSI, span_every = 1) +
+  scale_x_continuous(breaks = seq(83, 1)) +
+  scale_y_continuous(breaks = c(0,1)) +
+  labs(
+    subtitle = "LBDINSI",
+    x = "Observations") +
+  theme_dark()
+# 包含缺失值的变量们的交集情况，就可以使用Upset plot：
+gg_miss_upset(mdf)
+
+ggplot(bc,
+       aes(x = LBDINSI,
+           y = DMDMARTL)) +
+  geom_point() +
+  theme_bw()
+
+ggplot(bc, aes(x = LBDINSI, y = DMDMARTL)) +
+  geom_miss_point() +
+  scale_color_manual(values = c("grey", "tomato")) +
+  theme_bw()
+
+# 插补
+imputation <- mi(mdf)
+imputation1 <- mi(mdf, n.chains = 5)
+
+round(mipply(imputation, mean, to.matrix = T),3)
+image(imputation)
+
+# 提取数据
+IMP.dat.all <- complete(imputation) # 导出全部数据
+a1 <- IMP.dat.all[["chain:1"]]
+image(a1)
+
+
+
+#####################################
+
+
+
 
 
 
