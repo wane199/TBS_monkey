@@ -182,7 +182,7 @@ str(dt)
 args <- list(formula = y ~ k * e ^ x,
              start = list(k = 1, e = 2))
 
-ggplot(dt,aes(Age,SUVr_whole_refPons)) +
+ggplot(dt,aes(Age,TBV.BW)) +
   geom_point() +
   stat_fit_augment(method = "nls",method.args = args) +
   stat_fit_tidy(method = "nls",method.args = args,label.x = "right",
@@ -218,7 +218,7 @@ ggplot(dt,aes(Age,SUVr_whole_refPons)) +
 library(tidyverse)
 library(readxl)
 # dt <- read_xlsx('相关性曲线图.xlsx', sheet = 'Sheet1')
-dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\SUVr_1204.csv", fileEncoding = "GBK")
+dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\T1_TBV_1204.csv", fileEncoding = "GBK")
 dt <- dt[c(-1, -2, -3)]
 dt$Sex <- as.factor(dt$Sex)
 dt$Side <- as.factor(dt$Side)
@@ -226,7 +226,7 @@ str(dt)
 
 # 构建指数函数 
 # 注意a和b的取值尽可能地接近结果，有时候会报错
-modle <- nls(SUVr_whole_refPons ~ a*exp(b*Age), data = dt, start = list(a=1, b=0))
+modle <- nls(TBV.BW ~ a*exp(b*Age), data = dt, start = list(a=1, b=0))
 # 查看模型结果
 summary(modle)
 
@@ -236,7 +236,7 @@ ggplot(dt, aes(Age, SUVr_whole_refPons, size = SUVr_whole_refPons)) +
   labs(y =expression('Spikelets number ('~panicle^-1~')'), 
        x = expression('Panicle number ('~m^-2~')'), title = "")+
   annotate('text', x= 400, y= 10, parse = TRUE, size =6, family = 'serif', label = 'y == 377.8*e^{-0.00397*x}') +
-  geom_line(aes(SUVr_whole_refPons = 1.67*exp(-0.01*Age)), size = 2) 
+  geom_line(aes(SUVr_whole_refPons = 26.65*exp(-0.05*Age)), size = 2) 
   
 p <- ggplot(dt, aes(Age, SUVr_whole_refPons, size= SUVr_whole_refPons)) +
   geom_point(shape = 21, alpha = 0.5, 
