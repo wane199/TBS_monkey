@@ -11,7 +11,7 @@ library(ggthemes) ## ggplot主题
 theme_set(theme_classic() + theme(legend.position = "bottom"))
 
 # dt <- read.csv("jixian.csv")
-dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\T1_TBV_1127.csv")
+dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\SUVr_1204.csv")
 dt <- read.csv("/Users/mac/Desktop/Nomo-TBS/TBS&Mon/Monkey/QIANG/1030/FDG_1120.csv", fileEncoding = "GBK")
 # TLM <- read_excel("/home/wane/Desktop/TBS/TLMey/BMC.xlsx")
 # 数据探索EDA
@@ -73,10 +73,10 @@ ggplot(dt, aes(Age, TBV)) +
 
 # 年龄段分组汇总
 dt.summary <- dt %>%
-  group_by(Age) %>%  # Sex
+  group_by(Age,Sex) %>%  # Sex
   summarise(
-    sd = sd(TBV),
-    TBV = mean(TBV)
+    sd = sd(SUVr_whole_refPons),
+    SUVr_whole_refPons = mean(SUVr_whole_refPons)
   )
 write.csv(dt.summary,'C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\T1_TBV_1127_summary.csv')
 my.formula <- y ~ s(x, k = 7, bs = "cs")
