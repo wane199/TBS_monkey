@@ -302,7 +302,7 @@ p9 <- ggplot(dt.summary, aes(Age, SUVr_whole_refPons, colour = Sex)) +
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
 p9
-# triple in one
+# triple in one,分组与不分组曲线拟合汇总
 summary(dt)
 summary(dt.summary)
 my.formula <- y ~ bs(x, knots = 1, degree = 4, bs = "cs")
