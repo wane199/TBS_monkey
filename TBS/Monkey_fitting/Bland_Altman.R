@@ -1,12 +1,15 @@
 # B_A plot
 rm(list = ls())
 dev.off() # clear plots
+cat("\014") # ctrl+L
+?cat
+pacman::p_unload()
 library(readxl)
 library(ggplot2)
 library(ggExtra)
 set.seed(123)
 
-BAdata2 <- read_xlsx("/Users/mac/Desktop/Nomo-TBS/TBS&Mon/Monkey/Ziqing/vali.xlsx")
+BAdata2 <- read_xlsx("C:/Users/wane1/Documents/file/TBS&Mon/Monkey/Ziqing/vali.xlsx")
 # BAdata2 <- BAdata2[,c(-2,-5)]
 summary(BAdata2)
 BAdata2 <- transform(BAdata2, diff = Measured_TFM - Predicted_TFM, meand = (Measured_TFM + Predicted_TFM) / 2)
