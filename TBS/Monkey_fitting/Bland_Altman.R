@@ -1,5 +1,6 @@
 # B_A plot
 rm(list = ls())
+dev.off() # clear plots
 library(readxl)
 library(ggplot2)
 library(ggExtra)
