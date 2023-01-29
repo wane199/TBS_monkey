@@ -11,7 +11,7 @@ library(ggthemes) ## ggplot主题
 theme_set(theme_classic() + theme(legend.position = "bottom"))
 
 # dt <- read.csv("jixian.csv")
-dt <- read.csv("./TBS/Monkey_fitting/SUVr_1209.csv") # , sep = '\t'
+dt <- read.csv("./TBS/Monkey_fitting/T1_TBV_1209.csv") # , sep = '\t'
 dt <- read.csv("/Users/mac/Desktop/Nomo-TBS/TBS&Mon/Monkey/QIANG/1030/FDG_1120.csv", fileEncoding = "GBK")
 write.csv(dt,'C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1209\\SUVr_1209.csv')
 # TLM <- read_excel("/home/wane/Desktop/TBS/TLMey/BMC.xlsx")
@@ -76,8 +76,8 @@ ggplot(dt, aes(Age, TBV)) +
 dt.summary <- dt %>%
   group_by(Age,Sex) %>%  # Sex
   summarise(
-    sd = sd(Weight),
-    Weight = mean(Weight)
+    sd = sd(TBV),
+    TBV = mean(TBV)
   )
 write.csv(dt.summary,'C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\T1_TBV_1127_summary.csv')
 my.formula <- y ~ s(x, k = 7, bs = "cs")
@@ -152,17 +152,17 @@ ggplot(dt, aes(Age, TBV)) + # SUVr_whole_refPons
 summary(dt)
 summary(dt.summary)
 my.formula <- y ~ s(x, k = 5, bs = "cs")
-p12 <- ggplot(dt.summary, aes(Age, Weight)) +
+p11 <- ggplot(dt.summary, aes(Age, TBV)) +
   geom_point(aes(colour = Sex,shape = Sex), alpha = 1.0, size = 1.5) +
   theme_classic() +
-  ylab(bquote(Weight(kg))) + # TBV(cm^3) TBV.BW(cm^3/kg) Weight(kg) SUVr_whole_refPons Whole(KBq/cc)
+  ylab(bquote(TBV(cm^3))) + # TBV(cm^3) TBV.BW(cm^3/kg) Weight(kg) SUVr_whole_refPons Whole(KBq/cc)
   scale_x_continuous(breaks = seq(0, 30, 1), expand = c(0, 0)) + # expand = c(0, 0),
-  scale_y_continuous(breaks = seq(0.0, 10.0, 1.0), expand = c(0, 0)) + # expand = c(0, 0),
+  scale_y_continuous(breaks = seq(55.0, 80.0, 2.0), expand = c(0, 0)) + # expand = c(0, 0),
   geom_vline(xintercept = 5.0, colour = "#990000", linetype = "dashed") +
   stat_smooth(method = mgcv::gam, se = TRUE, colour = "black", formula = my.formula) +
   # stat_smooth(method = mgcv::gam, se = TRUE, formula = y ~ s(x, bs = "cs")) +
   geom_smooth(
-    data = dt, mapping = aes(x = Age, y = Weight, colour = Sex),
+    data = dt, mapping = aes(x = Age, y = TBV, colour = Sex),
     method = "gam", formula = my.formula
   ) +
   theme(
@@ -171,11 +171,12 @@ p12 <- ggplot(dt.summary, aes(Age, Weight)) +
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
-p12
+p15
 library(patchwork) # 拼图
-p11 + p12 + p13 + p14 + plot_annotation(tag_levels = "A") +
-  plot_layout(guides = "collect")
-ggsave("p.tiff", p, dpi = 600) # 保存为精度为600 dpi的tiff文件
+p11 + p12 + p13 + p14 + p15 + plot_annotation(tag_levels = "A") + plot_layout(ncol = 3) + 
+  plot_layout(guides = "collect") -> p
+p
+ggsave("./TBS/Monkey_fitting/1209.pdf", p, width = 20, height = 9, dpi = 900) # 保存为精度为600 dpi的tiff文件
 
 # 分类gam曲线拟合
 ggplot(dt, aes(Age, TBV, colour = Sex)) +
