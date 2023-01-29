@@ -11,8 +11,9 @@ library(ggthemes) ## ggplot主题
 theme_set(theme_classic() + theme(legend.position = "bottom"))
 
 # dt <- read.csv("jixian.csv")
-dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\1030\\SUVr_1204.csv")
+dt <- read.csv("./TBS/Monkey_fitting/SUVr_1209.csv") # , sep = '\t'
 dt <- read.csv("/Users/mac/Desktop/Nomo-TBS/TBS&Mon/Monkey/QIANG/1030/FDG_1120.csv", fileEncoding = "GBK")
+write.csv(dt,'C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1209\\SUVr_1209.csv')
 # TLM <- read_excel("/home/wane/Desktop/TBS/TLMey/BMC.xlsx")
 # 数据探索EDA
 dt <- dt[c(-1, -2, -3)]
@@ -151,10 +152,10 @@ ggplot(dt, aes(Age, TBV)) + # SUVr_whole_refPons
 summary(dt)
 summary(dt.summary)
 my.formula <- y ~ s(x, k = 5, bs = "cs")
-p13 <- ggplot(dt.summary, aes(Age, Weight)) +
+p12 <- ggplot(dt.summary, aes(Age, Weight)) +
   geom_point(aes(colour = Sex,shape = Sex), alpha = 1.0, size = 1.5) +
   theme_classic() +
-  ylab(bquote(Weight(kg))) + # TBV(cm^3) TBV.BW(cm^3/kg)
+  ylab(bquote(Weight(kg))) + # TBV(cm^3) TBV.BW(cm^3/kg) Weight(kg) SUVr_whole_refPons Whole(KBq/cc)
   scale_x_continuous(breaks = seq(0, 30, 1), expand = c(0, 0)) + # expand = c(0, 0),
   scale_y_continuous(breaks = seq(0.0, 10.0, 1.0), expand = c(0, 0)) + # expand = c(0, 0),
   geom_vline(xintercept = 5.0, colour = "#990000", linetype = "dashed") +
@@ -170,7 +171,7 @@ p13 <- ggplot(dt.summary, aes(Age, Weight)) +
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
-p13
+p12
 library(patchwork) # 拼图
 p11 + p12 + p13 + p14 + plot_annotation(tag_levels = "A") +
   plot_layout(guides = "collect")
