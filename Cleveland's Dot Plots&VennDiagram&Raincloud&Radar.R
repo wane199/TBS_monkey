@@ -401,4 +401,84 @@ legend(
   text.col = "black", cex = 1, pt.cex = 1.5
 )
 par(op)
+# [Radar chart with ggradar](https://r-graph-gallery.com/web-radar-chart-with-R.html)
+library(ggradar)
+library(palmerpenguins)
+library(tidyverse)
+library(scales)
+library(showtext)
 
+font_add_google("Lobster Two", "lobstertwo")
+font_add_google("Roboto", "roboto")
+
+# Showtext will be automatically invoked when needed
+showtext_auto()
+
+data("penguins", package = "palmerpenguins")
+head(penguins, 3)
+
+penguins_radar <- penguins %>%
+  drop_na() %>%
+  dplyr::group_by(species) %>%
+  dplyr::summarise(
+    avg_bill_length = mean(bill_length_mm),
+    avg_bill_dept = mean(bill_depth_mm),
+    avg_flipper_length = mean(flipper_length_mm),
+    avg_body_mass = mean(body_mass_g)
+  ) %>%
+  dplyr::ungroup() %>%
+  dplyr::mutate_at(vars(-species), rescale)
+
+plt <- penguins_radar %>%
+  ggradar(
+    font.radar = "roboto",
+    grid.label.size = 13,  # Affects the grid annotations (0%, 50%, etc.)
+    axis.label.size = 8.5, # Afftects the names of the variables
+    group.point.size = 3   # Simply the size of the point 
+  )
+plt
+# 1. Set the position legend to bottom-right
+# 2. Bottom-right justification
+# 3. Customize text size and family
+# 4. Remove background and border color for the keys
+# 5. Remove legend background
+plt <- plt + 
+  theme(
+    legend.position = c(1, 0),  
+    legend.justification = c(1, 0),
+    legend.text = element_text(size = 28, family = "roboto"),
+    legend.key = element_rect(fill = NA, color = NA),
+    legend.background = element_blank()
+  )
+
+# * The panel is the drawing region, contained within the plot region.
+#   panel.background refers to the plotting area
+#   plot.background refers to the entire plot
+plt <- plt + 
+  labs(title = "Radar plot of penguins species") + 
+  theme(
+    plot.background = element_rect(fill = "#fbf9f4", color = "#fbf9f4"),
+    panel.background = element_rect(fill = "#fbf9f4", color = "#fbf9f4"),
+    plot.title.position = "plot", # slightly different from default
+    plot.title = element_text(
+      family = "lobstertwo", 
+      size = 62,
+      face = "bold", 
+      color = "#2a475e"
+    )
+  )
+
+ggsave(
+  filename = here::here("img", "fromTheWeb", "web-radar-chart-with-R.png"),
+  plot = plt,
+  width = 5.7,
+  height = 5,
+  device = "png"
+)
+
+
+
+
+
+ 
+ 
