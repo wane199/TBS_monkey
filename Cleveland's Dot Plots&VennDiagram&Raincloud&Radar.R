@@ -476,9 +476,3 @@ ggsave(
   device = "png"
 )
 
-
-
-
-
- 
- 
