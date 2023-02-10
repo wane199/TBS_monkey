@@ -67,21 +67,17 @@ write_excel_csv(df11, file = "C:\\Users\\wane1\\Documents\\LYX\\csv0210\\AHA_sid
 # write_excel_csv(df_1_6, file = "C:\\Users\\wane1\\Documents\\LYX\\csv\\_股骨_side-_全身.csv")
 
 df1 <- read.csv('C:\\Users\\wane1\\Documents\\LYX\\csv0210\\AHA_side.csv')
-df2 <- read.csv('C:\\Users\\wane1\\Documents\\LYX\\csv\\股骨_side.csv')
-df3 <- read.csv('C:\\Users\\wane1\\Documents\\LYX\\csv\\全身.csv')
+df3 <- read.csv('C:\\Users\\wane1\\Documents\\LYX\\csv0210\\股骨_side.csv')
 dim(df1)
 head(df2)
 str(df1)
-df1 <- base::unique(df1) 
-df2 <- base::unique(df2) 
-df3 <- base::unique(df3) 
 
 df3L <- df3  %>% filter(侧 == '左')
 df3R <- df3  %>% filter(侧 == '右')
 df33 <- merge(df3L,df3R, by = c('姓名','检查号'), suffixes = c(".L",".R"))
 df33 <- base::unique(df33) 
-# df33 <- df33[,complete.cases(t(df33))]   # 提取不含空值的列
-write_excel_csv(df33, file = "C:\\Users\\wane1\\Documents\\LYX\\csv\\2021_AHA_side.csv")
+df330 <- df33[,complete.cases(t(df33))]   # 提取不含空值的列
+write_excel_csv(df33, file = "C:\\Users\\wane1\\Documents\\LYX\\csv0210\\股骨_side.csv")
 
 df_12 <- merge(df1, df2, by = c('姓名','性别','年龄','生日'))
 df_12 <- base::unique(df_12) 
