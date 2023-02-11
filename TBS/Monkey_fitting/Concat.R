@@ -1,7 +1,7 @@
 # R语言一次性读入多个excel文件然后根据指定的列批量合并多个数据框
 # [R语言多个数据集根据某一列取交集然后合并](https://www.bilibili.com/video/BV1bK4y1f78q/?spm_id_from=333.788.recommend_more_video.0&vd_source=23f183f0c5968777e138f31842bde0a0)
 rm(list=ls())
-library(dplyr) # 加载程序包dplyr
+library(dplyr) # 加载程序包
 library(readxl)
 library(tidyverse)
 getwd()
@@ -25,7 +25,6 @@ df6 <- base::unique(df6)
 total <- rbind(df1,df2,df3) 
 df1 <- base::unique(total)
 write_excel_csv(df, file = "C:\\Users\\wane1\\Documents\\LYX\\csv\\AHA.csv")
-df1 <- read.csv('C:\\Users\\wane1\\Documents\\LYX\\csv\\AHA.csv')
 df <- df0[,complete.cases(t(df0))]  # 提取不含空值的列
 
 # df1 <- read.csv('C:\\Users\\wane1\\Documents\\LYX\\csv\\_股骨_side.csv')
@@ -79,19 +78,29 @@ df33 <- base::unique(df33)
 df330 <- df33[,complete.cases(t(df33))]   # 提取不含空值的列
 write_excel_csv(df33, file = "C:\\Users\\wane1\\Documents\\LYX\\csv0210\\股骨_side.csv")
 
-df_12 <- merge(df1, df2, by = c('姓名','性别','年龄','生日'))
-df_12 <- base::unique(df_12) 
-df_123 <- merge(df_12, df3, by = c('姓名','性别','年龄','生日'))
-df_123 <- base::unique(df_123) 
+df_10 <- merge(df0, df1, by = c('姓名','检查号'))
+df_10 <- base::unique(df_10) 
+write_excel_csv(df_10, file = "C:\\Users\\wane1\\Documents\\LYX\\csv0210\\IDXA患者名单_AHA.csv")
 
-df4 <- read.csv('C:\\Users\\wane1\\Documents\\LYX\\csv\\全身CoreScan.csv')
-df5 <- read.csv('C:\\Users\\wane1\\Documents\\LYX\\csv\\全身成份.csv')
-df6 <- read.csv('C:\\Users\\wane1\\Documents\\LYX\\csv\\全身自定义.csv')
-df7 <- read.csv('C:\\Users\\wane1\\Documents\\LYX\\csv\\全身自定义成分.csv')
-df4 <- base::unique(df4) 
-df5 <- base::unique(df5) 
-df6 <- base::unique(df6) 
-df7 <- base::unique(df7) 
+
+df_23 <- merge(df_20, df_30, by = c('姓名','检查号'))
+df_23 <- base::unique(df_23) 
+df_234 <- merge(df_23, df_40, by = c('姓名','检查号'))
+df_234 <- base::unique(df_234) 
+write_excel_csv(df_234, file = "C:\\Users\\wane1\\Documents\\LYX\\csv0210\\IDXA患者名单_CoreScan_股骨_全身BMD.csv")
+
+df_234 <- read.csv('C:\\Users\\wane1\\Documents\\LYX\\csv0210\\IDXA患者名单_CoreScan_股骨_全身BMD.csv')
+df_50 <- read.csv('C:\\Users\\wane1\\Documents\\LYX\\csv0210\\IDXA患者名单_身体成分.csv')
+df_60 <- read.csv('C:\\Users\\wane1\\Documents\\LYX\\csv0210\\IDXA患者名单_正位腰椎.csv')
+df_56 <- merge(df_50, df_60, by = c('姓名','检查号'))
+df_56 <- base::unique(df_56)
+write_excel_csv(df_56, file = "C:\\Users\\wane1\\Documents\\LYX\\csv0210\\IDXA患者名单_身体成分_正位腰椎.csv")
+
+df_56 <- read.csv('C:\\Users\\wane1\\Documents\\LYX\\csv0210\\IDXA患者名单_身体成分_正位腰椎.csv')
+df_234560 <- merge(df_234, df_56, by = c('姓名','检查号'), all = TRUE)
+df_234560 <- base::unique(df_234560) 
+write_excel_csv(df_234560, file = "C:\\Users\\wane1\\Documents\\LYX\\csv0210\\IDXA患者名单_CoreScan_股骨_全身BMD_身体成分_正位腰椎.csv")
+
 
 df_45 <- merge(df4, df5, by = c('姓名','性别','年龄','生日')) # , all = TRUE
 df_67 <- merge(df6, df7, by = c('姓名','性别','年龄','生日'), all = TRUE) # , all = TRUE
