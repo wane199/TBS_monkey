@@ -97,9 +97,9 @@ df_56 <- base::unique(df_56)
 write_excel_csv(df_56, file = "C:\\Users\\wane1\\Documents\\LYX\\csv0210\\IDXA患者名单_身体成分_正位腰椎.csv")
 
 df_56 <- read.csv('C:\\Users\\wane1\\Documents\\LYX\\csv0210\\IDXA患者名单_身体成分_正位腰椎.csv')
-df_23456 <- merge(df_234, df_56, by = c('姓名','检查号','来源','性别','年龄','日期','住院号','科别','检查子类','生日','测量日期','身高','体重','BMI'), all = TRUE) # , all = TRUE
+df_234560 <- merge(df_234, df_56, by = c('姓名','检查号','来源','性别','年龄','日期','住院号','科别','检查子类','生日','测量日期','身高','体重','BMI')) # , all = TRUE
 df_234560 <- base::unique(df_234560) 
-write_excel_csv(df_234560, file = "C:\\Users\\wane1\\Documents\\LYX\\csv0210\\IDXA患者名单_CoreScan_股骨_全身BMD_身体成分_正位腰椎.csv")
+write_excel_csv(df_234560, file = "C:\\Users\\wane1\\Documents\\LYX\\csv0210\\IDXA患者名单_CoreScan_股骨_全身BMD_身体成分_正位腰椎-28379.csv")
 
 
 df_45 <- merge(df4, df5, by = c('姓名','性别','年龄','生日')) # , all = TRUE
