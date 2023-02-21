@@ -4,7 +4,7 @@ library(shinythemes)
 library(RCurl)
 library(ggplot2)
 
-tbs <- read.csv(text = getURL("https://raw.githubusercontent.com/wane199/Presentation/master/TBS/app/data/M_1018.csv"))
+tbs <- read.csv(text = getURL("https://raw.githubusercontent.com/wane199/TBS_monkey/master/TBS/app/data/M_1018.csv"))
 
 
 # Define UI for dataset viewer app ----

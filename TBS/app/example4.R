@@ -4,7 +4,7 @@ library(shiny)
 library(shinythemes)
 library(RCurl)
 
-tbs <- read.csv(text = getURL("https://raw.githubusercontent.com/wane199/Presentation/master/TBS/app/data/M_1018.csv"))
+tbs <- read.csv(text = getURL("https://raw.githubusercontent.com/wane199/TBS_monkey/master/TBS/app/data/M_1018.csv"))
 
 # Data pre-processing ----
 # Tweak the "am" variable to have nicer factor labels -- since this

@@ -6,7 +6,7 @@ library(shiny)
 library(shinythemes)
 library(RCurl)
 
-dt <- read.csv(text = getURL("https://raw.githubusercontent.com/wane199/Presentation/master/TBS/app/data/M_1018.csv"))
+dt <- read.csv(text = getURL("https://raw.githubusercontent.com/wane199/TBS_monkey/master/TBS/app/data/M_1018.csv"))
 
 
 # Define UI for app that draws a histogram ----
