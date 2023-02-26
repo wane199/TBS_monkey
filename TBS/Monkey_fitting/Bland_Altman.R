@@ -15,6 +15,12 @@ BAdata2 <-
   read_xlsx("C:/Users/wane1/Documents/file/TBS&Mon/Monkey/Ziqing/vali.xlsx")
 # BAdata2 <- BAdata2[,c(-2,-5)]
 summary(BAdata2)
+
+library(pastecs)
+options(digits=3) #设定三位小数
+dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\sci\\aiep\\Kfold-CV.csv")
+stat.desc(dt,norm = TRUE)
+
 BAdata2 <-
   transform(
     BAdata2,

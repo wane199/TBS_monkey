@@ -28,10 +28,12 @@ m1 <- lms(
   data = dt,
   trans.x = TRUE
 )
-m1 <- lms(y = Frontal_Cortex,
-          x = Age,
-          data = dt,
-          n.cyc = 30)
+m1 <- lms(
+  y = Frontal_Cortex,
+  x = Age,
+  data = dt,
+  n.cyc = 30
+)
 m2 <-
   lms(
     y = Frontal_Cortex,
@@ -49,8 +51,9 @@ mDEG_zip <- gamlss(
 )
 m <-
   gamlss(Frontal_Cortex ~ cs(Age, df = 3),
-         family = BCT,
-         data = dt)
+    family = BCT,
+    data = dt
+  )
 plot(m)
 # 分位数曲线，没有给出图例，因为没找到更改图例位置的参数，legend=TRUE有图例，ylim限定了y轴范围
 centiles(
@@ -67,8 +70,8 @@ centiles(
 gamlss(
   Frontal_Cortex ~ cs(Age, df = 3),
   sigma.fo = log(Age),
-  nu.fo = ~ 1,
-  tau.fo = ~ 1,
+  nu.fo = ~1,
+  tau.fo = ~1,
   family = BCT,
   data = dt
 )
@@ -76,15 +79,15 @@ gamlss(
 
 Output1 <- gamlss(
   Frontal_Cortex ~ Age,
-  sigma.fo = ~ Age,
-  nu.fo = ~ 1,
+  sigma.fo = ~Age,
+  nu.fo = ~1,
   family = BCCGo,
   data = dt
 )
 Output2 <- gamlss(
   Frontal_Cortex ~ Age,
-  sigma.fo = ~ Age,
-  nu.fo = ~ Age,
+  sigma.fo = ~Age,
+  nu.fo = ~Age,
   family = BCCGo,
   data = dt
 )
@@ -158,15 +161,16 @@ plot(grip ~ log(age), data = grip)
 log(exp(3))
 log10(1e7) # = 7
 
-x <- 10 ^ -(1 + 2 * 1:9)
+x <- 10^-(1 + 2 * 1:9)
 cbind(x, log(1 + x), log1p(x), exp(x) - 1, expm1(x))
 
 # fit a standard Gaussian GAM
 fit1 <- gamV(grip ~ s(age),
-             data = grip,
-             aViz = list(nsim = 50))
+  data = grip,
+  aViz = list(nsim = 50)
+)
 
-check1D(fit1, "age") + l_gridCheck1D(sd)  # stan dev
+check1D(fit1, "age") + l_gridCheck1D(sd) # stan dev
 check1D(fit1, "age") + l_densCheck()
 
 
@@ -178,22 +182,22 @@ fit2 <- gamV(
   aViz = list(nsim = 50)
 )
 
-check1D(fit2, "age") + l_gridCheck1D(sd)  # stan dev
+check1D(fit2, "age") + l_gridCheck1D(sd) # stan dev
 
 # residual skewness(asymmetry)
 library(e1071)
-check1D(fit2, "age") + l_gridCheck1D(skewness)  # stan dev
+check1D(fit2, "age") + l_gridCheck1D(skewness) # stan dev
 
 # shash model
 library(mgcFam)
 fit3 <- gamV(
-  list(grip ~ s(age), ~ (age), ~ (age), ~ 1),
+  list(grip ~ s(age), ~ (age), ~ (age), ~1),
   data = grip,
   family = shash,
   aViz = list(nsim = 50)
 )
 
-check1D(fit3, "age") + l_gridCheck1D(skewness)  # stan dev
+check1D(fit3, "age") + l_gridCheck1D(skewness) # stan dev
 
 AIC(fit1, fit2, fit3)
 
@@ -213,32 +217,35 @@ ord <- order(age.income$age)
 plot(
   age.income$age,
   age.income$income,
-  xlab = 'Age',
+  xlab = "Age",
   las = 1.0,
   ylab = "Income (CAD)",
   col = "grey"
 )
 lines(age.income$age[ord], ft$fit[ord], col = 2)
 lines(age.income$age[ord],
-      (ft$fit + 2 * ft$se.fit)[ord],
-      col = 2,
-      lty = 2)
+  (ft$fit + 2 * ft$se.fit)[ord],
+  col = 2,
+  lty = 2
+)
 lines(age.income$age[ord],
-      (ft$fit - 2 * ft$se.fit)[ord],
-      col = 2,
-      lty = 2)
+  (ft$fit - 2 * ft$se.fit)[ord],
+  col = 2,
+  lty = 2
+)
 
 
 fitQ <-
   mqgamV(income ~ s(age),
-         data = age.income,
-         qu = c(0.1, 0.25, 0.5, 0.75, 0.9))
+    data = age.income,
+    qu = c(0.1, 0.25, 0.5, 0.75, 0.9)
+  )
 plot(fitQ)
 plotRGL(fitQ)
 plot(
   age.income$age,
   age.income$income,
-  xlab = 'Age',
+  xlab = "Age",
   las = 1.0,
   ylab = "Income (CAD)",
   col = "grey"
@@ -260,9 +267,9 @@ summary(fitQ[[1]])
 library(gamlss)
 data(abdom)
 h1 <-
-  gamlss(y ~ cs(x), family = LOGNO, data = abdom)#fits the log-Normal distribution
+  gamlss(y ~ cs(x), family = LOGNO, data = abdom) # fits the log-Normal distribution
 h2 <-
-  gamlss(y ~ cs(x), family = LNO, data = abdom)  #should be identical to the one above
+  gamlss(y ~ cs(x), family = LNO, data = abdom) # should be identical to the one above
 # to change to square root transformation, i.e. fix nu=0.5
 h3 <-
   gamlss(
