@@ -18,6 +18,7 @@ summary(BAdata2)
 
 library(pastecs)
 options(digits = 3) # 设定三位小数
+Sys.setlocale(category = "LC_ALL", locale = "Chinese") # 将本地语言默认为中文
 dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\sci\\aiep\\Kfold.csv")
 stat.desc(dt, norm = TRUE)
 summary(dt)
@@ -97,18 +98,24 @@ library(ggplot2)
 library(tidyverse) 
 library(Rmisc)
 dt1_long <- as_data_frame(dt1_long)
-carss <- summarySE(as_tibble(dt), measurevar = "value", groupvars = c("Para","month"))
+carss <- summarySE(as_tibble(dt), measurevar = "value", groupvars = c("Para","month","Group"))
 # carss$月 <- paste(rep(c("12月","24月","36月"),3),carss$月,sep="") #某一列添加X
-pd <- position_dodge(0.1) # move them .05 to the left and right
-ggplot(carss, aes(x=month, y=value, colour=Para)) + 
+pd <- position_dodge(1.2) # move them .05 to the left and right
+ggplot(carss, aes(x=month, y=value, colour=Group, fill=Para)) + 
   scale_x_continuous(breaks = c(12,24,36)) + 
   scale_y_continuous(breaks = seq(0,1.0,0.05)) + 
+  xlab("随访时间(月)") + ylab("") +
   theme_classic() +
   geom_errorbar(aes(ymin=value-se, ymax=value+se), width=.1,position=pd) +
   geom_line(position=pd) +
   geom_point(position=pd)
 
+library(ggstatsplot)
+ggbetweenstats(dt, Group, value)
 
+# grouped boxplot
+ggplot(dt, aes(x=Para, y=value, fill=Group)) + 
+  geom_boxplot()
 
 BAdata2 <-
   transform(
