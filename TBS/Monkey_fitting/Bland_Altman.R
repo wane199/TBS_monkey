@@ -111,11 +111,27 @@ ggplot(carss, aes(x=month, y=value, colour=Group, fill=Para)) +
   geom_point(position=pd)
 
 library(ggstatsplot)
-ggbetweenstats(dt, Group, value)
+ggbetweenstats(dt, Group, by = Para, value)
 
 # grouped boxplot
 ggplot(dt, aes(x=Para, y=value, fill=Group)) + 
   geom_boxplot()
+
+library(tidyverse)
+library(ggpubr)
+dt %>%
+  mutate_at(vars(Group, Para), as.factor) %>%
+  ggplot(aes(Para, value, fill=Group))+
+  geom_boxplot()+ theme_classic() + ylab("") + xlab("评价指标") + 
+  # stat_compare_means(aes(group = ))
+  stat_compare_means(aes(group = Group), label = "p.format")
+
+library(showtext)
+font_add_google(name = "Gochi Hand",family =  "gochi")
+font_add_google(name = "Schoolbell",family =  "bell")
+showtext_auto() # 后面字体均可以使用导入的字体
+
+
 
 BAdata2 <-
   transform(
