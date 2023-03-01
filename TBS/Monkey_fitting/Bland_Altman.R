@@ -84,10 +84,10 @@ summarySE <- function(data = NULL, measurevar, groupvars = NULL, na.rm = FALSE,
 
   return(datac)
 }
-write.csv(dt1_long,"C:\\Users\\wane1\\Documents\\file\\sci\\aiep\\Kfold.csv", fileEncoding = "UTF-8")
+write.csv(dt1_long, "C:\\Users\\wane1\\Documents\\file\\sci\\aiep\\Kfold.csv", fileEncoding = "UTF-8")
 # 分组汇总
 dt.summary <- dt %>%
-  group_by(Age,Sex) %>%  # Sex
+  group_by(Age, Sex) %>% # Sex
   summarise(
     sd = sd(TBV),
     TBV = mean(TBV)
@@ -95,42 +95,75 @@ dt.summary <- dt %>%
 
 
 library(ggplot2)
-library(tidyverse) 
+library(tidyverse)
 library(Rmisc)
 dt1_long <- as_data_frame(dt1_long)
-carss <- summarySE(as_tibble(dt), measurevar = "value", groupvars = c("Para","month","Group"))
+carss <- summarySE(as_tibble(dt), measurevar = "value", groupvars = c("Para", "month", "Group"))
 # carss$月 <- paste(rep(c("12月","24月","36月"),3),carss$月,sep="") #某一列添加X
 pd <- position_dodge(1.2) # move them .05 to the left and right
-ggplot(carss, aes(x=month, y=value, colour=Group, fill=Para)) + 
-  scale_x_continuous(breaks = c(12,24,36)) + 
-  scale_y_continuous(breaks = seq(0,1.0,0.05)) + 
-  xlab("随访时间(月)") + ylab("") +
+ggplot(carss, aes(x = month, y = value, colour = Group, fill = Para)) +
+  scale_x_continuous(breaks = c(12, 24, 36)) +
+  scale_y_continuous(breaks = seq(0, 1.0, 0.05)) +
+  xlab("随访时间(月)") +
+  ylab("") +
   theme_classic() +
-  geom_errorbar(aes(ymin=value-se, ymax=value+se), width=.1,position=pd) +
-  geom_line(position=pd) +
-  geom_point(position=pd)
+  geom_errorbar(aes(ymin = value - se, ymax = value + se), width = .1, position = pd) +
+  geom_line(position = pd) +
+  geom_point(position = pd)
 
 library(ggstatsplot)
 ggbetweenstats(dt, Group, by = Para, value)
 
 # grouped boxplot
-ggplot(dt, aes(x=Para, y=value, fill=Group)) + 
-  geom_boxplot()
+ggplot(dt, aes(x = Para, y = value, fill = Group)) +
+  stat_compare_means(aes(group = Group), label = "p.format") +
+  scale_y_continuous(expand = c(0, 0), breaks = seq(0.0, 1.2, 0.05), limits = c(0.00,1.00)) +
+  theme_classic() +
+  ylab("") +
+  xlab("评价指标") +
+  geom_violin()
 
 library(tidyverse)
 library(ggpubr)
 dt %>%
   mutate_at(vars(Group, Para), as.factor) %>%
-  ggplot(aes(Para, value, fill=Group))+
-  geom_boxplot()+ theme_classic() + ylab("") + xlab("评价指标") + 
-  # stat_compare_means(aes(group = ))
+  ggplot(aes(Para, value, fill = Group)) +
+  geom_boxplot(aes(fill = Group)) +
+  geom_violin(aes(fill = Group))+ 
+  theme_classic() +
+  ylab("") +
+  xlab("评价指标") +
+  # scale_y_continuous(expand = c(0, 0), breaks = seq(0.0, 1.2, 0.05), limits = c(0.00,1.00)) +
+  # annotate(geom = "segment",x=1,xend = 2,y=43,yend=43,size=2,color="red")+
+  # annotate(geom = "segment",x=1,xend = 1,y=43,yend=35,size=2,color="red")+
+  # annotate(geom = "text",x=1.5,y=44,label="***",size=10,color="black")+
+  # annotate(geom = "segment",x=1,xend = 3,y=33,yend=33,size=2,color="red")+
+  # annotate(geom = "segment",x=1,xend = 1,y=33,yend=28,size=2,color="red")+
+  # annotate(geom = "text",x=2.8,y=34,label="**",size=10,color="black")+
   stat_compare_means(aes(group = Group), label = "p.format")
 
 library(showtext)
-font_add_google(name = "Gochi Hand",family =  "gochi")
-font_add_google(name = "Schoolbell",family =  "bell")
+font_add_google(name = "Gochi Hand", family = "gochi")
+font_add_google(name = "Schoolbell", family = "bell")
 showtext_auto() # 后面字体均可以使用导入的字体
 
+
+library(ggplot2)
+library(ggprism)
+ggplot(dt, aes(Para,value,fill = Group))+
+  geom_violin(aes(fill = Group))+ 
+  # geom_boxplot(aes(fill = Group))+
+  # theme_prism(base_size =15,border =T)+  theme(legend.position = "none")     
+  theme_classic() +   
+  ylab("") +
+  xlab("评价指标") +
+  theme(
+    plot.margin = margin(t = 10 # 顶部边缘距离
+                         )) + # 左边边缘距离
+  # scale_x_discrete(breaks = c(12,24,36)) +
+  scale_y_continuous(expand = c(0, 0), breaks = seq(0.0, 1.2, 0.05), limits = c(0.00,1.00)) +
+  # stat_compare_means(aes(group = ))
+  stat_compare_means(aes(group = Group), label = "p.format",method = "t.test")
 
 
 BAdata2 <-
