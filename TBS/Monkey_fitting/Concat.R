@@ -8,7 +8,7 @@ getwd()
 
 df0 <- read_excel('C:\\Users\\wane1\\Documents\\LYX\\excel0210\\IDXA患者名单整理.xlsx')
 
-df1 <- read_excel('C:\\Users\\wane1\\Documents\\LYX\\excel0210\\AHA_全部整理.xlsx')
+df1 <- read_excel('x')
 df2 <- read_excel('C:\\Users\\wane1\\Documents\\LYX\\excel0210\\CoreScan_全部整理.xlsx')
 df3 <- read_excel('C:\\Users\\wane1\\Documents\\LYX\\excel0210\\股骨_全部整理.xlsx')
 df4 <- read_excel('C:\\Users\\wane1\\Documents\\LYX\\excel0210\\全身BMD_全部整理.xlsx')
@@ -65,7 +65,10 @@ write_excel_csv(df11, file = "C:\\Users\\wane1\\Documents\\LYX\\csv0210\\AHA_sid
 # df_1_6 <- base::unique(df_1_6)
 # write_excel_csv(df_1_6, file = "C:\\Users\\wane1\\Documents\\LYX\\csv\\_股骨_side-_全身.csv")
 
-df1 <- read.csv('C:\\Users\\wane1\\Documents\\LYX\\csv0210\\AHA_side.csv')
+df1 <- read.csv('C:\\Users\\wane1\\Downloads\\Most_Relevant_Countries_By_Corresponding_Author.csv', sep = ";")
+df2 <- read.csv('C:\\Users\\wane1\\Downloads\\Most_Cited_Countries.csv', sep = ";")
+
+
 df3 <- read.csv('C:\\Users\\wane1\\Documents\\LYX\\csv0210\\股骨_side.csv')
 dim(df1)
 head(df2)
@@ -120,9 +123,6 @@ write_excel_csv(df_0_8, file = "C:\\Users\\wane1\\Documents\\LYX\\csv\\IDXA患�
 
 
 
-
-
-
 df1 <- df1[,complete.cases(t(df1))]   # 提取不含空值的列
 
 x1 <- Reduce(intersect,list(dfi$gene_name,
@@ -133,3 +133,12 @@ x1 <- Reduce(intersect,list(dfi$gene_name,
 
 library("tidyverse")
 data_list %>% reduce(inner_join, by = "id")   
+
+
+
+
+
+df_56 <- read.csv('C:\\Users\\wane1\\Documents\\LYX\\csv0210\\IDXA患者名单_身体成分_正位腰椎.csv')
+df_234560 <- merge(df1, df2, by = c('国家')) # , all = TRUE
+df_234560 <- base::unique(df_234560) 
+write_excel_csv(df_234560, file = "C:\\Users\\wane1\\Documents\\LYX\\csv0210\\IDXA患者名单_CoreScan_股骨_全身BMD_身体成分_正位腰椎-28379.csv")
