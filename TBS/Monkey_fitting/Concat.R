@@ -139,4 +139,4 @@ data_list %>% reduce(inner_join, by = "id")
 df_56 <- read.csv('C:\\Users\\wane1\\Documents\\LYX\\csv0210\\IDXA患者名单_身体成分_正位腰椎.csv')
 df_234560 <- merge(df1, df2, by = c('国家')) # , all = TRUE
 df_234560 <- base::unique(df_234560) 
-write_excel_csv(df_234560, file = "C:\\Users\\wane1\\Downloads\\Most_Cited_Countries.csv")
+write_excel_csv(df_234560, file = "C:\\Users\\wane1\\Downloads\\Most_Cited_Countries-cancat.csv")
