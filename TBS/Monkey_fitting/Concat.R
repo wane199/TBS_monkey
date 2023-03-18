@@ -68,7 +68,6 @@ write_excel_csv(df11, file = "C:\\Users\\wane1\\Documents\\LYX\\csv0210\\AHA_sid
 df1 <- read.csv('C:\\Users\\wane1\\Downloads\\Most_Relevant_Countries_By_Corresponding_Author.csv', sep = ";")
 df2 <- read.csv('C:\\Users\\wane1\\Downloads\\Most_Cited_Countries.csv', sep = ";")
 
-
 df3 <- read.csv('C:\\Users\\wane1\\Documents\\LYX\\csv0210\\股骨_side.csv')
 dim(df1)
 head(df2)
@@ -133,7 +132,6 @@ x1 <- Reduce(intersect,list(dfi$gene_name,
 
 library("tidyverse")
 data_list %>% reduce(inner_join, by = "id")   
-
 
 
 
