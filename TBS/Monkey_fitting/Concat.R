@@ -65,9 +65,7 @@ write_excel_csv(df11, file = "C:\\Users\\wane1\\Documents\\LYX\\csv0210\\AHA_sid
 # df_1_6 <- base::unique(df_1_6)
 # write_excel_csv(df_1_6, file = "C:\\Users\\wane1\\Documents\\LYX\\csv\\_股骨_side-_全身.csv")
 
-df1 <- read.csv('C:\\Users\\wane1\\Downloads\\Most_Relevant_Countries_By_Corresponding_Author.csv', sep = ";")
-df2 <- read.csv('C:\\Users\\wane1\\Downloads\\Most_Cited_Countries.csv', sep = ";")
-
+df1 <- read.csv('C:\\Users\\wane1\\Documents\\LYX\\csv0210\\AHA_side.csv')
 df3 <- read.csv('C:\\Users\\wane1\\Documents\\LYX\\csv0210\\股骨_side.csv')
 dim(df1)
 head(df2)
@@ -137,6 +135,10 @@ data_list %>% reduce(inner_join, by = "id")
 
 
 df_56 <- read.csv('C:\\Users\\wane1\\Documents\\LYX\\csv0210\\IDXA患者名单_身体成分_正位腰椎.csv')
-df_234560 <- merge(df1, df2, by = c('国家')) # , all = TRUE
-df_234560 <- base::unique(df_234560) 
-write_excel_csv(df_234560, file = "C:\\Users\\wane1\\Downloads\\Most_Cited_Countries-cancat.csv")
+
+
+df1 <- read.csv('C:\\Users\\wane1\\Downloads\\Most_Relevant_Countries_By_Corresponding_Author.csv', sep = ";")
+df2 <- read.csv('C:\\Users\\wane1\\Downloads\\Most_Cited_Countries.csv', sep = ";")
+df_12 <- merge(df1, df2, by = c('国家')) # , all = TRUE
+df_12 <- base::unique(df_234560) 
+write_excel_csv(df_12, file = "C:\\Users\\wane1\\Downloads\\Most_Cited_Countries-cancat.csv")
