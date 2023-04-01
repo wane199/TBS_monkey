@@ -147,7 +147,6 @@ font_add_google(name = "Gochi Hand", family = "gochi")
 font_add_google(name = "Schoolbell", family = "bell")
 showtext_auto() # 后面字体均可以使用导入的字体
 
-
 library(ggplot2)
 library(ggprism)
 ggplot(dt, aes(Para,value,fill = Group))+
