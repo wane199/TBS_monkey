@@ -259,7 +259,12 @@ ggplot(data = dt,aes(x=Age,fill=cut(Age,breaks = c(0,18,60))))+
 
 # https://cloud.tencent.com/developer/article/1801036
 # https://www.datanovia.com/en/blog/beautiful-radar-chart-in-r-using-fmsb-and-ggplot-packages/
+rm(list = ls())
 library(fmsb)
+library(ggplot2) # 绘图
+library(showtext)
+showtext_auto(enable = TRUE)
+font_add(family = "YaHei", regular = "msyh.ttc")
 # Demo data
 exam_scores <- data.frame(
   row.names = c("BLS-Siamese net", "Siamese net","RF(radiomics)","KNN(radiomics)",
@@ -271,26 +276,33 @@ exam_scores <- data.frame(
   Sensitivity = c(.988, .993, .835, .661, .746, .850, .600),
   AUC = c(.969, .949, .855, .855, .676, .643, .532)
 )
-exam_scores
+exam_scores0 <- read.csv("C:\\Users\\wane1\\Documents\\file\\sci\\aiep\\BLS-二分类结果记录PT.csv",sep = ";",row.names = 1)
+exam_scores <- subset(exam_scores0, exam_scores0$图像 == "PET")
+exam_scores <- exam_scores[-1]
+# row.names(exam_scores) <- exam_scores[1]
+
 # Define the variable ranges: maximum and minimum
 max_min <- data.frame(
-  Accuracy = c(1, 0.00), F1_score = c(1, 0.00), Precision = c(1, 0.00), 
-  Specificity = c(1, 0.00), Sensitivity = c(1, 0.00), AUC = c(1, 0.00)
+  AUC = c(1, 0.00), 准确率 = c(1, 0.00), 灵敏度 = c(1, 0.00), 
+  特异度 = c(1, 0.00), 精确率 = c(1, 0.00), F1分数 = c(1, 0.00)
 )
 rownames(max_min) <- c("Max", "Min")
 # Bind the variable ranges to the data
 df <- rbind(max_min, exam_scores)
-df
+# df <- dplyr::mutate(max_min, exam_scores)
+
+df <- read.csv("C:\\Users\\wane1\\Documents\\file\\sci\\aiep\\BLS-二分类结果记录T1.csv",sep = ";",row.names = 1)
+df <- df[-1]
 # 使用radarchart函数绘制雷达图
 radarchart(df, caxislabels = c("10%", "", "", "", "100%"),
            axistype = 1, 
            vlcex = 1.0, # 设置标签的字体粗细大小
            vlabels = c(
-             "Accuracy", "AUC",
-             "Sensitivity", "Specificity",
-             "Precision","F1-score"
+             "AUC", "准确率",
+             "灵敏度", "特异度",
+             "精确率","F1分数"
            ),
-           title = "PET",
+           title = "T1WI图像", # T1WI
            pcol = topo.colors(10))
 legend(x=1.5, y=1, legend = rownames(df[-c(1,2),]), 
        bty = "n", pch=20, col = topo.colors(10),
@@ -299,7 +311,7 @@ legend(x=1.5, y=1, legend = rownames(df[-c(1,2),]),
 opar <- par() 
 # Define settings for plotting in a 3x4 grid, with appropriate margins:
 par(mar = rep(0.8,4))
-par(mfrow = c(3,3))
+par(mfrow = c(2,1))
 # Produce a radar-chart for each student
 p1 <- for (i in 3:nrow(df)) {
   radarchart(
