@@ -12,8 +12,8 @@ theme_set(theme_classic() + theme(legend.position = "bottom"))
 
 # dt <- read.csv("jixian.csv")
 dt <- read.csv("./TBS/Monkey_fitting/T1_TBV_1209.csv") # , sep = '\t'
-dt <- read.csv("/Users/mac/Desktop/Nomo-TBS/TBS&Mon/Monkey/QIANG/1030/FDG_1120.csv", fileEncoding = "GBK")
-write.csv(dt,'C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1209\\SUVr_1209.csv')
+dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv", sep = ';', fileEncoding = "GBK")
+write.csv(dt,'C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv')
 # TLM <- read_excel("/home/wane/Desktop/TBS/TLMey/BMC.xlsx")
 # 数据探索EDA
 dt <- dt[c(-1, -2, -3)]
@@ -151,13 +151,13 @@ ggplot(dt, aes(Age, TBV)) + # SUVr_whole_refPons
 # triple in one,分组与不分组曲线拟合汇总
 summary(dt)
 summary(dt.summary)
-my.formula <- y ~ s(x, k = 5, bs = "cs")
-p11 <- ggplot(dt.summary, aes(Age, TBV)) +
-  geom_point(aes(colour = Sex,shape = Sex), alpha = 1.0, size = 1.5) +
+my.formula <- y ~ s(x, k = 12, bs = "cs")
+p11 <- ggplot(dt, aes(Age, TBV)) + # dt.summary
+  geom_point(aes(colour = Sex,shape = Sex), alpha = 1.0, size = 2.5) +
   theme_classic() +
   ylab(bquote(TBV(cm^3))) + # TBV(cm^3) TBV.BW(cm^3/kg) Weight(kg) SUVr_whole_refPons Whole(KBq/cc)
   scale_x_continuous(breaks = seq(0, 30, 1), expand = c(0, 0)) + # expand = c(0, 0),
-  scale_y_continuous(breaks = seq(55.0, 80.0, 2.0), expand = c(0, 0)) + # expand = c(0, 0),
+  scale_y_continuous(breaks = seq(55.0, 85.0, 2.0), expand = c(0, 0)) + # expand = c(0, 0),
   geom_vline(xintercept = 5.0, colour = "#990000", linetype = "dashed") +
   stat_smooth(method = mgcv::gam, se = TRUE, colour = "black", formula = my.formula) +
   # stat_smooth(method = mgcv::gam, se = TRUE, formula = y ~ s(x, bs = "cs")) +
@@ -171,7 +171,7 @@ p11 <- ggplot(dt.summary, aes(Age, TBV)) +
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
-p15
+p11
 library(patchwork) # 拼图
 p11 + p12 + p13 + p14 + p15 + plot_annotation(tag_levels = "A") + plot_layout(ncol = 3) + 
   plot_layout(guides = "collect") -> p
