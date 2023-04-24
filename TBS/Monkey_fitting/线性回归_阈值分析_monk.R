@@ -12,7 +12,7 @@ theme_set(theme_classic() + theme(legend.position = "bottom"))
 
 # dt <- read.csv("jixian.csv")
 dt <- read.csv("./TBS/Monkey_fitting/T1_TBV_1209.csv") # , sep = '\t'
-dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBVratio_L&R.csv", sep = ';', fileEncoding = "GBK")
+dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVr.csv", sep = ';', fileEncoding = "GBK")
 # write.csv(dt,'C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv')
 # TLM <- read_excel("/home/wane/Desktop/TBS/TLMey/BMC.xlsx")
 # 数据探索EDA
@@ -272,7 +272,7 @@ for (i in 3:ncol(dt)) {
     scale_x_continuous(limits = c(0,30), expand = c(0, 0), breaks = seq(0, 30, 2)) +
     geom_smooth(method = mgcv::gam, formula = y ~ s(x, k = 4), se = T) +
     geom_point(aes(colour = Side, shape = Side, fill = Side), size = 1.5, shape = 21) +
-    ylab(bquote('Vr_ref Whole')) + xlab("Age(year)") + # Volume(cm^3)
+    ylab(bquote(Volume(cm^3))) + xlab("Age(year)") + # Volume(cm^3) 'Vr_ref Whole'
     scale_fill_brewer(palette = "Paired") + 
     ggtitle(paste0(colnames(dt)[i])) + theme(plot.title = element_text(hjust = 0.5)) + 
     theme(
@@ -288,7 +288,7 @@ for (i in 3:ncol(dt)) {
 # legend <- get_legend(plot_list[[13]] + guides(color = guide_legend(nrow = 1)) + theme(legend.position = "bottom"))
 # plot_grid(combined_plot, legend,ncol=1,rel_heights = c(1, .1))
 library("patchwork")
-wrap_plots(plot_list, byrow = T, nrow = 4) + plot_annotation(tag_levels = "A") +
+wrap_plots(plot_list, byrow = T, ncol = 5) + plot_annotation(tag_levels = "A") +
   plot_layout(guides = "collect")
 
 # Fit polynomial equation:
@@ -322,39 +322,39 @@ ggplot(dt, mapping = aes(x = Age, y = TBV)) + # , colour = Side, fill = Side, li
   )
 
 summary(dt)
-my.formula <- y ~ s(x, k = 3, bs = "cs")
-p6 <- ggplot(dt, aes(Age, CSF.TBV)) + # dt.summary
+my.formula <- y ~ s(x, k = 5, bs = "cs")
+p3 <- ggplot(dt, aes(Age, SUVr_whole_refPons)) + # dt.summary
   geom_point(aes(), alpha = 1.0, size = 1.5) + # colour = Sex,shape = Sex
   theme_classic() +
-  ylab(bquote(Ratio)) + xlab("Age(year)") + # Volume(cm^3) TBV(cm^3) TBV.BW(cm^3/kg) Weight(kg) SUVr_whole_refPons Whole(KBq/cc)
+  ylab(bquote('SUVr_ref Pons')) + xlab("Age(year)") + # Volume(cm^3) TBV(cm^3) TBV.BW(cm^3/kg) Weight(kg) SUVr_whole_refPons Whole(KBq/cc)
   scale_x_continuous(limits = c(0,30), breaks = seq(0, 30, 2), expand = c(0, 0)) + # expand = c(0, 0),
-  scale_y_continuous(limits = c(0.150,0.165), breaks = seq(0.150, 0.165, 0.002), expand = c(0, 0)) + # expand = c(0, 0),
+  scale_y_continuous(limits = c(0, 2.5), breaks = seq(0, 2.5, 0.5), expand = c(0, 0)) + # expand = c(0, 0),
   # geom_vline(xintercept = 5.0, colour = "#990000", linetype = "dashed") +
   stat_smooth(method = mgcv::gam, se = TRUE, colour = "black", formula = my.formula) +
   # stat_smooth(method = mgcv::gam, se = TRUE, formula = y ~ s(x, bs = "cs")) +
   geom_smooth(colour = "black",
-    data = dt, mapping = aes(x = Age, y = CSF.TBV), # , colour = Sex
+    data = dt, mapping = aes(x = Age, y = SUVr_whole_refPons), # , colour = Sex
     method = "gam", formula = my.formula
-  ) + ggtitle("CSF_ratio") + theme(plot.title = element_text(hjust = 0.5)) + #设置标题居中
+  ) + ggtitle("") + theme(plot.title = element_text(hjust = 0.5)) + #设置标题居中
   theme(
     legend.position = "bottom",
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
-p6
+p3
 
-p4 <- ggplot(dt, aes(Age, TBV)) + # dt.summary
+p4 <- ggplot(dt, aes(Age, SUVr_whole_refPons)) + # dt.summary
   geom_point(aes(colour = Sex,shape = Sex), alpha = 1.0, size = 1.5) +
   theme_classic() +
-  ylab(bquote(Volume(cm^3))) + xlab("Age(year)") + # TBV(cm^3) TBV.BW(cm^3/kg) Weight(kg) SUVr_whole_refPons Whole(KBq/cc)
+  ylab(bquote('SUVr_ref Pons')) + xlab("Age(year)") + # Volume(cm^3) TBV.BW(cm^3/kg) Weight(kg) SUVr_whole_refPons Whole(KBq/cc)
   scale_x_continuous(limits = c(0,30), breaks = seq(0, 30, 2), expand = c(0, 0)) + # expand = c(0, 0),
-  scale_y_continuous(limits = c(50.0,90.0), breaks = seq(50.0, 90.0, 5.0), expand = c(0, 0)) + # expand = c(0, 0),
+  scale_y_continuous(limits = c(0.0,2.5), breaks = seq(0.0, 2.5, 0.5), expand = c(0, 0)) + # expand = c(0, 0),
   # geom_vline(xintercept = 5.0, colour = "#990000", linetype = "dashed") +
   # stat_smooth(method = mgcv::gam, se = TRUE, colour = "black", formula = my.formula) +
   # stat_smooth(method = mgcv::gam, se = TRUE, formula = y ~ s(x, bs = "cs")) +
   geom_smooth(
-    data = dt, mapping = aes(x = Age, y = TBV, colour = Sex),
+    data = dt, mapping = aes(x = Age, y = SUVr_whole_refPons, colour = Sex),
     method = "gam", formula = my.formula
   ) +
   theme(
@@ -364,10 +364,9 @@ p4 <- ggplot(dt, aes(Age, TBV)) + # dt.summary
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
 p4
-p2
 
 library("patchwork")
-p1 + p2 + p3 + p4 + p5 + p6 + # + p7 + p8 + p9 + p10 + p11 + p12 + p13 + 
+p1 + p2 + p3 + p4 + # p5 + p6 + # + p7 + p8 + p9 + p10 + p11 + p12 + p13 + 
   plot_annotation(tag_levels = "A") +
   plot_layout(guides = "collect")
 
