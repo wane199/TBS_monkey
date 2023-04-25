@@ -248,7 +248,7 @@ ggplot(data = dt, mapping = aes(x = Age, y = TBV, colour = Sex)) +
   )
 # 置信区间带
 p2 <- ggplot(dt, mapping = aes(x = Age, y = TBV)) + # , colour = Side, fill = Side, linetype = Side
-  ylab(bquote(TBV(cm^3)))  + xlab("Age(year)") + # scale_fill_nejm() + scale_colour_nejm() +
+  ylab(bquote(TBV(cm^3)))  + xlab("Age (year)") + # scale_fill_nejm() + scale_colour_nejm() +
   scale_x_continuous(expand = c(0, 0), breaks = seq(0, 31, 1)) + scale_y_continuous(expand = c(0, 0), breaks = seq(45, 90, 5)) +
   # stat_cor(aes(), label.x = 3) + geom_vline(aes(xintercept=8.0),linetype=4,col="red") +
   geom_smooth(method = mgcv::gam, formula = y ~ s(x, k = 3), se = T, colour = "black") + # ylab(bquote(TBV/BW(cm^3/kg))) +
@@ -272,7 +272,7 @@ for (i in 3:ncol(dt)) {
     scale_x_continuous(limits = c(0,30), expand = c(0, 0), breaks = seq(0, 30, 2)) +
     geom_smooth(method = mgcv::gam, formula = y ~ s(x, k = 4), se = T) +
     geom_point(aes(colour = Side, shape = Side, fill = Side), size = 1.5, shape = 21) +
-    ylab(bquote(Volume(cm^3))) + xlab("Age(year)") + # Volume(cm^3) 'Vr_ref Whole'
+    ylab(bquote(Volume(cm^3))) + xlab("Age (year)") + # Volume(cm^3) 'Vr_ref Whole'
     scale_fill_brewer(palette = "Paired") + 
     ggtitle(paste0(colnames(dt)[i])) + theme(plot.title = element_text(hjust = 0.5)) + 
     theme(
@@ -309,7 +309,7 @@ ggpar(p, palette = "jco")
 
 # [combine into single plot](https://www.math.pku.edu.cn/teachers/lidf/docs/Rbook/html/_Rbook/ggplot2.html)
 ggplot(dt, mapping = aes(x = Age, y = TBV)) + # , colour = Side, fill = Side, linetype = Side
-  ylab(bquote(Volume(cm^3))) + xlab("Age(year)") + 
+  ylab(bquote(Volume(cm^3))) + xlab("Age (year)") + 
   scale_x_continuous(expand = c(0, 0), breaks = seq(0, 31, 1)) + scale_y_continuous(expand = c(0, 0), breaks = seq(45, 90, 5)) +
   # stat_cor(aes(), label.x = 3) + geom_vline(aes(xintercept=8.0),linetype=4,col="red") +
   geom_smooth(method = mgcv::gam, formula = y ~ s(x, k = 3), se = T, colour = "black") + # ylab(bquote(TBV/BW(cm^3/kg))) +
@@ -326,7 +326,7 @@ my.formula <- y ~ s(x, k = 5, bs = "cs")
 p3 <- ggplot(dt, aes(Age, SUVr_whole_refPons)) + # dt.summary
   geom_point(aes(), alpha = 1.0, size = 1.5) + # colour = Sex,shape = Sex
   theme_classic() +
-  ylab(bquote('SUVr_ref Pons')) + xlab("Age(year)") + # Volume(cm^3) TBV(cm^3) TBV.BW(cm^3/kg) Weight(kg) SUVr_whole_refPons Whole(KBq/cc)
+  ylab(bquote('SUVr_ref Pons')) + xlab("Age (year)") + # Volume(cm^3) TBV(cm^3) TBV.BW(cm^3/kg) Weight(kg) SUVr_whole_refPons Whole(KBq/cc)
   scale_x_continuous(limits = c(0,30), breaks = seq(0, 30, 2), expand = c(0, 0)) + # expand = c(0, 0),
   scale_y_continuous(limits = c(0, 2.5), breaks = seq(0, 2.5, 0.5), expand = c(0, 0)) + # expand = c(0, 0),
   # geom_vline(xintercept = 5.0, colour = "#990000", linetype = "dashed") +
@@ -347,7 +347,7 @@ p3
 p4 <- ggplot(dt, aes(Age, SUVr_whole_refPons)) + # dt.summary
   geom_point(aes(colour = Sex,shape = Sex), alpha = 1.0, size = 1.5) +
   theme_classic() +
-  ylab(bquote('SUVr_ref Pons')) + xlab("Age(year)") + # Volume(cm^3) TBV.BW(cm^3/kg) Weight(kg) SUVr_whole_refPons Whole(KBq/cc)
+  ylab(bquote('SUVr_ref Pons')) + xlab("Age (year)") + # Volume(cm^3) TBV.BW(cm^3/kg) Weight(kg) SUVr_whole_refPons Whole(KBq/cc)
   scale_x_continuous(limits = c(0,30), breaks = seq(0, 30, 2), expand = c(0, 0)) + # expand = c(0, 0),
   scale_y_continuous(limits = c(0.0,2.5), breaks = seq(0.0, 2.5, 0.5), expand = c(0, 0)) + # expand = c(0, 0),
   # geom_vline(xintercept = 5.0, colour = "#990000", linetype = "dashed") +
