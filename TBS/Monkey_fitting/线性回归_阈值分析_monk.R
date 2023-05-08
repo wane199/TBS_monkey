@@ -12,7 +12,7 @@ theme_set(theme_classic() + theme(legend.position = "bottom"))
 
 # dt <- read.csv("jixian.csv")
 dt <- read.csv("./TBS/Monkey_fitting/T1_TBV_1209.csv") # , sep = '\t'
-dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVr.csv", sep = ';', fileEncoding = "GBK")
+dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVrrefpons_gender.csv", sep = ';', fileEncoding = "GBK")
 # write.csv(dt,'C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv')
 # TLM <- read_excel("/home/wane/Desktop/TBS/TLMey/BMC.xlsx")
 # 数据探索EDA
@@ -268,12 +268,12 @@ p2
 theme_set(theme_classic() + theme(legend.position = "bottom"))
 plot_list <- list()
 for (i in 3:ncol(dt)) {
-  print(p <- ggplot(dt, aes_string(x = "Age", y = colnames(dt)[i], colour = "Side", fill = "Side", linetype = "Side")) +
+  print(p <- ggplot(dt, aes_string(x = "Age", y = colnames(dt)[i], colour = "Sex", fill = "Sex", linetype = "Sex")) +
     scale_x_continuous(limits = c(0,30), expand = c(0, 0), breaks = seq(0, 30, 2)) +
     geom_smooth(method = mgcv::gam, formula = y ~ s(x, k = 4), se = T) +
-    geom_point(aes(colour = Side, shape = Side, fill = Side), size = 1.5, shape = 21) +
-    ylab(bquote(Volume(cm^3))) + xlab("Age (year)") + # Volume(cm^3) 'Vr_ref Whole'
-    scale_fill_brewer(palette = "Paired") + 
+    geom_point(aes(colour = Sex, shape = Sex, fill = Sex), size = 1.5, shape = 21) +
+    ylab(bquote(Volume(cm^3))) + xlab("Age (year)") + # KBq/cc Volume(cm^3) 'Vr_ref Whole' "SUVr_ref_Pons"
+    # scale_fill_brewer(palette = "Paired") + 
     ggtitle(paste0(colnames(dt)[i])) + theme(plot.title = element_text(hjust = 0.5)) + 
     theme(
       axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.25, "cm"),

@@ -1,0 +1,155 @@
+---
+title: "自动机器学习automl"
+output:
+  word_document: default
+  html_document: default
+date: "2023-05-04"
+---
+随着机器学习的发展，其中人工需要干预的部分越来越多，而AutoML则是对机器学习模型从构建到应用的全过程自动化。
+
+自动机器学习 Automated machine learning（AutoML）是指让机器学习自动应用于实际问题的过程。自动机器学习涵盖了从原始数据集到可部署机器学习模型的整个流程，包括数据准备、特征工程、模型选择、评价指标的选择和超参数优化。
+
+在机器学习的应用中，将端到端的过程自动化可以产生更多优势：生成更简单的解决方案、更快地创建这些解决方案，并且经常能设计出优于人工设计的模型。自动机器学习中高度的自动化允许非专业人员使用机器学习的模型和技术。
+
+
+https://docs.h2o.ai/h2o/latest-stable/h2o-docs/automl.html?_ga=2.53563816.1415910599.1683252166-1422226584.1657247952
+
+```{r}
+library(h2o)
+h2o.init()
+```
+```{r}
+df <- h2o.importFile("MPE.csv")
+df$MPE <- h2o.asfactor(df$MPE)
+df$Gender <- h2o.asfactor(df$Gender)
+df$Cough <- h2o.asfactor(df$Cough)
+```
+
+```{r}
+am <- h2o.automl(y="MPE",
+                 training_frame =df,
+                 max_models = 10)
+```
+```{r}
+b <- h2o.get_leaderboard(am)
+b
+```
+```{r}
+h2o.get_best_model(am,criterion = "auc")
+```
+
+
+
+```{r}
+pred <- h2o.predict(am@leader,df)
+pred
+```
+
+```{r}
+best <- h2o.get_best_model(am)
+best
+```
+```{r}
+perf <- h2o.performance(best)
+perf
+```
+```{r}
+h2o.confusionMatrix(perf)
+```
+
+
+
+```{r}
+plot(perf,type="roc")
+```
+
+
+```{r}
+plot(perf,type="pr")
+```
+
+
+```{r}
+h2o.auc(perf)
+```
+
+
+```{r}
+h2o.aucpr(perf)
+```
+```{r}
+plot(best)
+```
+
+```{r}
+h2o.gains_lift_plot(best)
+```
+```{r}
+h2o.varimp_plot(best)
+```
+
+
+```{r}
+h2o.permutation_importance_plot(best,df)
+```
+```{r}
+h2o.varimp_heatmap(am@leaderboard)
+```
+
+
+
+模型解释
+```{r}
+shap_plot <- h2o.shap_summary_plot(best, 
+                                   df)
+shap_plot
+```
+
+```{r}
+shapr_plot <- h2o.shap_explain_row_plot(best, 
+                                        df, 
+                                        row_index = 1)
+shapr_plot
+```
+
+```{r}
+h2o.pd_plot(best,df,"ADAPE")
+```
+```{r}
+h2o.pd_plot(best,df,column = "Age")
+```
+
+
+```{r}
+pd_plot <- h2o.pd_multi_plot(am@leaderboard,
+                             df, 
+                             "ADAPE")
+pd_plot
+```
+```{r}
+h2o.pd_plot(best,
+            df,
+            column = "ADAPE",
+            row_index = 1)
+```
+
+
+```{r}
+h2o.ice_plot(best,
+             df,
+             show_pdp = TRUE,
+             "ADAPE")
+```
+
+```{r}
+h2o.learning_curve_plot(best)
+```
+
+```{r}
+#帕累托前图
+pf <- h2o.pareto_front(am)
+plot(pf)
+pf@pareto_front
+pf@leaderboard
+```
+
