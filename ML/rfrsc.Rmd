@@ -1,0 +1,109 @@
+---
+title: "rfrsc"
+output: html_document
+date: "2023-05-08"
+---
+
+```{r}
+library(randomForestSRC)
+data("veteran")
+head(veteran)
+
+```
+```{r}
+rfsrc_fit <- rfsrc(Surv(time,status)~.,
+                   ntree = 100,
+                   nsplit = 5,
+                   importance = TRUE,
+                   tree.err=TRUE,
+                   data=veteran)
+predict(rfsrc_fit,veteran[1,],type="survival")
+
+```
+```{r}
+print(rfsrc_fit)
+```
+```{r}
+plot(get.tree(rfsrc_fit,3))
+```
+```{r}
+plot(rfsrc_fit)
+```
+
+```{r}
+matplot(rfsrc_fit$time.interest,
+        100*t(rfsrc_fit$survival.oob[1:10,]),
+        xlab = "time",ylab = "Survival",
+        type="l",lty=1)
+
+```
+
+```{r}
+plot.survival(rfsrc_fit,subset=1:5)
+```
+
+```{r}
+bs_km <- get.brier.survival(rfsrc_fit, 
+                            cens.model = "km")$brier.score
+bs_km
+
+```
+```{r}
+bs_rsf <- get.brier.survival(rfsrc_fit, 
+                             cens.model = "rfsrc")$brier.score
+bs_rsf
+
+```
+
+```{r}
+plot(bs_km,type="s",col=2,lwd=3)
+lines(bs_rsf,type = "s",col=4,lwd=3)
+legend("topright",
+       legend = c("cens.model"="km",
+                  "cens.moedl"="rfs"),
+       fill = c(2,4))
+
+```
+```{r}
+tune.nodesize(Surv(time,status) ~ ., veteran)
+```
+
+```{r}
+rfsrc_fit$importance
+vipm_obj <- subsample(rfsrc_fit)
+plot(vipm_obj, 
+     xlab = "Variable Importance (x 100)", 
+     cex = 1.2)
+
+```
+```{r}
+partial_obj <- partial(rfsrc_fit,
+                       partial.xvar = "age",
+                       partial.type = "mort",
+                       partial.values = rfsrc_fit$xvar$age,
+                       partial.time = rfsrc_fit$time.interest)
+
+
+pdta <- get.partial.plot.data(partial_obj)
+     
+
+plot(lowess(pdta$x, pdta$yhat, f = 1/3),
+     type = "l", xlab = "age", ylab = "adjusted mortality")
+
+```
+```{r}
+karno <- quantile(rfsrc_fit$xvar$karno)
+partial.obj <- partial(rfsrc_fit,
+partial.type = "surv",
+partial.xvar = "karno",
+partial.values = karno,
+partial.time = rfsrc_fit$time.interest)
+pdta <- get.partial.plot.data(partial.obj)
+     
+## plot partial effect of karnofsky on survival
+matplot(pdta$partial.time, t(pdta$yhat), type = "l", lty = 1,
+        xlab = "time", ylab = "karnofsky adjusted survival")
+legend("topright", legend = paste0("karnofsky = ", karno), fill = 1:5)
+
+```
+
