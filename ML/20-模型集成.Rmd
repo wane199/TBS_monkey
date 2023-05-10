@@ -1,5 +1,6 @@
 ---
 title: "20-模型集成"
+# XGBoost的原理、公式推导、Python实现和应用(https://zhuanlan.zhihu.com/p/162001079#%E6%A6%82%E8%A7%88)
 output:
   word_document: default
   html_document: default
