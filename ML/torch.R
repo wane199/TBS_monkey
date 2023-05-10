@@ -58,7 +58,7 @@ torch_manual_seed(777)
 set.seed(777)
 
 # use your own kaggle.json here
-pins::board_register_kaggle(token = "~/kaggle.json")
+pins::board_register_kaggle(token = "/home/wane/Downloads/kaggle.json")
 
 files <- pins::pin_get("mateuszbuda/lgg-mri-segmentation", board = "kaggle",  extract = FALSE)
 
@@ -78,7 +78,17 @@ unlink("data/lgg-mri-segmentation", recursive = TRUE)
 
 dir.create(valid_dir)
 
+valid_indices <- sample(1:length(patients), 30)
 
+patients <- list.dirs(train_dir, recursive = FALSE)
+
+for (i in valid_indices) {
+  dir.create(file.path(valid_dir, basename(patients[i])))
+  for (f in list.files(patients[i])) {    
+    file.rename(file.path(train_dir, basename(patients[i]), f), file.path(valid_dir, basename(patients[i]), f))    
+  }
+  unlink(file.path(train_dir, basename(patients[i])), recursive = TRUE)
+}
 
 
 
