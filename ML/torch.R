@@ -1,3 +1,4 @@
+# Brain image segmentation with torch(https://blogs.rstudio.com/ai/posts/2020-11-30-torch-brain-segmentation/)
 # R原生支持pytorch了，应该叫torch for R
 library(torch)
 
@@ -33,4 +34,54 @@ model$parameters
 x <- torch_randn(10, 3)
 y_pred <- model(x)
 y_pred
+
+
+
+########################################
+# deep learning (incl. dependencies)
+library(torch)
+library(torchvision)
+
+# data wrangling
+library(tidyverse)
+library(zeallot)
+
+# image processing and visualization
+library(magick)
+library(cowplot)
+
+# dataset loading 
+library(pins)
+library(zip)
+
+torch_manual_seed(777)
+set.seed(777)
+
+# use your own kaggle.json here
+pins::board_register_kaggle(token = "~/kaggle.json")
+
+files <- pins::pin_get("mateuszbuda/lgg-mri-segmentation", board = "kaggle",  extract = FALSE)
+
+train_dir <- "data/mri_train"
+valid_dir <- "data/mri_valid"
+
+if(dir.exists(train_dir)) unlink(train_dir, recursive = TRUE, force = TRUE)
+if(dir.exists(valid_dir)) unlink(valid_dir, recursive = TRUE, force = TRUE)
+
+zip::unzip(files, exdir = "data")
+
+file.rename("data/kaggle_3m", train_dir)
+
+# this is a duplicate, again containing kaggle_3m (evidently a packaging error on Kaggle)
+# we just remove it
+unlink("data/lgg-mri-segmentation", recursive = TRUE)
+
+dir.create(valid_dir)
+
+
+
+
+
+
+
 
