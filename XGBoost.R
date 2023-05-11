@@ -38,7 +38,6 @@ plot(xgb_bd)
 xgb_shap <- predict_parts(xgb_exp,
                           type = "shap",
                           new_observation=dt[2,])
-
 plot(xgb_shap,show_boxplots=FALSE)
 
 # 4.3 ROC曲线
@@ -52,14 +51,13 @@ plot(xgb_profiles)
 # 4.6 变量重要性
 library(vivo)
 xgb_vp <- global_variable_importance(xgb_profiles)
-
 plot(xgb_vp)
 
 # 4.7 CP图
 xgb_cp <- predict_profile(xgb_exp,
                           new_observation = dt[2,])
-
 plot(xgb_cp)
+
 
 ################################
 # 基于SHAP的XGBoost解释
