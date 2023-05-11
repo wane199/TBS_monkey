@@ -61,7 +61,6 @@ xgb_cp <- predict_profile(xgb_exp,
 
 plot(xgb_cp)
 
-
 ################################
 # 基于SHAP的XGBoost解释
 # https://mp.weixin.qq.com/s?__biz=Mzg3ODg5MzU5NA==&mid=2247485738&idx=1&sn=f556c52c2beeae1b72d629e4f51e4e98&chksm=cf0d865ff87a0f4966b37278722aceb06d3065257ea5b11c6e0e7f30544c7a77e373aa53c82d&mpshare=1&scene=1&srcid=0511spKAjyHQ5vpNrYV76XN1&sharer_sharetime=1683762576579&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd
