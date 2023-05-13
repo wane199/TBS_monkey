@@ -515,20 +515,23 @@ plot(dt$y.upp ~ dt$Age, ylim = c(co[3], co[4]), xlim = c(co[1], co[2]), col = co
 rug(dt$Age, col = "blue")
 abline(v = cut_off, col = "black", lty = 2)
 
-#######################################
+###############################################
 # 限制性立方样条RCS-R语言代码实战
 library(rms) # 限制性立方样条需要的包
 library(survminer) # 曲线
 library(ggplot2) # 画图
 library(ggsci) # 调色板 作者：data小白 https://www.bilibili.com/read/cv16417407?spm_id_from=333.999.0.0 出处：bilibili
+
+dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv", sep = ';', fileEncoding = "GBK")
+dt <- dt[c(-1, -2, -3)]
 str(dt)
 dt$Sex <- factor(dt$Sex)
 dt$Side <- as.numeric(as.character(dt$Side, levels = c("Left", "Right"), labels = c("1", "2")))
 
-
 dd <- datadist(dt) # 为后续程序设定数据环境
 options(datadist = "dd") # 为后续程序设定数据环境
-fit <- ols(TBV ~ rcs(Age, 5) + Sex, data = dt) # 做变量的回归
+fit <- ols(TBV ~ rcs(Age, 4), data = dt) # 做变量的回归
+fit1 <- ols(TBV ~ rcs(Age, 5) + Sex, data = dt) # 做变量的回归
 summary(fit)
 an <- anova(fit)
 an
@@ -536,14 +539,37 @@ an
 Predict(fit, Age)
 plot(Predict(fit, Age), anova = an, pval = T)
 OLS1 <- Predict(fit, Age)
-
+summary(OLS1)
 # RCS绘图，不分组
 ggplot() +
   geom_line(data = OLS1, aes(Age, yhat), linetype = 1, size = 1, alpha = 0.9, colour = "grey") +
   geom_ribbon(data = OLS1, aes(Age, ymin = lower, ymax = upper), alpha = 0.3, fill = "grey") +
-  theme_classic() +
-  labs(title = "RCS", x = "Age", y = "Frontal_Cortex")
+  theme_classic() +   
+  scale_x_continuous(limits = c(0,30), breaks = seq(0, 30, 2), expand = c(0, 0)) + # expand = c(0, 0),
+  scale_y_continuous(limits = c(60.0, 75.0), breaks = seq(60.0, 75.0, 5.0), expand = c(0, 0)) + # expand = c(0, 0),
+  labs(title = "RCS", x = "Age", y = "")
 
+summary(dt)
+my.formula <- y ~ s(x, k = 5, bs = "cs")
+p6 <- ggplot(dt, aes(Age, CSF.TBV)) + # dt.summary SUVr_whole_refPons
+  geom_point(aes(), alpha = 1.0, size = 1.5) + # colour = Sex,shape = Sex
+  theme_classic() +
+  ylab(bquote("Ratio")) + xlab("Age (year)") + # "Volume " (cm^3) "TBV " (cm^3) TBV.BW(cm^3/kg) Weight(kg) SUVr_ref Pons SUVr_whole_refPons Whole(KBq/cc)
+  scale_x_continuous(limits = c(0,30), breaks = seq(0, 30, 2), expand = c(0, 0)) + # expand = c(0, 0),
+  scale_y_continuous(limits = c(0.150, 0.165), breaks = seq(0.150, 0.165, 0.002), expand = c(0, 0)) + # expand = c(0, 0),
+  # geom_vline(xintercept = 5.0, colour = "#990000", linetype = "dashed") +
+  stat_smooth(method = mgcv::gam, se = TRUE, colour = "black", formula = my.formula) +
+  # stat_smooth(method = mgcv::gam, se = TRUE, formula = y ~ s(x, bs = "cs")) +
+  geom_smooth(colour = "black",
+              data = dt, mapping = aes(x = Age, y = CSF.TBV), # , colour = Sex
+              method = "gam", formula = my.formula
+  ) + ggtitle("CSF_ratio") + theme(plot.title = element_text(hjust = 0.5)) + #设置标题居中
+  theme(
+    legend.position = "bottom",
+    axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
+    axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
+    axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
+  )
 # 不同分组(男女组)之间HR与协变量变化关系
 Pre1 <- rms::Predict(fit, Age, Sex = c("F", "M"), type = "predictions", ref.zero = F, conf.int = 0.95, digits = 2)
 par(mfrow = c(1, 2))
@@ -581,11 +607,43 @@ options(datadist='dd')
 dt$logage <- log(dt$Age)
 summary(dt)
 # fit<- cph(Surv(time,status==1) ~ rcs(age,4)+gender, x=TRUE, y=TRUE,data=dt)
-fit <- ols(TBV ~ rcs(Age,3) + Sex, data = dt)
+fit <- ols(TBV ~ rcs(Age,3), data = dt)
+fit1 <- ols(TBV ~ rcs(Age,3) + Sex, data = dt)
 ggrcs(data = dt, fit = fit, x = "Age", group="Sex", histbinwidth = 1, histcol = "blue")
 
 ###single group
-ggrcs(data=dt,fit=fit,x="age")
+ggrcs(data=dt,fit=fit,x="Age") + 
+  theme_classic() +   
+  scale_x_continuous(limits = c(0,30), breaks = seq(0, 30, 2), expand = c(0, 0)) + # expand = c(0, 0),
+  scale_y_continuous(limits = c(50.0, 90.0), breaks = seq(50.0, 90.0, 5.0), expand = c(0, 0)) + # expand = c(0, 0),
+  labs(title = "RCS", x = "Age", y = "") +
+  geom_point(data=dt,aes(x = Age, y = TBV), alpha = 1.0, size = 1.5)
+  
 ##two groups
-ggrcs(data=dt,fit=fit,x="age",group="gender")
+ggrcs(data=dt,fit=fit,x="Age",group="gender")
 
+## Errors Plotting a Restricted Cubic Spline with ggplot2
+## https://stackoverflow.com/questions/34752746/errors-plotting-a-restricted-cubic-spline-with-ggplot2
+# rms package Contains Restricted Cubic Splines (RCS)
+library(rms) # 限制性立方样条需要的包
+library(ggplot2)
+
+# Load Data
+# data(cars)
+
+# Model Fit with RCS
+fit <- lm(TBV ~ rcs(Age, 5), data=dt)
+
+# Obtain Diagnostic Data
+plot.dat <- cbind(dt, fitted=fitted(fit))
+
+# Compare Smooth to Actual
+ggplot(data=plot.dat) +
+  geom_point(aes(x=Age, y=TBV)) +
+  geom_smooth(aes(x=Age, y=TBV), method="lm", 
+              formula=y ~ rcs(x, quantile(plot.dat$Age, probs = c(0.05, 0.275, 0.5, 0.725, 0.95))), se=T, colour="blue") +
+  # geom_line(aes(y=fitted, x=Age), colour="red") + 
+  theme_classic() +   
+  scale_x_continuous(limits = c(0,30), breaks = seq(0, 30, 2), expand = c(0, 0)) + # expand = c(0, 0),
+  scale_y_continuous(limits = c(50.0, 90.0), breaks = seq(50.0, 90.0, 5.0), expand = c(0, 0)) # expand = c(0, 0),
+  
