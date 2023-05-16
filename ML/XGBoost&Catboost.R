@@ -129,7 +129,7 @@ install.packages("devtools")
 devtools::install_github("ModelOriented/forester")
 # 还需要安装依赖包
 #安装CatBoost
-devtools::install_url('https://github.com/catboost/catboost/releases/download/v1.1.1/catboost-R-Darwin-1.1.1.tgz', 
+devtools::install_url('https://github.com/catboost/catboost/releases/download/v1.2/catboost-R-Darwin-1.2.tgz', 
                       INSTALL_opts = c("--no-multiarch", "--no-test-load", "--no-staged-install"))
 #或者本地安装
 devtools::install_github('catboost/catboost', 
@@ -143,9 +143,11 @@ install.packages('tinytex')
 tinytex::install_tinytex()
 
 # 2、加载R包及数据
+rm(list = ls())
 library(forester)
 library(DALEX)
 dt <- read.csv("/home/wane/Desktop/EP/sci/cph/XML/TLE234group_2019.csv")
+dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\sci\\cph\\XML\\TLE234group_2019.csv")
 dt <- na.omit(dt)
 dt <- dt[c(7:24)]
 dt$oneyr <- factor(dt$oneyr)
@@ -192,7 +194,7 @@ draw_feature_importance(
 
 # 6、输出报告
 getwd()
-setwd()
+setwd('C:\\Users\\wane1\\Downloads\\')
 report(mod1,
        output_file = "html_document")
 
