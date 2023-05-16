@@ -135,7 +135,68 @@ sv_interaction(shp_i) +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
 
 
-#############################################
+####################################################
+# CatBoost模型的可解释性(https://mp.weixin.qq.com/s?__biz=Mzg3ODg5MzU5NA==&mid=2247485767&idx=1&sn=9f030d3eadfeea897c49c02749d333da&chksm=cf0d8632f87a0f246a4352657656a690bbe3c7e7ea6179a7cc3bf09e1438f3c28838f43eeeba&mpshare=1&scene=1&srcid=0514dNQCvi4fjSgoXtu7v8iK&sharer_sharetime=1684034848798&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
+# 1、加载R包及数据集
+library(tidymodels)
+library(catboost)
+library(treesnip)
+dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\sci\\cph\\XML\\TLE234group_2019.csv")
+dt <- na.omit(dt)
+dt <- dt[c(7:24)]
+vfactor <- c("oneyr", "side", "Sex")
+dt[vfactor] <- lapply(dt[vfactor], factor)
+# 批量数值转因子
+for (i in names(dt)[c(-2, -3, -6:-8)]) {
+  dt[, i] <- as.factor(dt[, i])
+}
+str(dt)
+
+# 2、构建模型
+cat_fit <- boost_tree() %>% 
+  set_engine("catboost") %>% 
+  set_mode("classification") %>% 
+  fit(MPE~.,data=dt)
+
+# 3、构建模型解释器
+library(DALEXtra)
+cat_exp <- explain_tidymodels(cat_fit,
+                              data = dt[,-1],
+                              y=df$MPE,
+                              label = "Catboost")
+# 4、模型解释
+# 4.1 个体SHAP值
+cat_shap <- predict_parts(cat_exp,
+                          new_observation=df[2,],
+                          type = "shap")
+
+plot(cat_shap,show_boxplots=FALSE)
+
+# 4.2 CP图
+cat_cp <- predict_profile(cat_exp,
+                          new_observation = df[2,])
+plot(cat_cp,subtitle="")
+
+# 4.3 部分依赖图（PDP）
+library(ingredients)
+cat_pd <- partial_dependence(cat_exp)
+plot(cat_pd,subtitle="")
+
+# 变量ADAPE的部分依赖图
+ADAPE_pd <- partial_dependence(cat_exp,"ADAPE")
+plot(ADAPE_pd,subtitle="")
+
+# 4.4 变量重要性
+library(vivo)
+cat_profiles <- model_profile(cat_exp)
+cat_vp <- global_variable_importance(cat_profiles)
+plot(cat_vp)
+
+# 4.5 ROC曲线
+library(auditor)
+plot(model_evaluation(cat_exp))+geom_abline()
+
+######################################
 # 快速构建基于树模型的自动机器学习工具(https://mp.weixin.qq.com/s?__biz=Mzg3ODg5MzU5NA==&mid=2247485792&idx=1&sn=77ad95f7ac6f718ebf7f1e3bcca7939b&chksm=cf0d8615f87a0f03a5dec26adb485a928aa77bcbba3a057b8ae47a0566583ab955e65ff40ac7&mpshare=1&scene=24&srcid=0516XMXzydd0R29ZlZV8vgaS&sharer_sharetime=1684193591197&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
 # 1、安装forester及依赖包
 install.packages("devtools")
