@@ -159,7 +159,8 @@ check_data(dt,"oneyr")
 engine = c( 'ranger',
             'xgboost',
             'lightgbm',
-            'decision_tree')
+            'decision_tree',
+            'catboost')
 # 并行计算
 doParallel::registerDoParallel() 
 
@@ -190,6 +191,8 @@ draw_feature_importance(
   mod1$y)
 
 # 6、输出报告
+getwd()
+setwd()
 report(mod1,
-       output_file = "C:\\Users\\wane1\\Downloads\\html_document")
+       output_file = "html_document")
 
