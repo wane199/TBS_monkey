@@ -145,17 +145,16 @@ tinytex::install_tinytex()
 # 2、加载R包及数据
 library(forester)
 library(DALEX)
-dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\sci\\cph\\XML\\TLE234group_2019.csv")
+dt <- read.csv("/home/wane/Desktop/EP/sci/cph/XML/TLE234group_2019.csv")
 dt <- na.omit(dt)
 dt <- dt[c(7:24)]
-dt$MPE <- factor(dt$MPE)
+dt$oneyr <- factor(dt$oneyr)
 
 # 3、数据分析
-check_data(dt,"MPE")
+check_data(dt,"oneyr")
 
 # 4、构建自动机器学习模型
 # forester包支持的树模型算法: ranger，xgboost，lightgbm，decision_tree 和 catboost。
-
 # 设定模型（一个或多个）
 engine = c( 'ranger',
             'xgboost',
@@ -167,7 +166,7 @@ doParallel::registerDoParallel()
 
 # 构建自动机器学习模型
 mod1 <- train(data = dt,        # 数据集
-              y = 'MPE',        #  因变量
+              y = 'oneyr',        #  因变量
               bayes_iter = 3,   # 贝叶斯优化迭代次数
               engine=engine,    # 设定的模型
               verbose = FALSE,  # 是否显示过程信息
