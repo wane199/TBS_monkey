@@ -122,6 +122,76 @@ sv_interaction(shp_i)+
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
 
 
+#############################################
+# 快速构建基于树模型的自动机器学习工具(https://mp.weixin.qq.com/s?__biz=Mzg3ODg5MzU5NA==&mid=2247485792&idx=1&sn=77ad95f7ac6f718ebf7f1e3bcca7939b&chksm=cf0d8615f87a0f03a5dec26adb485a928aa77bcbba3a057b8ae47a0566583ab955e65ff40ac7&mpshare=1&scene=24&srcid=0516XMXzydd0R29ZlZV8vgaS&sharer_sharetime=1684193591197&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
+# 1、安装forester及依赖包
+install.packages("devtools")
+devtools::install_github("ModelOriented/forester")
+# 还需要安装依赖包
+#安装CatBoost
+devtools::install_url('https://github.com/catboost/catboost/releases/download/v1.1.1/catboost-R-Darwin-1.1.1.tgz', 
+                      INSTALL_opts = c("--no-multiarch", "--no-test-load", "--no-staged-install"))
+#或者本地安装
+devtools::install_github('catboost/catboost', 
+                         subdir = 'catboost/R-package')
+# 绘制radar图
+devtools::install_github('ricardo-bion/ggradar', 
+                         dependencies = TRUE)
 
+# 导出报告依赖包
+install.packages('tinytex')
+tinytex::install_tinytex()
 
+# 2、加载R包及数据
+library(forester)
+library(DALEX)
+dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\sci\\cph\\XML\\TLE234group_2019.csv")
+dt <- na.omit(dt)
+dt <- dt[c(7:24)]
+dt$MPE <- factor(dt$MPE)
+
+# 3、数据分析
+check_data(dt,"MPE")
+
+# 4、构建自动机器学习模型
+# forester包支持的树模型算法: ranger，xgboost，lightgbm，decision_tree 和 catboost。
+
+# 设定模型（一个或多个）
+engine = c( 'ranger',
+            'xgboost',
+            'lightgbm',
+            'decision_tree',
+            'catboost')
+# 并行计算
+doParallel::registerDoParallel() 
+
+# 构建自动机器学习模型
+mod1 <- train(data = dt,        # 数据集
+              y = 'MPE',        #  因变量
+              bayes_iter = 3,   # 贝叶斯优化迭代次数
+              engine=engine,    # 设定的模型
+              verbose = FALSE,  # 是否显示过程信息
+              random_evals = 3, # 随机搜索迭代次数        
+              advanced_preprocessing = TRUE # 数据预测处理
+)
+
+# 5、模型评估
+# 5.1  模型预测
+#预测
+mod1$predictions_best[1]
+
+# 5.2 绘制ROC曲线
+draw_roc_plot(mod1$best_models[[1]],
+              mod1$test_data,
+              mod1$test_observed)
+
+# 5.3 变量重要性
+draw_feature_importance(
+  mod1$best_models[[1]],
+  test_data = mod1$test_data,
+  mod1$y)
+
+# 6、输出报告
+report(mod1,
+       output_file = "html_document")
 
