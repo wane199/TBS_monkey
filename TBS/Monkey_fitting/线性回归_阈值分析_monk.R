@@ -530,8 +530,11 @@ dt$Side <- as.numeric(as.character(dt$Side, levels = c("Left", "Right"), labels 
 
 dd <- datadist(dt) # 为后续程序设定数据环境
 options(datadist = "dd") # 为后续程序设定数据环境
-fit <- ols(TBV ~ rcs(Age, 4), data = dt) # 做变量的回归
+fit <- ols(TBV ~ rcs(Age, 3), data = dt) # 做变量的回归
+fit <- ols(TBV ~ rcs(Age, c(0,6,30)), data = dt) # 做变量的回归
 fit1 <- ols(TBV ~ rcs(Age, 5) + Sex, data = dt) # 做变量的回归
+fit <- lm(data$TBSL1L4 ~ rcs(data2$Age, c(20, 30, 35))) # 建立样条回归，设置3个节点
+
 summary(fit)
 an <- anova(fit)
 an
@@ -596,6 +599,7 @@ ggplot(Pre1) +
 View(Pre1)
 
 # [非线性拟合及寻找数据拐点](https://www.jianshu.com/p/e8f8f7ec10d2)
+# ggrcs_vignette(https://cran.r-project.org/web/packages/ggrcs/vignettes/ggrcs_vignette.html)
 library(ggrcs)
 library(rms)
 library(ggplot2)
@@ -607,17 +611,18 @@ options(datadist='dd')
 dt$logage <- log(dt$Age)
 summary(dt)
 # fit<- cph(Surv(time,status==1) ~ rcs(age,4)+gender, x=TRUE, y=TRUE,data=dt)
-fit <- ols(TBV ~ rcs(Age,3), data = dt)
+fit <- ols(TBV ~ rcs(Age,c(6.50)), data = dt)
 fit1 <- ols(TBV ~ rcs(Age,3) + Sex, data = dt)
 ggrcs(data = dt, fit = fit, x = "Age", group="Sex", histbinwidth = 1, histcol = "blue")
 
 ###single group
-ggrcs(data=dt,fit=fit,x="Age") + 
-  theme_classic() +   
+ggrcs(data=dt,fit=fit,x="Age",ribcol="black",ribalpha=0.2) + 
+  theme_classic() + 
   scale_x_continuous(limits = c(0,30), breaks = seq(0, 30, 2), expand = c(0, 0)) + # expand = c(0, 0),
   scale_y_continuous(limits = c(50.0, 90.0), breaks = seq(50.0, 90.0, 5.0), expand = c(0, 0)) + # expand = c(0, 0),
-  labs(title = "RCS", x = "Age", y = "") +
-  geom_point(data=dt,aes(x = Age, y = TBV), alpha = 1.0, size = 1.5)
+  labs(title = "", x = "Age (year)") + ylab(bquote('Volume' (cm^3))) + 
+  # ylab("bquote(Volume(cm^3))") +
+  geom_point(data=dt,aes(x = Age, y = TBV), alpha = 0.59, size = 1.5, colour = "black")
   
 ##two groups
 ggrcs(data=dt,fit=fit,x="Age",group="gender")
@@ -647,3 +652,7 @@ ggplot(data=plot.dat) +
   scale_x_continuous(limits = c(0,30), breaks = seq(0, 30, 2), expand = c(0, 0)) + # expand = c(0, 0),
   scale_y_continuous(limits = c(50.0, 90.0), breaks = seq(50.0, 90.0, 5.0), expand = c(0, 0)) # expand = c(0, 0),
   
+
+
+
+
