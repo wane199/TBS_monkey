@@ -395,38 +395,3 @@ par(cex = .9)
 plotnet(nn8.4, prune_col = 'lightblue', pos_col = "red", neg_col = "grey")
 
 
-#########################################
-## https://mp.weixin.qq.com/s?__biz=Mzg3ODg5MzU5NA==&mid=2247485627&idx=1&sn=ea4c37193d22ebef6de4f9913ff4e369&chksm=cf0d87cef87a0ed85627aa18245e6ff13f045fa865d82c932baffe2c6a148399965b2f91b1d3&mpshare=1&scene=1&srcid=0508mw4LEN8NGw5BjMmrAaNA&sharer_sharetime=1683513791848&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd
-## 自动机器学习（AutoML）
-# 基于h2o机器学习框架的自动机器学习方法，并对自动机器学习模型进行解释。
-# 1、加载包和数据集
-library(h2o)
-h2o.init() # 初始化
-
-# 导入数据
-df <- h2o.importFile("C:\\Users\\wane1\\Documents\\file\\sci\\cph\\XML\\TLE234group_2019.csv")
-# 分类变量转变为因子
-df$oneyr <- h2o.asfactor(df$oneyr)
-df$side <- h2o.asfactor(df$side)
-df$Sex <- h2o.asfactor(df$Sex)
-
-# 2、构建自动机器学习模型
-# 2.1模型构建
-am <- h2o.automl(y="oneyr",
-                 training_frame =df,
-                 max_models = 10)
-
-# 2.2  模型列表
-b <- h2o.get_leaderboard(am) # 默认为排名前6的模型
-b
-
-# 2.3 选取最优模型
-best <- h2o.get_best_model(am)
-
-# 3、模型表现
-perf <- h2o.performance(best)
-perf
-
-
-
-
