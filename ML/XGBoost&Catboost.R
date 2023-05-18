@@ -246,7 +246,7 @@ engine <- c(
   "catboost"
 )
 # 并行计算
-doParallel::registerDoParallel()
+doParallel::registerDoParallel(6)
 
 # 构建自动机器学习模型
 mod1 <- train(
@@ -262,7 +262,7 @@ mod1 <- train(
 # 5、模型评估
 # 5.1  模型预测
 # 预测
-mod1$predictions_best[1]
+mod1$predictions_best[5]
 
 # 5.2 绘制ROC曲线
 draw_roc_plot(
