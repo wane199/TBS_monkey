@@ -1,0 +1,209 @@
+---
+title: "R实战2-基于机器学习的预测模型"
+output:
+  word_document: default
+  html_document: default
+date: "2023-05-15"
+---
+
+
+https://workflowsets.tidymodels.org/articles/tuning-and-comparing-models.html
+https://workflowsets.tidymodels.org
+```{r}
+library(tidymodels)
+library(bonsai)
+library(parsnip)
+library(discrim)
+library(baguette)
+```
+```{r}
+dat<- read.csv("MPE.csv") 
+df <- na.omit(dat)
+df$MPE <- as.factor(df$MPE)
+```
+
+```{r}
+bagtree_spec <-
+  bag_tree() %>%
+  set_engine('rpart') %>%
+  set_mode('classification')
+
+xgboost_spec <-
+  boost_tree() %>%
+  set_engine('xgboost') %>%
+  set_mode('classification')
+
+cart_spec <-
+  decision_tree() %>%
+  set_engine('rpart') %>%
+  set_mode('classification')
+
+
+naivebayes_spec <-
+  naive_Bayes() %>%
+  set_engine('naivebayes')
+
+kknn_spec <-
+  nearest_neighbor() %>%
+  set_engine('kknn') %>%
+  set_mode('classification')
+
+randomforest_spec <-
+  rand_forest() %>%
+  set_engine('ranger') %>%
+  set_mode('classification')
+
+svm_spec <-
+  svm_linear() %>%
+  set_engine('kernlab') %>%
+  set_mode('classification')
+
+lightgbm_spec <- boost_tree() %>%
+  set_engine('lightgbm') %>%
+  set_mode('classification')
+
+```
+
+```{r}
+rec <- recipe(MPE~.,data = df)
+```
+
+```{r}
+folds <- vfold_cv(df,v=5,strata = MPE)
+```
+
+
+```{r}
+
+wf <- workflow_set(preproc = list(basic=rec),
+             models = list(bagtree=bagtree_spec,
+                           xgboost=xgboost_spec,
+                           dtree=cart_spec,
+                           naivebayes=naivebayes_spec,
+                           knn=kknn_spec,
+                           rf=randomforest_spec,
+                           svm=svm_spec,
+                           lightgbm=lightgbm_spec
+                           ))
+wf
+```
+```{r}
+wf <- wf %>% 
+  workflow_map("fit_resamples",
+               resamples=folds)
+
+```
+```{r}
+autoplot(wf,metric = "roc_auc") + 
+   geom_text(aes(y = mean - 1/20,label = wflow_id), 
+             angle = 90, 
+             hjust = 1)+
+  theme(legend.position = "none")+
+  xlim(c(1,9))
+```
+
+```{r}
+rank_results(wf,select_best = TRUE)
+```
+
+```{r}
+results <- 
+  wf%>% 
+  extract_workflow_set_result("basic_rf") %>% 
+  select_best(metric="roc_auc")
+
+results
+```
+
+
+```{r}
+rf_wf<- 
+  wf %>% 
+  extract_workflow("basic_rf")
+rf_wf
+```
+```{r}
+rf_wf_fit <- 
+  rf_wf %>% 
+  finalize_workflow(tibble(prod_degree = 1)) %>% 
+  fit(data = df)
+
+pred_wd <- rf_wf_fit %>% predict(df,type="prob")
+
+combin_data <-  df %>% 
+  select(MPE) %>% 
+  bind_cols(pred_wd)
+
+#计算auc
+roc_auc(combin_data,MPE,.pred_0)
+# # A tibble: 1 × 3
+#   .metric .estimator .estimate
+#   <chr>   <chr>          <dbl>
+# 1 roc_auc binary         0.999
+
+# 绘制ROC曲线
+roc_curve(combin_data,MPE,.pred_0) %>% 
+  autoplot()
+```
+```{r}
+library(DALEXtra)
+wf_explain <- explain_tidymodels(rf_wf_fit,
+                                 y=df[,1],df)
+```
+
+```{r}
+library(iBreakDown)
+wf_sp <- shap(wf_explain,new_observation=df[2,])
+plot(wf_sp)
+
+```
+
+```{r}
+#PDP 
+library(ingredients)
+rf_pdp <- partial_dependence(wf_explain,
+                             variables = "ADAPE")
+plot(rf_pdp)
+
+
+```
+```{r}
+#vip
+library(vivo)
+profiles <- model_profile(wf_explain)
+
+measure <- global_variable_importance(profiles)
+
+plot(measure)
+
+```
+
+```{r}
+library(h2o)
+
+h2o.init()
+
+
+df_h2o <- as.h2o(df)
+y <- "MPE"
+
+rf <- h2o.randomForest(y=y,training_frame=df_h2o)
+
+h2o.shap_summary_plot(rf,newdata = df_h2o)
+
+```
+
+
+```{r}
+library(shapviz)
+shap <- shapviz(rf,df)
+sv_importance(shap,"beeswarm")
+```
+```{r}
+sv_waterfall(shap,row_id = 321)
+```
+
+
+
+
+
