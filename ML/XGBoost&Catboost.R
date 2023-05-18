@@ -153,38 +153,41 @@ for (i in names(dt)[c(-2, -3, -6:-8)]) {
 str(dt)
 
 # 2、构建模型
-cat_fit <- boost_tree() %>% 
-  set_engine("catboost") %>% 
-  set_mode("classification") %>% 
-  fit(MPE~.,data=dt)
+cat_fit <- boost_tree() %>%
+  set_engine("catboost") %>%
+  set_mode("classification") %>%
+  fit(MPE ~ ., data = dt)
 
 # 3、构建模型解释器
 library(DALEXtra)
 cat_exp <- explain_tidymodels(cat_fit,
-                              data = dt[,-1],
-                              y=df$MPE,
-                              label = "Catboost")
+  data = dt[, -1],
+  y = df$MPE,
+  label = "Catboost"
+)
 # 4、模型解释
 # 4.1 个体SHAP值
 cat_shap <- predict_parts(cat_exp,
-                          new_observation=df[2,],
-                          type = "shap")
+  new_observation = df[2, ],
+  type = "shap"
+)
 
-plot(cat_shap,show_boxplots=FALSE)
+plot(cat_shap, show_boxplots = FALSE)
 
 # 4.2 CP图
 cat_cp <- predict_profile(cat_exp,
-                          new_observation = df[2,])
-plot(cat_cp,subtitle="")
+  new_observation = df[2, ]
+)
+plot(cat_cp, subtitle = "")
 
 # 4.3 部分依赖图（PDP）
 library(ingredients)
 cat_pd <- partial_dependence(cat_exp)
-plot(cat_pd,subtitle="")
+plot(cat_pd, subtitle = "")
 
 # 变量ADAPE的部分依赖图
-ADAPE_pd <- partial_dependence(cat_exp,"ADAPE")
-plot(ADAPE_pd,subtitle="")
+ADAPE_pd <- partial_dependence(cat_exp, "ADAPE")
+plot(ADAPE_pd, subtitle = "")
 
 # 4.4 变量重要性
 library(vivo)
@@ -194,7 +197,7 @@ plot(cat_vp)
 
 # 4.5 ROC曲线
 library(auditor)
-plot(model_evaluation(cat_exp))+geom_abline()
+plot(model_evaluation(cat_exp)) + geom_abline()
 
 ######################################
 # 快速构建基于树模型的自动机器学习工具(https://mp.weixin.qq.com/s?__biz=Mzg3ODg5MzU5NA==&mid=2247485792&idx=1&sn=77ad95f7ac6f718ebf7f1e3bcca7939b&chksm=cf0d8615f87a0f03a5dec26adb485a928aa77bcbba3a057b8ae47a0566583ab955e65ff40ac7&mpshare=1&scene=24&srcid=0516XMXzydd0R29ZlZV8vgaS&sharer_sharetime=1684193591197&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
@@ -280,4 +283,97 @@ getwd()
 setwd("C:\\Users\\wane1\\Downloads\\")
 report(mod1,
   output_file = "html_document"
+)
+
+#################################
+## 基于SHAP的CatBoost的可解释性
+# 1、加载R包和数据
+library(shapviz)
+library(ggplot2)
+library(catboost)
+
+dt <- read.csv("/home/wane/Desktop/EP/sci/cph/XML/TLE234group_2019.csv")
+# 分类变量转变为因子
+dt <- na.omit(dt)
+dt <- dt[c(7:24)] # 获取数据
+vfactor <- c("oneyr", "side", "Sex")
+dt[vfactor] <- lapply(dt[vfactor], factor)
+# 批量数值转因子
+for (i in names(dt)[c(-2, -3, -6:-8)]) {
+  dt[, i] <- as.factor(dt[, i])
+}
+str(dt)
+table(dt$oneyr) # 查看阳性结局
+
+# 2、构建CatBoost模型
+shapviz.catboost.Model <- function(object, X_pred, X = X_pred, collapse = NULL, ...) {
+  if (!requireNamespace("catboost", quietly = TRUE)) {
+    stop("Package 'catboost' not installed")
+  }
+  stopifnot(
+    "X must be a matrix or data.frame. It can't be an object of class catboost.Pool" =
+      is.matrix(X) || is.data.frame(X),
+    "X_pred must be a matrix, a data.frame, or a catboost.Pool" =
+      is.matrix(X_pred) || is.data.frame(X_pred) || inherits(X_pred, "catboost.Pool"),
+    "X_pred must have column names" = !is.null(colnames(X_pred))
+  )
+
+  if (!inherits(X_pred, "catboost.Pool")) {
+    X_pred <- catboost.load_pool(X_pred)
+  }
+
+  S <- catboost.get_feature_importance(object, X_pred, type = "ShapValues", ...)
+
+  # Call matrix method
+  pp <- ncol(X_pred) + 1L
+  baseline <- S[1L, pp]
+  S <- S[, -pp, drop = FALSE]
+  colnames(S) <- colnames(X_pred)
+  shapviz(S, X = X, baseline = baseline, collapse = collapse)
+}
+
+# 模型拟合
+X_pool <- catboost.load_pool(dt[, -1],
+  label = dt$oneyr   # catboost中分类标签不需要转为分类变量
+)
+
+params <- list(
+  loss_function = "Logloss",
+  iterations = 500,
+  logging_level = "Silent"
+)
+
+fit <- catboost.train(X_pool,
+  params = params
+)
+
+# 3、基于SHAP值的模型解释
+# 3.1 计算SHAP值
+shp <- shapviz(fit, X_pred = dt[, -1])
+
+# 3.2 waterfall plot 和force plot
+sv_waterfall(shp, row_id = 2)
+sv_force(shp, row_id = 2)
+
+# 3.3 基于SHAP的变量重要性（SHAP summary plot）
+sv_importance(shp, kind = "beeswarm")
+
+# 条形图
+sv_importance(shp, fill = "blue")
+
+# 3.4 SHAP dependence plots（依赖图）
+sv_dependence(shp, "Surgmon",
+  alpha = 0.5,
+  size = 1.5,
+  color_var = NULL
+)
+
+# 绘制多个变量的依赖图
+sv_dependence(shp,
+  v = c(
+    "ADAPE",
+    "TPPE",
+    "LDHPE",
+    "Gender"
+  )
 )
