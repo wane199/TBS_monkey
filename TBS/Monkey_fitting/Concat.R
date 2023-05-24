@@ -136,9 +136,76 @@ data_list %>% reduce(inner_join, by = "id")
 
 df_56 <- read.csv('C:\\Users\\wane1\\Documents\\LYX\\csv0210\\IDXA患者名单_身体成分_正位腰椎.csv')
 
-
 df1 <- read.csv('C:\\Users\\wane1\\Downloads\\Most_Relevant_Countries_By_Corresponding_Author.csv', sep = ";")
 df2 <- read.csv('C:\\Users\\wane1\\Downloads\\Most_Cited_Countries.csv', sep = ";")
 df_12 <- merge(df1, df2, by = c('国家')) # , all = TRUE
 df_12 <- base::unique(df_234560) 
 write_excel_csv(df_12, file = "C:\\Users\\wane1\\Downloads\\Most_Cited_Countries-cancat.csv")
+
+
+################################
+rm(list = ls())
+library(tidyverse)
+library(readxl)
+library(reshape2)
+df_0 <- read_excel('C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\BIAO\\0524\\data.xlsx')
+df_1 <- read_excel('C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\BIAO\\0524\\术前后3月-1年病例.xlsx')
+
+df0 <- base::unique(df_0)
+df1 <- base::unique(df_1)
+
+df1b <- subset(df1, Time == "base")
+df1p3 <- subset(df1, Time == "pos3")
+df1p12 <- subset(df1, Time == "pos12")
+df_1w0 <- merge(df1p3, df1p12, by = c('患者姓名','性别'))
+df_1w <- merge(df1b, df_1w0, by = c('患者姓名','性别'))
+write_excel_csv(df_1w, file = "C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\BIAO\\0524\\pos-术前后3月-1年病例.csv")
+
+df_1 <- read.csv('C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\BIAO\\0524\\pos-术前后3月-1年病例.csv',sep = ";")
+
+df_01 <- merge(df_0, df_1, by = c('患者姓名'))
+write_excel_csv(df_01, file = "C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\BIAO\\0524\\data-pos术前后3月-1年病例.csv")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
