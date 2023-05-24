@@ -1,15 +1,22 @@
-#
+# Create Waffle Chart Visualizations(https://github.com/hrbrmstr/waffle)
+rm(list = ls())
+# devtools::install_git("https://git.rud.is/hrbrmstr/waffle.git")
 library(waffle)
 library(magrittr)
 library(hrbrthemes)
 library(ggplot2)
 library(dplyr)
-
+library(vcd) 
 # current verison
 packageVersion("waffle")
 
+dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\sci\\cph\\cph2\\TLE220group.csv",sep = ";")
+table(dt$Sex)
+mytable <- xtabs(~ Sex + side, data = dt)
+mytable
+
 data.frame(
-  vals = c(79, 62, 56, 37),
+  vals = c(52, 36, 74, 58),
   col = rep(c("left", "right"), 2),
   fct = c(
     rep("Female", 2),
@@ -103,6 +110,8 @@ xdf %>%
   theme(legend.key.height = unit(2.25, "line")) +
   theme(legend.text = element_text(size = 10, hjust = 0, vjust = 0.5))
 
+
+################################
 # 2d density plot/密度散点热图(https://r-graph-gallery.com/2d-density-plot-with-ggplot2.html)
 library(dplyr)
 library(viridis) # 使用viridis提供的翠绿色标度：scale_fill_viridis()
@@ -110,7 +119,6 @@ library(ggpointdensity) # 绘制密度散点图
 library(ggpubr)
 library(ggplot2)
 library(cowplot) # 图形组合，可以自动对其坐标轴
-
 
 dt <- read.csv("/home/wane/Desktop/TBS&Mon/BIAO/PTH1/CKD2.csv", header = T)
 dt <- dt[-1]
