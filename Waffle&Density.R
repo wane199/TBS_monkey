@@ -11,6 +11,7 @@ library(vcd)
 packageVersion("waffle")
 
 dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\sci\\cph\\cph2\\TLE220group.csv",sep = ";")
+dt <- read.csv("/home/wane/Documents/file/sci/cph/cph2/TLE220group.csv",sep = ";")
 table(dt$Sex)
 mytable <- xtabs(~ Sex + side, data = dt)
 mytable
@@ -97,12 +98,12 @@ xdf %>%
   scale_color_manual(
     name = NULL,
     values = c("#c68958", "grey"),
-    labels = c("Male", "Male")
+    labels = c("Female", "Male")
   ) +
   scale_label_pictogram(
     name = NULL,
-    values = c("male", "male"),
-    labels = c("Male", "Male")
+    values = c("female", "male"),
+    labels = c("Female", "Male")
   ) +
   coord_equal() +
   theme_ipsum_rc(grid = "") +
@@ -111,7 +112,7 @@ xdf %>%
   theme(legend.text = element_text(size = 10, hjust = 0, vjust = 0.5))
 
 
-################################
+#######################################
 # 2d density plot/密度散点热图(https://r-graph-gallery.com/2d-density-plot-with-ggplot2.html)
 library(dplyr)
 library(viridis) # 使用viridis提供的翠绿色标度：scale_fill_viridis()
