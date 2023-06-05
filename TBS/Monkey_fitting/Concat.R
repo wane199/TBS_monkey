@@ -149,23 +149,23 @@ library(tidyverse)
 library(readxl)
 library(reshape2)
 df_0 <- read_excel('C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\BIAO\\0524\\data.xlsx')
-df_1 <- read_excel('C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\BIAO\\0524\\代综pos12.xlsx')
+df_1 <- read_excel('C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\BIAO\\0524\\代综pos3.xlsx')
 
 df0 <- base::unique(df_0)
 df1 <- base::unique(df_1)
 
 df1b <- subset(df1, Time == "base")
-df1p3 <- subset(df1, Time == "pos5")
+df1p3 <- subset(df1, Time == "pos3")
 df1p12 <- subset(df1, Time == "pos12")
 df_1w0 <- merge(df1p3, df1p12, by = c('患者姓名','性别'))
 df_1w <- merge(df1b, df_1w0, by = c('患者姓名','性别'))
-df_1w <- merge(df1b, df1p12, by = c('患者姓名','性别'))
-write_excel_csv(df_1w, file = "C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\BIAO\\0524\\pos-代综pos12.csv")
+df_1w <- merge(df1b, df1p3, by = c('患者姓名','性别'))
+write_excel_csv(df_1w, file = "C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\BIAO\\0524\\pos-代综pos3.csv")
 
-df_1 <- read.csv('C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\BIAO\\0524\\pos-代综pos12.csv',sep = ";")
+df_1 <- read.csv('C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\BIAO\\0524\\pos-代综pos3.csv',sep = ";")
 
 df_01 <- merge(df_0, df_1, by = c('患者姓名'))
-write_excel_csv(df_01, file = "C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\BIAO\\0524\\data-pos代综pos12.csv")
+write_excel_csv(df_01, file = "C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\BIAO\\0524\\data-pos代综pos3.csv")
 
 
 
