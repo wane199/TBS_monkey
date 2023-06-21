@@ -8,17 +8,17 @@ getwd()
 
 df0 <- read_excel('C:\\Users\\wane1\\Documents\\LYX\\excel0210\\IDXA患者名单整理.xlsx')
 
-df1 <- read_excel('x')
-df2 <- read_excel('C:\\Users\\wane1\\Documents\\LYX\\excel0210\\CoreScan_全部整理.xlsx')
-df3 <- read_excel('C:\\Users\\wane1\\Documents\\LYX\\excel0210\\股骨_全部整理.xlsx')
-df4 <- read_excel('C:\\Users\\wane1\\Documents\\LYX\\excel0210\\全身BMD_全部整理.xlsx')
+df1 <- read_excel('C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\BIAO\\0617\\TBS.xlsx')
+df2 <- read_excel('C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\BIAO\\0617\\股骨.xlsx')
+df3 <- read_excel('C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\BIAO\\0617\\脊椎.xlsx')
+df4 <- read_excel('C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\BIAO\\0617\\科室.xlsx')
 df5 <- read_excel('C:\\Users\\wane1\\Documents\\LYX\\excel0210\\身体成分_全部整理.xlsx')
 df6 <- read_excel('C:\\Users\\wane1\\Documents\\LYX\\excel0210\\正位腰椎_全部整理.xlsx')
 df0 <- base::unique(df0)
-df1 <- base::unique(df1)
-df2 <- base::unique(df2)
-df3 <- base::unique(df3)
-df4 <- base::unique(df4)
+df_1 <- base::unique(df1)
+df_2 <- base::unique(df2)
+df_3 <- base::unique(df3)
+df_4 <- base::unique(df4)
 df5 <- base::unique(df5)
 df6 <- base::unique(df6)
 
@@ -167,7 +167,12 @@ df_1 <- read.csv('C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\BIAO\\0524\\pos-�
 df_01 <- merge(df_0, df_1, by = c('患者姓名'))
 write_excel_csv(df_01, file = "C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\BIAO\\0524\\data-pos代综pos3.csv")
 
-
+######################################
+df2R <- df2  %>% filter(侧 == '右')
+df_12R <- merge(df1, df2R, by = c('姓名','性别'))
+df_12R3 <- merge(df_12R, df3, by = c('姓名','性别'))
+df_12R34 <- merge(df_12R3, df4, by = c('姓名','性别'))
+write_excel_csv(df_12R34, file = "C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\BIAO\\0617\\TBS_股骨右_脊椎_科室.csv")
 
 
 
