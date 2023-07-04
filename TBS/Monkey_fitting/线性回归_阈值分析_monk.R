@@ -12,7 +12,7 @@ theme_set(theme_classic() + theme(legend.position = "bottom"))
 
 # dt <- read.csv("jixian.csv")
 dt <- read.csv("./TBS/Monkey_fitting/T1_TBV_1209.csv") # , sep = '\t'
-dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBVratio_L&R.csv", sep = ';', fileEncoding = "GBK")
+dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVr.csv", sep = ';', fileEncoding = "GBK")
 # write.csv(dt,'C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv')
 # TLM <- read_excel("/home/wane/Desktop/TBS/TLMey/BMC.xlsx")
 # 数据探索EDA
@@ -134,7 +134,7 @@ squash_axis <- function(from, to, factor) {
 }
 
 my.formula <- y ~ s(x, k = 7, bs = "cs")
-ggplot(dt, aes(Age, TBV)) + # SUVr_whole_refPons
+ggplot(dt, aes(Age, SUV_Whole)) + # SUVr_whole_refPons
   geom_point(alpha = 1) +
   stat_cor(aes(), label.x = 3) + 
   stat_smooth(method = mgcv::gam, se = TRUE, formula = my.formula) +
@@ -151,18 +151,19 @@ ggplot(dt, aes(Age, TBV)) + # SUVr_whole_refPons
 # triple in one,分组与不分组曲线拟合汇总
 summary(dt)
 summary(dt.summary)
-my.formula <- y ~ s(x, k = 12, bs = "cs")
-p11 <- ggplot(dt, aes(Age, TBV)) + # dt.summary
+my.formula <- y ~ s(x, k = 10, bs = "cs")
+my.formula <- y ~ s(x, k = 10, bs = "tp") # s, te, ti and t2
+p12 <- ggplot(dt, aes(Age, SUV_Whole)) + # dt.summary
   geom_point(aes(colour = Sex,shape = Sex), alpha = 1.0, size = 2.5) +
   theme_classic() +
-  ylab(bquote(TBV(cm^3))) + # TBV(cm^3) TBV.BW(cm^3/kg) Weight(kg) SUVr_whole_refPons Whole(KBq/cc)
+  ylab(bquote(SUV_Whole (KBq/cc))) + # TBV(cm^3) TBV.BW(cm^3/kg) Weight(kg) SUVr_whole_refPons Whole(cm^3/kg) SUV_Whole(KBq/cc)
   scale_x_continuous(breaks = seq(0, 30, 1), expand = c(0, 0)) + # expand = c(0, 0),
-  scale_y_continuous(breaks = seq(55.0, 85.0, 2.0), expand = c(0, 0)) + # expand = c(0, 0),
+  # scale_y_continuous(breaks = seq(55.0, 85.0, 2.0), expand = c(0, 0)) + # expand = c(0, 0),
   geom_vline(xintercept = 5.0, colour = "#990000", linetype = "dashed") +
   stat_smooth(method = mgcv::gam, se = TRUE, colour = "black", formula = my.formula) +
   # stat_smooth(method = mgcv::gam, se = TRUE, formula = y ~ s(x, bs = "cs")) +
   geom_smooth(
-    data = dt, mapping = aes(x = Age, y = TBV, colour = Sex),
+    data = dt, mapping = aes(x = Age, y = SUV_Whole, colour = Sex),
     method = "gam", formula = my.formula
   ) +
   theme(
@@ -171,8 +172,10 @@ p11 <- ggplot(dt, aes(Age, TBV)) + # dt.summary
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
-p11
+p12
 library(patchwork) # 拼图
+p11 + p12 + plot_annotation(tag_levels = "A") + plot_layout(ncol = 2) + 
+  plot_layout(guides = "collect")
 p11 + p12 + p13 + p14 + p15 + plot_annotation(tag_levels = "A") + plot_layout(ncol = 3) + 
   plot_layout(guides = "collect") -> p
 p
@@ -308,7 +311,7 @@ ggplot(data = dt, mapping = aes(x = Age, y = TBV, colour = Side)) +
 ggpar(p, palette = "jco")
 
 # [combine into single plot](https://www.math.pku.edu.cn/teachers/lidf/docs/Rbook/html/_Rbook/ggplot2.html)
-ggplot(dt, mapping = aes(x = Age, y = TBV)) + # , colour = Side, fill = Side, linetype = Side
+ggplot(dt, mapping = aes(x = Age, y = SUV_Whole)) + # , colour = Side, fill = Side, linetype = Side
   ylab("bquote(Volume(cm^3))") + xlab("Age (year)") + 
   scale_x_continuous(expand = c(0, 0), breaks = seq(0, 31, 1)) + scale_y_continuous(expand = c(0, 0), breaks = seq(45, 90, 5)) +
   # stat_cor(aes(), label.x = 3) + geom_vline(aes(xintercept=8.0),linetype=4,col="red") +
@@ -322,7 +325,7 @@ ggplot(dt, mapping = aes(x = Age, y = TBV)) + # , colour = Side, fill = Side, li
   )
 
 summary(dt)
-my.formula <- y ~ s(x, k = 5, bs = "cs")
+my.formula <- y ~ s(x, k = 6, bs = "cs")
 p6 <- ggplot(dt, aes(Age, CSF.TBV)) + # dt.summary SUVr_whole_refPons
   geom_point(aes(), alpha = 1.0, size = 1.5) + # colour = Sex,shape = Sex
   theme_classic() +
@@ -344,17 +347,17 @@ p6 <- ggplot(dt, aes(Age, CSF.TBV)) + # dt.summary SUVr_whole_refPons
   )
 p6
 
-p4 <- ggplot(dt, aes(Age, GM.TBV)) + # dt.summary SUVr_whole_refPons
+p4 <- ggplot(dt, aes(Age, SUV_Whole)) + # dt.summary SUVr_whole_refPons
   geom_point(aes(colour = Sex,shape = Sex), alpha = 1.0, size = 1.5) +
   theme_classic() +
   ylab(bquote("Ratio")) + xlab("Age (year)") + # Volume(cm^3) TBV.BW(cm^3/kg) Weight(kg) SUVr_whole_refPons Whole(KBq/cc)
   scale_x_continuous(limits = c(0,30), breaks = seq(0, 30, 2), expand = c(0, 0)) + # expand = c(0, 0),
-  scale_y_continuous(limits = c(0.400, 0.450), breaks = seq(0.400, 0.450, 0.005), expand = c(0, 0)) + # expand = c(0, 0),
+  scale_y_continuous(limits = c(0.600, 4.000), breaks = seq(0.600, 4.000, 0.400), expand = c(0, 0)) + # expand = c(0, 0),
   # geom_vline(xintercept = 5.0, colour = "#990000", linetype = "dashed") +
   # stat_smooth(method = mgcv::gam, se = TRUE, colour = "black", formula = my.formula) +
   # stat_smooth(method = mgcv::gam, se = TRUE, formula = y ~ s(x, bs = "cs")) +
   geom_smooth(
-    data = dt, mapping = aes(x = Age, y = GM.TBV , colour = Sex),
+    data = dt, mapping = aes(x = Age, y = SUV_Whole, colour = Sex),
     method = "gam", formula = my.formula
   ) + ggtitle("GM_ratio") + theme(plot.title = element_text(hjust = 0.5)) +
   theme(
