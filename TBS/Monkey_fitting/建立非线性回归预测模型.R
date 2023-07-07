@@ -9,7 +9,7 @@ library(mgcv)
 library(caret)
 library(readxl)
 
-setwd("/Users/mac/RDocu") # 设置路径
+setwd("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\") # 设置路径
 setwd("C:\\Users\\wane\\Desktop\\R&Py\\RDocu")
 getwd()
 list.files() # 查看当前工作目录下的文件
@@ -63,8 +63,8 @@ data2 <- data[data$Age > 20 & data$Age < 90 & data$BMI > 18 & data$BMI < 30, ]
 
 data2
 str(data2)
-ncol(data2) # 字段数量 列数
-nrow(data2) # 样本数量 行数
+ncol(data2) # 字段数量——列数
+nrow(data2) # 样本数量——行数
 colnames(data2)
 cbind(apply(data2, 2, function(x) length(unique(x))), sapply(data2, class))
 summary(data2$Age)
@@ -84,38 +84,41 @@ ggplot(data2, aes(Age, BMDL1L4)) +
   scale_x_continuous(breaks = c(10, 20, 30, 40, 50, 60, 70, 80, 90, 100)) +
   geom_point(size = 0.05) # 绘制散点图
 
+
+data2 <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv", sep = ';', fileEncoding = "GBK") # , sep = '\t'
+data2 <- data2[c(-1, -2, -3)]
+data2$Sex <- as.factor(data2$Sex)
 # 建立线性回归模型
-model.lm <- lm(TBSL1L4 ~ Age, data = data2) # 构建线性回归模型
+model.lm <- lm(TBV ~ Age, data = data2) # 构建线性回归模型
 summary(model.lm) # 查看回归模型结果
 
-model.lm2 <- lm(BMDL1L4 ~ Age, data = data2)
+model.lm2 <- lm(TBV ~ Age + Sex, data = data2)
 summary(model.lm2) # Residual standard error为残差标准误，是模型用自变量预测因变量的平均误差，该值越小说明模型拟合越好；Adjusted R-squared为调整R2，可理解为模型对数据集的解释程度，该值越大模型拟合程度越好。
 # 线性回归的拟合效果
-ggplot(data2, aes(Age, TBSL1L4)) +
+ggplot(data2, aes(Age, TBV)) +
   geom_point() +
   stat_smooth(method = lm, formula = y ~ x) +
   theme_classic() +
-  scale_x_continuous(breaks = c(10, 20, 30, 40, 50, 60, 70, 80, 90, 100)) +
-  geom_point(size = 0.05)
+  # scale_x_continuous(breaks = c(10, 20, 30, 40, 50, 60, 70, 80, 90, 100)) +
+  scale_x_continuous(breaks = seq(0, 30, 1)) +
+  geom_point(size = 0.05) -> p1
 
 # 建立曲线方程
-model.log <- lm(TBSL1L4 ~ log(Age), data = data2) # 建立对数曲线方程
+model.log <- lm(TBV ~ log(Age), data = data2) # 建立对数曲线方程
 summary(model.log) # 查看模型概况
 # 拟合曲线
-ggplot(data2, aes(Age, TBSL1L4)) +
+ggplot(data2, aes(Age, TBV)) +
   geom_point() +
   stat_smooth(method = lm, formula = y ~ log(x)) +
   theme_classic() +
   scale_x_continuous(breaks = c(10, 20, 30, 40, 50, 60, 70, 80, 90, 100)) +
-  geom_point(size = 0.05)
+  geom_point(size = 0.05) -> p2
 
-View(data2)
-
-# 建立分段回归模型
+# 建立分段回归模型（见“monkey-RCS.R”）
 model.segmented <- segmented(model.lm) # 构建分段回归模型
 summary(model.segmented) # 查看模型概况
 # 查看拟合效果
-plot(TBSL1L4 ~ Age, data2, pch = 10, cex = 0.5, bty = "l")
+plot(TBV ~ Age, data2, pch = 10, cex = 0.5, bty = "l")
 axis(1, seq(10, 100, 10))
 abline(a = coef(model.lm)[1], b = coef(model.lm)[2], col = "red", lwd = 2.5)
 plot(model.segmented, col = "blue", lwd = 2.5, add = T, bty = c("l"), )
@@ -168,6 +171,11 @@ ggplot(data2, aes(Age, TBSL1L4)) +
   scale_x_continuous(breaks = c(10, 20, 30, 40, 50, 60, 70, 80, 90, 100)) +
   geom_point(size = 0.05)
 # 从图形可以看出，广义可加模型的曲线拟合效果非常好。虽然模型在本数据集中表现良好，但仍需要注意过拟合的情况。
+
+library("patchwork")
+p1 + p2 + p3 + p4 + p5 + p6 + # + p7 + p8 + p9 + p10 + p11 + p12 + p13 + 
+  plot_annotation(tag_levels = "A") +
+  plot_layout(guides = "collect")
 
 #########################################
 # 进行nls模型分析(https://mp.weixin.qq.com/s?__biz=Mzg3MzQzNTYzMw==&mid=2247500276&idx=1&sn=7ecc432b5bc3c9d0f22651618f816d1b&chksm=cee2996af995107ce08d0b4cc0b6ed72fb5500a92cdd08c9a8bd8c0c83624b35546ee21c80a7&mpshare=1&scene=1&srcid=12070XF4be44p0nkerDGMFWP&sharer_sharetime=1670430178629&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
