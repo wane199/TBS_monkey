@@ -125,7 +125,7 @@ p <- ggplot() +
   geom_point(data = dt, mapping = aes(x = Age, y = SUV_Whole)) + # , colour = Sex
   theme_classic()
 p
-ggplot(dt, aes(Age, SUV_Whole, group = Age > 5.0, colour = Sex)) +
+ggplot(dt, aes(Age, TBV, group = Age > 5.0, colour = Sex)) +
   geom_smooth() +
   geom_point(data = dt, mapping = aes(x = Age, y = SUV_Whole))
 ggplot(data = dt, x = Age, y = SUV_Whole, group = Age > 5.0) + # , colour = Sex
@@ -133,9 +133,9 @@ ggplot(data = dt, x = Age, y = SUV_Whole, group = Age > 5.0) + # , colour = Sex
   geom_smooth()
 
 # 建立线性回归模型
-model.lm <- lm(Weight ~ Age, data = dt) # 构建线性回归模型 SUVr_whole_refPons
+model.lm <- lm(TBV ~ Age, data = dt) # 构建线性回归模型 SUVr_whole_refPons
 summary(model.lm) # 查看回归模型结果，
-p1 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
+p1 <- ggplot(dt, aes(Age, TBV)) + # , colour = Sex
   geom_point() +
   theme_classic() +
   stat_smooth(method = lm, formula = y ~ x) +
@@ -152,10 +152,10 @@ p1 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
   )
 p1
 # 建立曲线方程(log,exp)
-model.log <- lm(Weight ~ log(Age), data = dt) # 建立对数曲线方程
+model.log <- lm(TBV ~ log(Age), data = dt) # 建立对数曲线方程
 summary(model.log) # 查看模型概况
 # 拟合曲线
-p2 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
+p2 <- ggplot(dt, aes(Age, TBV)) + # , colour = Sex
   geom_point() +
   theme_classic() +
   stat_smooth(method = lm, formula = y ~ log(x)) +
@@ -171,10 +171,10 @@ p2 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
 p2
-model.log10 <- lm(Weight ~ log(Age), data = dt) # 建立指数曲线方程
+model.log10 <- lm(TBV ~ log(Age), data = dt) # 建立指数曲线方程
 summary(model.log10) # 查看模型概况
 # 拟合曲线
-ggplot(dt, aes(Age, Weight)) +
+ggplot(dt, aes(Age, TBV)) +
   geom_point() +
   stat_smooth(method = lm, formula = y ~ log10(x))
 
@@ -185,14 +185,14 @@ model.segmented <- segmented(model.lm, seg.Z = ~Age) # 构建分段回归模型
 summary(model.segmented) # 查看模型概况
 slope(model.segmented) # the slopes of the segmented relationship
 # 查看拟合效果
-plot(dt$Age, dt$Weight, pch = 1, cex = 1.5)
+plot(dt$Age, dt$TBV, pch = 1, cex = 1.5)
 abline(a = coef(model.lm)[1], b = coef(model.lm)[2], col = "red", lwd = 2.5)
 plot(model.segmented, col = "blue", lwd = 2.5, add = T)
 
-p3 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
+p3 <- ggplot(dt, aes(Age, TBV)) + # , colour = Sex
   geom_point() +
   geom_smooth(
-    data = dt, mapping = aes(x = Age, y = Weight), # , color = Sex
+    data = dt, mapping = aes(x = Age, y = TBV), # , color = Sex
     method = "gam", formula = y ~ x + I((x - 11) * (x > 11)) 
   ) +
   scale_x_continuous(breaks = seq(0, 30, 1)) + # expand = c(0, 0),
@@ -222,10 +222,10 @@ summary(model.segmented3) # 查看模型概况
 plot(TLM$LM_L3, TLM$TLM, pch = 1, cex = 1.5)
 abline(a = coef(model.lm)[1], b = coef(model.lm)[2], col = "red", lwd = 2.5)
 plot(model.segmented2, col = "blue", lwd = 2.5, add = T)
-p4 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
+p4 <- ggplot(dt, aes(Age, TBV)) + # , colour = Sex
   geom_point() +
   geom_smooth(
-    data = dt, mapping = aes(x = Age, y = Weight), # , color = Sex
+    data = dt, mapping = aes(x = Age, y = TBV), # , color = Sex
     method = "gam", formula = y ~ x + I((x - 11.5) * (x > 11.5)) + I((x - 15.2) * (x > 15.2))
   ) +
   scale_x_continuous(breaks = seq(0, 30, 1)) + # expand = c(0, 0),
@@ -244,10 +244,10 @@ p4 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
 p4
 
 # 样条回归
-model.spline <- lm(dt$Weight ~ rcs(dt$Age, 5)) # 建立样条回归，设置3个节点
+model.spline <- lm(dt$TBV ~ rcs(dt$Age, 3)) # 建立样条回归，设置3个节点
 summary(model.spline) # 查看模型概况
 # 样条回归拟合效果
-p5 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
+p5 <- ggplot(dt, aes(Age, TBV, colour = Sex)) + # , colour = Sex
   geom_point() +
   # geom_errorbar(aes(ymin = SUV_Whole - sd, ymax = SUV_Whole + sd), width = 0.1) +
   theme_classic() +
@@ -255,7 +255,7 @@ p5 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
   scale_x_continuous(breaks = seq(0, 30, 1)) + # expand = c(0, 0),
   # scale_y_continuous(breaks = seq(45, 85, 5)) +  # expand = c(0, 0),
   stat_poly_eq(
-    aes(label = paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
+    aes(label = paste(after_stat(eq.label), ..adj.rr.label.., sep = "~~~~")),
     formula = y ~ rcs(x, 3), parse = TRUE
   ) +
   theme(
@@ -263,12 +263,12 @@ p5 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
-p7
+p5
 # Lowess函数建立局部加权回归
-model.lowess <- lowess(dt$Weight ~ dt$Age) # 建立局部加权回归
+model.lowess <- lowess(dt$TBV ~ dt$Age) # 建立局部加权回归
 summary(model.lowess) # 查看概况
 # 查看拟合
-p8 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
+p8 <- ggplot(dt, aes(Age, TBV)) + # , colour = Sex
   geom_point() +
   # geom_errorbar(aes(ymin = SUVr_whole_refPons - sd, ymax = SUVr_whole_refPons + sd), width = 0.1) +
   theme_classic() +
@@ -295,19 +295,19 @@ rcssci_linear(
   ggplot2::theme_classic()
 # 广义可加模型gam**
 # https://mp.weixin.qq.com/mp/appmsgalbum?__biz=MzI1NjM3NTE1NQ==&action=getalbum&album_id=2077935014574374912&scene=173&from_msgid=2247485011&from_itemidx=1&count=3&nolastread=1#wechat_redirect
-model.gam <- gam(Weight ~ s(Age, bs = "cs"), data = dt) # 建立gam模型 k = 4,k = 8, 
+model.gam <- gam(TBV ~ s(Age, k = 3, bs = "cs"), data = dt) # 建立gam模型 k = 4,k = 8, 
 summary(model.gam) # 查看模型概况
 pr.gam <- predict(model.gam, dt) # 生成预测值
 # 计算RSME和R方
 data.frame(
-  RMSE = RMSE(pr.gam, dt$Weight),
-  R2 = R2(pr.gam, dt$Weight)
+  RMSE = RMSE(pr.gam, dt$TBV),
+  R2 = R2(pr.gam, dt$TBV)
 )
 # 查看模型拟合情况
 library(ggpmisc)
 library(ggpubr)
 my.formula <- y ~ s(x, bs = "cs")
-ggplot(dt, aes(Age, Weight)) +
+ggplot(dt, aes(Age, TBV)) +
   geom_point() +
   stat_smooth(method = gam, formula = y ~ s(x)) +
   stat_poly_eq(
@@ -317,7 +317,7 @@ ggplot(dt, aes(Age, Weight)) +
   theme_classic() +
   scale_x_continuous(breaks = seq(0, 30, 1)) + # expand = c(0, 0),
     geom_point(size = 0.05)
-p9 <- ggplot(dt, aes(Age, Weight)) + #  colour = Sex
+p9 <- ggplot(dt, aes(Age, TBV)) + #  colour = Sex
   geom_point() +
   # geom_errorbar(aes(ymin = SUV_Whole - sd, ymax = SUV_Whole + sd), fatten = 2.5, width = 0.2) +
   # stat_cor(aes(), label.x = 6) +
