@@ -244,19 +244,19 @@ p4 <- ggplot(dt, aes(Age, TBV)) + # , colour = Sex
 p4
 
 # 样条回归
-model.spline <- lm(dt$TBV ~ rcs(dt$Age, 3)) # 建立样条回归，设置3个节点
+model.spline <- lm(dt$TBV ~ rcs(dt$Age, 3)) # 建立样条回归，设置3~5个节点。+ factor(dt$Sex)
 summary(model.spline) # 查看模型概况
 # 样条回归拟合效果
 p5 <- ggplot(dt, aes(Age, TBV, colour = Sex)) + # , colour = Sex
   geom_point() +
   # geom_errorbar(aes(ymin = SUV_Whole - sd, ymax = SUV_Whole + sd), width = 0.1) +
   theme_classic() +
-  stat_smooth(method = lm, formula = y ~ rcs(x, 3)) +
+  stat_smooth(method = lm, formula = y ~ rcs(x, 5)) +
   scale_x_continuous(breaks = seq(0, 30, 1)) + # expand = c(0, 0),
   # scale_y_continuous(breaks = seq(45, 85, 5)) +  # expand = c(0, 0),
   stat_poly_eq(
     aes(label = paste(after_stat(eq.label), ..adj.rr.label.., sep = "~~~~")),
-    formula = y ~ rcs(x, 3), parse = TRUE
+    formula = y ~ rcs(x, 5), parse = TRUE
   ) +
   theme(
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
@@ -264,6 +264,24 @@ p5 <- ggplot(dt, aes(Age, TBV, colour = Sex)) + # , colour = Sex
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
 p5
+
+# triple in one
+ggplot(dt, aes(Age, TBV, colour = Sex)) + 
+  geom_point() +
+  theme_classic() +
+  stat_smooth(method = lm, formula = y ~ rcs(x, 5)) +
+  stat_smooth(method = lm, se = TRUE, colour = "black", formula = y ~ rcs(x, 3)) +
+  scale_x_continuous(breaks = seq(0, 30, 1)) + # expand = c(0, 0),
+  stat_poly_eq(
+    aes(label = paste(after_stat(eq.label), ..adj.rr.label.., sep = "~~~~")),
+    formula = y ~ rcs(x, 5), parse = TRUE
+  ) +
+  theme(
+    axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
+    axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
+    axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
+  )
+
 # Lowess函数建立局部加权回归
 model.lowess <- lowess(dt$TBV ~ dt$Age) # 建立局部加权回归
 summary(model.lowess) # 查看概况
