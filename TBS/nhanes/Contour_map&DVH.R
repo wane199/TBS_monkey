@@ -1,5 +1,6 @@
-# 等高线图（contour map）（https://ggplot2.tidyverse.org/reference/geom_contour.html）
+# 等高线图(Contour Map)(https://ggplot2.tidyverse.org/reference/geom_contour.html)
 # Basic plot
+library(ggplot2)
 v <- ggplot(faithfuld, aes(waiting, eruptions, z = density))
 v + geom_contour()
 
@@ -29,7 +30,7 @@ v + geom_contour(colour = "red")
 
 v + geom_raster(aes(fill = density)) +
   geom_contour(colour = "white")
-
+# }
 
 library(MASS)
 Sigma <- matrix(c(1, 0.7, 0.7, 1), 2, 2)
