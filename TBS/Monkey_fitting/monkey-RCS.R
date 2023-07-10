@@ -583,6 +583,22 @@ ggplot(dt, aes(x = Age, y = TBV, color = Sex)) +
 # 显著性检验stat_cor(data=data, method = "pearson")意为用pearson相关进行相关性分析，可编辑更改。
 
 
+# 平滑曲线与阈值效应分析——RCS(https://cran.r-project.org/web/packages/ggrcs/vignettes/ggrcs_vignette.html)
+library(rms)
+library(ggplot2)
+library(scales)
+library(ggrcs)
+
+dd<-datadist(dt)
+options(datadist='dd')
+
+singlercs(data=dt,fit=fit,x="age",group="gender")
+
+
+
+
+
+
 
 # 平滑曲线与阈值效应分析(一)gam
 rm(list = ls())
