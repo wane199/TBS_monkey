@@ -11,7 +11,7 @@ library(ggthemes) ## ggplot主题
 theme_set(theme_classic() + theme(legend.position = "bottom"))
 
 # dt <- read.csv("jixian.csv")
-dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv", sep = ';', fileEncoding = "GBK") # , sep = '\t'
+dt <- read.csv("C:\\Users\\wane\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv", sep = ';', fileEncoding = "GBK") # , sep = '\t'
 dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVr.csv", sep = ';', fileEncoding = "GBK")
 # write.csv(dt,'C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv')
 # TLM <- read_excel("/home/wane/Desktop/TBS/TLMey/BMC.xlsx")
@@ -484,9 +484,9 @@ rug(dt$Age,col='blue')
 
 # 2.4.1 计算拐点
 getwd()
-source("./TBS/Monkey_fitting/get_cutoff_lm.R")
+source("C:\\Users\\wane\\Documents\\rdocu\\平滑曲线1\\get_cutoff_lm.R")
 cut_off <- get_cutoff_lm('Age',dt,fml)
-cut_off = 7.5
+# cut_off = 7.5
 print(cut_off )
 
 x <- dt[, "Age"]
