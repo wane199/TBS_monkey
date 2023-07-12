@@ -11,7 +11,7 @@ library(ggthemes) ## ggplot主题
 theme_set(theme_classic() + theme(legend.position = "bottom"))
 
 # dt <- read.csv("jixian.csv")
-dt <- read.csv("C:\\Users\\wane\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv", sep = ';', fileEncoding = "GBK") # , sep = '\t'
+dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv", sep = ';', fileEncoding = "GBK") # , sep = '\t'
 dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVr.csv", sep = ';', fileEncoding = "GBK")
 # write.csv(dt,'C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv')
 # TLM <- read_excel("/home/wane/Desktop/TBS/TLMey/BMC.xlsx")
