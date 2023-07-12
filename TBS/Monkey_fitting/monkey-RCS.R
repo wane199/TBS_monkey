@@ -17,6 +17,8 @@ options(digits = 3) # 限定输出小数点后数字的位数为3位
 theme_set(theme_classic() + theme(legend.position = "bottom"))
 # 读取数据
 dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\SUVr_1204.csv", fileEncoding = "GBK")
+dt <- read.csv("C:\\Users\\wane\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVrrefwhole_L&R.csv", fileEncoding = "GBK", sep = ";")
+
 dt <- dt[c(-1, -2, -3)]
 dt$Sex <- as.factor(dt$Sex)
 dt$Side <- as.factor(dt$Side)
@@ -112,8 +114,8 @@ psych::describe(sub)
 F <- subset(TLM, TLM$Sex == 0)
 M <- subset(TLM, TLM$Sex == 1)
 
-dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv", sep = ';', fileEncoding = "GBK") # , sep = '\t'
-dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVr.csv", sep = ';', fileEncoding = "GBK")
+dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv", sep = ";", fileEncoding = "GBK") # , sep = '\t'
+dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVr.csv", sep = ";", fileEncoding = "GBK")
 dt <- dt[c(-1, -2, -3)]
 dt$Sex <- as.factor(dt$Sex)
 summary(dt)
@@ -193,7 +195,7 @@ p3 <- ggplot(dt, aes(Age, TBV)) + # , colour = Sex
   geom_point() +
   geom_smooth(
     data = dt, mapping = aes(x = Age, y = TBV), # , color = Sex
-    method = "gam", formula = y ~ x + I((x - 11) * (x > 11)) 
+    method = "gam", formula = y ~ x + I((x - 11) * (x > 11))
   ) +
   scale_x_continuous(breaks = seq(0, 30, 1)) + # expand = c(0, 0),
   # scale_y_continuous(breaks = seq(45, 85, 5)) + # expand = c(0, 0),
@@ -269,12 +271,12 @@ p5
 # 计算拟合值
 fml <- "TBV ~ rcs(Age, 5) + factor(Sex)"
 source("C:\\Users\\wane\\Documents\\rdocu\\平滑曲线1\\get_cutoff_lm.R")
-cut_off <- get_cutoff_lm('Age',dt,fml)
-print(cut_off )
+cut_off <- get_cutoff_lm("Age", dt, fml)
+print(cut_off)
 
 # 设定数据环境
-M <- dt  %>% filter(Sex == 'M')
-Fe <- dt  %>% filter(Sex == 'F')
+M <- dt %>% filter(Sex == "M")
+Fe <- dt %>% filter(Sex == "F")
 dd <- datadist(dt)
 options(datadist = "dd")
 fit <- ols(TBV ~ rcs(Age, 5) + Sex, data = dt)
@@ -294,21 +296,21 @@ ggplot(data = dt, aes(x = Age, y = TBV)) +
   geom_smooth(method = lm, formula = y ~ rcs(x, 5)) +
   # 获取拟合线的预测值
   stat_smooth(method = lm, formula = y ~ rcs(x, 5), se = FALSE) +
-  stat_smooth(method = lm, formula = y ~ rcs(x, 5), se = FALSE) #%>%
-  # predict(., newdata = data.frame(x = seq(min(dt$Age), max(dt$Age), length.out = 1000)), interval = "none") %>%
-  # # 找到最高点的横坐标
-  # data.frame(x = seq(min(dt$Age), max(dt$Age), length.out = 1000), y = .) %>%
-  # filter(y == max(TBV)) %>%
-  # # 在最高点添加标注
-  annotate("point", x = .$Age, y = .$TBV, shape = 16, size = 3) +
+  stat_smooth(method = lm, formula = y ~ rcs(x, 5), se = FALSE) # %>%
+# predict(., newdata = data.frame(x = seq(min(dt$Age), max(dt$Age), length.out = 1000)), interval = "none") %>%
+# # 找到最高点的横坐标
+# data.frame(x = seq(min(dt$Age), max(dt$Age), length.out = 1000), y = .) %>%
+# filter(y == max(TBV)) %>%
+# # 在最高点添加标注
+annotate("point", x = .$Age, y = .$TBV, shape = 16, size = 3) +
   annotate("text", x = .$Age, y = .$TBV, label = "Highest Point", vjust = -1.5)
-  # annotate("point", x = x_coordinate, y = y_coordinate, shape = 16, size = 3)
+# annotate("point", x = x_coordinate, y = y_coordinate, shape = 16, size = 3)
 
 # triple in one
-p51 <- ggplot(dt, aes(Age, TBV, colour = Sex)) + 
+p51 <- ggplot(dt, aes(Age, TBV, colour = Sex)) +
   geom_point() +
   theme_classic() +
-  ylab(bquote(TBV (cm^3))) + # TBV(cm^3) TBV.BW(cm^3/kg) Weight(kg) SUVr_whole_refPons Whole(cm^3/kg) SUV_Whole(KBq/cc)
+  ylab(bquote(TBV(cm^3))) + # TBV(cm^3) TBV.BW(cm^3/kg) Weight(kg) SUVr_whole_refPons Whole(cm^3/kg) SUV_Whole(KBq/cc)
   stat_smooth(method = lm, formula = y ~ rcs(x, 5)) +
   stat_smooth(method = lm, se = TRUE, colour = "black", formula = y ~ rcs(x, 3)) +
   scale_x_continuous(breaks = seq(0, 30, 1)) + # expand = c(0, 0),
@@ -323,12 +325,37 @@ p51 <- ggplot(dt, aes(Age, TBV, colour = Sex)) +
   )
 
 library(patchwork) # 拼图
-p51 + p52 + p53 + p54 + plot_annotation(tag_levels = "A") + plot_layout(ncol = 3) + 
+p51 + p52 + p53 + p54 + plot_annotation(tag_levels = "A") + plot_layout(ncol = 3) +
   plot_layout(guides = "collect") -> p
 p
 ggsave("./TBS/Monkey_fitting/1209.pdf", p, width = 20, height = 9, dpi = 900) # 保存为精度为600 dpi的tiff文件
 
+# for循环
+theme_set(theme_classic() + theme(legend.position = "bottom"))
+plot_list <- list()
+for (i in 3:ncol(dt)) {
+  print(p <- ggplot(dt, aes_string(x = "Age", y = colnames(dt)[i], colour = "Side", fill = "Side", linetype = "Side")) +
+    scale_x_continuous(limits = c(0, 30), expand = c(0, 0), breaks = seq(0, 30, 2)) +
+    # geom_smooth(method = mgcv::gam, formula = y ~ s(x, k = 4), se = T) +
+    stat_smooth(method = lm, formula = y ~ rcs(x, 5)) +
+    geom_point(aes(colour = Side, shape = Side, fill = Side), size = 1.5, shape = 21) +
+    ylab(bquote("SUVr_ref_Whole")) +
+    xlab("Age (year)") + # KBq/cc bquote(Volume(cm^3)) 'Vr_ref Whole' "SUVr_ref_Pons"
+    scale_fill_brewer(palette = "Paired") +
+    ggtitle(paste0(colnames(dt)[i])) +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    theme(
+      axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.25, "cm"),
+      axis.text.x = element_text(margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm")),
+      axis.text.y = element_text(margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm"))
+    ))
+  plot_list[[i - 2]] <- p
+}
 
+# 拼图
+library("patchwork")
+wrap_plots(plot_list, byrow = T, ncol = 5) + plot_annotation(tag_levels = "A") +
+  plot_layout(guides = "collect")
 
 # Lowess函数建立局部加权回归
 model.lowess <- lowess(dt$TBV ~ dt$Age) # 建立局部加权回归
@@ -363,7 +390,7 @@ rcssci_linear(
 
 # 广义可加模型gam**
 # https://mp.weixin.qq.com/mp/appmsgalbum?__biz=MzI1NjM3NTE1NQ==&action=getalbum&album_id=2077935014574374912&scene=173&from_msgid=2247485011&from_itemidx=1&count=3&nolastread=1#wechat_redirect
-model.gam <- gam(TBV ~ s(Age, k = 5, bs = "cs"), data = dt) # 建立gam模型 k = 4,k = 8, 
+model.gam <- gam(TBV ~ s(Age, k = 5, bs = "cs"), data = dt) # 建立gam模型 k = 4,k = 8,
 summary(model.gam) # 查看模型概况
 pr.gam <- predict(model.gam, dt) # 生成预测值
 # 计算RSME和R方
@@ -384,13 +411,14 @@ ggplot(dt, aes(Age, TBV)) +
   ) +
   theme_classic() +
   scale_x_continuous(breaks = seq(0, 30, 1)) + # expand = c(0, 0),
-    geom_point(size = 0.05)
+  geom_point(size = 0.05)
 p9 <- ggplot(dt, aes(Age, TBV)) + #  colour = Sex
   geom_point() +
   # geom_errorbar(aes(ymin = SUV_Whole - sd, ymax = SUV_Whole + sd), fatten = 2.5, width = 0.2) +
   # stat_cor(aes(), label.x = 6) +
   stat_poly_eq(
-    aes(label = paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
+    # aes(label = paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
+    aes(label = paste(after_stat(eq.label), after_stat(adj.rr.label), sep = "~~~~")),
     formula = my.formula, parse = TRUE
   ) +
   theme_classic() +
@@ -639,8 +667,8 @@ library(ggplot2)
 library(scales)
 library(ggrcs)
 
-dt <- read.csv("C:\\Users\\wane\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv", sep = ';', fileEncoding = "GBK") # , sep = '\t'
-dt <- read.csv("C:\\Users\\wane\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVr.csv", sep = ';', fileEncoding = "GBK")
+dt <- read.csv("C:\\Users\\wane\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv", sep = ";", fileEncoding = "GBK") # , sep = '\t'
+dt <- read.csv("C:\\Users\\wane\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVr.csv", sep = ";", fileEncoding = "GBK")
 
 dt <- dt[c(-1, -2, -3)]
 dt$Sex <- as.factor(dt$Sex)
@@ -648,15 +676,15 @@ dt$Side <- as.factor(dt$Side)
 summary(dt)
 str(dt)
 
-dd<-datadist(dt)
-options(datadist='dd')
+dd <- datadist(dt)
+options(datadist = "dd")
 
 fit <- ols(TBV ~ rcs(Age, 5) + factor(Sex), data = dt)
 cut.tab(fit, "Age", dt)
 
-OR<-Predict(fit, Age)
+OR <- Predict(fit, Age)
 
-singlercs(data=dt,fit=fit,x="Age",group="Sex")
+singlercs(data = dt, fit = fit, x = "Age", group = "Sex")
 
 
 # 平滑曲线与阈值效应分析(一)gam
