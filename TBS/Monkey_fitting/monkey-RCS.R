@@ -16,12 +16,13 @@ library(ggpmisc)
 options(digits = 3) # 限定输出小数点后数字的位数为3位
 theme_set(theme_classic() + theme(legend.position = "bottom"))
 # 读取数据
-dt <- read.csv("C:\\Users\\wane199\\Desktop\\TBS&Mon\\Monkey\\QIANG\\1030\\SUVr_1204.csv", fileEncoding = "GBK")
-dt <- read.csv("C:\\Users\\wane\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVrrefwhole_L&R.csv", fileEncoding = "GBK", sep = ";")
+dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVr.csv", fileEncoding = "GBK", sep = ";")
+dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv", sep = ";", fileEncoding = "GBK") # , sep = '\t'
 
 dt <- dt[c(-1, -2, -3)]
 dt$Sex <- as.factor(dt$Sex)
 dt$Side <- as.factor(dt$Side)
+summary(dt)
 
 library(gt)
 library(dplyr)
@@ -114,20 +115,15 @@ psych::describe(sub)
 F <- subset(TLM, TLM$Sex == 0)
 M <- subset(TLM, TLM$Sex == 1)
 
-dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv", sep = ";", fileEncoding = "GBK") # , sep = '\t'
-dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVr.csv", sep = ";", fileEncoding = "GBK")
-dt <- dt[c(-1, -2, -3)]
-dt$Sex <- as.factor(dt$Sex)
-summary(dt)
 dd <- datadist(dt) # 为后续程序设定数据环境
 options(datadist = "dd")
-ggplot(dt, aes(Age, TBV)) +
+ggplot(dt, aes(Age, whole)) +
   geom_point() # 绘制散点图
 p <- ggplot() +
-  geom_point(data = dt, mapping = aes(x = Age, y = SUV_Whole)) + # , colour = Sex
+  geom_point(data = dt, mapping = aes(x = Age, y = whole)) + # , colour = Sex
   theme_classic()
 p
-ggplot(dt, aes(Age, TBV, group = Age > 5.0, colour = Sex)) +
+ggplot(dt, aes(Age, whole, group = Age > 5.0, colour = Sex)) +
   geom_smooth() +
   geom_point(data = dt, mapping = aes(x = Age, y = SUV_Whole))
 ggplot(data = dt, x = Age, y = SUV_Whole, group = Age > 5.0) + # , colour = Sex
@@ -135,18 +131,20 @@ ggplot(data = dt, x = Age, y = SUV_Whole, group = Age > 5.0) + # , colour = Sex
   geom_smooth()
 
 # 建立线性回归模型
-model.lm <- lm(TBV ~ Age, data = dt) # 构建线性回归模型 SUVr_whole_refPons
+model.lm <- lm(whole ~ Age, data = dt) # 构建线性回归模型 SUVr_whole_refPons
 summary(model.lm) # 查看回归模型结果，
-p1 <- ggplot(dt, aes(Age, TBV)) + # , colour = Sex
+p1 <- ggplot(dt, aes(Age, whole)) + # , colour = Sex
   geom_point() +
   theme_classic() +
   stat_smooth(method = lm, formula = y ~ x) +
   scale_x_continuous(breaks = seq(0, 30, 1)) + # expand = c(0, 0),
   # scale_y_continuous(breaks = seq(45, 85, 5)) + # expand = c(0, 0),
   stat_poly_eq(
-    aes(label = paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
+    aes(label = paste(after_stat(eq.label), after_stat(adj.rr.label),  sep = "~~~~")),
     formula = y ~ x, parse = TRUE
   ) +
+  xlab("Age (year)") +
+  ylab(bquote(SUVr_refPons))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
   theme(
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
@@ -154,17 +152,17 @@ p1 <- ggplot(dt, aes(Age, TBV)) + # , colour = Sex
   )
 p1
 # 建立曲线方程(log,exp)
-model.log <- lm(TBV ~ log(Age), data = dt) # 建立对数曲线方程
+model.log <- lm(whole ~ log(Age), data = dt) # 建立对数曲线方程
 summary(model.log) # 查看模型概况
 # 拟合曲线
-p2 <- ggplot(dt, aes(Age, TBV)) + # , colour = Sex
+p2 <- ggplot(dt, aes(Age, whole)) + # , colour = Sex
   geom_point() +
   theme_classic() +
   stat_smooth(method = lm, formula = y ~ log(x)) +
   scale_x_continuous(breaks = seq(0, 30, 1)) + # expand = c(0, 0),
   # scale_y_continuous(breaks = seq(45, 85, 5)) + # expand = c(0, 0),
   stat_poly_eq(
-    aes(label = paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
+    aes(label = paste(after_stat(eq.label), after_stat(adj.rr.label), sep = "~~~~")),
     formula = y ~ log(x), parse = TRUE
   ) +
   theme(
@@ -173,10 +171,10 @@ p2 <- ggplot(dt, aes(Age, TBV)) + # , colour = Sex
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
 p2
-model.log10 <- lm(TBV ~ log(Age), data = dt) # 建立指数曲线方程
+model.log10 <- lm(whole ~ log(Age), data = dt) # 建立指数曲线方程
 summary(model.log10) # 查看模型概况
 # 拟合曲线
-ggplot(dt, aes(Age, TBV)) +
+ggplot(dt, aes(Age, whole)) +
   geom_point() +
   stat_smooth(method = lm, formula = y ~ log10(x))
 
@@ -187,15 +185,15 @@ model.segmented <- segmented(model.lm, seg.Z = ~Age) # 构建分段回归模型
 summary(model.segmented) # 查看模型概况
 slope(model.segmented) # the slopes of the segmented relationship
 # 查看拟合效果
-plot(dt$Age, dt$TBV, pch = 1, cex = 1.5)
+plot(dt$Age, dt$whole, pch = 1, cex = 1.5)
 abline(a = coef(model.lm)[1], b = coef(model.lm)[2], col = "red", lwd = 2.5)
 plot(model.segmented, col = "blue", lwd = 2.5, add = T)
 
-p3 <- ggplot(dt, aes(Age, TBV)) + # , colour = Sex
+p3 <- ggplot(dt, aes(Age, whole)) + # , colour = Sex
   geom_point() +
   geom_smooth(
-    data = dt, mapping = aes(x = Age, y = TBV), # , color = Sex
-    method = "gam", formula = y ~ x + I((x - 11) * (x > 11))
+    data = dt, mapping = aes(x = Age, y = whole), # , color = Sex
+    method = "lm", formula = y ~ x + I((x - 2.57) * (x > 2.57))
   ) +
   scale_x_continuous(breaks = seq(0, 30, 1)) + # expand = c(0, 0),
   # scale_y_continuous(breaks = seq(45, 85, 5)) + # expand = c(0, 0),
@@ -205,8 +203,8 @@ p3 <- ggplot(dt, aes(Age, TBV)) + # , colour = Sex
   # geom_vline(xintercept = 5.0, linetype = 2, color = "red") +
   # geom_vline(aes(xintercept = c(4.61)), colour = "#990000", linetype = "dashed") +
   stat_poly_eq(
-    aes(label = paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
-    formula = y ~ x + I((x - 11) * (x > 11)), parse = TRUE
+    aes(label = paste(after_stat(eq.label), after_stat(adj.rr.label), sep = "~~~~")),
+    formula = y ~ x + I((x - 2.57) * (x > 2.57)), parse = TRUE
   ) +
   theme(
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"), legend.position = "bottom",
@@ -224,19 +222,19 @@ summary(model.segmented3) # 查看模型概况
 plot(TLM$LM_L3, TLM$TLM, pch = 1, cex = 1.5)
 abline(a = coef(model.lm)[1], b = coef(model.lm)[2], col = "red", lwd = 2.5)
 plot(model.segmented2, col = "blue", lwd = 2.5, add = T)
-p4 <- ggplot(dt, aes(Age, TBV)) + # , colour = Sex
+p4 <- ggplot(dt, aes(Age, whole)) + # , colour = Sex
   geom_point() +
   geom_smooth(
-    data = dt, mapping = aes(x = Age, y = TBV), # , color = Sex
-    method = "gam", formula = y ~ x + I((x - 11.5) * (x > 11.5)) + I((x - 15.2) * (x > 15.2))
+    data = dt, mapping = aes(x = Age, y = whole), # , color = Sex
+    method = "lm", formula = y ~ x + I((x - 3.81) * (x > 3.81)) + I((x - 15.5) * (x > 15.5))
   ) +
   scale_x_continuous(breaks = seq(0, 30, 1)) + # expand = c(0, 0),
   # geom_vline(xintercept = 5.0, linetype = 2, color = "red") +
   # geom_vline(aes(xintercept = c(5.6)), colour = "#990000", linetype = "dashed") +
   # geom_vline(aes(xintercept = c(26.2)), colour = "#990000", linetype = "dashed") +
   stat_poly_eq(
-    aes(label = paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
-    formula = y ~ x + I((x - 11.5) * (x > 11.5)) + I((x - 15.2) * (x > 15.2)), parse = TRUE
+    aes(label = paste(after_stat(eq.label), after_stat(adj.rr.label), sep = "~~~~")),
+    formula = y ~ x + I((x - 3.81) * (x > 3.81)) + I((x - 15.5) * (x > 15.5)), parse = TRUE
   ) +
   theme(
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"), legend.position = "bottom",
@@ -246,10 +244,10 @@ p4 <- ggplot(dt, aes(Age, TBV)) + # , colour = Sex
 p4
 
 # 样条回归
-model.spline <- lm(dt$TBV ~ rcs(dt$Age, 5)) # 建立样条回归，设置3~5个节点。+ factor(dt$Sex)
+model.spline <- lm(dt$whole ~ rcs(dt$Age, 5)) # 建立样条回归，设置3~5个节点。+ factor(dt$Sex)
 summary(model.spline) # 查看模型概况
 # 样条回归拟合效果
-p5 <- ggplot(dt, aes(Age, TBV, colour = Sex)) + # , colour = Sex
+p7 <- ggplot(dt, aes(Age, whole, colour = Sex)) + # , colour = Sex
   geom_point() +
   # geom_errorbar(aes(ymin = SUV_Whole - sd, ymax = SUV_Whole + sd), width = 0.1) +
   theme_classic() +
@@ -269,7 +267,7 @@ p5
 
 # 根据拟合线的数据找到最高点的坐标，并使用annotate()函数在图中添加标注
 # 计算拟合值
-fml <- "TBV ~ rcs(Age, 5) + factor(Sex)"
+fml <- "whole ~ rcs(Age, 5) + factor(Sex)"
 source("C:\\Users\\wane\\Documents\\rdocu\\平滑曲线1\\get_cutoff_lm.R")
 cut_off <- get_cutoff_lm("Age", dt, fml)
 print(cut_off)
@@ -279,7 +277,7 @@ M <- dt %>% filter(Sex == "M")
 Fe <- dt %>% filter(Sex == "F")
 dd <- datadist(dt)
 options(datadist = "dd")
-fit <- ols(TBV ~ rcs(Age, 5) + Sex, data = dt)
+fit <- ols(whole ~ rcs(Age, 5) + Sex, data = dt)
 summary(fit)
 an <- anova(fit)
 
@@ -289,9 +287,8 @@ plot(Predict(fit, Age), anova = an, pval = T)
 OLS1 <- Predict(fit, Age, ref.zero = F)
 OLS1
 
-
 library(dplyr)
-ggplot(data = dt, aes(x = Age, y = TBV)) +
+ggplot(data = dt, aes(x = Age, y = whole)) +
   geom_point() +
   geom_smooth(method = lm, formula = y ~ rcs(x, 5)) +
   # 获取拟合线的预测值
@@ -300,17 +297,17 @@ ggplot(data = dt, aes(x = Age, y = TBV)) +
 # predict(., newdata = data.frame(x = seq(min(dt$Age), max(dt$Age), length.out = 1000)), interval = "none") %>%
 # # 找到最高点的横坐标
 # data.frame(x = seq(min(dt$Age), max(dt$Age), length.out = 1000), y = .) %>%
-# filter(y == max(TBV)) %>%
+# filter(y == max(whole)) %>%
 # # 在最高点添加标注
-annotate("point", x = .$Age, y = .$TBV, shape = 16, size = 3) +
-  annotate("text", x = .$Age, y = .$TBV, label = "Highest Point", vjust = -1.5)
+annotate("point", x = .$Age, y = .$whole, shape = 16, size = 3) +
+  annotate("text", x = .$Age, y = .$whole, label = "Highest Point", vjust = -1.5)
 # annotate("point", x = x_coordinate, y = y_coordinate, shape = 16, size = 3)
 
 # triple in one
-p51 <- ggplot(dt, aes(Age, TBV, colour = Sex)) +
+p51 <- ggplot(dt, aes(Age, whole, colour = Sex)) +
   geom_point() +
   theme_classic() +
-  ylab(bquote(TBV(cm^3))) + # TBV(cm^3) TBV.BW(cm^3/kg) Weight(kg) SUVr_whole_refPons Whole(cm^3/kg) SUV_Whole(KBq/cc)
+  ylab(bquote(TBV(cm^3))) + # TBV(cm^3) TBV/BW(cm^3/kg) Weight(kg) SUVr_whole_refPons Whole(cm^3/kg) SUV_Whole(KBq/cc)
   stat_smooth(method = lm, formula = y ~ rcs(x, 5)) +
   stat_smooth(method = lm, se = TRUE, colour = "black", formula = y ~ rcs(x, 3)) +
   scale_x_continuous(breaks = seq(0, 30, 1)) + # expand = c(0, 0),
@@ -358,10 +355,10 @@ wrap_plots(plot_list, byrow = T, ncol = 5) + plot_annotation(tag_levels = "A") +
   plot_layout(guides = "collect")
 
 # Lowess函数建立局部加权回归
-model.lowess <- lowess(dt$TBV ~ dt$Age) # 建立局部加权回归
+model.lowess <- lowess(dt$whole ~ dt$Age) # 建立局部加权回归
 summary(model.lowess) # 查看概况
 # 查看拟合
-p8 <- ggplot(dt, aes(Age, TBV)) + # , colour = Sex
+p8 <- ggplot(dt, aes(Age, whole)) + # , colour = Sex
   geom_point() +
   # geom_errorbar(aes(ymin = SUVr_whole_refPons - sd, ymax = SUVr_whole_refPons + sd), width = 0.1) +
   theme_classic() +
@@ -369,7 +366,7 @@ p8 <- ggplot(dt, aes(Age, TBV)) + # , colour = Sex
   scale_x_continuous(breaks = seq(0, 30, 1)) + # expand = c(0, 0),
   # scale_y_continuous(breaks = seq(45, 85, 5)) + # expand = c(0, 0),
   stat_poly_eq(
-    aes(label = paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
+    aes(label = paste(after_stat(eq.label), after_stat(adj.rr.label), sep = "~~~~")),
     formula = y ~ x, parse = TRUE
   ) +
   theme(
@@ -390,34 +387,34 @@ rcssci_linear(
 
 # 广义可加模型gam**
 # https://mp.weixin.qq.com/mp/appmsgalbum?__biz=MzI1NjM3NTE1NQ==&action=getalbum&album_id=2077935014574374912&scene=173&from_msgid=2247485011&from_itemidx=1&count=3&nolastread=1#wechat_redirect
-model.gam <- gam(TBV ~ s(Age, k = 5, bs = "cs"), data = dt) # 建立gam模型 k = 4,k = 8,
+model.gam <- gam(whole ~ s(Age, k = 5, bs = "cs"), data = dt) # 建立gam模型 k = 4,k = 8,
 summary(model.gam) # 查看模型概况
 pr.gam <- predict(model.gam, dt) # 生成预测值
 # 计算RSME和R方
 data.frame(
-  RMSE = RMSE(pr.gam, dt$TBV),
-  R2 = R2(pr.gam, dt$TBV)
+  RMSE = RMSE(pr.gam, dt$whole),
+  R2 = R2(pr.gam, dt$whole)
 )
 # 查看模型拟合情况
 library(ggpmisc)
 library(ggpubr)
-my.formula <- y ~ s(x, bs = "cs")
-ggplot(dt, aes(Age, TBV)) +
+my.formula <- y ~ s(x, k=5, bs = "cs")
+ggplot(dt, aes(Age, whole)) +
   geom_point() +
   stat_smooth(method = gam, formula = y ~ s(x)) +
   stat_poly_eq(
-    aes(label = paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
+    aes(label = paste(after_stat(eq.label), after_stat(adj.rr.label), sep = "~~~~")),
     formula = y ~ s(x, bs = "tp"), parse = TRUE
   ) +
   theme_classic() +
   scale_x_continuous(breaks = seq(0, 30, 1)) + # expand = c(0, 0),
   geom_point(size = 0.05)
-p9 <- ggplot(dt, aes(Age, TBV)) + #  colour = Sex
+p11 <- ggplot(dt, aes(Age, whole)) + #  colour = Sex
   geom_point() +
   # geom_errorbar(aes(ymin = SUV_Whole - sd, ymax = SUV_Whole + sd), fatten = 2.5, width = 0.2) +
   # stat_cor(aes(), label.x = 6) +
   stat_poly_eq(
-    # aes(label = paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
+    # aes(label = paste(after_stat(eq.label), after_stat(adj.rr.label), sep = "~~~~")),
     aes(label = paste(after_stat(eq.label), after_stat(adj.rr.label), sep = "~~~~")),
     formula = my.formula, parse = TRUE
   ) +
@@ -431,7 +428,7 @@ p9 <- ggplot(dt, aes(Age, TBV)) + #  colour = Sex
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
-p9
+p11
 
 # triple in one,分组与不分组曲线拟合汇总
 summary(dt)
@@ -441,14 +438,14 @@ my.formula <- y ~ s(x, k = 6, bs = "cs")
 ggplot(dt.summary, aes(Age, SUV_Whole)) +
   geom_point(aes(colour = Sex), alpha = 1.0, size = 1.5) +
   theme_classic() +
-  ylab(bquote(TBV(cm^3))) + # TBV(cm^3) TBV.BW(cm^3/kg)
+  ylab(bquote(TBV (cm^3))) + # TBV(cm^3) TBV/BW(cm^3/kg)
   scale_x_continuous(breaks = seq(0, 30, 1), expand = c(0, 0)) + # expand = c(0, 0),
   scale_y_continuous(breaks = seq(55.0, 80.0, 1.0), expand = c(0, 0)) + # expand = c(0, 0),
   geom_vline(xintercept = 5.0, colour = "#990000", linetype = "dashed") +
   stat_smooth(method = mgcv::gam, se = TRUE, colour = "black", formula = my.formula) +
   # stat_smooth(method = mgcv::gam, se = TRUE, formula = y ~ s(x, bs = "cs")) +
   geom_smooth(
-    data = dt, mapping = aes(x = Age, y = TBV, colour = Sex),
+    data = dt, mapping = aes(x = Age, y = whole, colour = Sex),
     method = "gam", formula = my.formula
   ) +
   theme(
@@ -654,7 +651,7 @@ ggplot(TLM, aes(x = LM_L3, y = TLM, color = Gender)) +
   scale_fill_nejm() +
   scale_colour_nejm() +
   geom_smooth(method = "lm", formula = y ~ rcs(x, 3), se = T)
-ggplot(dt, aes(x = Age, y = TBV, color = Sex)) +
+ggplot(dt, aes(x = Age, y = whole, color = Sex)) +
   geom_point(aes(color = Sex), size = 5) +
   geom_smooth(method = "lm", formula = y ~ rcs(x, 3), se = T) +
   stat_cor(data = dt, method = "spearman")
@@ -853,7 +850,7 @@ b + geom_point(shape = 17) +
   geom_smooth(method = "lm", color = "black", fill = "lightgray") +
   stat_cor(method = "pearson") +
   stat_poly_eq(
-    aes(label = ..eq.label..),
+    aes(label = after_stat(eq.label)),
     formula = formula, parse = TRUE, geom = "text", hjust = 0
   )
 
@@ -861,7 +858,7 @@ b + geom_point(shape = 17) +
   geom_smooth(method = "lm", color = "black", fill = "lightgray") +
   stat_cor(method = "pearson", label.x.npc = 0.5, label.y.npc = 0.9) +
   stat_poly_eq(
-    aes(label = ..eq.label..),
+    aes(label = after_stat(eq.label)),
     formula = formula, parse = TRUE, label.x.npc = 0.5, label.y.npc = 0.8, hjust = 0
   )
 
@@ -875,7 +872,7 @@ p <- ggplot(TLM, aes(Age, L2_4)) +
   scale_y_continuous(expand = c(0, 0)) +
   geom_smooth(aes(), method = "gam", formula = formula) +
   stat_poly_eq(
-    aes(label = paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
+    aes(label = paste(after_stat(eq.label), after_stat(adj.rr.label), sep = "~~~~")),
     formula = formula, parse = TRUE
   ) +
   scale_fill_manual(values = c("#00AFBB", "#E7B800")) +

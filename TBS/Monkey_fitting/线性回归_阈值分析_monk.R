@@ -156,7 +156,7 @@ my.formula <- y ~ s(x, bs = "tp") # s, te, ti and t2
 p13 <- ggplot(dt, aes(Age, TBV.BW)) + # dt.summary
   geom_point(aes(colour = Sex,shape = Sex), alpha = 1.0, size = 2.5) +
   theme_classic() +
-  ylab(bquote(TBV.BW(cm^3/kg))) + # TBV(cm^3) TBV.BW(cm^3/kg) Weight(kg) SUVr_whole_refPons Whole(cm^3/kg) SUV_Whole(KBq/cc)
+  ylab(bquote(TBV/BW (cm^3/kg))) + # TBV(cm^3) TBV/BW(cm^3/kg) Weight(kg) SUVr_whole_refPons Whole(cm^3/kg) SUV_Whole(KBq/cc)
   # scale_x_continuous(breaks = seq(0, 30, 1), expand = c(0, 0)) + # expand = c(0, 0),
   scale_x_continuous(breaks = seq(0, 30, 1)) +
   # scale_y_continuous(breaks = seq(55.0, 85.0, 2.0), expand = c(0, 0)) + # expand = c(0, 0),
@@ -351,7 +351,7 @@ p6
 p4 <- ggplot(dt, aes(Age, SUV_Whole)) + # dt.summary SUVr_whole_refPons
   geom_point(aes(colour = Sex,shape = Sex), alpha = 1.0, size = 1.5) +
   theme_classic() +
-  ylab(bquote("Ratio")) + xlab("Age (year)") + # Volume(cm^3) TBV.BW(cm^3/kg) Weight(kg) SUVr_whole_refPons Whole(KBq/cc)
+  ylab(bquote("Ratio")) + xlab("Age (year)") + # Volume(cm^3) TBV/BW(cm^3/kg) Weight(kg) SUVr_whole_refPons Whole(KBq/cc)
   scale_x_continuous(limits = c(0,30), breaks = seq(0, 30, 2), expand = c(0, 0)) + # expand = c(0, 0),
   scale_y_continuous(limits = c(0.600, 4.000), breaks = seq(0.600, 4.000, 0.400), expand = c(0, 0)) + # expand = c(0, 0),
   # geom_vline(xintercept = 5.0, colour = "#990000", linetype = "dashed") +
