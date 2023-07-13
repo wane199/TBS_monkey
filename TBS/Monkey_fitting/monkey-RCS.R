@@ -165,6 +165,8 @@ p2 <- ggplot(dt, aes(Age, whole)) + # , colour = Sex
     aes(label = paste(after_stat(eq.label), after_stat(adj.rr.label), sep = "~~~~")),
     formula = y ~ log(x), parse = TRUE
   ) +
+  xlab("Age (year)") +
+  ylab(bquote(SUVr_refPons))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
   theme(
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
@@ -206,6 +208,8 @@ p3 <- ggplot(dt, aes(Age, whole)) + # , colour = Sex
     aes(label = paste(after_stat(eq.label), after_stat(adj.rr.label), sep = "~~~~")),
     formula = y ~ x + I((x - 2.57) * (x > 2.57)), parse = TRUE
   ) +
+  xlab("Age (year)") +
+  ylab(bquote(SUVr_refPons))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
   theme(
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"), legend.position = "bottom",
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
@@ -236,6 +240,8 @@ p4 <- ggplot(dt, aes(Age, whole)) + # , colour = Sex
     aes(label = paste(after_stat(eq.label), after_stat(adj.rr.label), sep = "~~~~")),
     formula = y ~ x + I((x - 3.81) * (x > 3.81)) + I((x - 15.5) * (x > 15.5)), parse = TRUE
   ) +
+  xlab("Age (year)") +
+  ylab(bquote(SUVr_refPons))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
   theme(
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"), legend.position = "bottom",
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
@@ -258,6 +264,8 @@ p7 <- ggplot(dt, aes(Age, whole, colour = Sex)) + # , colour = Sex
     aes(label = paste(after_stat(eq.label), after_stat(adj.rr.label), sep = "~~~~")),
     formula = y ~ rcs(x, 5), parse = TRUE
   ) +
+  xlab("Age (year)") +
+  ylab(bquote(SUVr_refPons))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
   theme(
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
@@ -315,6 +323,8 @@ p51 <- ggplot(dt, aes(Age, whole, colour = Sex)) +
     aes(label = paste(after_stat(eq.label), after_stat(adj.rr.label), sep = "~~~~")),
     formula = y ~ rcs(x, 5), parse = TRUE
   ) +
+  xlab("Age (year)") +
+  ylab(bquote(SUVr_refPons))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
   theme(
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
@@ -336,8 +346,8 @@ for (i in 3:ncol(dt)) {
     # geom_smooth(method = mgcv::gam, formula = y ~ s(x, k = 4), se = T) +
     stat_smooth(method = lm, formula = y ~ rcs(x, 5)) +
     geom_point(aes(colour = Side, shape = Side, fill = Side), size = 1.5, shape = 21) +
-    ylab(bquote("SUVr_ref_Whole")) +
-    xlab("Age (year)") + # KBq/cc bquote(Volume(cm^3)) 'Vr_ref Whole' "SUVr_ref_Pons"
+    xlab("Age (year)") +
+    ylab(bquote(SUVr_refPons))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
     scale_fill_brewer(palette = "Paired") +
     ggtitle(paste0(colnames(dt)[i])) +
     theme(plot.title = element_text(hjust = 0.5)) +
@@ -369,6 +379,8 @@ p8 <- ggplot(dt, aes(Age, whole)) + # , colour = Sex
     aes(label = paste(after_stat(eq.label), after_stat(adj.rr.label), sep = "~~~~")),
     formula = y ~ x, parse = TRUE
   ) +
+  xlab("Age (year)") +
+  ylab(bquote(SUVr_refPons))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
   theme(
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
@@ -406,6 +418,8 @@ ggplot(dt, aes(Age, whole)) +
     aes(label = paste(after_stat(eq.label), after_stat(adj.rr.label), sep = "~~~~")),
     formula = y ~ s(x, bs = "tp"), parse = TRUE
   ) +
+  xlab("Age (year)") +
+  ylab(bquote(SUVr_refPons))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
   theme_classic() +
   scale_x_continuous(breaks = seq(0, 30, 1)) + # expand = c(0, 0),
   geom_point(size = 0.05)
@@ -418,6 +432,8 @@ p11 <- ggplot(dt, aes(Age, whole)) + #  colour = Sex
     aes(label = paste(after_stat(eq.label), after_stat(adj.rr.label), sep = "~~~~")),
     formula = my.formula, parse = TRUE
   ) +
+  xlab("Age (year)") +
+  ylab(bquote(SUVr_refPons))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
   theme_classic() +
   scale_x_continuous(breaks = seq(0, 30, 1)) + # expand = c(0, 0),
   # scale_y_continuous(breaks = seq(45, 85, 5)) + # expand = c(0, 0),
@@ -448,6 +464,8 @@ ggplot(dt.summary, aes(Age, SUV_Whole)) +
     data = dt, mapping = aes(x = Age, y = whole, colour = Sex),
     method = "gam", formula = my.formula
   ) +
+  xlab("Age (year)") +
+  ylab(bquote(SUVr_refPons))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
   theme(
     legend.position = "bottom",
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
