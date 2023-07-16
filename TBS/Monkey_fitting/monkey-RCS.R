@@ -123,17 +123,17 @@ p <- ggplot() +
   geom_point(data = dt, mapping = aes(x = Age, y = Weight)) + # , colour = Sex
   theme_classic()
 p
-ggplot(dt, aes(Age, Weight, group = Age > 5.0, colour = Sex)) +
+ggplot(dt, aes(Age, TBV.BW, group = Age > 5.0, colour = Sex)) +
   geom_smooth() +
-  geom_point(data = dt, mapping = aes(x = Age, y = Weight))
-ggplot(data = dt, x = Age, y = Weight, group = Age > 5.0) + # , colour = Sex
+  geom_point(data = dt, mapping = aes(x = Age, y = TBV.BW))
+ggplot(data = dt, x = Age, y = TBV.BW, group = Age > 5.0) + # , colour = Sex
   theme_classic() +
   geom_smooth()
 
 # 建立线性回归模型
-model.lm <- lm(Weight ~ Age, data = dt) # 构建线性回归模型 SUVr_whole_refPons
+model.lm <- lm(TBV.BW ~ Age, data = dt) # 构建线性回归模型 SUVr_whole_refPons
 summary(model.lm) # 查看回归模型结果，
-p1 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
+p1 <- ggplot(dt, aes(Age, TBV.BW)) + # , colour = Sex
   geom_point() +
   theme_classic() +
   stat_smooth(method = lm, formula = y ~ x) +
@@ -144,7 +144,7 @@ p1 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
     formula = y ~ x, parse = TRUE
   ) +
   xlab("Age (year)") +
-  ylab(bquote(Weight~(Kg)))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml) SUVr_refPons
+  ylab(bquote(TBV/Weight~(cm^3/kg)))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml) SUVr_refPons
   theme(
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
@@ -152,10 +152,10 @@ p1 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
   )
 p1
 # 建立曲线方程(log,exp)
-model.log <- lm(Weight ~ log(Age), data = dt) # 建立对数曲线方程
+model.log <- lm(TBV.BW ~ log(Age), data = dt) # 建立对数曲线方程
 summary(model.log) # 查看模型概况
 # 拟合曲线
-p2 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
+p2 <- ggplot(dt, aes(Age, TBV.BW)) + # , colour = Sex
   geom_point() +
   theme_classic() +
   stat_smooth(method = lm, formula = y ~ log(x)) +
@@ -166,17 +166,17 @@ p2 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
     formula = y ~ log(x), parse = TRUE
   ) +
   xlab("Age (year)") +
-  ylab(bquote(Weight~(Kg)))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
+  ylab(bquote(TBV/Weight~(cm^3/kg)))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
   theme(
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
 p2
-model.log10 <- lm(Weight ~ log(Age), data = dt) # 建立指数曲线方程
+model.log10 <- lm(TBV.BW ~ log(Age), data = dt) # 建立指数曲线方程
 summary(model.log10) # 查看模型概况
 # 拟合曲线
-ggplot(dt, aes(Age, Weight)) +
+ggplot(dt, aes(Age, TBV.BW)) +
   geom_point() +
   stat_smooth(method = lm, formula = y ~ log10(x))
 
@@ -187,15 +187,15 @@ model.segmented <- segmented(model.lm, seg.Z = ~Age) # 构建分段回归模型
 summary(model.segmented) # 查看模型概况
 slope(model.segmented) # the slopes of the segmented relationship
 # 查看拟合效果
-plot(dt$Age, dt$Weight, pch = 1, cex = 1.5)
+plot(dt$Age, dt$TBV.BW, pch = 1, cex = 1.5)
 abline(a = coef(model.lm)[1], b = coef(model.lm)[2], col = "red", lwd = 2.5)
 plot(model.segmented, col = "blue", lwd = 2.5, add = T)
 
-p3 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
+p3 <- ggplot(dt, aes(Age, TBV.BW)) + # , colour = Sex
   geom_point() +
   geom_smooth(
-    data = dt, mapping = aes(x = Age, y = Weight), # , color = Sex
-    method = "lm", formula = y ~ x + I((x - 11) * (x > 11))
+    data = dt, mapping = aes(x = Age, y = TBV.BW), # , color = Sex
+    method = "lm", formula = y ~ x + I((x - 5.99) * (x > 5.99))
   ) +
   scale_x_continuous(breaks = seq(0, 30, 1)) + # expand = c(0, 0),
   # scale_y_continuous(breaks = seq(45, 85, 5)) + # expand = c(0, 0),
@@ -206,10 +206,10 @@ p3 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
   # geom_vline(aes(xintercept = c(4.61)), colour = "#990000", linetype = "dashed") +
   stat_poly_eq(
     aes(label = paste(after_stat(eq.label), after_stat(adj.rr.label), sep = "~~~~")),
-    formula = y ~ x + I((x - 11) * (x > 11)), parse = TRUE
+    formula = y ~ x + I((x - 5.99) * (x > 5.99)), parse = TRUE
   ) +
   xlab("Age (year)") +
-  ylab(bquote(Weight~(Kg)))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml) SUVr_refPons
+  ylab(bquote(TBV/Weight~(cm^3/kg)))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml) SUVr_refPons
   theme(
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"), legend.position = "bottom",
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
@@ -226,11 +226,11 @@ summary(model.segmented3) # 查看模型概况
 plot(TLM$LM_L3, TLM$TLM, pch = 1, cex = 1.5)
 abline(a = coef(model.lm)[1], b = coef(model.lm)[2], col = "red", lwd = 2.5)
 plot(model.segmented2, col = "blue", lwd = 2.5, add = T)
-p4 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
+p4 <- ggplot(dt, aes(Age, TBV.BW)) + # , colour = Sex
   geom_point() +
   geom_smooth(
-    data = dt, mapping = aes(x = Age, y = Weight), # , color = Sex
-    method = "lm", formula = y ~ x + I((x - 11.5) * (x > 11.5)) + I((x - 15.2) * (x > 15.2))
+    data = dt, mapping = aes(x = Age, y = TBV.BW), # , color = Sex
+    method = "lm", formula = y ~ x + I((x - 4.95) * (x > 4.95)) + I((x - 11.56) * (x > 11.56))
   ) +
   scale_x_continuous(breaks = seq(0, 30, 1)) + # expand = c(0, 0),
   # geom_vline(xintercept = 5.0, linetype = 2, color = "red") +
@@ -238,10 +238,10 @@ p4 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
   # geom_vline(aes(xintercept = c(26.2)), colour = "#990000", linetype = "dashed") +
   stat_poly_eq(
     aes(label = paste(after_stat(eq.label), after_stat(adj.rr.label), sep = "~~~~")),
-    formula = y ~ x + I((x - 11.5) * (x > 11.5)) + I((x - 15.2) * (x > 15.2)), parse = TRUE
+    formula = y ~ x + I((x - 4.95) * (x > 4.95)) + I((x - 11.56) * (x > 11.56)), parse = TRUE
   ) +
   xlab("Age (year)") +
-  ylab(bquote(Weight~(Kg)))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml) 
+  ylab(bquote(TBV/Weight~(cm^3/kg)))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml) 
   theme(
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"), legend.position = "bottom",
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
@@ -250,22 +250,22 @@ p4 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
 p4
 
 # 样条回归
-model.spline <- lm(dt$Weight ~ rcs(dt$Age, 5)) # 建立样条回归，设置3~5个节点。+ factor(dt$Sex)
+model.spline <- lm(dt$TBV.BW ~ rcs(dt$Age, 5)) # 建立样条回归，设置3~5个节点。+ factor(dt$Sex)
 summary(model.spline) # 查看模型概况
 # 样条回归拟合效果
-p5 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
+p7 <- ggplot(dt, aes(Age, TBV.BW)) + # , colour = Sex
   geom_point() +
   # geom_errorbar(aes(ymin = SUV_Whole - sd, ymax = SUV_Whole + sd), width = 0.1) +
   theme_classic() +
-  stat_smooth(method = lm, formula = y ~ rcs(x, 3)) +
+  stat_smooth(method = lm, formula = y ~ rcs(x, 5)) +
   scale_x_continuous(breaks = seq(0, 30, 1)) + # expand = c(0, 0),
   # scale_y_continuous(breaks = seq(45, 85, 5)) +  # expand = c(0, 0),
   stat_poly_eq(
     aes(label = paste(after_stat(eq.label), after_stat(adj.rr.label), sep = "~~~~")),
-    formula = y ~ rcs(x, 3), parse = TRUE
+    formula = y ~ rcs(x, 5), parse = TRUE
   ) +
   xlab("Age (year)") +
-  ylab(bquote(Weight~(Kg)))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
+  ylab(bquote(TBV/Weight~(cm^3/kg)))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
   theme(
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
@@ -275,7 +275,7 @@ p5
 
 # 根据拟合线的数据找到最高点的坐标，并使用annotate()函数在图中添加标注
 # 计算拟合值
-fml <- "Weight ~ rcs(Age, 5) + factor(Sex)"
+fml <- "TBV.BW ~ rcs(Age, 5) + factor(Sex)"
 source("C:\\Users\\wane\\Documents\\rdocu\\平滑曲线1\\get_cutoff_lm.R")
 cut_off <- get_cutoff_lm("Age", dt, fml)
 print(cut_off)
@@ -285,7 +285,7 @@ M <- dt %>% filter(Sex == "M")
 Fe <- dt %>% filter(Sex == "F")
 dd <- datadist(dt)
 options(datadist = "dd")
-fit <- ols(Weight ~ rcs(Age, 5) + Sex, data = dt)
+fit <- ols(TBV.BW ~ rcs(Age, 5) + Sex, data = dt)
 summary(fit)
 an <- anova(fit)
 
@@ -296,7 +296,7 @@ OLS1 <- Predict(fit, Age, ref.zero = F)
 OLS1
 
 library(dplyr)
-ggplot(data = dt, aes(x = Age, y = Weight)) +
+ggplot(data = dt, aes(x = Age, y = TBV.BW)) +
   geom_point() +
   geom_smooth(method = lm, formula = y ~ rcs(x, 5)) +
   # 获取拟合线的预测值
@@ -307,15 +307,15 @@ ggplot(data = dt, aes(x = Age, y = Weight)) +
 # data.frame(x = seq(min(dt$Age), max(dt$Age), length.out = 1000), y = .) %>%
 # filter(y == max(whole)) %>%
 # # 在最高点添加标注
-annotate("point", x = .$Age, y = .$Weight, shape = 16, size = 3) +
-  annotate("text", x = .$Age, y = .$Weight, label = "Highest Point", vjust = -1.5)
+annotate("point", x = .$Age, y = .$TBV.BW, shape = 16, size = 3) +
+  annotate("text", x = .$Age, y = .$TBV.BW, label = "Highest Point", vjust = -1.5)
 # annotate("point", x = x_coordinate, y = y_coordinate, shape = 16, size = 3)
 
 # triple in one
-p51 <- ggplot(dt, aes(Age, Weight, colour = Sex)) +
+p51 <- ggplot(dt, aes(Age, TBV.BW, colour = Sex)) +
   geom_point() +
   theme_classic() +
-  ylab(bquote(Weight(kg))) + # TBV(cm^3) TBV/BW(cm^3/kg) Weight(kg) SUVr_whole_refPons Whole(cm^3/kg) SUVr_whole_refPons(KBq/cc)
+  ylab(bquote(TBV/Weight~(cm^3/kg))) + # TBV(cm^3) TBV/BW(cm^3/kg) Weight(kg) SUVr_whole_refPons Whole(cm^3/kg) SUVr_whole_refPons(KBq/cc)
   stat_smooth(method = lm, formula = y ~ rcs(x, 5)) +
   stat_smooth(method = lm, se = TRUE, colour = "black", formula = y ~ rcs(x, 3)) +
   scale_x_continuous(breaks = seq(0, 30, 1)) + # expand = c(0, 0),
@@ -365,10 +365,10 @@ wrap_plots(plot_list, byrow = T, ncol = 5) + plot_annotation(tag_levels = "A") +
   plot_layout(guides = "collect")
 
 # Lowess函数建立局部加权回归
-model.lowess <- lowess(dt$Weight ~ dt$Age) # 建立局部加权回归
+model.lowess <- lowess(dt$TBV.BW ~ dt$Age) # 建立局部加权回归
 summary(model.lowess) # 查看概况
 # 查看拟合
-p8 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
+p8 <- ggplot(dt, aes(Age, TBV.BW)) + # , colour = Sex
   geom_point() +
   # geom_errorbar(aes(ymin = SUVr_whole_refPons - sd, ymax = SUVr_whole_refPons + sd), width = 0.1) +
   theme_classic() +
@@ -380,7 +380,7 @@ p8 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
     formula = y ~ x, parse = TRUE
   ) +
   xlab("Age (year)") +
-  ylab(bquote(Weight~(Kg)))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
+  ylab(bquote(TBV/Weight~(cm^3/kg)))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
   theme(
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
@@ -399,19 +399,19 @@ rcssci_linear(
 
 # 广义可加模型gam**
 # https://mp.weixin.qq.com/mp/appmsgalbum?__biz=MzI1NjM3NTE1NQ==&action=getalbum&album_id=2077935014574374912&scene=173&from_msgid=2247485011&from_itemidx=1&count=3&nolastread=1#wechat_redirect
-model.gam <- gam(Weight ~ s(Age, k = 5, bs = "cs"), data = dt) # 建立gam模型 k = 4,k = 8,
+model.gam <- gam(TBV.BW ~ s(Age, k = 5, bs = "cs"), data = dt) # 建立gam模型 k = 4,k = 8,
 summary(model.gam) # 查看模型概况
 pr.gam <- predict(model.gam, dt) # 生成预测值
 # 计算RSME和R方
 data.frame(
-  RMSE = RMSE(pr.gam, dt$Weight),
-  R2 = R2(pr.gam, dt$Weight)
+  RMSE = RMSE(pr.gam, dt$TBV.BW),
+  R2 = R2(pr.gam, dt$TBV.BW)
 )
 # 查看模型拟合情况
 library(ggpmisc)
 library(ggpubr)
-my.formula <- y ~ s(x, k=3, bs = "cs")
-ggplot(dt, aes(Age, Weight)) +
+my.formula <- y ~ s(x, k=5, bs = "cs")
+ggplot(dt, aes(Age, TBV.BW)) +
   geom_point() +
   stat_smooth(method = gam, formula = y ~ s(x)) +
   stat_poly_eq(
@@ -423,7 +423,7 @@ ggplot(dt, aes(Age, Weight)) +
   theme_classic() +
   scale_x_continuous(breaks = seq(0, 30, 1)) + # expand = c(0, 0),
   geom_point(size = 0.05)
-p9 <- ggplot(dt, aes(Age, Weight)) + #  colour = Sex
+p11 <- ggplot(dt, aes(Age, TBV.BW)) + #  colour = Sex
   geom_point() +
   # geom_errorbar(aes(ymin = SUV_Whole - sd, ymax = SUV_Whole + sd), fatten = 2.5, width = 0.2) +
   # stat_cor(aes(), label.x = 6) +
@@ -433,7 +433,7 @@ p9 <- ggplot(dt, aes(Age, Weight)) + #  colour = Sex
     formula = my.formula, parse = TRUE
   ) +
   xlab("Age (year)") +
-  ylab(bquote(Weight~(Kg)))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
+  ylab(bquote(TBV/Weight~(cm^3/kg)))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
   theme_classic() +
   scale_x_continuous(breaks = seq(0, 30, 1)) + # expand = c(0, 0),
   # scale_y_continuous(breaks = seq(45, 85, 5)) + # expand = c(0, 0),
@@ -451,17 +451,17 @@ summary(dt)
 summary(dt.summary)
 my.formula <- y ~ bs(x, knots = 1, degree = 4, bs = "cs")
 my.formula <- y ~ s(x, k = 6, bs = "cs")
-ggplot(dt.summary, aes(Age, Weight)) +
+ggplot(dt.summary, aes(Age, TBV.BW)) +
   geom_point(aes(colour = Sex), alpha = 1.0, size = 1.5) +
   theme_classic() +
-  ylab(bquote(Weight~(kg))) + # TBV(cm^3) TBV/BW(cm^3/kg)
+  ylab(bquote(TBV/Weight~(cm^3/kg))) + # TBV(cm^3) TBV/BW(cm^3/kg)
   scale_x_continuous(breaks = seq(0, 30, 1), expand = c(0, 0)) + # expand = c(0, 0),
   scale_y_continuous(breaks = seq(55.0, 80.0, 1.0), expand = c(0, 0)) + # expand = c(0, 0),
   geom_vline(xintercept = 5.0, colour = "#990000", linetype = "dashed") +
   stat_smooth(method = mgcv::gam, se = TRUE, colour = "black", formula = my.formula) +
   # stat_smooth(method = mgcv::gam, se = TRUE, formula = y ~ s(x, bs = "cs")) +
   geom_smooth(
-    data = dt, mapping = aes(x = Age, y = Weight, colour = Sex),
+    data = dt, mapping = aes(x = Age, y = TBV.BW, colour = Sex),
     method = "gam", formula = my.formula
   ) +
   xlab("Age (year)") +
@@ -531,7 +531,7 @@ library(cowplot)
 plot_grid(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11,
   label_size = 12,
   hjust = -0.2, vjust = 1.4,
-  labels = c("LM", "LOG", "SEGMENTED", "SEGMENTED2", "RCS3", "RCS4", "RCS5", "LOWESS", "GAM")
+  labels = c("LM", "LOG", "SEGMENTED", "SEGMENTED2", "RCS3", "RCS4", "RCS5", "LOWESS", "GAM3","GAM4", "GAM5")
 )
 cowplot::plot_grid(p0, p1, p2, p3, p4, p5, p6,
   ncol = 3, labels = "AUTO"
