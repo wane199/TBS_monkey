@@ -274,16 +274,17 @@ p5 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
 p5
 
 # 设定数据环境
+str(dt)
 M <- dt %>% filter(Sex == "M")
 Fe <- dt %>% filter(Sex == "F")
-dd <- datadist(Fe)
+dd <- datadist(dt)
 options(datadist = "dd")
-fit <- ols(Weight ~ rcs(Age, 5), data = Fe) #  + Sex
+fit <- ols(SUVr_whole_refPons ~ rcs(Age, 5), data = dt) #  + Sex
 summary(fit)
 an <- anova(fit)
 
 # 计算拟合值
-fml <- "Weight ~ rcs(Age, 5)" # + factor(Sex)
+fml <- "SUVr_whole_refPons ~ rcs(Age, 5)" # + factor(Sex)
 source("C:\\Users\\wane\\Documents\\rdocu\\平滑曲线1\\get_cutoff_lm.R")
 source("C:\\Users\\wane1\\Downloads\\平滑曲线1\\get_cutoff_lm.R")
 cut_off <- get_cutoff_lm("Age", dt, fml)
@@ -295,30 +296,53 @@ plot(Predict(fit, Age), anova = an, pval = T)
 OLS1 <- Predict(fit, Age, ref.zero = F)
 OLS1
 
-# 根据拟合线的数据找到最高点的坐标，并使用annotate()函数在图中添加标注
-library(dplyr)
-ggplot(data = dt, aes(x = Age, y = Weight)) +
-  geom_point() +
-  geom_smooth(method = lm, formula = y ~ rcs(x, 5)) +
-  # 获取拟合线的预测值
-  stat_smooth(method = lm, formula = y ~ rcs(x, 5), se = FALSE) +
-  stat_smooth(method = lm, formula = y ~ rcs(x, 5), se = FALSE) # %>%
-# predict(., newdata = data.frame(x = seq(min(dt$Age), max(dt$Age), length.out = 1000)), interval = "none") %>%
-# # 找到最高点的横坐标
-# data.frame(x = seq(min(dt$Age), max(dt$Age), length.out = 1000), y = .) %>%
-# filter(y == max(whole)) %>%
-# # 在最高点添加标注
-annotate("point", x = .$Age, y = .$Weight, shape = 16, size = 3) +
-  annotate("text", x = .$Age, y = .$Weight, label = "Highest Point", vjust = -1.5)
-# annotate("point", x = x_coordinate, y = y_coordinate, shape = 16, size = 3)
+H6 <- ggplot(dt, aes(Age, SUVr_whole_refPons)) + # , colour = Sex
+  geom_point(aes(), alpha = 1.0, size = 2.5) +
+  theme_classic() +
+  stat_smooth(method = lm, formula = y ~ rcs(x, 5)) + # colour = "black", 
+  scale_x_continuous(breaks = seq(0, 30, 1)) + # expand = c(0, 0),
+  # scale_y_continuous(breaks = seq(45, 85, 5)) +  # expand = c(0, 0),
+  stat_poly_eq(
+    aes(label = paste(after_stat(eq.label), after_stat(adj.rr.label), sep = "~~~~")),
+    formula = y ~ rcs(x, 5), parse = TRUE
+  ) +
+  xlab("Age (year)") +
+  ylab(bquote(SUVr_refPons))  + # Volume~(cm^3) Weight~(Kg) TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml) SUVr_refPons
+  # annotate("point", x = 11.15, y = 7.48, shape = 16, size = 3, label = "Highest Point", vjust = -1.5) +
+  geom_vline(xintercept = 3.83, colour = "black", linetype = "dashed") +
+  theme(
+    axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
+    axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
+    axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
+  )
+
+H62 <- ggplot(dt, aes(Age, SUVr_whole_refPons, colour = Sex)) + # 
+  geom_point(aes(colour = Sex,shape = Sex), alpha = 1.0, size = 2.5) +
+  theme_classic() +
+  stat_smooth(method = lm, formula = y ~ rcs(x, 5)) +
+  scale_x_continuous(breaks = seq(0, 30, 1)) + # expand = c(0, 0),
+  # scale_y_continuous(breaks = seq(45, 85, 5)) +  # expand = c(0, 0),
+  stat_poly_eq(
+    aes(label = paste(after_stat(eq.label), after_stat(adj.rr.label), sep = "~~~~")),
+    formula = y ~ rcs(x, 5), parse = TRUE
+  ) +
+  xlab("Age (year)") +
+  ylab(bquote(SUVr_refPons))  + # Volume~(cm^3) Weight~(Kg) TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml) SUVr_refPons
+  geom_vline(xintercept = 5.06, colour = "#00BFC4", linetype = "dashed") + 
+  geom_vline(xintercept = 4.16, colour = "#F8766D", linetype = "dashed") + #  colour = "black", 
+  theme(
+    axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
+    axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
+    axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
+  )
 
 # triple in one
 p51 <- ggplot(dt, aes(Age, Weight, colour = Sex)) +
-  geom_point() +
+  geom_point(aes(colour = Sex,shape = Sex), alpha = 1.0, size = 2.5) +
   theme_classic() +
   ylab(bquote(TBV/Weight~(cm^3/kg))) + # TBV(cm^3) TBV/BW(cm^3/kg) Weight(kg) SUVr_whole_refPons Whole(cm^3/kg) SUVr_whole_refPons(KBq/cc)
   stat_smooth(method = lm, formula = y ~ rcs(x, 5)) +
-  stat_smooth(method = lm, se = TRUE, colour = "black", formula = y ~ rcs(x, 3)) +
+  # stat_smooth(method = lm, se = TRUE, colour = "black", formula = y ~ rcs(x, 3)) +
   scale_x_continuous(breaks = seq(0, 30, 1)) + # expand = c(0, 0),
   stat_poly_eq(
     aes(label = paste(after_stat(eq.label), after_stat(adj.rr.label), sep = "~~~~")),
@@ -333,9 +357,9 @@ p51 <- ggplot(dt, aes(Age, Weight, colour = Sex)) +
   )
 
 library(patchwork) # 拼图
-p51 + p52 + p53 + p54 + plot_annotation(tag_levels = "A") + plot_layout(ncol = 3) +
-  plot_layout(guides = "collect") -> p
-p
+H12 + H22 + H32 + H42 + H52 + H62 + plot_annotation(tag_levels = "A") + plot_layout(ncol = 3) +
+  plot_layout(guides = "collect") -> H2
+H2
 ggsave("./TBS/Monkey_fitting/1209.pdf", p, width = 20, height = 9, dpi = 900) # 保存为精度为600 dpi的tiff文件
 
 # for循环
