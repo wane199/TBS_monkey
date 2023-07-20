@@ -17,7 +17,7 @@ options(digits = 3) # 限定输出小数点后数字的位数为3位
 theme_set(theme_classic() + theme(legend.position = "bottom"))
 # 读取数据
 dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVr.csv", fileEncoding = "GBK", sep = ";")
-dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv", sep = ";", fileEncoding = "GBK") # , sep = '\t'
+dt <- read.csv("C:\\Users\\wane\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv", sep = ";", fileEncoding = "GBK") # , sep = '\t'
 
 dt <- dt[c(-1, -2, -3)]
 dt$Sex <- as.factor(dt$Sex)
@@ -250,19 +250,22 @@ p4 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
 p4
 
 # 样条回归
-model.spline <- lm(dt$Weight ~ rcs(dt$Age, 3)) # 建立样条回归，设置3~5个节点。+ factor(dt$Sex)
+model.spline <- lm(Weight ~ rcs(Age, 5), data = dt) # 建立样条回归，设置3~5个节点。+ factor(dt$Sex)
 summary(model.spline) # 查看模型概况
+new <- data.frame(Age = c(0.5,26.5,29.5))
+predict(model.spline, newdata = dt[1], interval = "confidence")
+
 # 样条回归拟合效果
 p5 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
   geom_point() +
   # geom_errorbar(aes(ymin = SUV_Whole - sd, ymax = SUV_Whole + sd), width = 0.1) +
   theme_classic() +
-  stat_smooth(method = lm, formula = y ~ rcs(x, 3)) +
+  stat_smooth(method = lm, formula = y ~ rcs(x, 5)) +
   scale_x_continuous(breaks = seq(0, 30, 1)) + # expand = c(0, 0),
   # scale_y_continuous(breaks = seq(45, 85, 5)) +  # expand = c(0, 0),
   stat_poly_eq(
     aes(label = paste(after_stat(eq.label), after_stat(adj.rr.label), sep = "~~~~")),
-    formula = y ~ rcs(x, 3), parse = TRUE
+    formula = y ~ rcs(x, 5), parse = TRUE
   ) +
   xlab("Age (year)") +
   ylab(bquote(Weight~(Kg)))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
@@ -277,9 +280,9 @@ p5
 str(dt)
 M <- dt %>% filter(Sex == "M")
 Fe <- dt %>% filter(Sex == "F")
-dd <- datadist(Fe)
+dd <- datadist(dt)
 options(datadist = "dd")
-fit <- ols(TBV.BW ~ rcs(Age, 5), data = Fe) #  + Sex
+fit <- ols(TBV.BW ~ rcs(Age, 5), data = dt) #  + Sex
 summary(fit)
 an <- anova(fit)
 
@@ -290,7 +293,7 @@ source("C:\\Users\\wane1\\Downloads\\平滑曲线1\\get_cutoff_lm.R")
 cut_off <- get_cutoff_lm("Age", dt, fml)
 print(cut_off)
 
-Predict(fit, Age) # 生成预测值
+Predict(fit, 0.5) # 生成预测值
 # fun=exp
 plot(Predict(fit, Age), anova = an, pval = T)
 OLS1 <- Predict(fit, Age, ref.zero = F)
