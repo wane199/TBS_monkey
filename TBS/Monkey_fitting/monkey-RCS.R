@@ -365,9 +365,9 @@ p51 <- ggplot(dt, aes(Age, Weight, colour = Sex)) +
   )
 
 library(patchwork) # 拼图
-H12 + H22 + H32 + H42 + H52 + H62 + plot_annotation(tag_levels = "A") + plot_layout(ncol = 3) +
-  plot_layout(guides = "collect") -> H2
-H2
+H1 + H2 + H3 + H4 + H5 + H6 + plot_annotation(tag_levels = "A") + plot_layout(ncol = 3) +
+  plot_layout(guides = "collect") -> D
+D
 ggsave("./TBS/Monkey_fitting/1209.pdf", p, width = 20, height = 9, dpi = 900) # 保存为精度为600 dpi的tiff文件
 
 # for循环
