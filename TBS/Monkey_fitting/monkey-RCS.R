@@ -16,7 +16,7 @@ library(ggpmisc)
 options(digits = 3) # 限定输出小数点后数字的位数为3位
 theme_set(theme_classic() + theme(legend.position = "bottom"))
 # 读取数据
-dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVr.csv", fileEncoding = "GBK", sep = ";")
+dt <- read.csv("C:\\Users\\wane\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVr.csv", fileEncoding = "GBK", sep = ";")
 dt <- read.csv("C:\\Users\\wane\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv", sep = ";", fileEncoding = "GBK") # , sep = '\t'
 
 dt <- dt[c(-1, -2, -3)]
@@ -250,10 +250,22 @@ p4 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
 p4
 
 # 样条回归
-model.spline <- lm(Weight ~ rcs(Age, 5), data = dt) # 建立样条回归，设置3~5个节点。+ factor(dt$Sex)
+model.spline <- lm(SUVr_whole_refPons ~ rcs(Age, 5), data = dt) # 建立样条回归，设置3~5个节点。+ factor(dt$Sex)
 summary(model.spline) # 查看模型概况
-new <- data.frame(Age = c(0.5,26.5,29.5))
-predict(model.spline, newdata = dt[1], interval = "confidence")
+# new <- data.frame(Age = c(0.5,26.5,29.5))
+pr <- predict(model.spline, newdata = dt, interval = "confidence")
+pre <- cbind(dt[1],pr)
+
+str(dt)
+M <- dt %>% filter(Sex == "M")
+Fe <- dt %>% filter(Sex == "F")
+dd <- datadist(Fe)
+options(datadist = "dd")
+model.spline <- lm(SUVr_whole_refPons ~ rcs(Age, 5), data = Fe) # 建立样条回归，设置3~5个节点。+ factor(dt$Sex)
+summary(model.spline) # 查看模型概况
+# new <- data.frame(Age = c(0.5,26.5,29.5))
+pr <- predict(model.spline, newdata = Fe, interval = "confidence")
+pre <- cbind(Fe[1],pr)
 
 # 样条回归拟合效果
 p5 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
@@ -268,7 +280,7 @@ p5 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
     formula = y ~ rcs(x, 5), parse = TRUE
   ) +
   xlab("Age (year)") +
-  ylab(bquote(Weight~(Kg)))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
+  ylab(bquote(Volume~(cm^3)))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
   theme(
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
@@ -276,30 +288,23 @@ p5 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
   )
 p5
 
-# 设定数据环境
-str(dt)
-M <- dt %>% filter(Sex == "M")
-Fe <- dt %>% filter(Sex == "F")
-dd <- datadist(dt)
-options(datadist = "dd")
-fit <- ols(TBV.BW ~ rcs(Age, 5), data = dt) #  + Sex
-summary(fit)
-an <- anova(fit)
+# # 设定数据环境
+# fit <- ols(TBV.BW ~ rcs(Age, 5), data = dt) #  + Sex
+# summary(fit)
+# an <- anova(fit)
+# # 计算拟合值
+# fml <- "TBV.BW ~ rcs(Age, 5)" # + factor(Sex)
+# source("C:\\Users\\wane\\Documents\\rdocu\\平滑曲线1\\get_cutoff_lm.R")
+# source("C:\\Users\\wane1\\Downloads\\平滑曲线1\\get_cutoff_lm.R")
+# cut_off <- get_cutoff_lm("Age", dt, fml)
+# print(cut_off)
+# Predict(fit, 0.5) # 生成预测值
+# # fun=exp
+# plot(Predict(fit, Age), anova = an, pval = T)
+# OLS1 <- Predict(fit, Age, ref.zero = F)
 
-# 计算拟合值
-fml <- "TBV.BW ~ rcs(Age, 5)" # + factor(Sex)
-source("C:\\Users\\wane\\Documents\\rdocu\\平滑曲线1\\get_cutoff_lm.R")
-source("C:\\Users\\wane1\\Downloads\\平滑曲线1\\get_cutoff_lm.R")
-cut_off <- get_cutoff_lm("Age", dt, fml)
-print(cut_off)
 
-Predict(fit, 0.5) # 生成预测值
-# fun=exp
-plot(Predict(fit, Age), anova = an, pval = T)
-OLS1 <- Predict(fit, Age, ref.zero = F)
-OLS1
-
-H6 <- ggplot(dt, aes(Age, SUV_Whole)) + # , colour = Sex
+H6 <- ggplot(dt, aes(Age, SUVr_whole_refPons)) + # , colour = Sex
   geom_point(aes(), alpha = 1.0, size = 2.5) +
   theme_classic() +
   stat_smooth(method = lm, formula = y ~ rcs(x, 5)) + # colour = "black", 
@@ -310,16 +315,16 @@ H6 <- ggplot(dt, aes(Age, SUV_Whole)) + # , colour = Sex
     formula = y ~ rcs(x, 5), parse = TRUE
   ) +
   xlab("Age (year)") +
-  ylab(bquote(SUV~(g/ml)))  + # Volume~(cm^3) Weight~(Kg) TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml) SUVr_refPons
+  ylab(bquote(SUVr_refPons))  + # Volume~(cm^3) Weight~(Kg) TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml) SUVr_refPons
   # annotate("point", x = 11.15, y = 7.48, shape = 16, size = 3, label = "Highest Point", vjust = -1.5) +
-  geom_vline(xintercept = 6.90, colour = "black", linetype = "dashed") +
+  geom_vline(xintercept = 3.50, colour = "black", linetype = "dashed") +
   theme(
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
 
-H62 <- ggplot(dt, aes(Age, SUVr_whole_refPons, colour = Sex)) + # 
+H42 <- ggplot(dt, aes(Age, SUVr_whole_refPons, colour = Sex)) + # 
   geom_point(aes(colour = Sex,shape = Sex), alpha = 1.0, size = 2.5) +
   theme_classic() +
   stat_smooth(method = lm, formula = y ~ rcs(x, 5)) +
@@ -331,8 +336,8 @@ H62 <- ggplot(dt, aes(Age, SUVr_whole_refPons, colour = Sex)) + #
   ) +
   xlab("Age (year)") +
   ylab(bquote(SUVr_refPons))  + # Volume~(cm^3) Weight~(Kg) TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml) SUVr_refPons
-  geom_vline(xintercept = 5.06, colour = "#00BFC4", linetype = "dashed") + 
-  geom_vline(xintercept = 4.16, colour = "#F8766D", linetype = "dashed") + #  colour = "black", 
+  geom_vline(xintercept = 4.0, colour = "#00BFC4", linetype = "dashed") + 
+  geom_vline(xintercept = 4.5, colour = "#F8766D", linetype = "dashed") + #  colour = "black", 
   theme(
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
