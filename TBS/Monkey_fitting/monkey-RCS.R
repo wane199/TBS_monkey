@@ -291,20 +291,26 @@ p5 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
   )
 p5
 
-# # 设定数据环境
-# fit <- ols(TBV.BW ~ rcs(Age, 5), data = dt) #  + Sex
-# summary(fit)
-# an <- anova(fit)
-# # 计算拟合值
-# fml <- "TBV.BW ~ rcs(Age, 5)" # + factor(Sex)
+# 设定数据环境
+library(dplyr)
+str(dt)
+M <- dt %>% filter(Sex == "M")
+Fe <- dt %>% filter(Sex == "F")
+dd <- datadist(Fe)
+options(datadist = "dd")
+fit <- ols(SUVr_whole_refPons ~ rcs(Age, 5), data = Fe) #  + Sex
+summary(fit)
+an <- anova(fit)
+# 计算拟合值
+# fml <- "TBV ~ rcs(Age, 5)" # + factor(Sex)
 # source("C:\\Users\\wane\\Documents\\rdocu\\平滑曲线1\\get_cutoff_lm.R")
 # source("C:\\Users\\wane1\\Downloads\\平滑曲线1\\get_cutoff_lm.R")
 # cut_off <- get_cutoff_lm("Age", dt, fml)
 # print(cut_off)
 # Predict(fit, 0.5) # 生成预测值
-# # fun=exp
-# plot(Predict(fit, Age), anova = an, pval = T)
-# OLS1 <- Predict(fit, Age, ref.zero = F)
+# fun=exp
+plot(Predict(fit, Age), anova = an, pval = T)
+OLS1 <- Predict(fit,  Age, ref.zero = F)
 
 
 H6 <- ggplot(dt, aes(Age, SUVr_whole_refPons)) + # , colour = Sex
@@ -320,14 +326,14 @@ H6 <- ggplot(dt, aes(Age, SUVr_whole_refPons)) + # , colour = Sex
   xlab("Age (year)") +
   ylab(bquote(SUVr_refPons))  + # Volume~(cm^3) Weight~(Kg) TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml) SUVr_refPons
   # annotate("point", x = 11.15, y = 7.48, shape = 16, size = 3, label = "Highest Point", vjust = -1.5) +
-  geom_vline(xintercept = 3.50, colour = "black", linetype = "dashed") +
+  geom_vline(xintercept = 3.83, colour = "black", linetype = "dashed") +
   theme(
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
 
-H42 <- ggplot(dt, aes(Age, SUVr_whole_refPons, colour = Sex)) + # 
+H62 <- ggplot(dt, aes(Age, SUVr_whole_refPons, colour = Sex)) + # 
   geom_point(aes(colour = Sex,shape = Sex), alpha = 1.0, size = 2.5) +
   theme_classic() +
   stat_smooth(method = lm, formula = y ~ rcs(x, 5)) +
@@ -339,8 +345,8 @@ H42 <- ggplot(dt, aes(Age, SUVr_whole_refPons, colour = Sex)) + #
   ) +
   xlab("Age (year)") +
   ylab(bquote(SUVr_refPons))  + # Volume~(cm^3) Weight~(Kg) TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml) SUVr_refPons
-  geom_vline(xintercept = 4.0, colour = "#00BFC4", linetype = "dashed") + 
-  geom_vline(xintercept = 4.5, colour = "#F8766D", linetype = "dashed") + #  colour = "black", 
+  geom_vline(xintercept = 5.06, colour = "#00BFC4", linetype = "dashed") + 
+  geom_vline(xintercept = 4.16, colour = "#F8766D", linetype = "dashed") + #  colour = "black", 
   theme(
     axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
@@ -368,9 +374,9 @@ p51 <- ggplot(dt, aes(Age, Weight, colour = Sex)) +
   )
 
 library(patchwork) # 拼图
-H1 + H2 + H3 + H4 + H5 + H6 + plot_annotation(tag_levels = "A") + plot_layout(ncol = 3) +
-  plot_layout(guides = "collect") -> D
-D
+H12 + H22 + H32 + H42 + H52 + H62 + plot_annotation(tag_levels = "A") + plot_layout(ncol = 3) +
+  plot_layout(guides = "collect") -> D2
+D2
 ggsave("./TBS/Monkey_fitting/1209.pdf", p, width = 20, height = 9, dpi = 900) # 保存为精度为600 dpi的tiff文件
 
 # for循环
