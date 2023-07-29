@@ -16,8 +16,8 @@ library(ggpmisc)
 options(digits = 3) # 限定输出小数点后数字的位数为3位
 theme_set(theme_classic() + theme(legend.position = "bottom"))
 # 读取数据
-dt <- read.csv("C:\\Users\\wane\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVr.csv", fileEncoding = "GBK", sep = ";")
-dt <- read.csv("C:\\Users\\wane\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv", sep = ";", fileEncoding = "GBK") # , sep = '\t'
+dt <- read.csv("C:\\Users\\wane\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVrrefwhole_gender.csv", fileEncoding = "GBK", sep = ";")
+dt <- read.csv("C:\\Users\\wane\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBVratio_gender.csv", sep = ";", fileEncoding = "GBK") # , sep = '\t'
 
 dt <- read.csv("C:\\Users\\Administrator\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVr.csv", fileEncoding = "GBK", sep = ";")
 dt <- read.csv("C:\\Users\\Administrator\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv", fileEncoding = "GBK", sep = ";")
@@ -383,13 +383,13 @@ ggsave("./TBS/Monkey_fitting/1209.pdf", p, width = 20, height = 9, dpi = 900) # 
 theme_set(theme_classic() + theme(legend.position = "bottom"))
 plot_list <- list()
 for (i in 3:ncol(dt)) {
-  print(p <- ggplot(dt, aes_string(x = "Age", y = colnames(dt)[i], colour = "Side", fill = "Side", linetype = "Side")) +
+  print(p <- ggplot(dt, aes_string(x = "Age", y = colnames(dt)[i], colour = "Sex", fill = "Sex", linetype = "Sex")) +
     scale_x_continuous(limits = c(0, 30), expand = c(0, 0), breaks = seq(0, 30, 2)) +
     # geom_smooth(method = mgcv::gam, formula = y ~ s(x, k = 4), se = T) +
     stat_smooth(method = lm, formula = y ~ rcs(x, 5)) +
-    geom_point(aes(colour = Side, shape = Side, fill = Side), size = 1.5, shape = 21) +
+    geom_point(aes(colour = Sex, shape = Sex, fill = Sex), size = 1.5, shape = 21) +
     xlab("Age (year)") +
-    ylab(bquote(SUVr_refPons))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
+    ylab(bquote(Vr_refWhole))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
     scale_fill_brewer(palette = "Paired") +
     ggtitle(paste0(colnames(dt)[i])) +
     theme(plot.title = element_text(hjust = 0.5)) +
@@ -398,6 +398,42 @@ for (i in 3:ncol(dt)) {
       axis.text.x = element_text(margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm")),
       axis.text.y = element_text(margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm"))
     ))
+  plot_list[[i - 2]] <- p
+}
+
+# 不分组
+ggplot(dt, aes(Age, Frontal.Lobe)) + # , colour = Sex
+  theme_classic() +
+  stat_smooth(method = lm, formula = y ~ rcs(x, 5), colour = "Black") +
+  scale_x_continuous(breaks = seq(0, 30, 1)) + # expand = c(0, 0),
+  scale_y_continuous(position = "right") + 
+  xlab("Age (year)") +
+  ylab(bquote(Volume~(cm^3)))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
+  theme(
+    axis.title = element_text(size = 18, face = "bold"),
+    axis.text = element_text(size = 16, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
+    axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
+    axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
+  )
+
+plot_list <- list()
+for (i in 3:ncol(dt)) {
+  print(p <- ggplot(dt, aes_string(x = "Age", y = colnames(dt)[i])) +
+          scale_x_continuous(limits = c(0, 30), expand = c(0, 0), breaks = seq(0, 30, 2)) +
+          # scale_y_continuous(position = "right") + 
+          stat_smooth(method = lm, formula = y ~ rcs(x, 5), colour = "Black") +
+          # geom_point(aes(), size = 1.5, shape = 21) + # colour = Sex, shape = Sex, fill = Sex
+          xlab("Age (year)") +
+          ylab(bquote(Vr_refWhole))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
+          scale_fill_brewer(palette = "Paired") +
+          ggtitle(paste0(colnames(dt)[i])) +
+          theme(plot.title = element_text(hjust = 0.5)) +
+          theme(    
+            axis.title = element_text(size = 18, face = "bold"),
+            axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.25, "cm"),
+            axis.text.x = element_text(margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm")),
+            axis.text.y = element_text(margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm"))
+          ))
   plot_list[[i - 2]] <- p
 }
 
