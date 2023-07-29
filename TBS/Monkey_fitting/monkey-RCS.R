@@ -420,11 +420,11 @@ plot_list <- list()
 for (i in 3:ncol(dt)) {
   print(p <- ggplot(dt, aes_string(x = "Age", y = colnames(dt)[i])) +
           scale_x_continuous(limits = c(0, 30), expand = c(0, 0), breaks = seq(0, 30, 2)) +
-          # scale_y_continuous(position = "right") + 
-          stat_smooth(method = lm, formula = y ~ rcs(x, 5), colour = "Black") +
+          scale_y_continuous(position = "right") + 
+          stat_smooth(method = lm, formula = y ~ rcs(x, 5), colour = "yellow") +
           # geom_point(aes(), size = 1.5, shape = 21) + # colour = Sex, shape = Sex, fill = Sex
           xlab("Age (year)") +
-          ylab(bquote(Vr_refWhole))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
+          ylab(bquote(SUVr_refWhole))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
           scale_fill_brewer(palette = "Paired") +
           ggtitle(paste0(colnames(dt)[i])) +
           theme(plot.title = element_text(hjust = 0.5)) +
