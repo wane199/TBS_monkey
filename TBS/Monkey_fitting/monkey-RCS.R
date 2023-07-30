@@ -19,8 +19,8 @@ theme_set(theme_classic() + theme(legend.position = "bottom"))
 dt <- read.csv("C:\\Users\\wane\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVr.csv", fileEncoding = "GBK", sep = ";")
 dt <- read.csv("C:\\Users\\wane\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv", sep = ";", fileEncoding = "GBK") # , sep = '\t'
 
-dt <- read.csv("C:\\Users\\Administrator\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVr.csv", fileEncoding = "GBK", sep = ";")
-dt <- read.csv("C:\\Users\\Administrator\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv", fileEncoding = "GBK", sep = ";")
+dt <- read.csv("C:\\Users\\Administrator\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv", fileEncoding = "GBK", sep = "\t")
+dt1 <- read.csv("C:\\Users\\Administrator\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVr.csv", fileEncoding = "GBK", sep = ",")
 
 dt <- dt[c(-1, -2, -3)]
 dt$Sex <- as.factor(dt$Sex)
@@ -352,6 +352,53 @@ H62 <- ggplot(dt, aes(Age, SUVr_whole_refPons, colour = Sex)) + #
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
+
+ggplot(dt, aes(Age, TBV)) + # , colour = Sex
+  # geom_point(aes(), alpha = 1.0, size = 2.5) +
+  theme_classic() +
+  stat_smooth(method = lm, formula = y ~ rcs(x, 5), colour = "black", linewidth = 1.8) + # colour = "black", 
+  scale_x_continuous(breaks = seq(0, 30, 1)) + # expand = c(0, 0),
+  # scale_y_continuous(breaks = seq(45, 85, 5)) +  # expand = c(0, 0),
+  stat_poly_eq(
+    aes(label = paste(after_stat(eq.label), after_stat(adj.rr.label), sep = "~~~~")),
+    formula = y ~ rcs(x, 5), parse = TRUE, size = 8,
+  ) +
+  xlab("Age (year)") +
+  ylab(bquote(Volume~(cm^3)))  + # Volume~(cm^3) Weight~(Kg) TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml) SUVr_refPons
+  # annotate("point", x = 11.15, y = 7.48, shape = 16, size = 3, label = "Highest Point", vjust = -1.5) +
+  geom_vline(xintercept = 6.88, colour = "black", linetype = "dashed") +
+  guides(fill = guide_legend(label.theme = element_text(size = 18, face = "bold"))) + 
+  theme(
+    axis.title = element_text(size = 23),
+    panel.border = element_rect(fill=NA,color="black", linewidth=1.5, linetype="solid"),
+    axis.text = element_text(size = 18, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
+    axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
+    axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
+  )
+
+ggplot(dt1, aes(Age, whole)) + # , colour = Sex
+  # geom_point(aes(), alpha = 1.0, size = 2.5) +
+  theme_classic() +
+  stat_smooth(method = lm, formula = y ~ rcs(x, 5), colour = "yellow", linewidth = 3) + # colour = "black", 
+  scale_x_continuous(breaks = seq(0, 30, 1)) + # expand = c(0, 0),
+  # scale_y_continuous(breaks = seq(45, 85, 5)) +  # expand = c(0, 0),
+  stat_poly_eq(
+    aes(label = paste(after_stat(eq.label), after_stat(adj.rr.label), sep = "~~~~")),
+    formula = y ~ rcs(x, 5), parse = TRUE, size = 8,
+  ) +
+  xlab("Age (year)") +
+  ylab(bquote('Uptake Value'~(kBq/cc)))  + # Volume~(cm^3) Weight~(Kg) TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml) SUVr_refPons
+  # annotate("point", x = 11.15, y = 7.48, shape = 16, size = 3, label = "Highest Point", vjust = -1.5) +
+  scale_y_continuous(position= "right") +
+  geom_vline(xintercept = 4.63, colour = "yellow", linetype = "dashed") +
+  theme(    
+    axis.title = element_text(size = 23),
+    panel.border = element_rect(fill=NA,color="black", linewidth=1.5, linetype="solid"),
+    axis.text = element_text(size = 18, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
+    axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
+    axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
+  )
+
 
 # triple in one
 p51 <- ggplot(dt, aes(Age, Weight, colour = Sex)) +
