@@ -434,14 +434,16 @@ for (i in 3:ncol(dt)) {
     scale_x_continuous(limits = c(0, 30), expand = c(0, 0), breaks = seq(0, 30, 2)) +
     # geom_smooth(method = mgcv::gam, formula = y ~ s(x, k = 4), se = T) +
     stat_smooth(method = lm, formula = y ~ rcs(x, 5)) +
-    geom_point(aes(colour = Sex, shape = Sex, fill = Sex), size = 1.5, shape = 21) +
+    geom_point(aes(colour = Sex, shape = Sex, fill = Sex), size = 2.0, shape = 21) +
     xlab("Age (year)") +
     ylab(bquote(Vr_refWhole))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
     scale_fill_brewer(palette = "Paired") +
     ggtitle(paste0(colnames(dt)[i])) +
     theme(plot.title = element_text(hjust = 0.5)) +
-    theme(
-      axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.25, "cm"),
+    theme(    
+      axis.title = element_text(size = 16, face = "bold"),
+      # panel.border = element_rect(fill=NA,color="black", linewidth=1.5, linetype="solid"),
+      axis.text = element_text(size = 14, face = "bold"), axis.ticks.length = unit(-0.25, "cm"),
       axis.text.x = element_text(margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm")),
       axis.text.y = element_text(margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm"))
     ))
@@ -457,9 +459,9 @@ ggplot(dt, aes(Age, Frontal.Lobe)) + # , colour = Sex
   xlab("Age (year)") +
   ylab(bquote(Volume~(cm^3)))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
   theme(
-    axis.title = element_text(size = 18, face = "bold"),
-    panel.border = element_rect(fill=NA,color="black", linewidth=1.5, linetype="solid"),
-    axis.text = element_text(size = 16, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
+    axis.title = element_text(size = 16, face = "bold"),
+    # panel.border = element_rect(fill=NA,color="black", linewidth=1.5, linetype="solid"),
+    axis.text = element_text(size = 14, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
@@ -468,17 +470,17 @@ plot_list <- list()
 for (i in 3:ncol(dt)) {
   print(p <- ggplot(dt, aes_string(x = "Age", y = colnames(dt)[i])) +
           scale_x_continuous(limits = c(0, 30), expand = c(0, 0), breaks = seq(0, 30, 2)) +
-          scale_y_continuous(position = "right") + 
-          stat_smooth(method = lm, formula = y ~ rcs(x, 5), colour = "yellow", linewidth = 1.5) +
+          # scale_y_continuous(position = "right") + 
+          stat_smooth(method = lm, formula = y ~ rcs(x, 3), colour = "black", linewidth = 2.0) +
           # geom_point(aes(), size = 1.5, shape = 21) + # colour = Sex, shape = Sex, fill = Sex
           xlab("Age (year)") +
-          ylab(bquote(SUVr_refWhole))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
+          ylab(bquote(Vr_refWhole))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
           scale_fill_brewer(palette = "Paired") +
           ggtitle(paste0(colnames(dt)[i])) +
           theme(plot.title = element_text(hjust = 0.5)) +
           theme(    
-            axis.title = element_text(size = 18, face = "bold"),
-            panel.border = element_rect(fill=NA,color="black", linewidth=1.5, linetype="solid"),
+            axis.title = element_text(size = 13, face = "bold"),
+            # panel.border = element_rect(fill=NA,color="black", linewidth=1.5, linetype="solid"),
             axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.25, "cm"),
             axis.text.x = element_text(margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm")),
             axis.text.y = element_text(margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm"))
