@@ -50,10 +50,6 @@ saveRDS(df_dat_exp,"C:\\Users\\wane1\\Documents\\file\\sci\\Shuntak\\MR\\eQTL_ex
 df_dat_exp <- readRDS("C:\\Users\\wane1\\Documents\\file\\sci\\Shuntak\\MR\\eQTL_exp_dat.rds")
 
 
-
-
-
-
 ao_outcome <- ao[grepl("epilepsy", ao$trait), ]
 View(ao_outcome)
 
@@ -75,7 +71,6 @@ mr_heterogeneity(dat)
 
 # pleiotropy test
 mr_pleiotropy_test(dat)
-
 
 # leave-one-out analysis
 res_loo <- mr_leaveoneout(dat)
