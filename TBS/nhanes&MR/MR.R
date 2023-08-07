@@ -245,10 +245,11 @@ dat <- harmonise_data(exposure_dat, outcome_dat, action = 2)
 ## MR
 res <- mr(dat) # mr(dat, method_list=c("mr_egger_regression", "mr_ivw"))
 
-## Heterogeneity statistics
+# 异质性检验(Heterogeneity statistics)
 mr_heterogeneity(dat)
+run_mr_presso(dat)
 
-# pleiotropy test
+# 多效性检验(pleiotropy test)
 mr_pleiotropy_test(dat)
 
 # leave-one-out analysis
