@@ -1,4 +1,4 @@
-# 如何建立非线性回归预测模型https://zhuanlan.zhihu.com/p/101906049
+#### 如何建立非线性回归预测模型(https://zhuanlan.zhihu.com/p/101906049) ####
 # https://www.bilibili.com/read/cv16417407?spm_id_from=333.999.0.0
 # https://mp.weixin.qq.com/s?__biz=MzI1NjM3NTE1NQ==&mid=2247484446&idx=1&sn=487c68752949698fea9102b15fc5d2c0&chksm=ea26e402dd516d14667cc1171151d3c1527e9a32fed6f390813d31ddb87dac815a50b4194735&mpshare=1&scene=1&srcid=0612zm7B4uWhTaFCwvNQLrEs&sharer_sharetime=1655014649840&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd
 rm(list = ls())
@@ -928,10 +928,8 @@ rug(dt$LM_L3, col = "blue")
 abline(v = cut_off, col = "black", lty = 2)
 
 
-
-##############################################
-##############################################
-library(gamlss)
+##### gamlss #####
+library(gamlss) 
 data(aids)
 a <- gamlss(y ~ pb(x) + qrt, family = PO, data = aids)
 summary(a)
@@ -942,8 +940,7 @@ mod <- gamlss(y ~ pb(x), sigma.fo = ~ pb(x), family = BCT, data = abdom, method 
 plot(mod)
 
 
-#######################################
-# Same plot with custom colors
+##### Same plot with custom colors #####
 # our own (very beta) plot package: details later
 library(WVPlots)
 ScatterHist(dt, "Age", "TBV",
