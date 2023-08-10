@@ -13,11 +13,12 @@ library(readxl)
 library(dlookr)
 library(DataExplorer)
 library(ggpmisc)
+library(ggsci)
 options(digits = 3) # 限定输出小数点后数字的位数为3位
 theme_set(theme_classic() + theme(legend.position = "bottom"))
 # 读取数据
-dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVrrefwhole_gender.csv", fileEncoding = "GBK", sep = ";")
 dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBVratio_gender.csv", sep = ";", fileEncoding = "GBK") # , sep = '\t'
+dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVrrefwhole_gender.csv", fileEncoding = "GBK", sep = ";")
 
 dt <- read.csv("C:\\Users\\Administrator\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv", fileEncoding = "GBK", sep = "\t")
 dt1 <- read.csv("C:\\Users\\Administrator\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVr.csv", fileEncoding = "GBK", sep = ",")
@@ -421,7 +422,7 @@ p51 <- ggplot(dt, aes(Age, Weight, colour = Sex)) +
   )
 
 library(patchwork) # 拼图
-H12 + H22 + H32 + H42 + H52 + H62 + plot_annotation(tag_levels = "A") + plot_layout(ncol = 3) +
+H12 + H22 + H32 + H42 + H52 + H62 + plot_annotation(tag_levels = "a", theme = theme(plot.title = element_text(size = 16))) + plot_layout(ncol = 3) +
   plot_layout(guides = "collect") -> D2
 D2
 ggsave("./TBS/Monkey_fitting/1209.pdf", p, width = 20, height = 9, dpi = 900) # 保存为精度为600 dpi的tiff文件
@@ -433,35 +434,39 @@ for (i in 3:ncol(dt)) {
   print(p <- ggplot(dt, aes_string(x = "Age", y = colnames(dt)[i], colour = "Sex", fill = "Sex", linetype = "Sex")) +
     scale_x_continuous(limits = c(0, 30), expand = c(0, 0), breaks = seq(0, 30, 2)) +
     # geom_smooth(method = mgcv::gam, formula = y ~ s(x, k = 4), se = T) +
-    stat_smooth(method = lm, formula = y ~ rcs(x, 5)) +
-    geom_point(aes(colour = Sex, shape = Sex, fill = Sex), size = 2.0, shape = 21) +
+    stat_smooth(method = lm, formula = y ~ rcs(x, 3)) +
+    geom_point(aes(colour = Sex, shape = Sex, fill = Sex), size = 1.2, alpha = 0.5, shape = 21) +
     xlab("Age (year)") +
-    ylab(bquote(Vr_refWhole))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
-    scale_fill_brewer(palette = "Paired") +
+    ylab(bquote(SUVr_refWhole))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
+    # scale_fill_brewer(palette = "Paired") +
+    scale_fill_npg() + scale_color_npg() +
     ggtitle(paste0(colnames(dt)[i])) +
     theme(plot.title = element_text(hjust = 0.5)) +
     theme(    
       axis.title = element_text(size = 16, face = "bold"),
       # panel.border = element_rect(fill=NA,color="black", linewidth=1.5, linetype="solid"),
-      axis.text = element_text(size = 14, face = "bold"), axis.ticks.length = unit(-0.25, "cm"),
-      axis.text.x = element_text(margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm")),
-      axis.text.y = element_text(margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm"))
+      axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.12, "cm"),
+      axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
+      axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
     ))
   plot_list[[i - 2]] <- p
 }
 
+wrap_plots(plot_list, byrow = T, ncol = 5) + plot_annotation(tag_levels = "a", theme = theme(plot.title = element_text(size = 16))) +
+  plot_layout(guides = "collect")
 # 不分组
 ggplot(dt, aes(Age, Frontal.Lobe)) + # , colour = Sex
   theme_classic() +
   stat_smooth(method = lm, formula = y ~ rcs(x, 5), colour = "Black", linewidth = 1.5) +
   scale_x_continuous(breaks = seq(0, 30, 1)) + # expand = c(0, 0),
-  scale_y_continuous(position = "right") + 
+  # scale_y_continuous(position = "right") + 
   xlab("Age (year)") +
   ylab(bquote(Volume~(cm^3)))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
   theme(
     axis.title = element_text(size = 16, face = "bold"),
     # panel.border = element_rect(fill=NA,color="black", linewidth=1.5, linetype="solid"),
     axis.text = element_text(size = 14, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
+    axis.title.y = element_text(margin = margin(r = -2)),
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
@@ -470,11 +475,11 @@ plot_list <- list()
 for (i in 3:ncol(dt)) {
   print(p <- ggplot(dt, aes_string(x = "Age", y = colnames(dt)[i])) +
           scale_x_continuous(limits = c(0, 30), expand = c(0, 0), breaks = seq(0, 30, 2)) +
-          # scale_y_continuous(position = "right") + 
-          stat_smooth(method = lm, formula = y ~ rcs(x, 3), colour = "black", linewidth = 2.0) +
+          scale_y_continuous(position = "right") + 
+          stat_smooth(method = lm, formula = y ~ rcs(x, 3), colour = "yellow", linewidth = 1.5) +
           # geom_point(aes(), size = 1.5, shape = 21) + # colour = Sex, shape = Sex, fill = Sex
           xlab("Age (year)") +
-          ylab(bquote(Vr_refWhole))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
+          ylab(bquote(SUVr_refWhole))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
           scale_fill_brewer(palette = "Paired") +
           ggtitle(paste0(colnames(dt)[i])) +
           theme(plot.title = element_text(hjust = 0.5)) +
@@ -482,15 +487,16 @@ for (i in 3:ncol(dt)) {
             axis.title = element_text(size = 13, face = "bold"),
             # panel.border = element_rect(fill=NA,color="black", linewidth=1.5, linetype="solid"),
             axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.25, "cm"),
-            axis.text.x = element_text(margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm")),
-            axis.text.y = element_text(margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm"))
+            axis.title.y = element_text(margin = margin(r = -2)),
+            axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
+            axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
           ))
   plot_list[[i - 2]] <- p
 }
 
 # 拼图
 library("patchwork")
-wrap_plots(plot_list, byrow = T, ncol = 5) + plot_annotation(tag_levels = "A") +
+wrap_plots(plot_list, byrow = T, ncol = 4) + plot_annotation(tag_levels = "a", theme = theme(plot.title = element_text(size = 16))) +
   plot_layout(guides = "collect")
 
 # Lowess函数建立局部加权回归
