@@ -17,8 +17,8 @@ library(ggsci)
 options(digits = 3) # 限定输出小数点后数字的位数为3位
 theme_set(theme_classic() + theme(legend.position = "bottom"))
 # 读取数据
-dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBVratio_gender.csv", sep = ";", fileEncoding = "GBK") # , sep = '\t'
-dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVrrefwhole_gender.csv", fileEncoding = "GBK", sep = ";")
+dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBVratio_L&R.csv", sep = ";", fileEncoding = "GBK") # , sep = '\t'
+dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVr_gender.csv", fileEncoding = "GBK", sep = ";")
 
 dt <- read.csv("C:\\Users\\Administrator\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv", fileEncoding = "GBK", sep = "\t")
 dt1 <- read.csv("C:\\Users\\Administrator\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVr.csv", fileEncoding = "GBK", sep = ",")
@@ -437,7 +437,7 @@ for (i in 3:ncol(dt)) {
     stat_smooth(method = lm, formula = y ~ rcs(x, 3)) +
     geom_point(aes(colour = Sex, shape = Sex, fill = Sex), size = 1.2, alpha = 0.5, shape = 21) +
     xlab("Age (year)") +
-    ylab(bquote(SUVr_refWhole))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
+    ylab(bquote('Uptake Value'~(kBq/cc)))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml) SUVr_refWhole
     # scale_fill_brewer(palette = "Paired") +
     scale_fill_npg() + scale_color_npg() +
     ggtitle(paste0(colnames(dt)[i])) +
@@ -454,6 +454,7 @@ for (i in 3:ncol(dt)) {
 
 wrap_plots(plot_list, byrow = T, ncol = 5) + plot_annotation(tag_levels = "a", theme = theme(plot.title = element_text(size = 16))) +
   plot_layout(guides = "collect")
+
 # 不分组
 ggplot(dt, aes(Age, Frontal.Lobe)) + # , colour = Sex
   theme_classic() +
