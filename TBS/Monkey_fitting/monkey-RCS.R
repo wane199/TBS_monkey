@@ -17,7 +17,7 @@ library(ggsci)
 options(digits = 3) # 限定输出小数点后数字的位数为3位
 theme_set(theme_classic() + theme(legend.position = "bottom"))
 # 读取数据
-dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV_L&R.csv", sep = ";", fileEncoding = "GBK") # , sep = '\t'
+dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV_gender.csv", sep = ";", fileEncoding = "GBK") # , sep = '\t'
 dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVr_gender.csv", fileEncoding = "GBK", sep = ";")
 
 dt <- read.csv("C:\\Users\\Administrator\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv", fileEncoding = "GBK", sep = "\t")
@@ -434,10 +434,10 @@ for (i in 3:ncol(dt)) {
   print(p <- ggplot(dt, aes_string(x = "Age", y = colnames(dt)[i], colour = "Side", fill = "Side", linetype = "Side")) +
     scale_x_continuous(limits = c(0, 30), expand = c(0, 0), breaks = seq(0, 30, 2)) +
     # geom_smooth(method = mgcv::gam, formula = y ~ s(x, k = 4), se = T) +
-    stat_smooth(method = lm, formula = y ~ rcs(x, 4)) +
+    stat_smooth(method = lm, formula = y ~ rcs(x, 3)) +
     geom_point(aes(colour = Side, shape = Side, fill = Side), size = 1.2, alpha = 0.5, shape = 21) +
     xlab("Age (year)") +
-    ylab(bquote(Volume~(cm^3)))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml) SUVr_ref~Whole
+    ylab(bquote(Vr_ref~Whole))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml) SUVr_ref~Whole
     scale_fill_brewer(palette = "Paired") +
     # scale_fill_npg() + scale_color_npg() +
     ggtitle(paste0(colnames(dt)[i])) +
