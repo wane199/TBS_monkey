@@ -17,7 +17,7 @@ library(ggsci)
 options(digits = 3) # 限定输出小数点后数字的位数为3位
 theme_set(theme_classic() + theme(legend.position = "bottom"))
 # 读取数据
-dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBVratio_L&R.csv", sep = ";", fileEncoding = "GBK") # , sep = '\t'
+dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV_L&R.csv", sep = ";", fileEncoding = "GBK") # , sep = '\t'
 dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVr_gender.csv", fileEncoding = "GBK", sep = ";")
 
 dt <- read.csv("C:\\Users\\Administrator\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv", fileEncoding = "GBK", sep = "\t")
@@ -431,15 +431,15 @@ ggsave("./TBS/Monkey_fitting/1209.pdf", p, width = 20, height = 9, dpi = 900) # 
 theme_set(theme_classic() + theme(legend.position = "bottom"))
 plot_list <- list()
 for (i in 3:ncol(dt)) {
-  print(p <- ggplot(dt, aes_string(x = "Age", y = colnames(dt)[i], colour = "Sex", fill = "Sex", linetype = "Sex")) +
+  print(p <- ggplot(dt, aes_string(x = "Age", y = colnames(dt)[i], colour = "Side", fill = "Side", linetype = "Side")) +
     scale_x_continuous(limits = c(0, 30), expand = c(0, 0), breaks = seq(0, 30, 2)) +
     # geom_smooth(method = mgcv::gam, formula = y ~ s(x, k = 4), se = T) +
-    stat_smooth(method = lm, formula = y ~ rcs(x, 3)) +
-    geom_point(aes(colour = Sex, shape = Sex, fill = Sex), size = 1.2, alpha = 0.5, shape = 21) +
+    stat_smooth(method = lm, formula = y ~ rcs(x, 4)) +
+    geom_point(aes(colour = Side, shape = Side, fill = Side), size = 1.2, alpha = 0.5, shape = 21) +
     xlab("Age (year)") +
-    ylab(bquote('Uptake Value'~(kBq/cc)))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml) SUVr_refWhole
-    # scale_fill_brewer(palette = "Paired") +
-    scale_fill_npg() + scale_color_npg() +
+    ylab(bquote(Volume~(cm^3)))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml) SUVr_ref~Whole
+    scale_fill_brewer(palette = "Paired") +
+    # scale_fill_npg() + scale_color_npg() +
     ggtitle(paste0(colnames(dt)[i])) +
     theme(plot.title = element_text(hjust = 0.5)) +
     theme(    
@@ -449,6 +449,25 @@ for (i in 3:ncol(dt)) {
       axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
       axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
     ))
+  plot_list[[i - 2]] <- p
+}
+
+for (i in 3:ncol(dt)) {
+  print(p <- ggplot(dt, aes_string(x = "Age", y = colnames(dt)[i], colour = "Sex", fill = "Sex", linetype = "Sex")) +
+          scale_x_continuous(limits = c(0, 30), expand = c(0, 0), breaks = seq(0, 30, 2)) +
+          stat_smooth(method = lm, formula = y ~ rcs(x, 4)) +
+          geom_point(aes(colour = Sex, shape = Sex, fill = Sex), size = 1.2, alpha = 0.5, shape = 21) +
+          xlab("Age (year)") +
+          ylab(bquote(Volume~(cm^3)))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml) SUVr_ref~Whole
+          scale_fill_npg() + scale_color_npg() +
+          ggtitle(paste0(colnames(dt)[i])) +
+          theme(plot.title = element_text(hjust = 0.5)) +
+          theme(    
+            axis.title = element_text(size = 16, face = "bold"),
+            axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.12, "cm"),
+            axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
+            axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
+          ))
   plot_list[[i - 2]] <- p
 }
 
