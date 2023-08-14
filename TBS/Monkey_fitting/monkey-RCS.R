@@ -1,6 +1,7 @@
 #### 如何建立非线性回归预测模型(https://zhuanlan.zhihu.com/p/101906049) ####
 # https://www.bilibili.com/read/cv16417407?spm_id_from=333.999.0.0
 # https://mp.weixin.qq.com/s?__biz=MzI1NjM3NTE1NQ==&mid=2247484446&idx=1&sn=487c68752949698fea9102b15fc5d2c0&chksm=ea26e402dd516d14667cc1171151d3c1527e9a32fed6f390813d31ddb87dac815a50b4194735&mpshare=1&scene=1&srcid=0612zm7B4uWhTaFCwvNQLrEs&sharer_sharetime=1655014649840&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd
+##### 加载包 #####
 rm(list = ls())
 library(ggplot2)
 library(segmented)
@@ -28,6 +29,7 @@ dt$Sex <- as.factor(dt$Sex)
 dt$Side <- as.factor(dt$Side)
 summary(dt)
 
+##### 数据预处理 #####
 library(gt)
 library(dplyr)
 dt %>%
@@ -119,6 +121,7 @@ psych::describe(sub)
 F <- subset(TLM, TLM$Sex == 0)
 M <- subset(TLM, TLM$Sex == 1)
 
+##### 散点图 #####
 dd <- datadist(dt) # 为后续程序设定数据环境
 options(datadist = "dd")
 ggplot(dt, aes(Age, TBV)) +
@@ -134,7 +137,7 @@ ggplot(data = dt, x = Age, y = Weight, group = Age > 5.0) + # , colour = Sex
   theme_classic() +
   geom_smooth()
 
-# 建立线性回归模型
+##### 建立线性回归模型 ##### 
 model.lm <- lm(Weight ~ Age, data = dt) # 构建线性回归模型 SUVr_whole_refPons
 summary(model.lm) # 查看回归模型结果，
 p1 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
@@ -155,7 +158,8 @@ p1 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
 p1
-# 建立曲线方程(log,exp)
+
+##### 建立曲线方程(log,exp) #####
 model.log <- lm(Weight ~ log(Age), data = dt) # 建立对数曲线方程
 summary(model.log) # 查看模型概况
 # 拟合曲线
@@ -184,7 +188,7 @@ ggplot(dt, aes(Age, Weight)) +
   geom_point() +
   stat_smooth(method = lm, formula = y ~ log10(x))
 
-# 建立分段回归模型
+##### 建立分段回归模型 #####
 # https://blog.csdn.net/weixin_40575651/article/details/107575012
 library(segmented)
 model.segmented <- segmented(model.lm, seg.Z = ~Age) # 构建分段回归模型
@@ -253,7 +257,7 @@ p4 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
   )
 p4
 
-# 样条回归
+##### 样条回归 #####
 model.spline <- lm(SUVr_whole_refPons ~ rcs(Age, 5), data = dt) # 建立样条回归，设置3~5个节点。+ factor(dt$Sex)
 summary(model.spline) # 查看模型概况
 # new <- data.frame(Age = c(0.5,26.5,29.5))
@@ -519,7 +523,7 @@ library("patchwork")
 wrap_plots(plot_list, byrow = T, ncol = 4) + plot_annotation(tag_levels = "a", theme = theme(plot.title = element_text(size = 16))) +
   plot_layout(guides = "collect")
 
-# Lowess函数建立局部加权回归
+##### Lowess函数建立局部加权回归 #####
 model.lowess <- lowess(dt$Weight ~ dt$Age) # 建立局部加权回归
 summary(model.lowess) # 查看概况
 # 查看拟合
@@ -552,7 +556,7 @@ rcssci_linear(
 ) + # 默认prob = 0.5
   ggplot2::theme_classic()
 
-# 广义可加模型gam**
+##### 广义可加模型gam #####
 # https://mp.weixin.qq.com/mp/appmsgalbum?__biz=MzI1NjM3NTE1NQ==&action=getalbum&album_id=2077935014574374912&scene=173&from_msgid=2247485011&from_itemidx=1&count=3&nolastread=1#wechat_redirect
 model.gam <- gam(Weight ~ s(Age, k = 4, bs = "cs"), data = dt) # 建立gam模型 k = 4,k = 8,
 summary(model.gam) # 查看模型概况
@@ -631,10 +635,7 @@ ggplot(dt.summary, aes(Age, Weight)) +
 # 构建一个 squash_axis 函数来实现坐标轴压缩功能，这个函数需要使用scales包(https://zhuanlan.zhihu.com/p/358781655)
 library(scales)
 squash_axis <- function(from, to, factor) {
-  # Args:
-  #   from: left end of the axis
-  #   to: right end of the axis
-  #   factor: the compression factor of the range [from, to]
+  # Args:from: left end of the axis；to: right end of the axis，factor: the compression factor of the range [from, to]
   trans <- function(x) {
     # get indices for the relevant regions
     isq <- x > from & x < to
@@ -648,7 +649,6 @@ squash_axis <- function(from, to, factor) {
     # get indices for the relevant regions
     isq <- x > from & x < from + (to - from) / factor
     ito <- x >= from + (to - from) / factor
-
     # apply transformation
     x[isq] <- from + (x[isq] - from) * factor
     x[ito] <- to + (x[ito] - (from + (to - from) / factor))
@@ -692,7 +692,7 @@ cowplot::plot_grid(p0, p1, p2, p3, p4, p5, p6,
   ncol = 3, labels = "AUTO"
 )
 
-# R语言绘制限制立方条图2（基于logistic回归和线性回归）
+##### R语言绘制限制立方条图2（基于logistic回归和线性回归）#####
 data1 <- read.csv("/home/wane/Desktop/TBS/TLMey/VoxelNumbers_InMachin_atlas_whole.csv")
 library(rms) # 限制性立方样条需要的包
 library(survminer) # 曲线
@@ -1032,7 +1032,7 @@ b + geom_point(shape = 17) +
     formula = formula, parse = TRUE, label.x.npc = 0.5, label.y.npc = 0.8, hjust = 0
   )
 
-# 采用多项式回归拟合并添加拟合方程
+##### 采用多项式回归拟合并添加拟合方程 #####
 # Polynomial regression. Sow equation and adjusted R2
 formula <- TLM$L2_4 ~ poly(TLM$Age, 3, raw = TRUE)
 formula <- y ~ s(x, bs = "cs")
