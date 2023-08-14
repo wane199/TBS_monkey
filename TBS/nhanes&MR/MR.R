@@ -49,7 +49,7 @@ for(i in 1:1000){
 saveRDS(df_dat_exp,"C:\\Users\\wane1\\Documents\\file\\sci\\Shuntak\\MR\\eQTL_exp_dat.rds")
 df_dat_exp <- readRDS("C:\\Users\\wane1\\Documents\\file\\sci\\Shuntak\\MR\\eQTL_exp_dat.rds")
 
-#### -一键寻找暴露因素,[提供初步筛选] ####
+##### -一键寻找暴露因素,[提供初步筛选] #####
 # 读取暴露集 [直接读取最新数据,直接提供]
 exp_data <- readRDS("exp_data_2023.4.3_p5e8_idALL.rds")
 ao <- read.csv("ao_2023.4.2.csv")
@@ -77,7 +77,7 @@ exp_data <- subset(exp_data,
 nrow(exp_data)
 
 
-# IEU在线IEU的
+# 在线IEU的
 outcome=extract_outcome_data(
   snps = unique(exp_data$SNP),
   outcomes = "ebi-a-GCST90000514", # Lung cancer UK Biobank
@@ -227,7 +227,7 @@ saveWorkbook(wb, "Example_LungCancer.xlsx",
 # mr_pleiotropy_test
 
 
-##################################################
+
 ao_outcome <- ao[grepl("epilepsy", ao$trait), ]
 View(ao_outcome)
 
