@@ -7,6 +7,7 @@
 rm(list = ls())
 library(TwoSampleMR)
 library(doParallel) # 并行
+library(MendelianRandomization)
 
 ## 两样本MR(在线提取)
 # 读取数据与统计分析
