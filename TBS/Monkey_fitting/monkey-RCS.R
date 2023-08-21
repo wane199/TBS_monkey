@@ -18,8 +18,8 @@ library(ggsci)
 options(digits = 3) # 限定输出小数点后数字的位数为3位
 theme_set(theme_classic() + theme(legend.position = "bottom"))
 # 读取数据
-dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV_gender.csv", sep = ";", fileEncoding = "GBK") # , sep = '\t'
-dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVrrefwhole_L&R.csv", fileEncoding = "GBK", sep = ";")
+dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv", sep = ";", fileEncoding = "GBK") # , sep = '\t'
+dt <- read.csv("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVr.csv", fileEncoding = "GBK", sep = ";")
 
 dt <- read.csv("C:\\Users\\Administrator\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv", fileEncoding = "GBK", sep = "\t")
 dt1 <- read.csv("C:\\Users\\Administrator\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVr.csv", fileEncoding = "GBK", sep = ",")
@@ -153,7 +153,8 @@ p1 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
   xlab("Age (year)") +
   ylab(bquote(Weight~(Kg)))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml) SUVr_refPons
   theme(
-    axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
+    axis.title = element_text(size = 13, face = "bold"),
+    axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.25, "cm"),
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
@@ -176,7 +177,8 @@ p2 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
   xlab("Age (year)") +
   ylab(bquote(Weight~(Kg)))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
   theme(
-    axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
+    axis.title = element_text(size = 13, face = "bold"),
+    axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.25, "cm"),
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
@@ -219,7 +221,8 @@ p3 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
   xlab("Age (year)") +
   ylab(bquote(Weight~(Kg)))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml) SUVr_refPons
   theme(
-    axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"), legend.position = "bottom",
+    axis.title = element_text(size = 13, face = "bold"),
+    axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.25, "cm"),
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
@@ -251,7 +254,8 @@ p4 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
   xlab("Age (year)") +
   ylab(bquote(Weight~(Kg)))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml) 
   theme(
-    axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"), legend.position = "bottom",
+    axis.title = element_text(size = 13, face = "bold"),
+    axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.25, "cm"),
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
@@ -290,7 +294,8 @@ p5 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
   xlab("Age (year)") +
   ylab(bquote(Volume~(cm^3)))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
   theme(
-    axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
+    axis.title = element_text(size = 13, face = "bold"),
+    axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.25, "cm"),
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
@@ -523,9 +528,11 @@ library("patchwork")
 wrap_plots(plot_list, byrow = T, ncol = 4) + plot_annotation(tag_levels = "a", theme = theme(plot.title = element_text(size = 16))) +
   plot_layout(guides = "collect")
 
-##### Lowess函数建立局部加权回归 #####
-model.lowess <- lowess(dt$Weight ~ dt$Age) # 建立局部加权回归
+##### Lowess/Loess函数建立局部加权回归 #####
+model.lowess <- loess(dt$Weight ~ dt$Age) # 建立局部加权回归
 summary(model.lowess) # 查看概况
+print(model.lowess)
+model.lowess$s
 # 查看拟合
 p8 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
   geom_point() +
@@ -541,7 +548,8 @@ p8 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
   xlab("Age (year)") +
   ylab(bquote(Weight~(Kg)))  + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml)
   theme(
-    axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
+    axis.title = element_text(size = 13, face = "bold"),
+    axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.25, "cm"),
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
@@ -599,7 +607,8 @@ p9 <- ggplot(dt, aes(Age, Weight)) + #  colour = Sex
   # geom_vline(xintercept = 5, colour = "#990000", linetype = "dashed") +
   stat_smooth(method = mgcv::gam, se = TRUE, formula = my.formula) +
   theme(
-    axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
+    axis.title = element_text(size = 13, face = "bold"),
+    axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.25, "cm"),
     axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
@@ -678,18 +687,18 @@ anova(model.log, model.gam)
 library(patchwork)
 p4 + p1 + p6 + plot_layout(nrow = 2, byrow = FALSE) #  从上到下
 label <- c("LM", "LOG", "SEGMENTED", "SEGMENTED2", "RCS3", "RCS4", "RCS5", "LOWESS", "GAM")
-p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9 + p10 + p11 + plot_annotation(tag_levels = list(label)) +
-  plot_layout(ncol = 3, guides = "collect") # 从左到右
+p1 + p2 + p3 + p4 + p5 + p6 + p7 + p9 + p10 + p11 + plot_annotation(tag_levels = list(label)) +
+  plot_layout(ncol = 2, guides = "collect") # 从左到右
 p4 / p5 | (p6)
 # https://zhuanlan.zhihu.com/p/384189537
 library(cowplot)
 plot_grid(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11,
-  label_size = 12,
+  label_size = 12, ncol = 2, 
   hjust = -0.2, vjust = 1.4,
-  labels = c("LM", "LOG", "SEGMENTED", "SEGMENTED2", "RCS3", "RCS4", "RCS5", "LOWESS", "GAM3","GAM4", "GAM5")
+  labels = c("LM", "LOG", "SEGMENTED", "SEGMENTED2", "RCS3", "RCS4", "RCS5", "GAM3","GAM4", "GAM5")
 )
 cowplot::plot_grid(p0, p1, p2, p3, p4, p5, p6,
-  ncol = 3, labels = "AUTO"
+  ncol = 2, labels = "AUTO"
 )
 
 ##### R语言绘制限制立方条图2（基于logistic回归和线性回归）#####
