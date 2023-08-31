@@ -6,6 +6,7 @@ library(readxl)
 library(tidyverse)
 getwd()
 
+##### 身体成分_全部整理 #####
 df0 <- read_excel('C:\\Users\\wane1\\Documents\\LYX\\excel0210\\IDXA患者名单整理.xlsx')
 
 df1 <- read_excel('C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\BIAO\\0827\\TBS.xlsx')
@@ -143,7 +144,7 @@ df_12 <- base::unique(df_234560)
 write_excel_csv(df_12, file = "C:\\Users\\wane1\\Downloads\\Most_Cited_Countries-cancat.csv")
 
 
-################################
+##### 0524代综pos #####
 rm(list = ls())
 library(tidyverse)
 library(readxl)
@@ -167,7 +168,7 @@ df_1 <- read.csv('C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\BIAO\\0524\\pos-�
 df_01 <- merge(df_0, df_1, by = c('患者姓名'))
 write_excel_csv(df_01, file = "C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\BIAO\\0524\\data-pos代综pos3.csv")
 
-######################################
+##### 0827TBS #####
 df2R <- df2  %>% filter(侧 == '右')
 df2L <- df2  %>% filter(侧 == '左')
 df_12R <- merge(df_1, df2R, by = c('姓名','性别','ID'))

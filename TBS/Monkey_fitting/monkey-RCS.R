@@ -529,12 +529,12 @@ wrap_plots(plot_list, byrow = T, ncol = 4) + plot_annotation(tag_levels = "a", t
   plot_layout(guides = "collect")
 
 ##### Lowess/Loess函数建立局部加权回归 #####
-model.lowess <- loess(dt$Weight ~ dt$Age) # 建立局部加权回归
+model.lowess <- loess(dt$SUVr_whole_refPons ~ dt$Age) # 建立局部加权回归
 summary(model.lowess) # 查看概况
 print(model.lowess)
 model.lowess$s
 # 查看拟合
-p8 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
+p8 <- ggplot(dt, aes(Age, SUVr_whole_refPons)) + # , colour = Sex
   geom_point() +
   # geom_errorbar(aes(ymin = SUVr_whole_refPons - sd, ymax = SUVr_whole_refPons + sd), width = 0.1) +
   theme_classic() +
