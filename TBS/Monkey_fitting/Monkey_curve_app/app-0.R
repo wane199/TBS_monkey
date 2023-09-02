@@ -1,4 +1,5 @@
-# #
+# https://shiny.posit.co/r/gallery/
+# https://connect.appsilon.com/DepMapV2/
 # # This is a Shiny web application. You can run the application by clicking
 # # the 'Run App' button above.
 # #
@@ -50,28 +51,46 @@
 # # Run the application 
 # shinyApp(ui = ui, server = server)
 
-library(shiny)
-library(ggplot2)
 
-datasets <- c("economics", "faithfuld", "seals")
-ui <- fluidPage(
-  selectInput("dataset", "Dataset", choices = datasets),
-  verbatimTextOutput("summary"),
-  tableOutput("plot")
+# Import libraries
+library(shiny)
+library(shinythemes)
+library(RCurl)
+library(data.table)
+library(randomForest)
+
+# Read in the RF model
+dt <- read.csv(text = getURL("https://raw.githubusercontent.com/wane199/Presentation/master/TBS/app/data/M_1018.csv"))
+
+# Read in the RF model
+# model <- readRDS("model.rds")
+
+# User interface
+
+ui <- fluidPage(theme = shinytheme("superhero"),
+                titlePanel("South China TBS app from JNU"), # Application title
+                headerPanel("Age?"), # Page header
+                textInput("name", "What's your name?"),
+                textOutput("greeting"),
+                column(3,
+                       h3("Buttons"),
+                       actionButton("action","Action"),
+                       br(),
+                       br(),
+                       submitButton("Submit"))
 )
 
 server <- function(input, output, session) {
-  dataset <- reactive({
-    get(input$dataset, "package:ggplot2")
+  output$greeting <- renderText({
+    paste0("Hello ", input$name, "!")
   })
-  output$summmry <- renderPrint({
-    summary(dataset())
-  })
-  output$plot <- renderPlot({
-    plot(dataset)
-  }, res = 96)
 }
 
-shinyApp(ui, server)
+# Run the application 
+shinyApp(ui = ui, server = server)
+
+
+
+
 
 
