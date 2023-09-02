@@ -1,7 +1,0 @@
-﻿Model,Accuracy,AUC,Recall,Prec.,F1,Kappa
-Random Forest Classifier,0.6532,0.8161,0.6532,0.6594,0.6453,0.4705
-Extra Trees Classifier,0.6448,0.8176,0.6448,0.6453,0.6323,0.4604
-Gradient Boosting Classifier,0.6405,0.8151,0.6405,0.6446,0.6362,0.4526
-Extreme Gradient Boosting,0.6405,0.7983,0.6405,0.6524,0.6327,0.4542
-K Neighbors Classifier,0.591,0.7532,0.591,0.5985,0.5759,0.3784
-Decision Tree Classifier,0.5493,0.6593,0.5493,0.576,0.5466,0.3224
