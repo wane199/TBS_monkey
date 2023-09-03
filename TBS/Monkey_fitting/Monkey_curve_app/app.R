@@ -9,12 +9,12 @@ library(ggplot2) # Create Elegant Data Visualisations Using the Grammar of Graph
 library(rms) # Regression Modeling Strategies
 library(ggpmisc) # Miscellaneous Extensions to 'ggplot2'
 library(DT) # CRAN v0.29
+library(markdown) # CRAN v1.8
 
 ##### Load datasets #####
-getwd()
 T1WI <- read.csv("./data/T1_TBV.csv", sep = ";", fileEncoding = "GBK")
 PET <- read.csv("./data/PET_SUVr.csv", sep = ";", fileEncoding = "GBK")
-T1WI_csv <- "https://raw.githubusercontent.com/wane199/TBS_monkey/master/TBS/Monkey_fitting/Monkey_curve_app/data/T1_TBV.csv"
+# T1WI_csv <- "https://raw.githubusercontent.com/wane199/TBS_monkey/master/TBS/Monkey_fitting/Monkey_curve_app/data/T1_TBV.csv"
 # T1WI <- readr::read_csv(T1WI_csv)
 # dt <- read.csv(text = getURL("https://raw.githubusercontent.com/wane199/TBS_monkey/master/TBS/Monkey_fitting/Monkey_curve_app/data/T1_TBV.csv"))
 # df <- read.csv(text = getURL("https://raw.githubusercontent.com/wane199/TBS_monkey/master/TBS/Monkey_fitting/Monkey_curve_app/data/PET_SUVr.csv"))
