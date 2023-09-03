@@ -1,4 +1,4 @@
-# Load R packages/libraries
+##### Load R packages/libraries #####
 library(shiny)
 library(shinythemes)
 library(RCurl)
@@ -7,7 +7,7 @@ library(ggplot2)
 tbs <- read.csv(text = getURL("https://raw.githubusercontent.com/wane199/TBS_monkey/master/TBS/app/data/M_1018.csv"))
 
 
-# Define UI for dataset viewer app ----
+##### Define UI for dataset viewer app #####
 ui <- fluidPage(theme = shinytheme("journal"),
   
   # App title ----
@@ -31,7 +31,7 @@ ui <- fluidPage(theme = shinytheme("journal"),
   )
 )
 
-# Define server logic to summarize and view selected dataset ----
+##### Define server logic to summarize and view selected dataset #####
 server <- function(input, output) {
           
   output$scatterplot <- renderPlot({
@@ -40,6 +40,6 @@ server <- function(input, output) {
 
 }
 
-# Create Shiny app ----
+##### Create Shiny app #####
 shinyApp(ui = ui, server = server)
 

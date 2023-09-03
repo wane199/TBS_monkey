@@ -3,7 +3,7 @@
 library(RCurl)
 library(readxl)
 url.exists(url = "www.baidu.com") # 判断url是否存在
-url.exists(url = "https://github.com/wane199/Presentation/blob/master/TBS/app/data/M_1018.csv")
+url.exists(url = "https://raw.githubusercontent.com/wane199/TBS_monkey/master/TBS/Monkey_fitting/Monkey_curve_app/data/T1_TBV.csv")
 
 d <- debugGatherer() # 收集调试信息
 tmp <- getURL(url = "www.baidu.com", debugfunction = d$update, verbose = TRUE)

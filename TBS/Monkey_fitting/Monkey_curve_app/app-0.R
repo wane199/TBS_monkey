@@ -2,95 +2,91 @@
 # https://connect.appsilon.com/DepMapV2/
 # # This is a Shiny web application. You can run the application by clicking
 # # the 'Run App' button above.
-# #
 # # Find out more about building applications with Shiny here:
-# #
-# #    http://shiny.rstudio.com/
-# #
-# 
-# library(shiny)
-# 
-# # Define UI for application that draws a histogram
-# ui <- fluidPage(
-# 
-#     # Application title
-#     titlePanel("Old Faithful Geyser Data"),
-# 
-#     # Sidebar with a slider input for number of bins 
-#     sidebarLayout(
-#         sidebarPanel(
-#             sliderInput("bins",
-#                         "Number of bins:",
-#                         min = 1,
-#                         max = 50,
-#                         value = 30)
-#         ),
-# 
-#         # Show a plot of the generated distribution
-#         mainPanel(
-#            plotOutput("distPlot")
-#         )
-#     )
-# )
-# 
-# # Define server logic required to draw a histogram
-# server <- function(input, output) {
-# 
-#     output$distPlot <- renderPlot({
-#         # generate bins based on input$bins from ui.R
-#         x    <- faithful[, 2]
-#         bins <- seq(min(x), max(x), length.out = input$bins + 1)
-# 
-#         # draw the histogram with the specified number of bins
-#         hist(x, breaks = bins, col = 'darkgray', border = 'white',
-#              xlab = 'Waiting time to next eruption (in mins)',
-#              main = 'Histogram of waiting times')
-#     })
-# }
-# 
-# # Run the application 
-# shinyApp(ui = ui, server = server)
+# http://shiny.rstudio.com/
+##### Import libraries #####
+library(shiny) # Web Application Framework for R
+library(shinythemes) # Themes for Shiny
+library(RCurl) # General Network (HTTP/FTP/...) Client Interface for R
+library(data.table) # Extension of `data.frame`
+library(ggplot2) # Create Elegant Data Visualisations Using the Grammar of Graphics
+library(rms) # Regression Modeling Strategies
+library(ggpmisc) # Miscellaneous Extensions to 'ggplot2'
 
+##### Load datasets #####
+getwd()
+T1WI <- read.csv("./data/T1_TBV.csv", sep = ";", fileEncoding = "GBK")
+PET <- read.csv("./data/PET_SUVr.csv", sep = ";", fileEncoding = "GBK")
+T1WI_csv <- "https://raw.githubusercontent.com/wane199/TBS_monkey/master/TBS/Monkey_fitting/Monkey_curve_app/data/T1_TBV.csv"
+# T1WI <- readr::read_csv(T1WI_csv)
+# dt <- read.csv(text = getURL("https://raw.githubusercontent.com/wane199/TBS_monkey/master/TBS/Monkey_fitting/Monkey_curve_app/data/T1_TBV.csv"))
+# df <- read.csv(text = getURL("https://raw.githubusercontent.com/wane199/TBS_monkey/master/TBS/Monkey_fitting/Monkey_curve_app/data/PET_SUVr.csv"))
 
-# Import libraries
-library(shiny)
-library(shinythemes)
-library(RCurl)
-library(data.table)
-library(randomForest)
-
-# Read in the RF model
-dt <- read.csv(text = getURL("https://raw.githubusercontent.com/wane199/Presentation/master/TBS/app/data/M_1018.csv"))
-
-# Read in the RF model
+T1WI <- T1WI[c(-1, -2, -3, -7)]
+T1WI$Sex <- as.factor(T1WI$Sex)
+PET <- PET[c(-1, -2, -3, -6)]
+PET$Sex <- as.factor(PET$Sex)
+# data <- list(T1WI, PET)
+##### Source helpers #####
+source("helpers.R")
+##### Read in the RF model #####
 # model <- readRDS("model.rds")
 
-# User interface
+##### Define UI for dataset viewer app/User interface #####
+ui <- fluidPage(
+  theme = shinytheme("united"), # slate united superhero
 
-ui <- fluidPage(theme = shinytheme("superhero"),
-                titlePanel("South China TBS app from JNU"), # Application title
-                headerPanel("Age?"), # Page header
-                textInput("name", "What's your name?"),
-                textOutput("greeting"),
-                column(3,
-                       h3("Buttons"),
-                       actionButton("action","Action"),
-                       br(),
-                       br(),
-                       submitButton("Submit"))
+  # App title ----
+  titlePanel("Brain development of the cynomolgus monkey lifespan from JNU"), # Application title
+
+  # Sidebar layout with a input and output definitions ----
+  sidebarLayout(
+
+    # Sidebar panel for inputs ----
+    sidebarPanel(
+
+      # Input: Selector for choosing dataset ----
+      selectInput("dataset", "Select dataset:", choices = c("T1WI", "PET")),
+      selectInput(inputId = "si1", label = "Select y axis", choices = colnames(T1WI)[c(-1, -2)]),
+      br(),
+      img(src = "https://ts1.cn.mm.bing.net/th/id/R-C.c80600d38debc68a12b4b566886c8216?rik=bTkNEfTXK0fisg&riu=http%3a%2f%2fpicture.swwy.com%2fY2UzZDljYTQxNjhmNDI.jpg&ehk=WYS7zLiw1qw9kNUCW14LEMFnE2n0sOPMwjkmxBh71%2fs%3d&risl=&pid=ImgRaw&r=0&sres=1&sresct=1",
+          height = 120, width = 275),
+      ),
+
+
+    # Main panel for displaying outputs ----
+    mainPanel(
+      plotOutput(outputId = "line_plot"),
+    ),
+  #   tabPanel("About",
+  #            titlePanel("About"),
+  #            div(includeMarkdown("./about.md"),
+  #                align="justify")
+  # )
+  )
 )
 
-server <- function(input, output, session) {
-  output$greeting <- renderText({
-    paste0("Hello ", input$name, "!")
+##### Define server logic to summarize and view selected dataset #####
+server <- function(input, output) {
+  output$line_plot <- renderPlot({
+    ggplot(T1WI, aes(x = Age, y = .data[[input$si1]], colour = Sex)) +
+      geom_point(aes(colour = Sex, shape = Sex), alpha = 1.0, size = 2.5) +
+      theme_classic() +
+      stat_smooth(method = lm, formula = y ~ rcs(x, 5)) +
+      scale_x_continuous(breaks = seq(0, 30, 1)) +
+      stat_poly_eq(
+        aes(label = paste(after_stat(eq.label), after_stat(adj.rr.label), sep = "~~~~")),
+        formula = y ~ rcs(x, 5), parse = TRUE
+      ) +
+      xlab("Age (year)") +
+      ylab(bquote(Volume ~ (cm^3))) + # Volume~(cm^3) Weight~(Kg) TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml) SUVr_refPons
+      theme(
+        axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
+        axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
+        axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
+      )
   })
 }
 
-# Run the application 
+##### Create Shiny app #####
 shinyApp(ui = ui, server = server)
-
-
-
-
-
-
