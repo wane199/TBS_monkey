@@ -1,9 +1,5 @@
 # https://shiny.posit.co/r/gallery/
 # https://connect.appsilon.com/DepMapV2/
-# # This is a Shiny web application. You can run the application by clicking
-# # the 'Run App' button above.
-# # Find out more about building applications with Shiny here:
-# http://shiny.rstudio.com/
 ##### Import libraries #####
 library(shiny) # Web Application Framework for R
 library(shinythemes) # Themes for Shiny
@@ -12,6 +8,7 @@ library(data.table) # Extension of `data.frame`
 library(ggplot2) # Create Elegant Data Visualisations Using the Grammar of Graphics
 library(rms) # Regression Modeling Strategies
 library(ggpmisc) # Miscellaneous Extensions to 'ggplot2'
+library(DT) # CRAN v0.29
 
 ##### Load datasets #####
 getwd()
@@ -22,9 +19,7 @@ T1WI_csv <- "https://raw.githubusercontent.com/wane199/TBS_monkey/master/TBS/Mon
 # dt <- read.csv(text = getURL("https://raw.githubusercontent.com/wane199/TBS_monkey/master/TBS/Monkey_fitting/Monkey_curve_app/data/T1_TBV.csv"))
 # df <- read.csv(text = getURL("https://raw.githubusercontent.com/wane199/TBS_monkey/master/TBS/Monkey_fitting/Monkey_curve_app/data/PET_SUVr.csv"))
 
-T1WI <- T1WI[c(-1, -2, -3, -7)]
 T1WI$Sex <- as.factor(T1WI$Sex)
-PET <- PET[c(-1, -2, -3, -6)]
 PET$Sex <- as.factor(PET$Sex)
 # data <- list(T1WI, PET)
 ##### Source helpers #####
@@ -35,40 +30,101 @@ source("helpers.R")
 ##### Define UI for dataset viewer app/User interface #####
 ui <- navbarPage("Brain development of the cynomolgus monkey lifespan from JNU",
   theme = shinytheme("cosmo"), # slate united superhero united
-  tabPanel("Growth trajectory curves",
-  # App title ----
-  # titlePanel("Brain development of the cynomolgus monkey lifespan from JNU"), # Application title
+  tabPanel(
+    "Growth trajectory curves",
+    # App title ----
+    # titlePanel("Brain development of the cynomolgus monkey lifespan from JNU"), # Application title
 
-  # Sidebar layout with a input and output definitions ----
-  sidebarLayout(
-
-    # Sidebar panel for inputs ----
-    sidebarPanel(
-
-      # Input: Selector for choosing dataset ----
-      selectInput("dataset", "Select dataset:", choices = c("T1WI", "PET")),
-      selectInput(inputId = "si1", label = "Select y axis", choices = colnames(T1WI)[c(-1, -2)]),
-      br(),
-      img(src = "https://ts1.cn.mm.bing.net/th/id/R-C.c80600d38debc68a12b4b566886c8216?rik=bTkNEfTXK0fisg&riu=http%3a%2f%2fpicture.swwy.com%2fY2UzZDljYTQxNjhmNDI.jpg&ehk=WYS7zLiw1qw9kNUCW14LEMFnE2n0sOPMwjkmxBh71%2fs%3d&risl=&pid=ImgRaw&r=0&sres=1&sresct=1",
-          height = 135, width = 275),
+    # Sidebar layout with a input and output definitions ----
+    sidebarLayout(
+      # Sidebar panel for inputs ----
+      sidebarPanel(
+        # Input: Selector for choosing dataset ----
+        selectInput(inputId = "dataset", label = "Select dataset:", choices = list("T1WI" = "T1WI", "PET" = "PET"), selected = NULL),
+        selectInput(inputId = "variable", label = "Select variable:", choices = c(var.opts)), # colnames(T1WI)[c(-1, -2)] c("Weight","TBV","TBV.BW","whole","SUVr_whole_refPons","SUV_Whole")
+        br(),
+        img(
+          src = "https://ts1.cn.mm.bing.net/th/id/R-C.c80600d38debc68a12b4b566886c8216?rik=bTkNEfTXK0fisg&riu=http%3a%2f%2fpicture.swwy.com%2fY2UzZDljYTQxNjhmNDI.jpg&ehk=WYS7zLiw1qw9kNUCW14LEMFnE2n0sOPMwjkmxBh71%2fs%3d&risl=&pid=ImgRaw&r=0&sres=1&sresct=1",
+          height = 135, width = 275
+        ),
       ),
 
-    # Main panel for displaying outputs ----
-    mainPanel(
+      # Main panel for displaying outputs ----
+      mainPanel(
         plotOutput(outputId = "line_plot"),
-    )),
+        verbatimTextOutput("summary"),
+      )
+    ),
   ),
-  tabPanel("About",
-           titlePanel("About"),
-           div(includeMarkdown("./data/about.md"),
-               align="justify")
-           )
+  tabPanel(
+    "Dataset display",
+    DT::dataTableOutput("dis")
+  ),
+  tabPanel(
+    "About",
+    titlePanel(""),
+    div(includeMarkdown("./data/about.md"),
+      align = "justify"
+    )
+  )
 )
 
 ##### Define server logic to summarize and view selected dataset #####
-server <- function(input, output) {
+server <- function(input, output, session) {
+  datasetInput <- reactive({
+    switch(input$dataset,
+      "T1WI" = T1WI,
+      "PET" = PET
+    )
+  })
+
+  observe({
+    if (!exists(input$dataset)) {
+      return()
+    } # make sure upload exists
+    var.opts <- colnames(datasetInput)
+    updateSelectInput(session, "variable", choices = var.opts)
+  })
+  # get data object
+  get_data <- reactive({
+    if (!exists(input$dataset)) {
+      return()
+    } # if no upload
+    check <- function(x) {
+      is.null(x) || x == ""
+    }
+    if (check(input$dataset)) {
+      return()
+    }
+    obj <- list(
+      data = get(input$dataset),
+      variable = input$variable
+    )
+    # require all to be set to proceed
+    if (any(sapply(obj, check))) {
+      return()
+    }
+    # make sure choices had a chance to update
+    check <- function(obj) {
+      !all(c(obj$variable) %in% colnames(obj$data))
+    }
+    if (check(obj)) {
+      return()
+    }
+    obj
+  })
+
+  output$summary <- renderPrint({
+    dataset <- datasetInput()
+    summary(dataset)
+  })
+
+  output$dis <- DT::renderDataTable(
+    DT::datatable(datasetInput(), options = list(pageLength = 25))
+  )
+
   output$line_plot <- renderPlot({
-    ggplot(T1WI, aes(x = Age, y = .data[[input$si1]], colour = Sex)) +
+    ggplot(datasetInput(), aes(x = Age, y = .data[[input$variable]], colour = Sex)) +
       geom_point(aes(colour = Sex, shape = Sex), alpha = 1.0, size = 2.5) +
       theme_classic() +
       stat_smooth(method = lm, formula = y ~ rcs(x, 5)) +
@@ -78,7 +134,7 @@ server <- function(input, output) {
         formula = y ~ rcs(x, 5), parse = TRUE
       ) +
       xlab("Age (year)") +
-      ylab(bquote(Volume ~ (cm^3))) + # Volume~(cm^3) Weight~(Kg) TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml) SUVr_refPons
+      ylab(input$variable) +
       theme(
         axis.text = element_text(size = 10, face = "bold"), axis.ticks.length = unit(-0.15, "cm"),
         axis.text.x = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm")),
