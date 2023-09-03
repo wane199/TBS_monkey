@@ -1,8 +1,8 @@
 #### References
-1.
+1. 
 2.
 
 ### Developers
-- Zhiqiang Tan,;
+- Zhiqiang Tan, zq_tan@foxmail.com;
 - Huanhua Wu, wane199@outlook.com;
 - Hao Xu, txh@jnu.edu.cn.

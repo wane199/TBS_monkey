@@ -33,11 +33,11 @@ source("helpers.R")
 # model <- readRDS("model.rds")
 
 ##### Define UI for dataset viewer app/User interface #####
-ui <- fluidPage(
-  theme = shinytheme("united"), # slate united superhero
-
+ui <- navbarPage("Brain development of the cynomolgus monkey lifespan from JNU",
+  theme = shinytheme("cosmo"), # slate united superhero united
+  tabPanel("Growth trajectory curves",
   # App title ----
-  titlePanel("Brain development of the cynomolgus monkey lifespan from JNU"), # Application title
+  # titlePanel("Brain development of the cynomolgus monkey lifespan from JNU"), # Application title
 
   # Sidebar layout with a input and output definitions ----
   sidebarLayout(
@@ -50,20 +50,19 @@ ui <- fluidPage(
       selectInput(inputId = "si1", label = "Select y axis", choices = colnames(T1WI)[c(-1, -2)]),
       br(),
       img(src = "https://ts1.cn.mm.bing.net/th/id/R-C.c80600d38debc68a12b4b566886c8216?rik=bTkNEfTXK0fisg&riu=http%3a%2f%2fpicture.swwy.com%2fY2UzZDljYTQxNjhmNDI.jpg&ehk=WYS7zLiw1qw9kNUCW14LEMFnE2n0sOPMwjkmxBh71%2fs%3d&risl=&pid=ImgRaw&r=0&sres=1&sresct=1",
-          height = 120, width = 275),
+          height = 135, width = 275),
       ),
-
 
     # Main panel for displaying outputs ----
     mainPanel(
-      plotOutput(outputId = "line_plot"),
-    ),
-  #   tabPanel("About",
-  #            titlePanel("About"),
-  #            div(includeMarkdown("./about.md"),
-  #                align="justify")
-  # )
-  )
+        plotOutput(outputId = "line_plot"),
+    )),
+  ),
+  tabPanel("About",
+           titlePanel("About"),
+           div(includeMarkdown("./data/about.md"),
+               align="justify")
+           )
 )
 
 ##### Define server logic to summarize and view selected dataset #####
