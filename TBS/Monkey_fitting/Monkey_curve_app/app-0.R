@@ -41,7 +41,7 @@ ui <- navbarPage("Brain development of the cynomolgus monkey lifespan from JNU",
       sidebarPanel(
         # Input: Selector for choosing dataset ----
         selectInput(inputId = "dataset", label = "Select dataset:", choices = list("T1WI" = "T1WI", "PET" = "PET"), selected = NULL),
-        selectInput(inputId = "variable", label = "Select variable:", choices = c(var.opts)), # colnames(T1WI)[c(-1, -2)] c("Weight","TBV","TBV.BW","whole","SUVr_whole_refPons","SUV_Whole")
+        selectInput(inputId = "variable", label = "Select variable:", choices = NULL), # colnames(T1WI)[c(-1, -2)] c("Weight","TBV","TBV.BW","whole","SUVr_whole_refPons","SUV_Whole")
         br(),
         img(
           src = "https://ts1.cn.mm.bing.net/th/id/R-C.c80600d38debc68a12b4b566886c8216?rik=bTkNEfTXK0fisg&riu=http%3a%2f%2fpicture.swwy.com%2fY2UzZDljYTQxNjhmNDI.jpg&ehk=WYS7zLiw1qw9kNUCW14LEMFnE2n0sOPMwjkmxBh71%2fs%3d&risl=&pid=ImgRaw&r=0&sres=1&sresct=1",
@@ -78,45 +78,14 @@ server <- function(input, output, session) {
     )
   })
 
-  observe({
-    if (!exists(input$dataset)) {
-      return()
-    } # make sure upload exists
-    var.opts <- colnames(datasetInput)
-    updateSelectInput(session, "variable", choices = var.opts)
-  })
-  # get data object
-  get_data <- reactive({
-    if (!exists(input$dataset)) {
-      return()
-    } # if no upload
-    check <- function(x) {
-      is.null(x) || x == ""
-    }
-    if (check(input$dataset)) {
-      return()
-    }
-    obj <- list(
-      data = get(input$dataset),
-      variable = input$variable
-    )
-    # require all to be set to proceed
-    if (any(sapply(obj, check))) {
-      return()
-    }
-    # make sure choices had a chance to update
-    check <- function(obj) {
-      !all(c(obj$variable) %in% colnames(obj$data))
-    }
-    if (check(obj)) {
-      return()
-    }
-    obj
-  })
-
   output$summary <- renderPrint({
     dataset <- datasetInput()
     summary(dataset)
+  })
+
+  observe({
+    var.opts <- colnames(datasetInput()[c(-1, -2)])
+    updateSelectInput(session, "variable", choices = var.opts)
   })
 
   output$dis <- DT::renderDataTable(
