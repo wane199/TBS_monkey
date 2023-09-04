@@ -42,7 +42,17 @@ ui <- navbarPage("Brain development of the cynomolgus monkey lifespan from JNU",
         # Input: Selector for choosing dataset ----
         selectInput(inputId = "dataset", label = "Select dataset:", choices = list("T1WI" = "T1WI", "PET" = "PET"), selected = NULL),
         selectInput(inputId = "variable", label = "Select variable:", choices = NULL), # colnames(T1WI)[c(-1, -2)] c("Weight","TBV","TBV.BW","whole","SUVr_whole_refPons","SUV_Whole")
+        # Horizontal line ----
+        tags$hr(),
+        # 添加一个用于输入x值的textInput
+        sliderInput("x", "Age of cynomolgus monkey:", value = 1, min = 0, max = 30,
+                    step = 1, animate = T),
+        # actionButton('add', 'Predict'),
+        uiOutput('vy'),
+        htmlOutput('yvalue'),
         br(),
+        helpText('*Input the age of cynomolgus monkey, the relative parameter of brain will be shown above'),
+        br(), br(),
         img(
           src = "https://ts1.cn.mm.bing.net/th/id/R-C.c80600d38debc68a12b4b566886c8216?rik=bTkNEfTXK0fisg&riu=http%3a%2f%2fpicture.swwy.com%2fY2UzZDljYTQxNjhmNDI.jpg&ehk=WYS7zLiw1qw9kNUCW14LEMFnE2n0sOPMwjkmxBh71%2fs%3d&risl=&pid=ImgRaw&r=0&sres=1&sresct=1",
           height = 135, width = 275
@@ -88,6 +98,14 @@ server <- function(input, output, session) {
     updateSelectInput(session, "variable", choices = var.opts)
   })
 
+  output$vy <- renderText({
+    paste('Predicted value of', input$variable, ':')
+  })
+  
+  output$yvalue <- renderPrint({
+    
+  })
+  
   output$dis <- DT::renderDataTable(
     DT::datatable(datasetInput(), options = list(pageLength = 25))
   )
