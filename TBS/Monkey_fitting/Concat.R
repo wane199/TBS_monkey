@@ -177,6 +177,89 @@ df_12R34 <- merge(df_12R3, df4, by = c('姓名','性别'))
 write_excel_csv(df_12R34, file = "C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\BIAO\\0827\\TBS_股骨右_脊椎_科室.csv")
 
 
+##### 样本量计算 #####
+# pwr | 谁说样本量计算是个老大难问题！？（三）（配对样本与非等比样本篇）(https://zhuanlan.zhihu.com/p/596431672)
+rm(list = ls())
+library(pwr)
+library(tidyverse)
+
+# 4.1 计算Cohen’s d
+mu_x <- 130     ### Baseline体重均值
+mu_y <- 125     ### diet后体重均值
+
+sd_x <- 11      ### Basline体重SD
+sd_y <- 12      ### diet后体重SD
+
+rho <- 0.5      ### diet前后相关性
+
+sd_z <- sqrt(sd_x^2 + sd_y^2 - 2*rho*sd_x*sd_y)
+
+d_z <- abs(mu_x - mu_y) / sd_z
+d_z
+
+# 4.2 pwr计算样本量
+n.paired <- pwr.t.test(d = d_z, power = 0.80, sig.level = 0.05, type = "paired")
+n.paired
+
+# Power Analysis
+# 效力分析（Power Analysis），配对t检验的样本量变化对power的影响吧。与之前的示例一样，随着我们增加样本量，估算的不确定性也随之减小。通过减少这种不确定性，我们在估算中更好地避免了II类错误。
+n_z <- seq(1, 80, 5)
+n_z.change <- pwr.t.test(d = d_z, n = n_z, sig.level = 0.05, type = "paired")
+n_z.change.df <- data.frame(n_z, power = n_z.change$power * 100)
+n_z.change.df
+
+plot(n_z.change.df$n, 
+     n_z.change.df$power, 
+     type = "b", 
+     xlab = "Sample size, n", 
+     ylab = "Power (%)")
+
+# 改变effect size时power如何变化。改一下患者节食导致的平均体重变化，看看减少到100磅时power如何变化。这里我们从50磅开始，逐渐增加到130磅，间隔5磅。
+mu_y <- seq(50, 130, 5)
+
+d_z <- abs(mu_x - mu_y) / sd_z
+
+n_z.change <- pwr.t.test(d = d_z, n = 44, sig.level = 0.05)
+n_z.change.df <- data.frame(d_z, power = n_z.change$power * 100)
+n_z.change.df
+
+plot(n_z.change.df$d_z, 
+     n_z.change.df$power, 
+     type = "b", 
+     xlab = "Cohen's d_z", 
+     ylab = "Power (%)",
+     xlim = c(0, 2))
+
+## 不等比样本量的Power Analysis
+# 7.1 计算并合标准偏差
+# 首先我们计算一下并合标准偏差(pooled standard deviation, σpooled)。
+sd1 <- 1.25
+sd2 <- 1.01
+sd_pooled <- sqrt((sd1^2 +sd2^2) / 2)
+sd_pooled
+
+# 7.2 计算Cohen’s d
+mu1 <- 1.5
+mu2 <- 1.4
+d <- (mu1 - mu2) / sd_pooled
+d
+
+# 7.3 Power Analysis
+n1 <- 130
+n2 <- 120
+
+power.diff_n <- pwr.t2n.test(d = d, n1 = n1, n2 = n2, sig.level = 0.05)
+power.diff_n
+
+
+
+
+
+
+
+
+
+
 
 
 
