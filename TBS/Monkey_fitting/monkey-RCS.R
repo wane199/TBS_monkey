@@ -3,18 +3,18 @@
 # https://mp.weixin.qq.com/s?__biz=MzI1NjM3NTE1NQ==&mid=2247484446&idx=1&sn=487c68752949698fea9102b15fc5d2c0&chksm=ea26e402dd516d14667cc1171151d3c1527e9a32fed6f390813d31ddb87dac815a50b4194735&mpshare=1&scene=1&srcid=0612zm7B4uWhTaFCwvNQLrEs&sharer_sharetime=1655014649840&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd
 ##### 加载包 #####
 rm(list = ls())
-library(ggplot2)
-library(segmented)
+library(ggplot2)      # CRAN v3.4.3 
+library(segmented)    # CRAN v1.6-4 
 library(splines)
-library(Hmisc)
-library(rms)
-library(mgcv)
-library(caret)
-library(readxl)
-library(dlookr)
-library(DataExplorer)
-library(ggpmisc)
-library(ggsci)
+library(Hmisc)        # CRAN v5.1-0
+library(rms)          # CRAN v6.7-0 
+library(mgcv)         # CRAN v1.9-0
+library(caret)        # CRAN v6.0-94
+library(readxl)       # CRAN v1.4.3
+library(dlookr)       # CRAN v0.6.2
+library(DataExplorer) # CRAN v0.8.2
+library(ggpmisc)      # CRAN v0.5.4-1 
+library(ggsci)        # CRAN v3.0.0 
 options(digits = 3) # 限定输出小数点后数字的位数为3位
 theme_set(theme_classic() + theme(legend.position = "bottom"))
 # 读取数据
@@ -30,13 +30,13 @@ dt$Side <- as.factor(dt$Side)
 summary(dt)
 
 ##### 数据预处理 #####
-library(gt)
-library(dplyr)
+library(gt)           # CRAN v0.9.0
+library(dplyr)        # CRAN v1.1.2 
 dt %>%
   slice_head(n = 4) %>%
   gt() # print output using gt
 glimpse(dt)
-library(visdat)
+library(visdat)       # CRAN v0.6.0
 vis_dat(dt, palette = "qual") # cb_safe
 
 dt %>%
@@ -79,7 +79,7 @@ TLM <- TLM[, 10:15]
 create_report(TLM)
 
 # 异常值检测, Draws Overview of Outliers (O3) Plots
-library(OutliersO3)
+library(OutliersO3)   # CRAN v0.6.3
 boxplot(TLM$volume)
 d <- as.data.frame(TLM[c(3, 6:7)])
 car::outlierTest(TLM$volume)
@@ -103,7 +103,7 @@ a3$gO3
 a3$outsTable
 
 # 雨云图(Raincloud)
-library(ggdist)
+library(ggdist)       # CRAN v3.3.0
 TLM <- TLM[c(-1, -3)]
 # pdf("/media/wane/wade/EP/EPTLE_PET/CN_PET_csv/raincloud.pdf",width=20, height=10)
 ggplot(data = TLM, aes(y = L2_4, x = factor(Group), fill = factor(Group))) +
@@ -192,7 +192,7 @@ ggplot(dt, aes(Age, Weight)) +
 
 ##### 建立分段回归模型 #####
 # https://blog.csdn.net/weixin_40575651/article/details/107575012
-library(segmented)
+library(segmented)    # CRAN v1.6-4 
 model.segmented <- segmented(model.lm, seg.Z = ~Age) # 构建分段回归模型
 summary(model.segmented) # 查看模型概况
 slope(model.segmented) # the slopes of the segmented relationship
@@ -302,7 +302,7 @@ p5 <- ggplot(dt, aes(Age, Weight)) + # , colour = Sex
 p5
 
 # 设定数据环境
-library(dplyr)
+library(dplyr)        # CRAN v1.1.2 
 str(dt)
 M <- dt %>% filter(Sex == "M")
 Fe <- dt %>% filter(Sex == "F")
@@ -430,7 +430,7 @@ p51 <- ggplot(dt, aes(Age, Weight, colour = Sex)) +
     axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
   )
 
-library(patchwork) # 拼图
+library(patchwork)    # CRAN v1.1.3 # 拼图
 H12 + H22 + H32 + H42 + H52 + H62 + plot_annotation(tag_levels = "a", theme = theme(plot.title = element_text(size = 16))) + plot_layout(ncol = 3) +
   plot_layout(guides = "collect") -> D2
 D2
@@ -524,7 +524,7 @@ for (i in 3:ncol(dt)) {
 }
 
 # 拼图
-library("patchwork")
+library("patchwork")  # CRAN vNA
 wrap_plots(plot_list, byrow = T, ncol = 4) + plot_annotation(tag_levels = "a", theme = theme(plot.title = element_text(size = 16))) +
   plot_layout(guides = "collect")
 
@@ -556,7 +556,7 @@ p8 <- ggplot(dt, aes(Age, SUVr_whole_refPons)) + # , colour = Sex
 p8
 
 # rcssci(linear models with RCS splines were performed to explore the shape linear or nonlinear(U, inverted U,J,S,L,log,-log,temporary plateau shape)
-library(rcssci)
+library(rcssci)       # CRAN v0.4.0
 data <- sbpdata
 rcssci_linear(
   data = sbpdata, y = "sbp", x = "age", covs = c("status", "gender"), time = "time", ref.zero = F,
@@ -575,8 +575,8 @@ data.frame(
   R2 = R2(pr.gam, dt$Weight)
 )
 # 查看模型拟合情况
-library(ggpmisc)
-library(ggpubr)
+library(ggpmisc)      # CRAN v0.5.4-1 
+library(ggpubr)       # CRAN v0.6.0 
 my.formula <- y ~ s(x, k=3, bs = "cs")
 ggplot(dt, aes(Age, Weight)) +
   geom_point() +
@@ -642,7 +642,7 @@ ggplot(dt.summary, aes(Age, Weight)) +
   )
 
 # 构建一个 squash_axis 函数来实现坐标轴压缩功能，这个函数需要使用scales包(https://zhuanlan.zhihu.com/p/358781655)
-library(scales)
+library(scales)       # CRAN v1.2.1 
 squash_axis <- function(from, to, factor) {
   # Args:from: left end of the axis；to: right end of the axis，factor: the compression factor of the range [from, to]
   trans <- function(x) {
@@ -684,14 +684,14 @@ concurvity(model.gam, full = F)
 anova(model.log, model.gam)
 
 # https://cloud.tencent.com/developer/article/1972411
-library(patchwork)
+library(patchwork)    # CRAN v1.1.3
 p4 + p1 + p6 + plot_layout(nrow = 2, byrow = FALSE) #  从上到下
 label <- c("LM", "LOG", "SEGMENTED", "SEGMENTED2", "RCS3", "RCS4", "RCS5", "LOWESS", "GAM")
 p1 + p2 + p3 + p4 + p5 + p6 + p7 + p9 + p10 + p11 + plot_annotation(tag_levels = list(label)) +
   plot_layout(ncol = 2, guides = "collect") # 从左到右
 p4 / p5 | (p6)
 # https://zhuanlan.zhihu.com/p/384189537
-library(cowplot)
+library(cowplot)      # CRAN v1.1.1 
 plot_grid(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11,
   label_size = 12, ncol = 2, 
   hjust = -0.2, vjust = 1.4,
@@ -703,10 +703,10 @@ cowplot::plot_grid(p0, p1, p2, p3, p4, p5, p6,
 
 ##### R语言绘制限制立方条图2（基于logistic回归和线性回归）#####
 data1 <- read.csv("/home/wane/Desktop/TBS/TLMey/VoxelNumbers_InMachin_atlas_whole.csv")
-library(rms) # 限制性立方样条需要的包
+library(rms)          # CRAN v6.7-0 # 限制性立方样条需要的包
 library(survminer) # 曲线
-library(ggplot2) # 画图
-library(ggsci) # 调色板 作者：data小白 https://www.bilibili.com/read/cv16417407?spm_id_from=333.999.0.0
+library(ggplot2)      # CRAN v3.4.3 # 画图
+library(ggsci)        # CRAN v3.0.0 # 调色板 作者：data小白 https://www.bilibili.com/read/cv16417407?spm_id_from=333.999.0.0
 library(splines)
 
 names(TLM)
@@ -824,9 +824,9 @@ ggplot(TLM, aes(LM_L3, TLM, fill = Gender, color = Gender, Group = Gender)) +
   geom_point(shape = 21, size = 4, col = "black") +
   stat_smooth(method = lm, aes(color = Gender), formula = y ~ rcs(x, 3)) ## 分组表示
 
-library(ggpubr)
-library(ggsci)
-library(cowplot)
+library(ggpubr)       # CRAN v0.6.0
+library(ggsci)        # CRAN v3.0.0
+library(cowplot)      # CRAN v1.1.1 
 str(TLM$Gender)
 ggplot(TLM, aes(x = LM_L3, y = TLM, color = Gender)) +
   geom_point(aes(color = Gender), size = 5) +
@@ -841,10 +841,10 @@ ggplot(dt, aes(x = Age, y = whole, color = Sex)) +
 
 
 # 平滑曲线与阈值效应分析——RCS(https://cran.r-project.org/web/packages/ggrcs/vignettes/ggrcs_vignette.html)
-library(rms)
-library(ggplot2)
-library(scales)
-library(ggrcs)
+library(rms)          # CRAN v6.7-0
+library(ggplot2)      # CRAN v3.4.3
+library(scales)       # CRAN v1.2.1
+library(ggrcs)        # CRAN v0.3.0
 
 dt <- read.csv("C:\\Users\\wane\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\T1_TBV.csv", sep = ";", fileEncoding = "GBK") # , sep = '\t'
 dt <- read.csv("C:\\Users\\wane\\Documents\\file\\TBS&Mon\\Monkey\\QIANG\\0417\\PET_SUVr.csv", sep = ";", fileEncoding = "GBK")
@@ -964,7 +964,7 @@ abline(v = cut_off, col = "black", lty = 2)
 
 
 ##### gamlss #####
-library(gamlss) 
+library(gamlss)       # CRAN v5.4-18 
 data(aids)
 a <- gamlss(y ~ pb(x) + qrt, family = PO, data = aids)
 summary(a)
@@ -977,7 +977,7 @@ plot(mod)
 
 ##### Same plot with custom colors #####
 # our own (very beta) plot package: details later
-library(WVPlots)
+library(WVPlots)      # CRAN v1.3.7
 ScatterHist(dt, "Age", "TBV",
   smoothmethod = "gam",
   # annot_size=2,
@@ -996,10 +996,10 @@ WVPlots::ScatterHist(dt, "Age", "TBV",
 ) # lighter purple
 
 
-# [绘制散点相关图并自动添加相关系数和拟合方程](https://blog.csdn.net/zhouhucheng00/article/details/106413401/?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-0--blog-112583698.pc_relevant_3mothn_strategy_recovery&spm=1001.2101.3001.4242.1&utm_relevant_index=3)
-library(ggplot2)
-library(ggpubr)
-library(ggpmisc)
+                      # [绘制散点相关图并自动添加相关系数和拟合方程](https://blog.csdn.net/zhouhucheng00/article/details/106413401/?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-0--blog-112583698.pc_relevant_3mothn_strategy_recovery&spm=1001.2101.3001.4242.1&utm_relevant_index=3)
+library(ggplot2)      # CRAN v3.4.3
+library(ggpubr)       # CRAN v0.6.0
+library(ggpmisc)      # CRAN v0.5.4-1
 theme_set(ggpubr::theme_pubr() +
   theme(legend.position = "top"))
 

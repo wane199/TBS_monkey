@@ -7,6 +7,7 @@ library(RCurl) # General Network (HTTP/FTP/...) Client Interface for R
 library(data.table) # Extension of `data.frame`
 library(ggplot2) # Create Elegant Data Visualisations Using the Grammar of Graphics
 library(rms) # Regression Modeling Strategies
+library(splines)
 library(ggpmisc) # Miscellaneous Extensions to 'ggplot2'
 library(DT) # CRAN v0.29
 library(markdown) # CRAN v1.8
@@ -20,7 +21,9 @@ PET <- read.csv("./data/PET_SUVr.csv", sep = ";", fileEncoding = "GBK")
 # df <- read.csv(text = getURL("https://raw.githubusercontent.com/wane199/TBS_monkey/master/TBS/Monkey_fitting/Monkey_curve_app/data/PET_SUVr.csv"))
 
 T1WI$Sex <- as.factor(T1WI$Sex)
+T1WI$Age <- as.numeric(T1WI$Age)
 PET$Sex <- as.factor(PET$Sex)
+PET$Age <- as.numeric(PET$Age)
 # data <- list(T1WI, PET)
 ##### Source helpers #####
 source("helpers.R")
@@ -44,27 +47,29 @@ ui <- navbarPage("Brain development of the cynomolgus monkey lifespan from JNU",
         selectInput(inputId = "variable", label = "Select variable:", choices = NULL), # colnames(T1WI)[c(-1, -2)] c("Weight","TBV","TBV.BW","whole","SUVr_whole_refPons","SUV_Whole")
         # Horizontal line ----
         tags$hr(),
+        br(),
         # 添加一个用于输入x值的textInput
-        sliderInput("x", "Age of cynomolgus monkey:", value = 1, min = 0, max = 30,
+        sliderInput("xval", "Age of cynomolgus monkey:", value = 1, min = 0, max = 30,
                     step = 1, animate = T),
         # actionButton('add', 'Predict'),
         uiOutput('vy'),
-        htmlOutput('yvalue'),
+        verbatimTextOutput(outputId = "prediction"),
         br(),
-        helpText('*Input the age of cynomolgus monkey, the relative parameter of brain will be shown above'),
-        br(), br(),
+        helpText('*Input the age of cynomolgus monkey, the relative parameter of brain will be shown in the box above'),
+        tags$hr(),
+        br(), 
         img(
           src = "https://ts1.cn.mm.bing.net/th/id/R-C.c80600d38debc68a12b4b566886c8216?rik=bTkNEfTXK0fisg&riu=http%3a%2f%2fpicture.swwy.com%2fY2UzZDljYTQxNjhmNDI.jpg&ehk=WYS7zLiw1qw9kNUCW14LEMFnE2n0sOPMwjkmxBh71%2fs%3d&risl=&pid=ImgRaw&r=0&sres=1&sresct=1",
           height = 135, width = 275
-        ),
+        )
       ),
 
       # Main panel for displaying outputs ----
       mainPanel(
         plotOutput(outputId = "line_plot"),
-        verbatimTextOutput("summary"),
+        verbatimTextOutput("summary")
       )
-    ),
+    )
   ),
   tabPanel(
     "Dataset display",
@@ -81,11 +86,13 @@ ui <- navbarPage("Brain development of the cynomolgus monkey lifespan from JNU",
 
 ##### Define server logic to summarize and view selected dataset #####
 server <- function(input, output, session) {
-  datasetInput <- reactive({
-    switch(input$dataset,
-      "T1WI" = T1WI,
-      "PET" = PET
-    )
+  # datasetInput <- reactive({
+  #   switch(input$dataset,
+  #     "T1WI" = T1WI,
+  #     "PET" = PET)
+  # })
+  datasetInput  <- reactive({
+    get(input$dataset)
   })
 
   output$summary <- renderPrint({
@@ -100,10 +107,6 @@ server <- function(input, output, session) {
 
   output$vy <- renderText({
     paste('Predicted value of', input$variable, ':')
-  })
-  
-  output$yvalue <- renderPrint({
-    
   })
   
   output$dis <- DT::renderDataTable(
@@ -128,6 +131,20 @@ server <- function(input, output, session) {
         axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
       )
   })
+  
+  # output$prediction <- renderPrint({
+  #   model <- lm(formula(paste(input$variable, "~", "rcs", "(", names(datasetInput())[1], ",", "df = 5)", sep = "")), data = datasetInput())
+  #   prediction <- predict(model, input$xval)
+  #   prediction
+  # })
+  # output$prediction <- renderPrint({
+  #   x <- data.frame(names(datasetInput())[1] == input$xval)
+  #   x_rcs <- predict(rcs(x,5), type = "lpmatrix")
+  #   y <- as.matrix(datasetInput()[, input$variable, drop = FALSE])
+  #   model <- lm(y ~ x_rcs)
+  #   prediction <- predict(model, newdata = as.numeric(input$xval))
+  #   prediction
+  # })
 }
 
 ##### Create Shiny app #####
