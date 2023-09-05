@@ -1,9 +1,9 @@
 # R语言一次性读入多个excel文件然后根据指定的列批量合并多个数据框
-# [R语言多个数据集根据某一列取交集然后合并](https://www.bilibili.com/video/BV1bK4y1f78q/?spm_id_from=333.788.recommend_more_video.0&vd_source=23f183f0c5968777e138f31842bde0a0)
+                     # [R语言多个数据集根据某一列取交集然后合并](https://www.bilibili.com/video/BV1bK4y1f78q/?spm_id_from=333.788.recommend_more_video.0&vd_source=23f183f0c5968777e138f31842bde0a0)
 rm(list=ls())
 library(dplyr) # 加载程序包
-library(readxl)
-library(tidyverse)
+library(readxl)      # CRAN v1.4.3 # CRAN v1.4.3
+library(tidyverse)   # CRAN v2.0.0 # CRAN v2.0.0 # CRAN v2.0.0
 getwd()
 
 ##### 身体成分_全部整理 #####
@@ -129,7 +129,7 @@ x1 <- Reduce(intersect,list(dfi$gene_name,
                       df4$gene_name,
                       dfs$gene_name))
 
-library("tidyverse")
+library("tidyverse") # CRAN vNA
 data_list %>% reduce(inner_join, by = "id")   
 
 
@@ -146,9 +146,9 @@ write_excel_csv(df_12, file = "C:\\Users\\wane1\\Downloads\\Most_Cited_Countries
 
 ##### 0524代综pos #####
 rm(list = ls())
-library(tidyverse)
-library(readxl)
-library(reshape2)
+library(tidyverse)   # CRAN v2.0.0 # CRAN v2.0.0 # CRAN v2.0.0
+library(readxl)      # CRAN v1.4.3 # CRAN v1.4.3
+library(reshape2)    # CRAN v1.4.4
 df_0 <- read_excel('C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\BIAO\\0524\\data.xlsx')
 df_1 <- read_excel('C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\BIAO\\0524\\代综pos3.xlsx')
 
@@ -176,12 +176,33 @@ df_12R3 <- merge(df_12R, df3, by = c('姓名','性别'))
 df_12R34 <- merge(df_12R3, df4, by = c('姓名','性别'))
 write_excel_csv(df_12R34, file = "C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\BIAO\\0827\\TBS_股骨右_脊椎_科室.csv")
 
+##### 0905总处理 #####
+rm(list = ls())
+library(xlsx)
+setwd("C:\\Users\\wane1\\Documents\\file\\TBS&Mon\\BIAO\\0827\\0903\\")
+dt <- read_excel('data0+股骨L +前臂L+全身CoreScan+全身成份+全身+正位脊柱 2(2).xlsx', col_names =T)
+# dt <- read.csv('data0+股骨L+前臂L+全身CoreScan+全身成份+全身+正位脊柱.csv',row.names=1)
+dt1 <- read_excel('总处理-需要处理数据名单-pre.xlsx')
+dt2 <- read_excel('总处理-需要处理数据名单-pos3.xlsx')
+dt3 <- read_excel('总处理-需要处理数据名单-pos12.xlsx')
+
+# rownames(dt)=dt[,1]  #取出第一列
+# row.names(dt)<-dt$姓名
+unique(dt$姓名)
+dt0 <- dt[!duplicated(dt$姓名), ]      
+
+dt_30 <- merge(dt3, dt0, by = c('姓名','性别'))
+write_excel_csv(dt_30, file = "全部术后12m_data0+股骨L +前臂L+全身CoreScan+全身成份+全身+正位脊柱.csv", 
+                delim = ",", quote = "all")
+write.xlsx(dt_10, file = "全部术前_data0+股骨L +前臂L+全身CoreScan+全身成份+全身+正位脊柱.xlsx",
+           row.names = F)
+
 
 ##### 样本量计算 #####
 # pwr | 谁说样本量计算是个老大难问题！？（三）（配对样本与非等比样本篇）(https://zhuanlan.zhihu.com/p/596431672)
 rm(list = ls())
-library(pwr)
-library(tidyverse)
+library(pwr)         # CRAN v1.3-0
+library(tidyverse)   # CRAN v2.0.0 # CRAN v2.0.0 # CRAN v2.0.0
 
 # 4.1 计算Cohen’s d
 mu_x <- 130     ### Baseline体重均值
