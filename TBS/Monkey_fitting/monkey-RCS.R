@@ -265,6 +265,7 @@ p4
 model.spline <- lm(SUVr_whole_refPons ~ rcs(Age, 5), data = dt) # 建立样条回归，设置3~5个节点。+ factor(dt$Sex)
 summary(model.spline) # 查看模型概况
 # new <- data.frame(Age = c(0.5,26.5,29.5))
+predict(model.spline, newdata = data.frame(Age = 1.0))
 pr <- predict(model.spline, newdata = dt, interval = "confidence")
 pre <- cbind(dt[1],pr)
 

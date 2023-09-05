@@ -137,14 +137,14 @@ server <- function(input, output, session) {
   #   prediction <- predict(model, input$xval)
   #   prediction
   # })
-  # output$prediction <- renderPrint({
-  #   x <- data.frame(names(datasetInput())[1] == input$xval)
-  #   x_rcs <- predict(rcs(x,5), type = "lpmatrix")
-  #   y <- as.matrix(datasetInput()[, input$variable, drop = FALSE])
-  #   model <- lm(y ~ x_rcs)
-  #   prediction <- predict(model, newdata = as.numeric(input$xval))
-  #   prediction
-  # })
+  output$prediction <- renderPrint({
+    x <- data.frame(Age = as.numeric(input$xval))
+    x_rcs <- predict(rcs(x,5), type = "lpmatrix")
+    y <- as.matrix(datasetInput()[, input$variable, drop = FALSE])
+    model <- lm(y ~ x_rcs)
+    prediction <- predict(model, newdata = x)
+    prediction
+  })
 }
 
 ##### Create Shiny app #####
