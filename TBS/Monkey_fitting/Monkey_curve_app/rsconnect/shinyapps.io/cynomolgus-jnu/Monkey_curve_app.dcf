@@ -5,7 +5,7 @@ account: cynomolgus-jnu
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 9752869
-bundleId: 7649075
+bundleId: 7652496
 url: https://cynomolgus-jnu.shinyapps.io/Monkey_curve_app/
 version: 1
 asMultiple: FALSE
