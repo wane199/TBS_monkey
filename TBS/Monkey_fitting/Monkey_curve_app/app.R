@@ -11,6 +11,7 @@ library(splines)
 library(ggpmisc) # Miscellaneous Extensions to 'ggplot2'
 library(DT) # CRAN v0.29
 library(markdown) # CRAN v1.8
+options(digits = 3) # 限定输出小数点后数字的位数
 
 ##### Load datasets #####
 T1WI <- read.csv("./data/T1_TBV.csv", sep = ";", fileEncoding = "GBK")
@@ -47,17 +48,18 @@ ui <- navbarPage("Brain development of the cynomolgus monkey lifespan from JNU",
         selectInput(inputId = "variable", label = "Select variable:", choices = NULL), # colnames(T1WI)[c(-1, -2)] c("Weight","TBV","TBV.BW","whole","SUVr_whole_refPons","SUV_Whole")
         # Horizontal line ----
         tags$hr(),
-        br(),
         # 添加一个用于输入x值的textInput
-        sliderInput("xval", "Age of cynomolgus monkey:", value = 1, min = 0, max = 30,
-                    step = 1, animate = T),
+        sliderInput("xval", "Input age of cynomolgus monkey:",
+          value = 1, min = 0, max = 30,
+          step = 1, animate = T
+        ),
         # actionButton('add', 'Predict'),
-        uiOutput('vy'),
+        uiOutput("vy"),
         verbatimTextOutput(outputId = "prediction"),
-        br(),
-        helpText('*Input the age of cynomolgus monkey, the relative parameter of brain will be shown in the box above'),
+        # helpText("*Unit of the relative parameter: Weight:Kg; bquote(TBV:(cm^3)); TBV/Weight:cm^3/kg; 'Uptake Value'~(kBq/cc) SUV~(g/ml)"),
+        helpText("*Input the age of cynomolgus monkey, the relative parameter of brain will be shown in the box above"),
         tags$hr(),
-        br(), 
+        br(),
         img(
           src = "https://ts1.cn.mm.bing.net/th/id/R-C.c80600d38debc68a12b4b566886c8216?rik=bTkNEfTXK0fisg&riu=http%3a%2f%2fpicture.swwy.com%2fY2UzZDljYTQxNjhmNDI.jpg&ehk=WYS7zLiw1qw9kNUCW14LEMFnE2n0sOPMwjkmxBh71%2fs%3d&risl=&pid=ImgRaw&r=0&sres=1&sresct=1",
           height = 135, width = 275
@@ -91,7 +93,7 @@ server <- function(input, output, session) {
   #     "T1WI" = T1WI,
   #     "PET" = PET)
   # })
-  datasetInput  <- reactive({
+  datasetInput <- reactive({
     get(input$dataset)
   })
 
@@ -106,9 +108,9 @@ server <- function(input, output, session) {
   })
 
   output$vy <- renderText({
-    paste('Predicted value of', input$variable, ':')
+    paste("Predicted value of", input$variable, ":")
   })
-  
+
   output$dis <- DT::renderDataTable(
     DT::datatable(datasetInput(), options = list(pageLength = 25))
   )
@@ -131,19 +133,14 @@ server <- function(input, output, session) {
         axis.text.y = element_text(margin = unit(c(0.3, 0.3, 0.3, 0.3), "cm"))
       )
   })
-  
-  # output$prediction <- renderPrint({
-  #   model <- lm(formula(paste(input$variable, "~", "rcs", "(", names(datasetInput())[1], ",", "df = 5)", sep = "")), data = datasetInput())
-  #   prediction <- predict(model, input$xval)
-  #   prediction
-  # })
-  output$prediction <- renderPrint({
-    x <- data.frame(Age = as.numeric(input$xval))
-    x_rcs <- predict(rcs(x,5), type = "lpmatrix")
-    y <- as.matrix(datasetInput()[, input$variable, drop = FALSE])
-    model <- lm(y ~ x_rcs)
-    prediction <- predict(model, newdata = x)
-    prediction
+
+  output$prediction <- renderText({
+    # x_var <- "Age"
+    # y_var <- input$variable
+    # model <- lm(get(y_var) ~ rcs(get("Age"), 5), data = datasetInput())
+    model <- lm(formula(paste(input$variable, "~", "rcs", "(", "Age", ",", "df = 5)", sep = "")), data = datasetInput())
+    prediction <- predict(model, newdata = data.frame(Age = input$xval))
+    prediction[[1]]
   })
 }
 
