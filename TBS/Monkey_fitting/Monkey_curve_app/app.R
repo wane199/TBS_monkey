@@ -49,17 +49,18 @@ ui <- navbarPage("Brain development of the cynomolgus monkey lifespan from JNU",
         # Horizontal line ----
         tags$hr(),
         # 添加一个用于输入x值的textInput
-        sliderInput("xval", "Input age of cynomolgus monkey:",
+        sliderInput(inputId ="xval", label = "Input age (year) of cynomolgus monkey:",
           value = 1, min = 0, max = 30,
           step = 1, animate = T
         ),
+        selectInput(inputId = "insex", label = "Input sex (Female/Male) of cynomolgus monkey:", choices = list("F", "M"), selected = NULL),
         # actionButton('add', 'Predict'),
         uiOutput("vy"),
         verbatimTextOutput(outputId = "prediction"),
         withMathJax(helpText('*Unit of the relative parameter:$$\\text{Volume:}cm^3;\\text{Weight:}kg;
                              \\text{TBV.Weight:}cm^3/kg$$')),
         helpText(withMathJax('$$\\text{Uptake Value:}kBq/cc;\\text{SUV:}g/ml;\\text{SUVr_refPons:}1$$')),
-        helpText("*Input the age of cynomolgus monkey, the relative parameter of brain will be shown in the box above"),
+        helpText("*Input the age and sex of cynomolgus monkey, the relative parameter of brain will be shown in the box above"),
         tags$hr(),
         br(),
         img(
@@ -136,11 +137,17 @@ server <- function(input, output, session) {
       )
   })
 
+
+  # sexdata <- subset(datasetInput, Sex==input$insex)
+  sexdata <- reactive({
+    subset(datasetInput(), get("Sex")==input$insex)
+  })
+
   output$prediction <- renderText({
     # x_var <- "Age"
     # y_var <- input$variable
     # model <- lm(get(y_var) ~ rcs(get("Age"), 5), data = datasetInput())
-    model <- lm(formula(paste(input$variable, "~", "rcs", "(", "Age", ",", "df = 5)", sep = "")), data = datasetInput())
+    model <- lm(formula(paste(input$variable, "~", "rcs", "(", "Age", ",", "df = 5)", sep = "")), data = sexdata()) # datasetInput()
     prediction <- predict(model, newdata = data.frame(Age = input$xval))
     prediction[[1]]
   })
