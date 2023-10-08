@@ -1,5 +1,6 @@
-# https://mp.weixin.qq.com/s?__biz=MzI1NjM3NTE1NQ==&mid=2247486750&idx=1&sn=90c3338d3a010e024252687b32207246&chksm=ea26ed02dd516414ef982e116c1a1f114a5c72b395854c41b7f4692d2e28919b9993a425bcdd&mpshare=1&scene=1&srcid=11029kwnODSUuMBjcI9ptQHa&sharer_sharetime=1667362719667&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd
 # [NHANES, National Health and Nutrition Examination Survey](https://wwwn.cdc.gov/nchs/nhanes/Default.aspx)
+# https://mp.weixin.qq.com/s?__biz=MzI1NjM3NTE1NQ==&mid=2247486750&idx=1&sn=90c3338d3a010e024252687b32207246&chksm=ea26ed02dd516414ef982e116c1a1f114a5c72b395854c41b7f4692d2e28919b9993a425bcdd&mpshare=1&scene=1&srcid=11029kwnODSUuMBjcI9ptQHa&sharer_sharetime=1667362719667&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd
+###### NHANES数据下载 ######
 library(haven)
 library(nhanesA)
 library(tidyverse)
@@ -53,8 +54,7 @@ hdata <- plyr::join_all(list(dat1, xuetang1, tanghuadb1, feihuoliang1, dxaspn1),
 getwd()
 write.csv(hdata, file = "./TBS/nhanes/07-08.csv", row.names = F)
 
-#######################################################
-# 基线表绘制(table1)
+###### 基线表绘制(table1) ######
 library(tableone)
 library(survey)
 bc <- read.csv("./TBS/nhanes/07-08.csv", sep = ",", header = TRUE)
