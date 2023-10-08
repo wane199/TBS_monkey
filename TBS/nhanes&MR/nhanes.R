@@ -1,15 +1,12 @@
 # [NHANES, National Health and Nutrition Examination Survey](https://wwwn.cdc.gov/nchs/nhanes/Default.aspx)
-<<<<<<< HEAD
 # https://mp.weixin.qq.com/s?__biz=MzI1NjM3NTE1NQ==&mid=2247486750&idx=1&sn=90c3338d3a010e024252687b32207246&chksm=ea26ed02dd516414ef982e116c1a1f114a5c72b395854c41b7f4692d2e28919b9993a425bcdd&mpshare=1&scene=1&srcid=11029kwnODSUuMBjcI9ptQHa&sharer_sharetime=1667362719667&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd
 ###### NHANES数据下载 ######
 library(haven)
 library(nhanesA)
 library(tidyverse)
-=======
 library(haven) # CRAN v2.5.3
 library(nhanesA) # CRAN v0.7.4
 library(tidyverse) # CRAN v2.0.0
->>>>>>> 3b08c5645b212bfdd6eb0b3e8ea811cc8f1654c5
 
 mydata <- read_xpt("/home/wane/Downloads/P_DEMO.XPT") # NHANES 2017-March 2020 Pre-Pandemic Demographics Data
 mydata1 <- nhanes("DEMO_E") # NHANES 2007-2008 Demographics Data；_H：2013-2014
@@ -62,13 +59,10 @@ getwd()
 write.csv(hdata, file = "./TBS/nhanes/07-08.csv", row.names = F)
 
 ###### 基线表绘制(table1) ######
-<<<<<<< HEAD
 library(tableone)
 library(survey)
-=======
 library(tableone) # CRAN v0.13.2
 library(survey) # CRAN v4.2-1
->>>>>>> 3b08c5645b212bfdd6eb0b3e8ea811cc8f1654c5
 bc <- read.csv("./TBS/nhanes/07-08.csv", sep = ",", header = TRUE)
 glimpse(bc)
 Hmisc::describe(bc)
@@ -101,8 +95,7 @@ Svytab2 <- svyCreateTableOne(
 )
 Svytab2
 
-#####################################
-# 缺失值
+###### 缺失值 ######
 # https://www.yisu.com/zixun/444909.html
 library(lattice) # CRAN v0.21-8
 library(mice) # CRAN v3.16.0 # CRAN v3.16.0
@@ -170,8 +163,8 @@ imp <- mice(dat, m = 1, seed = 1, printFlag = FALSE)
 # visualize the imputed data
 ggmice(imp, aes(age, bmi)) + geom_point()
 
-##################
-# [nhanes数据库挖掘教程3--对数据进行多重插补](https://mp.weixin.qq.com/s?__biz=MzI1NjM3NTE1NQ==&mid=2247487020&idx=1&sn=9d504788a6909af3f797e86bbfdba8f7&chksm=ea26ee30dd516726ec22d640de1c0ef07fed8aa1c897918413b06a84a81a5b4cde311d389709&mpshare=1&scene=1&srcid=1209ZZUWTDh4pyjNkbKHLWbW&sharer_sharetime=1670587658361&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
+###### nhanes数据库挖掘教程3--对数据进行多重插补 ######
+# (https://mp.weixin.qq.com/s?__biz=MzI1NjM3NTE1NQ==&mid=2247487020&idx=1&sn=9d504788a6909af3f797e86bbfdba8f7&chksm=ea26ee30dd516726ec22d640de1c0ef07fed8aa1c897918413b06a84a81a5b4cde311d389709&mpshare=1&scene=1&srcid=1209ZZUWTDh4pyjNkbKHLWbW&sharer_sharetime=1670587658361&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
 library(mi) # CRAN v1.1
 
 # 列出缺失值列表，提前处理好分类变量
@@ -244,4 +237,3 @@ image(a1)
 
 
 
-#####################################
