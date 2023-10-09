@@ -457,7 +457,7 @@ for (i in 3:ncol(dt)) {
     stat_smooth(method = lm, formula = y ~ rcs(x, 3)) +
     geom_point(aes(colour = Side, shape = Side, fill = Side), size = 1.2, alpha = 0.5, shape = 21) +
     xlab("Age (year)") +
-    ylab(bquote(SUVR[whole])) + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml) SUVr_ref~Whole
+    ylab(bquote(VR[whole])) + # Volume~(cm^3) Weight~(Kg)  TBV/Weight~(cm^3/kg) 'Uptake Value'~(kBq/cc) SUV~(g/ml) SUVr_ref~Whole
     scale_fill_brewer(palette = "Paired") +
     # scale_fill_npg() + scale_color_npg() +
     ggtitle(paste0(colnames(dt)[i])) +
