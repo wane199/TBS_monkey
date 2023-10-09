@@ -339,48 +339,49 @@ mr_steiger(
   r_exp = 0
 )
 
-#设置工作目录，安装两样本包
-#setwd("D:/R语言/孟德尔随机化")
-#install.packages("remotes")
-#remotes::install_github("MRCIEU/TwoSampleMR")
-#运行
+# 设置工作目录，安装两样本包
+# setwd("D:/R语言/孟德尔随机化")
+# install.packages("remotes")
+# remotes::install_github("MRCIEU/TwoSampleMR")
+# 运行
 setwd("D:/R语言/孟德尔随机化")
 library(TwoSampleMR)
 
-##两样本MR(在线读取)
-#提取BMI的SNP
-BMI <- extract_instruments(outcomes = 'ukb-b-19953')
-#提取SNP在结局中的信息
-outcome_dat <- extract_outcome_data(snps = BMI$SNP, outcomes = 'bbj-a-119')
-#合并暴露和结局的数据
+## 两样本MR(在线读取)
+# 提取BMI的SNP
+BMI <- extract_instruments(outcomes = "ukb-b-19953")
+# 提取SNP在结局中的信息
+outcome_dat <- extract_outcome_data(snps = BMI$SNP, outcomes = "bbj-a-119")
+# 合并暴露和结局的数据
 dat <- harmonise_data(BMI, outcome_dat)
-#分析
+# 分析
 results <- mr(dat)
-#由于结局是二分类，所以生成OR值
-OR <-generate_odds_ratios(results)
-#异质性检验
+# 由于结局是二分类，所以生成OR值
+OR <- generate_odds_ratios(results)
+# 异质性检验
 heterogeneity <- mr_heterogeneity(dat)
 res_MRPRESSO <- run_mr_presso(dat)
-#多效性检验
+# 多效性检验
 pleiotropy <- mr_pleiotropy_test(dat)
 pleiotropy
-#散点图
-mr_scatter_plot(results,dat)
-#逐个剔除检验，做留一图
+# 散点图
+mr_scatter_plot(results, dat)
+# 逐个剔除检验，做留一图
 leaveoneout <- mr_leaveoneout(dat)
 mr_leaveoneout_plot(leaveoneout)
-#森林图
+# 森林图
 results_single <- mr_singlesnp(dat)
 mr_forest_plot(results_single)
-#漏斗图
+# 漏斗图
 mr_funnel_plot(results_single)
 
-##读取本地文件
-a <- fread("准备文件/EA4_additive_excl_23andMe.txt",header = T) #fread读取大文件
-head(a) #查看p_value列名
-b <- subset(a,P<5e-06)
+## 读取本地文件
+a <- fread("准备文件/EA4_additive_excl_23andMe.txt", header = T) # fread读取大文件
+head(a) # 查看p_value列名
+b <- subset(a, P < 5e-06)
 Education <- format_data(
-  b, type = "exposure",
+  b,
+  type = "exposure",
   header = TRUE,
   snp_col = "rsID",
   beta_col = "Beta",
@@ -391,16 +392,17 @@ Education <- format_data(
   pval_col = "P"
 )
 Education <- clump_data(Education, clump_r2 = 0.001)
-#读取结局文件并找到与暴露相同的SNP
-outcome = fread("SUMMARY_STATS_EUR.txt", sep = "\t")
+# 读取结局文件并找到与暴露相同的SNP
+outcome <- fread("SUMMARY_STATS_EUR.txt", sep = "\t")
 outcome <- TwoSampleMR::format_data(
-  outcome,  type="outcome",
-  snp_col = "SNP",beta_col = "beta",
+  outcome,
+  type = "outcome",
+  snp_col = "SNP", beta_col = "beta",
   se_col = "se",
   effect_allele_col = "effect_allele",
   other_allele_col = "other_allele",
   eaf_col = "eaf",
-  pval_col = "pval")
-outcome <- subset(outcome,outcome$SNP %in% exp_data$SNP)
+  pval_col = "pval"
+)
+outcome <- subset(outcome, outcome$SNP %in% exp_data$SNP)
 dat <- harmonise_data(Education, outcome)
-
