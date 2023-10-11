@@ -1,15 +1,19 @@
-# [NHANES, National Health and Nutrition Examination Survey](https://wwwn.cdc.gov/nchs/nhanes/Default.aspx)
+##### NHANES, National Health and Nutrition Examination Survey #####
+# https://wwwn.cdc.gov/nchs/nhanes/Default.aspx
 # https://mp.weixin.qq.com/s?__biz=MzI1NjM3NTE1NQ==&mid=2247486750&idx=1&sn=90c3338d3a010e024252687b32207246&chksm=ea26ed02dd516414ef982e116c1a1f114a5c72b395854c41b7f4692d2e28919b9993a425bcdd&mpshare=1&scene=1&srcid=11029kwnODSUuMBjcI9ptQHa&sharer_sharetime=1667362719667&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd
-###### NHANES数据下载 ######
-library(haven)
-library(nhanesA)
-library(tidyverse)
-library(haven) # CRAN v2.5.3
-library(nhanesA) # CRAN v0.7.4
+###### NHANES数据下载及合并 ######
+library(haven)     # CRAN v2.5.3
+library(nhanesA)   # CRAN v0.7.4
 library(tidyverse) # CRAN v2.0.0
+library(haven)     # CRAN v2.5.3 # CRAN v2.5.3
+library(nhanesA)   # CRAN v0.7.4 # CRAN v0.7.4
+library(tidyverse) # CRAN v2.0.0 # CRAN v2.0.0
+library(arsenal)
 
 mydata <- read_xpt("/home/wane/Downloads/P_DEMO.XPT") # NHANES 2017-March 2020 Pre-Pandemic Demographics Data
-mydata1 <- nhanes("DEMO_E") # NHANES 2007-2008 Demographics Data；_H：2013-2014
+d2017 <- nhanes("DEMO_I") 
+d2018 <- nhanes("DEMO_J") # NHANES 2007-2008 Demographics Data；_H：2013-2014
+d20182 <- nhanes("P_DEMO")
 
 # 对照变量说明提取需要的变量
 dat1 <- mydata1 %>% select(
@@ -20,11 +24,13 @@ dat1 <- mydata1 %>% select(
   DMDMARTL, # 婚姻状况
   WTINT2YR, WTMEC2YR, # 权重
   SDMVPSU, # psu
-  SDMVSTRA  # strata
-) 
+  SDMVSTRA # strata
+)
 
 # 关键的血糖和肺功能的指标，在化验室指标
-xuetang <- nhanes("GLU_E")
+xuetang2018 <- nhanes("GLU_J")
+DM20182 <- nhanes("P_DIQ")
+
 # 对数据进行提取，序列号提取，
 xuetang1 <- xuetang %>% select(
   SEQN, # 序列号
@@ -59,10 +65,10 @@ getwd()
 write.csv(hdata, file = "./TBS/nhanes/07-08.csv", row.names = F)
 
 ###### 基线表绘制(table1) ######
-library(tableone)
-library(survey)
-library(tableone) # CRAN v0.13.2
-library(survey) # CRAN v4.2-1
+library(tableone)  # CRAN v0.13.2
+library(survey)    # CRAN v4.2-1
+library(tableone)  # CRAN v0.13.2 # CRAN v0.13.2
+library(survey)    # CRAN v4.2-1 # CRAN v4.2-1
 bc <- read.csv("./TBS/nhanes/07-08.csv", sep = ",", header = TRUE)
 glimpse(bc)
 Hmisc::describe(bc)
@@ -97,9 +103,9 @@ Svytab2
 
 ###### 缺失值 ######
 # https://www.yisu.com/zixun/444909.html
-library(lattice) # CRAN v0.21-8
-library(mice) # CRAN v3.16.0 # CRAN v3.16.0
-library(VIM) # CRAN v6.2.2
+library(lattice)   # CRAN v0.21-8
+library(mice)      # CRAN v3.16.0 # CRAN v3.16.0
+library(VIM)       # CRAN v6.2.2
 
 summary(bc)
 dim(bc)
@@ -150,9 +156,9 @@ for (i in 1:length(bc$ Ozone)) {
 
 # Plot incomplete or imputed data
 # load packages
-library(ggplot2) # CRAN v3.4.3 # CRAN v3.4.3
-library(mice) # CRAN v3.16.0 # CRAN v3.16.0
-library(ggmice) # CRAN v0.1.0
+library(ggplot2)   # CRAN v3.4.3 # CRAN v3.4.3
+library(mice)      # CRAN v3.16.0 # CRAN v3.16.0
+library(ggmice)    # CRAN v0.1.0
 # load some data
 dat <- boys
 # visualize the incomplete data
@@ -165,7 +171,7 @@ ggmice(imp, aes(age, bmi)) + geom_point()
 
 ###### nhanes数据库挖掘教程3--对数据进行多重插补 ######
 # (https://mp.weixin.qq.com/s?__biz=MzI1NjM3NTE1NQ==&mid=2247487020&idx=1&sn=9d504788a6909af3f797e86bbfdba8f7&chksm=ea26ee30dd516726ec22d640de1c0ef07fed8aa1c897918413b06a84a81a5b4cde311d389709&mpshare=1&scene=1&srcid=1209ZZUWTDh4pyjNkbKHLWbW&sharer_sharetime=1670587658361&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
-library(mi) # CRAN v1.1
+library(mi)        # CRAN v1.1
 
 # 列出缺失值列表，提前处理好分类变量
 mdf <- missing_data.frame(bc)
@@ -184,8 +190,8 @@ summary(mdf)
 hist(mdf)
 image(mdf)
 # {naniar}:让NA（缺失值）可见的多种图～
-library(naniar) # CRAN v1.0.0
-library(ggplot2) # CRAN v3.4.3 # CRAN v3.4.3
+library(naniar)    # CRAN v1.0.0
+library(ggplot2)   # CRAN v3.4.3 # CRAN v3.4.3
 # 大致查看一下包含缺失值的变量
 n_var_miss(mdf)
 gg_miss_which(mdf)
@@ -234,6 +240,3 @@ image(imputation)
 IMP.dat.all <- complete(imputation) # 导出全部数据
 a1 <- IMP.dat.all[["chain:1"]]
 image(a1)
-
-
-
