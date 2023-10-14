@@ -2,13 +2,14 @@
 # https://wwwn.cdc.gov/nchs/nhanes/Default.aspx
 # https://mp.weixin.qq.com/s?__biz=MzI1NjM3NTE1NQ==&mid=2247486750&idx=1&sn=90c3338d3a010e024252687b32207246&chksm=ea26ed02dd516414ef982e116c1a1f114a5c72b395854c41b7f4692d2e28919b9993a425bcdd&mpshare=1&scene=1&srcid=11029kwnODSUuMBjcI9ptQHa&sharer_sharetime=1667362719667&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd
 ###### NHANES数据下载及合并 ######
+rm(list = ls())
 library(haven)     # CRAN v2.5.3
 library(nhanesA)   # CRAN v0.7.4
 library(tidyverse) # CRAN v2.0.0
 library(haven)     # CRAN v2.5.3 # CRAN v2.5.3
 library(nhanesA)   # CRAN v0.7.4 # CRAN v0.7.4
 library(tidyverse) # CRAN v2.0.0 # CRAN v2.0.0
-library(arsenal)
+library(arsenal)   # CRAN v3.6.3 
 
 mydata <- read_xpt("/home/wane/Downloads/P_DEMO.XPT") # NHANES 2017-March 2020 Pre-Pandemic Demographics Data
 d2017 <- nhanes("DEMO_I") 
@@ -29,7 +30,14 @@ dat1 <- mydata1 %>% select(
 
 # 关键的血糖和肺功能的指标，在化验室指标
 xuetang2018 <- nhanes("GLU_J")
+xuetang20182 <- nhanes("P_GLU")
+DM2018 <- nhanes("DIQ_J")
 DM20182 <- nhanes("P_DIQ")
+
+# ASM药物提取
+asm20182 <- nhanes("P_RXQ_RX")
+asm20182 <- read_xpt("C:\\Users\\wane\\Downloads\\NHANES数据挖掘从入门到精通\\P_RXQ_RX.xpt")
+colnames(asm20182)
 
 # 对数据进行提取，序列号提取，
 xuetang1 <- xuetang %>% select(
