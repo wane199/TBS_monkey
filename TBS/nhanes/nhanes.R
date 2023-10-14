@@ -10,6 +10,8 @@ library(haven)     # CRAN v2.5.3 # CRAN v2.5.3
 library(nhanesA)   # CRAN v0.7.4 # CRAN v0.7.4
 library(tidyverse) # CRAN v2.0.0 # CRAN v2.0.0
 library(arsenal)   # CRAN v3.6.3 
+library(dplyr)     # CRAN v1.1.3
+library(Hmisc)     # CRAN v5.1-1
 
 mydata <- read_xpt("/home/wane/Downloads/P_DEMO.XPT") # NHANES 2017-March 2020 Pre-Pandemic Demographics Data
 d2017 <- nhanes("DEMO_I") 
@@ -38,6 +40,12 @@ DM20182 <- nhanes("P_DIQ")
 asm20182 <- nhanes("P_RXQ_RX")
 asm20182 <- read_xpt("C:\\Users\\wane\\Downloads\\NHANES数据挖掘从入门到精通\\P_RXQ_RX.xpt")
 colnames(asm20182)
+summary(asm20182)
+describe(asm20182)
+G40 <- asm20182[grepl("G40",asm20182)]
+G40 <- asm20182[grepl("G40", asm20182$RXDRSC1),]
+G40 <- asm20182[grepl("G40", asm20182$RXDRSC2),]
+G40 <- asm20182[grepl("G40", asm20182$RXDRSC3),]
 
 # 对数据进行提取，序列号提取，
 xuetang1 <- xuetang %>% select(
