@@ -6,9 +6,9 @@ rm(list = ls())
 library(haven)     # CRAN v2.5.3
 library(nhanesA)   # CRAN v0.7.4
 library(tidyverse) # CRAN v2.0.0
-library(haven)     # CRAN v2.5.3 # CRAN v2.5.3
-library(nhanesA)   # CRAN v0.7.4 # CRAN v0.7.4
-library(tidyverse) # CRAN v2.0.0 # CRAN v2.0.0
+library(haven)     # CRAN v2.5.3
+library(nhanesA)   # CRAN v0.7.4 
+library(tidyverse) # CRAN v2.0.0 
 library(arsenal)   # CRAN v3.6.3 
 library(dplyr)     # CRAN v1.1.3
 library(Hmisc)     # CRAN v5.1-1
@@ -38,14 +38,18 @@ DM20182 <- nhanes("P_DIQ")
 
 # ASM药物提取
 asm20182 <- nhanes("P_RXQ_RX")
-asm20182 <- read_xpt("C:\\Users\\wane\\Downloads\\NHANES数据挖掘从入门到精通\\P_RXQ_RX.xpt")
+asm20182 <- read_xpt("D:/BaiduNetdiskDownload/NHANES数据挖掘从入门到精通/P_RXQ_RX.xpt")
+class(asm20182)
 colnames(asm20182)
 summary(asm20182)
 describe(asm20182)
-G40 <- asm20182[grepl("G40",asm20182)]
-G40 <- asm20182[grepl("G40", asm20182$RXDRSC1),]
-G40 <- asm20182[grepl("G40", asm20182$RXDRSC2),]
-G40 <- asm20182[grepl("G40", asm20182$RXDRSC3),]
+G40 <- asm20182[grepl("G40",asm20182)] # 查找目标药物代码出现的列
+# G40 <- asm20182[grepl("G40", c(asm20182$RXDRSC1,asm20182$RXDRSC2)),]
+# G40 <- asm20182[rowMeans(asm20182[,7:9]=="G40") > 0]
+G401 <- asm20182[grepl("G40", asm20182$RXDRSC1),]
+G402 <- asm20182[grepl("G40", asm20182$RXDRSC2),]
+G403 <- asm20182[grepl("G40", asm20182$RXDRSC3),]
+G40 <- rbind(G401,G402,G403)
 
 # 对数据进行提取，序列号提取，
 xuetang1 <- xuetang %>% select(
