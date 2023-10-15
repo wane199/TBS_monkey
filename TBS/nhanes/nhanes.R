@@ -37,7 +37,7 @@ DM2018 <- nhanes("DIQ_J") # DIQ，Questionnaire模块
 DM20182 <- nhanes("P_DIQ")
 
 # ASM药物提取，Questionnaire模块
-asm20182 <- nhanes("P_RXQ_RX")
+asm2018 <- nhanes("RXQ_RX_J")
 asm20182 <- read_xpt("C:/Users/wane1/Downloads/NHANES数据挖掘从入门到精通/P_RXQ_RX.xpt")
 class(asm20182)
 colnames(asm20182)
