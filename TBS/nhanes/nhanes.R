@@ -3,18 +3,18 @@
 # https://mp.weixin.qq.com/s?__biz=MzI1NjM3NTE1NQ==&mid=2247486750&idx=1&sn=90c3338d3a010e024252687b32207246&chksm=ea26ed02dd516414ef982e116c1a1f114a5c72b395854c41b7f4692d2e28919b9993a425bcdd&mpshare=1&scene=1&srcid=11029kwnODSUuMBjcI9ptQHa&sharer_sharetime=1667362719667&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd
 ###### NHANES数据下载及合并 ######
 rm(list = ls())
-library(haven)     # CRAN v2.5.3
-library(nhanesA)   # CRAN v0.7.4
+library(haven) # CRAN v2.5.3
+library(nhanesA) # CRAN v0.7.4
 library(tidyverse) # CRAN v2.0.0
-library(haven)     # CRAN v2.5.3
-library(nhanesA)   # CRAN v0.7.4 
-library(tidyverse) # CRAN v2.0.0 
-library(arsenal)   # CRAN v3.6.3 
-library(dplyr)     # CRAN v1.1.3
-library(Hmisc)     # CRAN v5.1-1
+library(haven) # CRAN v2.5.3
+library(nhanesA) # CRAN v0.7.4
+library(tidyverse) # CRAN v2.0.0
+library(arsenal) # CRAN v3.6.3
+library(dplyr) # CRAN v1.1.3
+library(Hmisc) # CRAN v5.1-1
 
 mydata <- read_xpt("/home/wane/Downloads/P_DEMO.XPT") # NHANES 2017-March 2020 Pre-Pandemic Demographics Data
-d2017 <- nhanes("DEMO_I") 
+d2017 <- nhanes("DEMO_I")
 d2018 <- nhanes("DEMO_J") # NHANES 2007-2008 Demographics Data；_H：2013-2014
 d20182 <- nhanes("P_DEMO")
 
@@ -31,25 +31,29 @@ dat1 <- mydata1 %>% select(
 )
 
 # 关键的血糖和肺功能的指标，在化验室指标
-xuetang2018 <- nhanes("GLU_J")
+xuetang2018 <- nhanes("GLU_J") # GLU，Laboratory模块
 xuetang20182 <- nhanes("P_GLU")
-DM2018 <- nhanes("DIQ_J")
+DM2018 <- nhanes("DIQ_J") # DIQ，Questionnaire模块
 DM20182 <- nhanes("P_DIQ")
 
-# ASM药物提取
+# ASM药物提取，Questionnaire模块
 asm20182 <- nhanes("P_RXQ_RX")
-asm20182 <- read_xpt("D:/BaiduNetdiskDownload/NHANES数据挖掘从入门到精通/P_RXQ_RX.xpt")
+asm20182 <- read_xpt("C:/Users/wane1/Downloads/NHANES数据挖掘从入门到精通/P_RXQ_RX.xpt")
 class(asm20182)
 colnames(asm20182)
 summary(asm20182)
 describe(asm20182)
-G40 <- asm20182[grepl("G40",asm20182)] # 查找目标药物代码出现的列
-# G40 <- asm20182[grepl("G40", c(asm20182$RXDRSC1,asm20182$RXDRSC2)),]
+G400 <- asm20182[grepl("Epilepsy and recurrent seizures", asm20182)] # 查找目标药物代码出现的列
 # G40 <- asm20182[rowMeans(asm20182[,7:9]=="G40") > 0]
-G401 <- asm20182[grepl("G40", asm20182$RXDRSC1),]
-G402 <- asm20182[grepl("G40", asm20182$RXDRSC2),]
-G403 <- asm20182[grepl("G40", asm20182$RXDRSC3),]
-G40 <- rbind(G401,G402,G403)
+# 逐列查找目标药物行即目标服药人群
+G401 <- asm20182[grepl("G40", asm20182$RXDRSC1), ]
+G402 <- asm20182[grepl("G40", asm20182$RXDRSC2), ]
+G403 <- asm20182[grepl("G40", asm20182$RXDRSC3), ]
+G40123 <- rbind(G401, G402, G403)
+# 多列提取目标服药人群
+G40 <- subset(asm20182, asm20182$RXDRSC1 == "G40" | asm20182$RXDRSC2 == "G40" | asm20182$RXDRSC3 == "G40")
+G40 <- transform(G40, Y = 1)
+
 
 # 对数据进行提取，序列号提取，
 xuetang1 <- xuetang %>% select(
@@ -78,17 +82,30 @@ dxaspn1 <- dxaspn %>% select(
 ) # Total Trabecular Bone Score
 
 # 处理好数据以后把数据合并就好了
+DMsam <- plyr::join_all(list(d20182, G40, DM20182), by = "SEQN", type = "left")
+DMsamd <- DMsam[complete.cases(DMsam[, c(35:37)]), ] 
+DMsamd <- DMsamd[apply(DMsamd, 1, function(x) !all(is.na(x))),]
+DMsamd <- DMsamd[, colSums(is.na(DMsamd)) != nrow(DMsamd)]
+table(DMsam$Y)
+summary(is.na(G40))
+DMsam$Y[which(is.na(DMsam$Y))]<-0
+write.csv(DMsam,"C:/Users/wane1/Downloads/NHANES数据挖掘从入门到精通/DMsam20182.csv",row.names = F)
+
+DMsamd1 <- left_join(G40, d20182, DM20182, by = "SEQN",)
 hdata <- plyr::join_all(list(dat1, xuetang1, tanghuadb1, feihuoliang1, dxaspn1), by = "SEQN", type = "full")
+
+data.age.60 <- subset.data.frame(output, RIDAGEYR >= 60 )
+dim(data.age.60) 
 
 # 我们把它保存起来，今后的操作将在这个数据展开
 getwd()
 write.csv(hdata, file = "./TBS/nhanes/07-08.csv", row.names = F)
 
 ###### 基线表绘制(table1) ######
-library(tableone)  # CRAN v0.13.2
-library(survey)    # CRAN v4.2-1
-library(tableone)  # CRAN v0.13.2 # CRAN v0.13.2
-library(survey)    # CRAN v4.2-1 # CRAN v4.2-1
+library(tableone) # CRAN v0.13.2
+library(survey) # CRAN v4.2-1
+library(tableone) # CRAN v0.13.2 # CRAN v0.13.2
+library(survey) # CRAN v4.2-1 # CRAN v4.2-1
 bc <- read.csv("./TBS/nhanes/07-08.csv", sep = ",", header = TRUE)
 glimpse(bc)
 Hmisc::describe(bc)
@@ -123,9 +140,9 @@ Svytab2
 
 ###### 缺失值 ######
 # https://www.yisu.com/zixun/444909.html
-library(lattice)   # CRAN v0.21-8
-library(mice)      # CRAN v3.16.0 # CRAN v3.16.0
-library(VIM)       # CRAN v6.2.2
+library(lattice) # CRAN v0.21-8
+library(mice) # CRAN v3.16.0 # CRAN v3.16.0
+library(VIM) # CRAN v6.2.2
 
 summary(bc)
 dim(bc)
@@ -176,9 +193,9 @@ for (i in 1:length(bc$ Ozone)) {
 
 # Plot incomplete or imputed data
 # load packages
-library(ggplot2)   # CRAN v3.4.3 # CRAN v3.4.3
-library(mice)      # CRAN v3.16.0 # CRAN v3.16.0
-library(ggmice)    # CRAN v0.1.0
+library(ggplot2) # CRAN v3.4.3 # CRAN v3.4.3
+library(mice) # CRAN v3.16.0 # CRAN v3.16.0
+library(ggmice) # CRAN v0.1.0
 # load some data
 dat <- boys
 # visualize the incomplete data
@@ -191,7 +208,7 @@ ggmice(imp, aes(age, bmi)) + geom_point()
 
 ###### nhanes数据库挖掘教程3--对数据进行多重插补 ######
 # (https://mp.weixin.qq.com/s?__biz=MzI1NjM3NTE1NQ==&mid=2247487020&idx=1&sn=9d504788a6909af3f797e86bbfdba8f7&chksm=ea26ee30dd516726ec22d640de1c0ef07fed8aa1c897918413b06a84a81a5b4cde311d389709&mpshare=1&scene=1&srcid=1209ZZUWTDh4pyjNkbKHLWbW&sharer_sharetime=1670587658361&sharer_shareid=13c9050caaa8b93ff320bbf2c743f00b#rd)
-library(mi)        # CRAN v1.1
+library(mi) # CRAN v1.1
 
 # 列出缺失值列表，提前处理好分类变量
 mdf <- missing_data.frame(bc)
@@ -210,8 +227,8 @@ summary(mdf)
 hist(mdf)
 image(mdf)
 # {naniar}:让NA（缺失值）可见的多种图～
-library(naniar)    # CRAN v1.0.0
-library(ggplot2)   # CRAN v3.4.3 # CRAN v3.4.3
+library(naniar) # CRAN v1.0.0
+library(ggplot2) # CRAN v3.4.3 # CRAN v3.4.3
 # 大致查看一下包含缺失值的变量
 n_var_miss(mdf)
 gg_miss_which(mdf)
