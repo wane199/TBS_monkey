@@ -54,6 +54,9 @@ G40123 <- rbind(G401, G402, G403)
 G40 <- subset(asm20182, asm20182$RXDRSC1 == "G40" | asm20182$RXDRSC2 == "G40" | asm20182$RXDRSC3 == "G40")
 G40 <- transform(G40, Y = 1)
 
+# 提取服用metformin指定药物的样本
+metformin0 <- asm20182[grepl("METFORMIN", asm20182)] # 查找目标药物代码出现的列
+metformin <- asm20182[grep("METFORMIN",asm20182$RXDDRUG),]
 
 # 对数据进行提取，序列号提取，
 xuetang1 <- xuetang %>% select(
