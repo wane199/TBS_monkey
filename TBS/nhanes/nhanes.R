@@ -58,6 +58,20 @@ G40 <- transform(G40, Y = 1)
 metformin0 <- asm20182[grepl("METFORMIN", asm20182)] # 查找目标药物代码出现的列
 metformin <- asm20182[grep("METFORMIN",asm20182$RXDDRUG),]
 
+# 提取糖尿病与癫痫共病样本
+DM0 <- asm2018[grepl("diabete*", asm2018)] # 查找目标药物代码出现的列
+EP0 <- asm2018[grepl("*pilepsy", asm2018)] # 区分大小写，使用通配符搜索
+DM1 <- asm2018[grepl("diabete*", asm2018$RXDRSD1), ]
+DM2 <- asm2018[grepl("diabete*", asm2018$RXDRSD2), ]
+DM <- rbind(DM1, DM2)
+EP1 <- asm2018[grepl("*pilepsy", asm2018$RXDRSD1), ]
+EP2 <- asm2018[grepl("*pilepsy", asm2018$RXDRSD2), ]
+EP <- rbind(EP1, EP2)
+DMEP <- dplyr::intersect(DM,EP)
+# DM <- subset(asm2018, asm2018$RXDRSD1 == "" | asm2018$RXDRSD2 == "diabete*")
+# EP <- subset(asm2018, asm2018$RXDRSD1 == "*pilepsy" | asm2018$RXDRSD2 == "*pilepsy")
+
+
 # 对数据进行提取，序列号提取，
 xuetang1 <- xuetang %>% select(
   SEQN, # 序列号
